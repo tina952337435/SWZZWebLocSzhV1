@@ -1,0 +1,284 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!--STATUS OK-->
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="产品项目" />
+    <meta name="keywords" content="产品项目" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>产品项目--降雨预报</title>
+    <script src="../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/library/3.14/3.14/init.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        /*.mini-grid-row-alt {
+            background: #ffffff !important;
+        }*/
+
+        .btn {
+            margin-top: 3px;
+            width: 70px;
+            text-indent: 0px;
+            font-size: 14px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            float: right;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!--水情信息-->
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden; margin: auto">
+        <!--<div class="biaoheader">
+            条件选择
+        </div>-->
+        <div class="right box" style="height:40px;">
+            <div class="demo1" style="width: 100%; float: left; overflow: hidden;">
+                <div style="float: left; overflow: hidden; width: 100%;">
+                    <span class="label" style="width: 70px;   margin-left: 10px;line-height: 25px;">播放速度：</span>
+                    <div id="rb2" style="width:165px; margin-top: 2px; float: left;" class="mini-radiobuttonlist"
+                         textfield="text" valuefield="id" value="1000" onvaluechanged="onCombChanged2">
+                    </div>
+                    <p id="playBtn" style="float: left;" class="btn" onclick="play2()"> 播放</p>
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+           风暴潮预报 
+            <a href="###"  id="source" onclick="lookTrans()" style="text-decoration:underline; font-weight:bold;margin-left:10px;color: blue;">【数据来源】</a>
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 98%; height: 100%; margin: auto;"
+             showpager="false" allowalternating="true" idfield="TBA_FILENAME" allowresize="false"
+             onselectionchanged="onRowClick" sortmode="client" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+            <div property="columns">
+                <div field="TBA_GETDATE" width="120" align="center" renderer="onTMRenderer" headeralign="center" allowsort="true">
+                    发布时间
+                </div>
+                <!--<div field="ZJ_HOUR" width="120" align="center" headeralign="center" allowsort="true" >
+                    预报时长</div>-->
+                <!--<div field="TBA_FILETYPE" width="120" align="center" headeralign="center" allowsort="true">
+                    预报时长(天)
+                </div>-->
+            </div>
+        </div>
+        <div id="dataShow" style="position: absolute; top: 50%; left: 35%; font-size: 28px; font-weight: bold; display: none">暂无数据</div>
+
+    </div>
+    <!--页面载入显示-->
+    <div id="dataLoad">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img alt="" src="../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script type="text/javascript">
+    var myData = [];
+    function ShowPage() {
+        //openTL("yqtl");
+    }
+    var A_PathName = "";
+    A_PathName = GetQueryString("PathName");
+    if (A_PathName == null || A_PathName == "") {
+        A_PathName = "国家海洋潮位预报";
+    }
+    mini.parse();
+    //实例化表格对象
+    var grid = mini.get("grid1");
+    var type ="24";
+    var typeStr = "0";
+    function onCombChanged(e) {
+        getInfo();
+    }
+
+    var list2 = mini.get("rb2");
+    list2.load([{ "id": "1000", "text": "1秒" }, { "id": "1500", "text": "1.5秒" }, { "id": "2000", "text": "2秒"}]);
+
+    function onCombChanged2(e) {
+        var hour = list2.getValue();
+        play(hour);
+    }
+    function onValueChanged(e) {
+        getInfo();
+    }
+
+    function lookTrans() {
+        var url = "http://www.nmefc.cn/stormSurgeViews/temperate";
+        if (A_PathName == "台风风暴潮数值预报") {
+            url = "http://www.nmefc.cn/stormSurgeViews/typhoon";
+        }
+        window.open(url);
+    }
+
+    function play(hour) {
+        debugger;
+        startCount(hour);
+        $("#playBtn").html("停止播放");
+    }
+    function play2() {
+        if ($("#playBtn").html() == "停止播放") {
+            stopCount();
+            $("#playBtn").html("播放");
+        } else {
+            play(list2.getValue());
+        }
+    }
+
+    var t;
+    function startCount(hour) {
+        t = setInterval("TimeShowYT()", hour);
+    }
+    function stopCount() {
+        if (t) {
+            clearInterval(t);
+        }
+    }
+    function TimeShowYT() {
+        var row = grid.getSelected();
+        var index = grid.indexOf(row);
+        var total = grid.data.length;
+        index++;
+        index = index % total;
+        selectRow(index);
+    }
+    grid.on("beforeload", function (e) {
+        e.cancel = true;
+        var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+    });
+    function ondrawcell(e) {
+        var row = e.row,
+        column = e.column,
+        field = e.field,
+        value = e.value;
+        rowIndex = e.rowIndex;
+    }
+
+    var resultData;
+    var dt;
+    window.onload = function () {
+        BreakLayerLoad();
+    };
+
+    function getInfo() {
+        var dt = resultData;
+        tableBind(dt);
+    }
+
+    function tableBind(data) {
+        var dataResult = data;
+        grid.setData(data);
+        selectRow(0);
+    }
+    // 分页填充细节处理
+    function fillData(pageIndex, pageSize, dataResult) {
+        var data = dataResult;
+        var totalCount = dataResult.length;
+        var arr = [];
+        var start = pageIndex * pageSize, end = start + pageSize;
+        for (var i = start, l = end; i < l; i++) {
+            var record = data[i];
+            if (!record) continue;
+            arr.push(record);
+        }
+
+        grid.setTotalCount(totalCount);
+        grid.setPageIndex(pageIndex);
+        grid.setPageSize(pageSize);
+
+        grid.setData(arr);
+
+    }
+    function onRowClick(e) {
+        var grid = e.sender;
+        var record = grid.getSelected();
+        if (record) {
+            //loc(record.LGTD, record.LTTD);
+            var Imgs = new Date(convertToDate(record.TBA_GETDATE)).format("yyyyMMdd") + "/" + record.TBA_FILENAME;
+            ShowYT(Imgs, A_PathName);
+        }
+    }
+    function tlCount() {
+
+    }
+    function tlChecked() {
+        getInfo();
+    }
+    var today = new Date();
+    var sdate = mini.formatDate(today, 'yyyy-MM-dd');
+    function BreakLayerLoad() {
+        $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
+        var now = new Date();
+        var s_where = { "STIME": new Date(addDayDate(now.format("yyyy-MM-dd HH:mm:ss"),-3)).format("yyyy-MM-dd 00:00:00"), "ETIME": now.format("yyyy-MM-dd 23:59:59"), "TBA_INFOTYPE": A_PathName };
+            GetQXJosns("DATA_TBA_WEACONTENTSel", s_where, "Sel");
+    }
+    function JosnSel(ResultData, typeID) {
+        if (typeID == "Sel") {
+            if (ResultData.total > 0) {
+                resultData = eval(ResultData.data);
+                $.data(myData, "resule", resultData);
+                getInfo();
+
+                $('#dataShow').hide();
+            } else {
+                $('#dataShow').show();
+            }
+            $("#dataLoad").hide();
+        }
+    }
+    function selectRow(index) {
+        var row = grid.getRow(index);
+        grid.select(row, true);
+    }
+    function btnSearch() {
+        BreakLayerLoad();
+    }
+    function hide() {
+        stopCount();
+        $("#playBtn").html("自动播放");
+        ShowYT("", "");
+    }
+
+    function onTMRenderer(e) {
+        var value = e.value;
+        if (!value) {
+            return;
+        }
+        if (value !== "")
+            return mini.formatDate(new Date(convertToDate(value)), 'yyyy-MM-dd HH:mm');
+        //return mini.parseDate('yyyy-MM-dd HH:mm');
+        return "";
+    }
+</script>
+</html>

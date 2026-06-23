@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全市多年暴雨类型频次对比</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+</head>
+
+<body>
+    <div id="BY_charts" style="width:800px;height:490px;margin:0 auto"></div>
+    <script>
+        var myChart = echarts.init(document.getElementById('BY_charts'));
+        console.log(document.getElementById('BY_charts'));
+        option = {
+            title: {
+                top: '2%',
+                left: 'center',
+                text: '暴雨级别频次发生时间'
+            },
+            tooltip: {
+                trigger: 'axis',
+                // axisPointer: {
+                //     type: 'shadow'
+                // }
+            },
+            // 更改图例默认颜色(依次应用)
+            // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+            color: ['#3291f9'],
+            // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+            legend: {
+                orient: 'vertical',
+                x: 'right',      //可设定图例在左、右、居中
+                y: 'top',     //可设定图例在上、下、居中
+                align: 'left', //可设定文字在图例右边
+                // itemHeight: 10,
+                // itemWidth: 10,
+                padding: [10, -200, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                data: ['暴雨级别频次发生时间'],
+                containLabel: true
+                // selected: {'1978-至今': false} //隐藏图例
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            toolbox: {
+                show: false,
+                feature: {
+                    saveAsImage: {}
+                }
+            },
+            calculable: true,
+            xAxis: {
+                type: 'category',
+                // boundaryGap: true 表示x轴两边留白
+                boundaryGap: true,
+                // barMaxWidth: 30,
+                axisTick: {
+                    alignWithLabel: true,
+                    show: false
+                },
+                boundaryGap: ['5%', '5%'],
+                data: ['2021-03-17', '2021-08-31', '2021-06-14', '2021-07-21', '2021-05-08', '2021-04-16', '2021-06-31', '2021-07-25', '2021-08-01', '2021-09-17', '2021-03-17', '2021-08-31', '2021-06-14', '2021-07-21', '2021-05-08', '2021-04-16', '2021-06-31', '2021-07-25', '2021-08-01'],
+                axisLabel: {
+                    interval: 0,
+                    rotate: 20, //角度顺时针计算
+                    textStyle: {
+                        fontSize: 10,
+                    }
+                }
+            },
+            yAxis: {
+                name: "降雨量(mm)",
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '暴雨级别频次发生时间',
+                    type: 'bar',
+                    // 相邻柱状之间的空隙
+                    // barGap: '0%',
+                    barWidth: 20,
+                    data: [101.1, 67.8, 82.4, 97.3, 94.0, 69.0, 93.8, 89.9, 77.4, 86.7, 81.6, 85.3, 92.5, 89.8, 80.0, 78.2, 74.9, 82.3, 92.1],
+                    itemStyle: {
+                        normal: {
+                            show: true,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#7ea8ee'
+                            }, {
+                                offset: 1,
+                                color: '#2dc5fe'
+                            }]),
+                            barBorderRadius: [50, 50, 0, 0],
+                            borderWidth: 0,
+                            label: {
+                                show: true,  //开启显示
+                                formatter: '{c}',  //显示数值
+                                position: 'top',
+                                textStyle: { //数值样式
+                                    fontSize: 10
+                                }
+                            }
+                        },
+                        emphasis: {
+                            shadowBlur: 15,
+                            shadowColor: 'rgba(105,123, 214, 0.7)'
+                        }
+                    }
+                }
+            ],
+            // dataZoom: [
+            //     {
+            //         id: 'dataZoomX',
+            //         type: 'slider',
+            //         xAxisIndex: [0],
+            //         filterMode: 'filter',
+            //         top: '95%',
+            //     }
+            // ],
+
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+
+</html>

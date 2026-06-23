@@ -1,0 +1,56 @@
+html,div,body,input,button,table{margin: 0;padding: 0;border: 0}
+html{height: 100%;width: 100%}
+body {
+    height: 100%;
+    width: 100%;
+    font-family: arial;
+    background: url("../images/czlogin/bg.png") no-repeat;
+    background-size: 100% 100%;
+    font-size: 16px;
+}
+.content{
+    height: 500px;
+    width: 829px;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -270px;
+    margin-left: -408px;
+}
+.logo{
+    margin-bottom: 40px;
+    text-align: center;
+}
+ul{width: 334px;margin: 0 auto}
+li{
+    list-style: none;
+    height: 44px;
+    width: 334px;
+    margin-bottom: 25px;
+}
+.ip1{
+    margin: 0 0 0 60px;
+    height: 44px;
+    line-height: 44px;
+    width: 268px;
+    border: none;
+    outline:none;
+}
+.ip3{
+    background: url("../images/czlogin/chck.png")no-repeat;
+    height: 20px;
+    width: 20px;
+    vertical-align: middle;
+    margin-right: 10px;
+    margin-left: 10px;
+}
+button{
+    height: 50px;
+    width: 334px;
+    background: #0055ff;
+    font-family: arial;
+    font-size: 16px;
+    color: #fff;
+    border-radius: 6px;
+}

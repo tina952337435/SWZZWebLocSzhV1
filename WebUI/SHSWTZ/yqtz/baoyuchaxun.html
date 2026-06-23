@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100mm以上暴雨查询</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        #areaList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+        .searchContext{
+            height:40px;
+            line-height:40px;
+        }
+        .searchTitle{
+            width:92px;
+            float:left;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <div class="searchContext">
+                &nbsp; &nbsp;
+                开始日期： &nbsp;<input id="STIME" class="mini-datepicker" style="width:115px;"
+                                   format="yyyy-MM-dd" />&nbsp;&nbsp;
+                结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+                <a class="mini-button" onclick="Exp()">导出报表</a>
+            </div>
+            <div class="searchContext">
+                <div class="searchTitle">&nbsp; &nbsp;分类规则：</div>
+                <ul class="ui-choose choose-type-right" id="choseMNLX">
+                    <li class="selected">
+                        <span>全部</span>
+                    </li>
+                    <li>
+                        <span>行政分区</span>
+                    </li>
+                    <li>
+                        <span>水利片区</span>
+                    </li>
+                </ul>
+            </div>
+            <div id="areaList" style="display:none;">
+                <div style="height:25px;line-height:50px;">&nbsp; &nbsp;区域选择： </div>
+                <div id="areaDiv" style="margin-left: 92px;margin-top: -25px;">
+
+                </div>
+            </div>
+            <div id="zhanList">
+                <div class="searchTitle" style="line-height:55px;">&nbsp; &nbsp;站点选择： </div>
+                <div style="margin-left:92px;" id="zhanDiv">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height:height: -webkit-calc(100% - 150px);height: -moz-calc(100% - 150px);height: calc(100% - 150px);" allowalternating="true"
+        borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+        showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center">序号</div>
+            <!-- allowsort="true" 表格中列名数据排序 注在上面的div中要添加sortmode="client" -->
+            <div field="STNM" width="30%" headeralign="center" align="center" allowsort="true">
+                站名
+            </div>
+            <div field="DRP" width="20%" headeralign="center" align="center" allowsort="true" decimalPlaces="1"
+            dataType="float">
+                降雨量(mm)
+            </div>
+            <div field="BGYR" width="20%" headeralign="center" align="center" format="yyyy-MM-dd" allowsort="true">
+                开始时间
+            </div>
+            <!--<div field="FQ" width="20%" headeralign="center" align="center" allowsort="true">
+                所属分区
+            </div>-->
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var dataResult = {};
+        var myData = [];
+          
+        $(function () {
+            var tm = new Date();
+            // 显示当日的日期为开始日期
+            //mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            mini.get("STIME").setValue("1978-01-01");
+            // 显示当日的日期为结束日期
+            mini.get("ETIME").setValue(tm.format("yyyy-MM-dd"));
+
+            loadArea();
+            loadStation();
+            loadAreaStation();
+            search();
+            
+            $('#choseMNLX li').click(function () {
+                var f = this;
+                $('#choseMNLX li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var ATYPE = $(this).find("span").html();
+                $.data(myData, "ATYPE", ATYPE);
+                if (ATYPE == "行政分区" || ATYPE == "水利片区") {
+                    $("#areaList").show();
+                    var dataResult = $.data(myData, "AreaData");
+                    dataResult = dataResult.filter(function (item) {
+                        return item.ATYPE == ATYPE;
+                    });
+                    var strHtml = '<ul class="ui-choose choose-type-right" id="choseArea">';
+                    strHtml += '<li class="selected"><span id="areaAll">全部</span></li>';
+                    dataResult.forEach(function (item, index) {
+                        strHtml += '<li><span  id="' + item.AID + '">' + item.AREANAME + '</span></li>';
+                    });
+                    strHtml += '</ul>';
+                    $("#areaDiv").html(strHtml);
+                    $('#choseArea li').click(function () {
+                        var f = this;
+                        $('#choseArea li').each(function (index, item) {
+                            this.className = this == f ? 'selected' : '';
+                        });
+                        var stcd = $(this).find("span").attr("id");
+                        if (stcd.indexOf("All") == -1) {
+                            $.data(myData, "STCD", stcd);
+                            shTitle = $(this).find("span").html();
+                            var stcsArr = [];
+                            var AreaStationData = $.data(myData, "AreaStationData");
+                            AreaStationData = AreaStationData.filter(function (item) {
+                                if (item.PAID == stcd) {
+                                    stcsArr.push(item.STCD);
+                                }
+                            });
+                            var stcsStr = JSON.stringify(stcsArr);
+                            //根据分区编号筛选站点
+                            $.data(myData, "STCDS", stcsStr);
+
+                        } else {
+                            $.data(myData, "STCDS", null);
+                        }
+                        loadAreaStationHtml();
+                        search();
+                    });
+                }
+                else {
+                    $("#areaList").hide();
+                    $.data(myData, "STCDS", null);
+                }
+                var stcsArr = [];
+                var StationData = $.data(myData, "StationData");
+                StationData = StationData.filter(function (item) {
+                    stcsArr.push(item.STCD);
+                });
+                var stcsStr = JSON.stringify(stcsArr);
+                //根据分区编号筛选站点
+                $.data(myData, "STCDS", stcsStr);
+                loadAreaStationHtml();
+                search();
+            });
+        });
+
+        function search() {
+            var stcds = $.data(myData, "STCDS");
+            var strWhere = {
+                STCD: stcds,
+                STIME: mini.get("STIME").getFormValue(),
+                ETIME: mini.get("ETIME").getFormValue(),
+                MYDAVW:24//日雨量最大
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_BYTZCHAXUN", strWhere, "RSel");
+        } 
+        function loadChartHtml(data) {
+            grid.setData(data);
+        }
+        //获取分区代表站
+        function loadStation() {
+            var strWhere = { STTP: "PP" };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_STBPRP_BSel", strWhere, "SSel");
+        }
+        function loadArea() {
+            var strWhere = {};
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_AREA_BSel", strWhere, "ASel");
+        }
+        //分区与站点关联关系表
+        function loadAreaStation() {
+            var strWhere = { BTYPE: "雨量" };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_AREACWSTATION_BSel", strWhere, "BSel");
+        }
+        function loadAreaStationHtml() {
+            var data = $.data(myData, "StationData");
+            if ($.data(myData, "STCDS") != undefined) {
+                var stcds = $.data(myData, "STCDS");
+                data = data.filter(function (item) {
+                    return stcds.indexOf(item.STCD) > -1;
+                });
+            }
+            var strHtml = '<ul class="ui-choose choose-type-right" id="choseZhan">';
+            strHtml += '<li class="selected"><span id="staAll">全部</span></li>';
+            data.forEach(function (item) {
+                strHtml += '<li><span id="' + item.STCD + '">' + item.STNM + '</span></li>';
+            });
+            strHtml += '</ul>';
+            $("#zhanDiv").html(strHtml);
+            $('#choseZhan li').click(function () {
+                var f = this;
+                $('#choseZhan li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var stcd = $(this).find("span").attr("id");
+                if (stcd.indexOf('All') == -1) {
+                    $.data(myData, "STCDS", stcd);
+                } else {
+                    //找父类
+                    var pid = $('#choseArea .selected').find("span").attr("id");
+                    if (pid.indexOf('All') == -1) {
+                        var stcsArr = [];
+                        var AreaStationData = $.data(myData, "AreaStationData");
+                        AreaStationData = AreaStationData.filter(function (item) {
+                            if (item.PAID == pid) {
+                                stcsArr.push(item.STCD);
+                            }
+                        });
+                        var stcsStr = JSON.stringify(stcsArr);
+                        //根据分区编号筛选站点
+                        $.data(myData, "STCDS", stcsStr);
+                    } else {
+                        var stcsArr = [];
+                        var StationData = $.data(myData, "StationData");
+                        StationData = StationData.filter(function (item) {
+                                stcsArr.push(item.STCD);
+                        });
+                        var stcsStr = JSON.stringify(stcsArr);
+                        //根据分区编号筛选站点
+                        $.data(myData, "STCDS", stcsStr);
+                    }
+                }
+                shTitle = $(this).find("span").html();
+                search();
+            });
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SSel") {
+                $.data(myData, "StationData", data.data);
+                loadAreaStationHtml();
+            }
+            else if (typeID == "ASel") {
+                $.data(myData, "AreaData", data.data);
+            }
+            else if (typeID == "RSel") {
+                loadChartHtml(data.data);
+            }
+            else if (typeID == "BSel") {
+                $.data(myData, "AreaStationData", data.data);
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "STNM") {
+                var tm = new Date(convertToDate(record.BGYR)).format("yyyy-MM-dd HH:mm:ss");
+                var str = "<a onclick='lookData(\"STCD@" + record.STCD + ",TM@" + tm + "\",\"/SHSWTZ/yqtz/baoyuchaxundanzhan.html\",\"" + record.STNM + "暴雨过程\",\"50%\",565,\"true\")' style='cursor:pointer;'>" + value + "</a>";
+                e.cellHtml = str;
+            }
+            if (field == "BGYR") {
+                var s = new Date(convertToDate(value)).format("yyyy-MM-dd");
+                e.cellHtml = s;
+            }
+        }
+        function OnClickTitle(objID, objPathName) {//选择类型
+            var only = $("#onlytab .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            // $.data(myData, "HOUR", objPathName);
+            $('#dataLoad').show();
+            // BreakLayerLoad();
+        }
+
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = "暴雨列表";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/modelHelperApi.js"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <style>
+        /* 头部和左边模块字体 */
+        @font-face {
+            font-family: REEJI-ZhenyanGB;
+            src: url(/LargeScreen/font/REEJI-ZhenyanGB2.0.ttf)
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        .mini-grid-summaryRow div {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow table {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+
+        .mini-grid-summaryRow tr td span {
+            color: #000 !important;
+            line-height: 25px;
+            font-weight: 400 !important;
+        }
+
+        .label {
+            height: 30px;
+            line-height: 30px;
+        }
+
+        .picScroll-title {
+            font-size: 20px;
+            color: #01f6f5;
+            position: absolute;
+            left: 50px;
+            top: 20px;
+            font-family: Microsoft YaHei;
+            font-family: REEJI-ZhenyanGB;
+        }
+
+        .picScroll-left {
+            /*width: 226px;*/
+            width: 400px;
+            overflow: hidden;
+            position: absolute;
+            font-size: 14px;
+            right: 50px !important;
+            top: 60px;
+        }
+
+        .picScroll-left .hd {
+            overflow: hidden;
+            height: 30px;
+            padding: 0 10px;
+        }
+
+        .picScroll-left .hd .prev,
+        .picScroll-left .hd .next {
+            display: block;
+            width: 20px;
+            height: 30px;
+            float: right;
+            margin-right: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .picScroll-left .hd .prev {
+            left: 0;
+            top: 50%;
+            background: url('/Common/images/gyt/left.png') no-repeat;
+            position: absolute;
+        }
+
+        .picScroll-left .hd .next {
+            background-position: 0 -50px;
+            right: 0;
+            top: 50%;
+            background: url('/Common/images/gyt/right.png') no-repeat;
+            position: absolute;
+        }
+
+        .picScroll-left .hd .prevStop {
+            background-position: -60px 0;
+        }
+
+        .picScroll-left .hd .nextStop {
+            background-position: -60px -50px;
+        }
+
+        .picScroll-left .hd ul {
+            float: right;
+            overflow: hidden;
+            zoom: 1;
+            margin-top: 10px;
+            zoom: 1;
+        }
+
+        .picScroll-left .hd ul li {
+            float: left;
+            width: 9px;
+            height: 9px;
+            overflow: hidden;
+            margin-right: 5px;
+            text-indent: -999px;
+            cursor: pointer;
+            background: url('/Common/images/gyt//icoCircle.gif') 0 -9px no-repeat;
+        }
+
+        .picScroll-left .hd ul li.on {
+            background-position: 0 0;
+        }
+
+        .picScroll-left .bd {
+            /* padding: 0 30px; */
+        }
+
+        .picScroll-left .bd ul {
+            overflow: hidden;
+            zoom: 1;
+            margin: 0;
+            /*width: 240px;*/
+            /*width: 265100%;*/
+        }
+
+        .picScroll-left .bd ul li {
+            /*margin: 8px 0;*/
+            float: left;
+            overflow: hidden;
+            text-align: center;
+            /*background: rgba(61, 126, 255, 0.1);*/
+            /*border-radius: 8px;*/
+            /*background: url('/Common/images/gw-back1.png') no-repeat;*/
+            background-size: contain;
+            width: 280px;
+            /*height: 220px;*/
+        }
+
+        .picScroll-left .bd ul li .pic {
+            display: block;
+            overflow-y: auto;
+        }
+
+        .picScroll-left .bd ul li .pic .dataBox {
+            width: 100%;
+            /*height: 200px;*/
+            display: block;
+            /*opacity: 0.7;*/
+            overflow-y: auto;
+        }
+
+        .picScroll-left .bd ul li .pic .dataBox p {
+            text-align: left;
+            padding-left: 20px;
+            color: #ffffff;
+            margin: 0 0 6px;
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+        }
+
+        .picScroll-left .bd ul li .pic a:hover img {
+            border-color: #999;
+        }
+
+        .picScroll-left .bd ul li .title {
+            line-height: 24px;
+            color: #ffffff;
+            font-weight: bold;
+            text-align: left;
+            padding: 25px 20px 10px;
+            display: none;
+        }
+
+        img.picture {
+            width: 600px;
+            margin-top: 100px;
+        }
+
+        /*展示水深的背景图*/
+        .water-back {
+            position: absolute;
+            bottom: 162px;
+            left: 283px;
+            width: 153px;
+            height: 266px;
+        }
+
+        .blue-back {
+            position: absolute;
+            bottom: 39px;
+            left: 283px;
+            width: 153px;
+            height: 20px;
+            background: #2be1f9;
+            display: none;
+        }
+
+        .basicMessage {
+            position: absolute;
+            left: 10px;
+            top: 30%;
+            font-size: 14px;
+            width: 200px;
+            text-align: left;
+        }
+
+        .basicMessage>div.title {
+            line-height: 24px;
+            background: #3385ff;
+            color: #ffffff;
+            border-radius: 5px 5px 0 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .basicMessage>div.content {
+            background: #e8edf1;
+            height: 120px;
+            opacity: 0.7;
+            color: #000;
+        }
+
+        .basicMessage>div p {
+            padding-left: 10px;
+        }
+
+        /*xmm图片详情*/
+        .graph {
+            position: absolute;
+            top: 200px;
+            left: 238px;
+            width: 690px;
+            height: 340px;
+            background: url(/Common/images/gy-pipe.png) no-repeat 0 -22px;
+        }
+
+        .transition {
+            transform: rotate(180deg);
+            -o-transform: rotate(180deg);
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            filter: progid:DXImageTransform.Microsoft.BasicImage(Rotation=2);
+        }
+
+        .bg-water {
+            transform: rotate(180deg);
+            -o-transform: rotate(180deg);
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            filter: progid:DXImageTransform.Microsoft.BasicImage(Rotation=2);
+            /*width: 600px;*/
+            /*width: 735px;*/
+            width: 716px;
+            /*width: 153px;*/
+            height: 266px;
+            position: absolute;
+            top: 25%;
+            /*left: 13%;*/
+            left: 0;
+        }
+
+        .bg-map {
+            transform: rotate(180deg);
+            -o-transform: rotate(180deg);
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            filter: progid:DXImageTransform.Microsoft.BasicImage(Rotation=2);
+            position: absolute;
+            /*top: -83px;*/
+            top: -110px;
+            /*left: -120px;*/
+            left: 0px;
+            /*width: 600px;*/
+            /*height: 400px;*/
+            /*width: 735px;*/
+            /*height: 475px;*/
+            width: 716px;
+            height: 452px;
+            background: url(/Common/images/gy-pipe2.png);
+            background-repeat: no-repeat;
+        }
+
+        .abbr {
+            font-size: 16px;
+            font-weight: 800;
+            margin-left: 294px;
+            margin-top: -12px;
+            display:none;
+        }
+
+        .middle {
+            position: absolute;
+            top: 205px;
+            left: 550px;
+        }
+
+        .middle p {
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: bold;
+            color: #01F6F5;
+            margin: 0;
+        }
+
+        .number-line {
+            position: absolute;
+            top: 153px;
+            left: 220px;
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        .number-two {
+            position: absolute;
+            top: 174px;
+            left: 220px;
+            font-weight: normal;
+            font-size: 12px;
+        }
+
+        #elevation {
+            margin: 0;
+            padding: 0;
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: bold;
+            color: #01F6F5;
+            /*line-height: 10px;*/
+            /*font-weight: 100;*/
+            /*font-size: 12px;*/
+            /*color: #000;*/
+        }
+
+        #low_mark {
+            padding: 0;
+            margin: 0;
+            position: relative;
+            top: 10px;
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: bold;
+            color: #01F6F5;
+        }
+
+        #liquid {
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: bold;
+            color: #01F6F5;
+        }
+
+        .relative-value {
+            font-size: 14px;
+            font-family: Microsoft YaHei;
+            font-weight: bold;
+            color: #01F6F5;
+        }
+
+        .valueTitle {
+            width: 125px;
+            display: table;
+            float: left;
+            text-align: right;
+        }
+
+        .valueVal {
+            color: #2be2fa;
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            &nbsp;&nbsp;&nbsp;方案：
+            <input id="faCom" class="mini-combobox" valueField="DD_ID" textField="DD_NAME" style="height: 25px;width:250px;"
+                onvaluechanged="onvaluechanged" />
+        </div>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 36px);height: -moz-calc(100% - 36px);height: calc(100% - 36px);">
+        <div id="Chart" style="width:100%; height:100%; text-align: center">
+            <div style="background:#11285B;width:100%;height:100%;">
+                <div class="picScroll-title">
+
+                </div>
+                <div class="picScroll-left">
+                    <div class="bd">
+                        <ul class="picList">
+
+                            <li>
+                                <div class="title"></div>
+                                <div class="pic">
+                                    <div class="dataBox">
+                                    </div>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-water">
+                    <div class="bg-map">
+                        <div class="water-back" style="height: 143px;">
+                            <img src="/Common/images/bg-water.png" style="width: 100%;height: 100%;position: absolute;top: 0;left: 0">
+                        </div>
+                        <div class="blue-back"></div>
+                        <div class="gy" style="position: absolute; right:50px; bottom: 19px;display: none;">
+                            <img src="/Common/images/gy-icon.png" alt="" style="transform: rotateX(180deg);">
+                            <p id="low_mark" style="line-height: 0;"></p>
+                        </div>
+                        <div class="abbr" style="position: absolute; right: 50px; top: 7px">
+
+                            <p id="elevation"></p>
+                            <img src="/Common/images/gy-icon.png" alt="">
+                        </div>
+
+                        <div>
+                            <p id="liquid" style="position: absolute; left: 320px; margin: 0px; bottom: 305px;"></p>
+                        </div>
+                        <div class="middle" style="display:none;">
+
+                            <p id="water-depth"></p>
+                        </div>
+
+                        <div class="relative-place" style="position: relative; left: 230px; top: 39px; width: 14px; border-top: 2px solid rgb(3, 222, 240); border-bottom: 2px solid rgb(3, 222, 240); height: 101px;display:none;">
+                            <div class="top-line" style="position: absolute; top: 0px; left: 7px; border: 1px solid rgb(3, 222, 240); height: 40.5px;"></div>
+                            <div class="relative-value" style="position: absolute; left: -110px; top: 40.5px;"></div>
+                            <div class="bottom-line" style="position: absolute; bottom: 0px; left: 7px; border: 1px solid rgb(3, 222, 240); height: 40.5px;"></div>
+                        </div>
+                        <div class="number-line" style="position: absolute; top: 40px; left: 283px; width: 153px; bottom: 37px">
+
+                            <div id="risk-water" style="position: absolute; top: 26px; left: 0px; width: 200px; z-index: 99;">
+                                <p style="position: absolute; top: -10px; right: -60px;font-family: Microsoft YaHei;font-weight: bold;color: #FE1919;font-size: 14px;margin: 0"
+                                    id="risk-price"></p>
+                                <div style="position: absolute; top: 9px; left: 0px; width: 153px; height: 1px; background: #ef4234"></div>
+                            </div>
+                        </div>
+                        <div class="number-two" style="position: absolute; top: 40px; left: 283px; width: 153px; bottom: 37px">
+
+                            <div id="warningPrice" style="position: absolute; top: 43px; left: 0px; width: 200px; z-index: 99;">
+                                <p style="position: absolute; top: 10px; right: -60px;font-family: Microsoft YaHei;font-weight: bold;color: #FE6419;font-size: 14px;margin: 0"
+                                    id="warning-price"></p>
+                                <div style="position: absolute; top: 9px; left: 0px; width: 153px; height: 1px; background: #ffaa00"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var faCom = mini.get("faCom");
+        var myData = [];
+        $(function () {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            GetJosns("MODE_DD_SOLUTIONSel", {}, "Sel");
+        });
+        function onLoadAllData() {
+            var dd_tm = $.data(myData, "stime");
+            var DD_ID = faCom.getValue();
+            var strParam = {
+                "PLAN_N": DD_ID,
+                "STIME": dd_tm,
+                "ETIME": dd_tm,
+                "STCD": "81459,81460,81461", //平均水位，蓄量，水面积
+                "DATA_TYPE": "14,15,19"
+            };
+            GetJosns("MODE_BDMS_PREDICTSelMORE", strParam, "MODE_BDMS_PREDICTSelMORE");
+        }
+
+        function onvaluechanged(e) {
+            var selected = faCom.getSelected();
+            var dd_tm = convertToDate(selected.DD_TM).format('yyyy-MM-dd HH:mm:ss');
+            $.data(myData, "stime", dd_tm);
+            modelGetRainReceivingCapacity();
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                faCom.setData(data.data);
+                faCom.select(0);
+                var selected = faCom.getSelected();
+                var dd_tm = convertToDate(selected.DD_TM).format('yyyy-MM-dd HH:mm:ss');
+                $.data(myData, "stime", dd_tm);
+                modelGetRainReceivingCapacity();
+            }
+            else if (typeID == 'GetRainReceivingCapacity') {
+                var info = data.info;
+                if (info.code == -1) {
+                    alert(info.msg);
+                    mini.unmask(document.body);
+                } else {
+                    var capcity = data['1744830552'].capcity;
+                    $.data(myData, "capcityData", capcity);
+                    onLoadAllData();
+                }
+            }
+            else if (typeID == "MODE_BDMS_PREDICTSelMORE") {
+                $.data(myData, "bdmsData", data.data);
+                setLabelValue();
+                mini.unmask(document.body);
+            }
+        }
+        function setLabelValue() {
+            var item = {};
+            item.tm=$.data(myData, "stime");
+            var capcityData = $.data(myData, "capcityData");
+            var bdmsData = $.data(myData, "bdmsData");
+            bdmsData.filter(function (res) {
+                if (res.DATA_TYPE == '19') {
+                    item.upz = res.DATA;
+                }
+                if (res.DATA_TYPE == '15') {
+                    item.cxl = res.DATA;
+                }
+                if (res.DATA_TYPE == '14') {
+                    item.area = res.DATA;
+                }
+            });
+            capcityData.filter(function(res){
+                if(res.name=='警戒水位'){
+                    item.wrz = res.level;
+                    item.wrzcapcity=res.capcity;
+                }
+                if(res.name=='保证水位'){
+                    item.grz = res.level;
+                    item.grzcapcity=res.capcity;//纳雨能力
+                }
+            });
+
+            console.error(item);
+            var strHtml = '<p><span class="valueTitle">时间：</span><span>' + new Date(item.tm).format("yyyy-MM-dd HH:mm") + '</span></p>';
+            var ss = item.upz != undefined ? Number(item.upz).toFixed(2) : "-";
+            strHtml += '<p><span class="valueTitle">平均水位：</span><span class="valueVal">' + ss + '</span><span>m</span></p>';
+            strHtml += '<p><span class="valueTitle">水面积：</span><span class="valueVal">' + Number(item.area).toFixed(2) + '</span><span>百万m³</span></p>';
+            strHtml += '<p><span class="valueTitle">蓄量：</span><span class="valueVal">' + Number(item.cxl).toFixed(2) + '</span><span>k㎡</span></p>';
+            strHtml += '<p><span class="valueTitle">纳雨能力(警戒)：</span><span class="valueVal">' + Number(item.wrzcapcity).toFixed(2) + '</span><span>mm</span></p>';
+            strHtml += '<p><span class="valueTitle">纳雨能力(保证)：</span><span class="valueVal">' + Number(item.grzcapcity).toFixed(2) + '</span><span>mm</span></p>';
+            $(".dataBox").html(strHtml);
+
+
+            var xdsw = item.xdsw != undefined ? Number(item.xdsw).toFixed(2) : "-";
+            $(".relative-value").html("相对水位：" + xdsw + "米");
+            var ssStr = "水深：" + ss + "米";
+            $("#liquid").html(ssStr);
+            var grz = item.grz != undefined ? Number(item.grz).toFixed(2) : "-";
+            $("#risk-price").html("危险线：" + grz + "m");
+            var wrz = item.wrz != undefined ? Number(item.wrz).toFixed(2) : "-";
+            $("#warning-price").html("警戒线：" + wrz + "m");
+            var gdz = item.gdz != undefined ? Number(item.gdz).toFixed(2) : "-";
+            $("#elevation").html("地面标高：+" + gdz + "米");
+
+            var mbdz = item.mbdz != undefined ? Number(item.mbdz).toFixed(2) : "-";
+            $("#water-depth").html("最大埋深：" + mbdz + "米");
+
+            var iez = item.iez != undefined ? Number(item.iez).toFixed(2) : "-";
+            $("#low_mark").html("井底标高：" + iez + "米");
+
+            gwywselectListHtml(item);
+        }
+
+        function gwywselectListHtml(gwMap) {
+            // 内低标高：
+            var innerElevation1 = gwMap.grz;
+            // 最大埋深：
+            var maxDepth1 = gwMap.grz;
+            // 水深：
+            var waterDepth1 = gwMap.upz;
+            // 警戒值：
+            var cordonLine = gwMap.wrz;
+            // 危险值：
+            var dangerLine = gwMap.grz;
+            
+            if (!innerElevation1) {
+                innerElevation1 = 0;
+            }
+            if (!maxDepth1) {
+                maxDepth1 = 0;
+            }
+            if (!waterDepth1) {
+                waterDepth1 = 0;
+            }
+            if (!cordonLine) {
+                cordonLine = 0;
+            }
+            if (!dangerLine) {
+                dangerLine = 0;
+            }
+            /*地面标高标高计算*/
+            var elevationVlue = ((innerElevation1 * 1000 + maxDepth1 * 1000) / 1000).toFixed(3);
+            elevationVlue = elevationVlue > 0 ? '+' + elevationVlue : '-' + elevationVlue
+            $('#elevation').text('地面标高：' + elevationVlue + '米');
+
+            if (window.innerWidth) windowWidth = window.innerWidth;
+            else if (document.body && document.body.innerWidth) windowWidth = document.body.innerWidth;
+            // $('.picScroll-left').css('left', (1000 - 790) / 2);
+            var num = $('.speciaclBox li').length;
+            $('.speciaclBox li')
+                .eq(0)
+                .css('margin-left', (730 - 242 * num) / 2);
+            var num = $('.picList li').length;
+            if (num != 0) {
+                $('img.picture').css('margin-top', '170px');
+                $('.basicMessage').css('top', '50%');
+            } else {
+                $('img.picture').css('margin-top', '100px');
+                $('.basicMessage').css('top', '30%');
+            }
+            /*水深*/
+            var WaterDepth = '';
+            if (!waterDepth1) {
+                WaterDepth = 0 + waterDepth1;
+            } else {
+                WaterDepth = waterDepth1;
+            }
+            //console.log(WaterDepth)
+            //console.log(maxDepth1)
+            /*控制背景水位的高低的图片-------  */
+            // var levelWater = parseInt((WaterDepth / maxDepth1) * 700);
+            var bottomLevelWater = parseInt((WaterDepth / maxDepth1) * 380)
+            let liquidBottom;
+            if (bottomLevelWater >= 0 && bottomLevelWater <= 124) {
+                var s = "/Common/images/gy-pipe2-1.png"
+                $('.bg-map').css("background", "url(" + s + ")");
+                $('.water-back').css({ 'height': bottomLevelWater + 'px', 'bottom': '39px' })
+                liquidBottom = (bottomLevelWater + 39) + 'px';
+            }
+            if (bottomLevelWater >= 0 && bottomLevelWater <= 23) {
+                var waterSrc = "/common/images/bg-water.png"
+                $('.water-back').css({
+                    'bottom': '39px',
+                });
+                $('.water-back img').attr("src", waterSrc)
+                $(".blue-back").hide()
+            } else if (bottomLevelWater > 20 && bottomLevelWater <= 124) {
+                $(".blue-back").show()
+                var waterSrc = "/Common/images/bg-water-1.png"
+                $('.water-back').css({
+                    'bottom': '59px',
+                    "left": "40px",
+                    "width": "638px",
+                });
+                $('.water-back img').attr("src", waterSrc)
+                var levelWater = parseInt((WaterDepth / maxDepth1) * 380) - 22;
+                var bgWaterLevel = levelWater + 'px';
+                // $('.bg-water').css('background-size', bgWaterLevel);
+                $('.water-back').css('height', bgWaterLevel)
+            } else {
+                var levelWater = parseInt((WaterDepth / maxDepth1) * 380) - 125;
+                var bgWaterLevel = levelWater + 'px';
+                // $('.bg-water').css('background-size', bgWaterLevel);
+                $('.water-back').css('height', bgWaterLevel)
+                liquidBottom = (levelWater + 162) + 'px';
+            }
+            $('#liquid').css('bottom', liquidBottom);
+            // 施芳平修改，添加相对水位高度
+            var relativeWater = parseInt(((maxDepth1 - WaterDepth) / maxDepth1) * 380);
+            $('.relative-place').css('height', (relativeWater - 10) + 'px')
+            var topline = relativeWater / 2 - 15;
+            $('.top-line').css('height', topline + 'px')
+            $('.bottom-line').css('height', topline + 'px')
+            $('.relative-value').text('相对水位：' + '-' + (maxDepth1 - WaterDepth).toFixed(2) + '米')
+            $('.relative-value').css('top', (relativeWater / 2 - 15) + 'px')
+            /*液位*/
+            $('#liquid').text('水深：' + WaterDepth.toFixed(2) + '米');
+
+            /*水深 最大埋深*/
+            $('#water-depth').text('最大埋深：' + maxDepth1 + ' m');
+            if (dangerLine == 0 || innerElevation1 == 0) {
+                $('.number-line').hide();
+                $('.number-two').hide();
+            }
+            /*危险值*/
+            $('#risk-price').text('危险线：' + (dangerLine ).toFixed(2) + 'm');
+            /*警戒值*/
+            $('#warning-price').text('警戒线：' + (cordonLine).toFixed(2) + 'm');
+            //var lowMarkValue=innerElevation1>0?'+'+innerElevation1.toFixed(3):'-'+innerElevation1.toFixed(3)
+            var lowMarkValue = innerElevation1.toFixed(3)
+            $('#low_mark').text('井底标高：' + lowMarkValue + 'm');
+            /*控制警戒值变化-------  */
+            /*危险线*/
+            //debugger
+            var riskWater = parseInt(((dangerLine - innerElevation1) / maxDepth1) * 380);
+            var riskLevel = riskWater2 + 'px';//380 - riskWater + 'px';
+            $('#risk-water').css('top', riskLevel);
+            /*警戒线*/
+            var riskWater2 = parseInt(((cordonLine - innerElevation1) / maxDepth1) * 380);
+            var riskLev2 =Math.abs(riskWater2)  + 'px';//380 - riskWater2 + 'px';
+            $('#warningPrice').css('top', riskLev2);
+            // $('#warning-price').css('top', riskLev2);
+        }
+    </script>
+</body>
+
+</html>

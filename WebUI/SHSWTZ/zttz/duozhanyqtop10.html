@@ -1,0 +1,424 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>6个站点的潮位统计信息</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.min5.2.2.js"></script>
+    <style>
+        html, body {
+            background: transparent;
+            width: 100%;
+            height: 100%;
+        }
+
+        ul.ui-choose > li {
+            width: auto;
+            padding: 0px 20px;
+        }
+
+        .mini-toolbar {
+            background: transparent;
+            border: 0px;
+        }
+
+        html body .mini-grid-row-hover, .mini-grid-row-alt {
+            background: none !important;
+            color: #fff !important;
+        }
+
+        html body .mini-grid-row-selected {
+            background: none !important;
+            color: #fff !important;
+        }
+
+        .mini-grid .mini-grid-bottomCell {
+            background: none !important;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            background: none !important;
+            color: #fff !important;
+            background: rgba(33,58,68,0.5) !important;
+            color: #00A3FF !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow {
+            background: none !important;
+        }
+
+
+        .mini-radiobuttonlist-item .mini-list-icon {
+        }
+
+        .mini-grid-summaryRow div {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow table {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+
+            .mini-grid-summaryRow tr td span {
+                color: #fff !important;
+                line-height: 25px;
+                font-weight: 400 !important;
+            }
+
+        .mini-buttonedit-button-hover,
+        .mini-buttonedit-hover .mini-buttonedit-trigger {
+            border: 0px solid #ababab;
+            padding: 0;
+            background: none !important;
+        }
+
+        .mini-grid-viewport {
+            background: none !important;
+        }
+
+        .mini-buttonedit-button-hover,
+        .mini-buttonedit-hover .mini-buttonedit-trigger {
+            border: 0px solid #ababab;
+            padding: 0;
+            background: none !important;
+        }
+
+        .mini-grid-viewport {
+            background: none !important;
+        }
+
+        .mini-buttonedit-border {
+            border: 1px solid rgba(44,58,65,0.60);
+            background: none;
+        }
+
+        .mini-buttonedit-button, .mini-buttonedit-close {
+            border: 0px;
+        }
+
+        .mini-buttonedit-button-pressed, .mini-buttonedit-popup .mini-buttonedit-trigger {
+            background: none;
+            border: 0px;
+        }
+
+        .mini-buttonedit-input {
+            color: #fff;
+        }
+
+        .mini-grid-headerCell, .mini-grid-topRightCell, .mini-grid-columnproxy {
+            background: transparent;
+            border: none;
+        }
+
+        .mini-panel-border {
+            border: 0px !important;
+        }
+
+        .mini-grid-cell-inner {
+            padding: 0 !important;
+            font-size: 14px !important;
+            font-family: "arial" !important;
+            /* color: #FFFFFF ; */
+        }
+
+        .mini-grid-cell {
+            color: #fff;
+        }
+
+        .bootstrap-switch-handle-off {
+            margin-left: -3px;
+        }
+
+        .mini-buttonedit-border {
+            border: 1px solid rgb(1 105 164);
+        }
+
+        .bootstrap-switch-handle-off {
+            background: url(/SHSWTZ/zttz/images/menuTop.png) no-repeat center;
+            background-size: 100% 100%;
+            color: #fff;
+        }
+
+        .bootstrap-switch-handle-on {
+            background: url(/SHSWTZ/zttz/images/menuTopSelected.png) no-repeat center;
+            background-size: 100% 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="echart2" style="width:100%;height:100%;">
+
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        var stime = GetQueryString("STIME");
+        var etime = GetQueryString("ETIME");
+        $(function () {
+            loadYQ();
+        });
+        function loadYQ() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            var strWhere = {
+                STIME: stime,
+                ETIME: etime,
+                DAYHOUR: $.data(myData, "DAYHOUR")
+            };
+            if (new Date(stime).getFullYear()> 2020) {
+                GetJosns("WATER_ST_PPTN_RNEW", strWhere, "WATER_ST_PPTN_RDZNEW");
+            }
+            else {
+                GetJosns("FLOODTIDEDATA_ST_PPTN_RNameSel", strWhere, "FLOODTIDEDATA_ST_PPTN_RNameSel");
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "WATER_ST_PPTN_RDZNEW") {
+                var pointsData = data.data;
+                $.data(myData, "pointsData", pointsData);
+                var dataX = [], dataY = [];
+                data = sortObjectArray(pointsData, ['DRP'], 'desc');
+                pointsData = pointsData.filter(function (e, index) {
+                    return index < 10;
+                });
+                for (var num = 0; num < pointsData.length; num++) {
+                    dataX.push(pointsData[num].STNM);
+                    dataY.push(pointsData[num].DRP);
+                }
+                chartBar("echart2", dataX, dataY);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "FLOODTIDEDATA_ST_PPTN_RNameSel") {
+                var pointsData = data.data;
+                $.data(myData, "pointsData", pointsData);
+                var dataX = [], dataY = [];
+                data = sortObjectArray(pointsData, ['DRP'], 'desc');
+                pointsData = pointsData.filter(function (e, index) {
+                    return index < 10;
+                });
+                for (var num = 0; num < pointsData.length; num++) {
+                    dataX.push(pointsData[num].STNM);
+                    dataY.push(pointsData[num].DRP);
+                }
+                chartBar("echart2", dataX, dataY);
+                mini.unmask(document.body);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            if (field == "MAXZTM" || field == "MAXZSTM" || field == "MAXZZSTM") {
+                e.cellHtml = new Date(convertToDate(e.value)).format("MM-dd HH:mm");
+            }
+            if (field == "WRZFD") {
+                if (e.value < 0) {
+                    e.cellHtml ="";
+                }
+            }
+            if (field == "STNM") {
+                if (e.value =="苏州河闸桥（外）") {
+                    e.cellHtml = "黄浦公园";
+                }
+            }
+        }
+
+        function chartBar(ChartName, dataX, dataY) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.clear();
+            var colorArray = [
+                {
+                    top: '#ffa800', //黄
+                    bottom: 'rgba(11,42,84,.3)'
+                }, {
+                    top: '#1ace4a', //绿
+                    bottom: 'rgba(11,42,84, 0.3)'
+                },
+                {
+                    top: '#4bf3ff', //蓝
+                    bottom: 'rgba(11,42,84,.3)'
+                }, {
+                    top: '#4f9aff', //深蓝
+                    bottom: 'rgba(11,42,84,.3)'
+                },
+                {
+                    top: '#b250ff', //粉
+                    bottom: 'rgba(11,42,84,.3)'
+                }
+            ];
+            option = {
+                //backgroundColor: '#0E2A43',
+                tooltip: {
+                    show: true,
+                    formatter: "{b}:{c}"
+                },
+                grid: {
+                    left: '5%',
+                    top: '15%',
+                    right: '5%',
+                    bottom: 20,
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    interval: 0,
+                    //show: false,
+                    //position: 'top',
+                    axisTick: {
+                        alignWithLabel: true,
+                        show: false
+                    },
+
+
+                    axisLine: {
+                        show: false,
+                        lineStyle: {
+                            color: '#00FFFF',
+                        }
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisLabel: {
+                        color: '#00FFFF',
+                        interval: 0,
+                        //fontSize: '16'
+                        //formatter: function (params) {
+                        //    var ss = params;
+                        //    if (ss.indexOf("（") > -1) {
+                        //        ss = ss.substring(0, ss.indexOf("（"));
+                        //    }
+                        //    ss = ss.split("").join("\n");
+                        //    return ss;
+                        //},
+                    },
+                    data: dataX
+                },
+                yAxis: [{
+                    name: "雨量(mm)",
+                    nameTextStyle: {
+                        padding: [0, 0, 0, 6]
+                    },
+                    type: 'value',
+                    show: true,
+                    axisTick: {
+                        show: false,
+                        alignWithLabel: false,
+                        length: 5,
+
+                    },
+                    "splitLine": { //网格线
+                        "show": false
+                    },
+                    max: function (e) {
+                        return e.max + 50;
+                    },
+                    axisLabel: {
+                        show: true,
+                        //formatter: '{value}',
+                        textStyle: {
+                            color: '#00FFFF'
+                        },
+                        formatter: function (value, index) {
+                            return value.toFixed(1)
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#00FFFF'
+                        }
+                    },
+                    // y轴刻度的颜色
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#074159'
+                        }
+                    },
+                }
+                ],
+                series: [{
+                    type: 'bar',
+                    label: {
+                        show: false,
+                        position: 'top',
+                        // textStyle: {
+                        //     textDecoration: undeline,
+                        // }
+                    },
+                    barWidth: 12,
+                    itemStyle: {
+                        normal: {
+                            show: true,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#0099FF'
+                            }, {
+                                offset: 1,
+                                color: '#00FFFF'
+                            }]),
+                            borderWidth: 0,
+                            barBorderRadius: [15, 15, 0, 0],
+                            label: {
+                                show: true,  //开启显示
+                                formatter: function (datas) {
+                                    return datas.value.toFixed(1)
+                                },  //显示数值
+                                position: 'top',
+                                textStyle: { //数值样式
+                                    fontSize: 10,
+                                    color: '#00FFFF'
+                                }
+                            }
+                        },
+                        emphasis: {
+                            shadowBlur: 15,
+                            shadowColor: 'rgba(105,123, 214, 0.7)'
+                        }
+                    },
+                    data: dataY
+                }
+                ]
+            };
+            myChart.resize();
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var name = param.name;
+                bindGridData(name);
+            }
+        }
+        function bindGridData(name) {
+            var pointsData = $.data(myData, "pointsData");
+            pointsData = pointsData.filter(function (e) {
+                return e.STNM == name;
+            });
+            var stcd = pointsData.length > 0 ? pointsData[0].STCD : "";
+            if (new Date(stime).getFullYear() > 2020) {
+                Trans(stcd, name, stime, etime);
+            } else {
+                lookData("STCD@" + stcd + ",TM@" + stime + ",ETM@" + etime, "/SHSWTZ/yqtz/baoyuchaxundanzhan.html", name + "降雨过程", "60%", 565, "true");
+            }
+        }
+        function Trans(stcd, stnm, stime, etime) {
+            WindowsOpen("/DanZhan/YQLine.html?STCD=" + stcd + "&STNM=" + (stnm) + "&STIME=" + stime + "&ETIME=" + etime + "&TYPENAME=降雨过程", stnm + "雨量柱状图", stcd);
+        }
+        function Trans(stcd, stnm, stime, etime) {
+            WindowsOpen("/DanZhan/YQLine.html?STCD=" + stcd + "&STNM=" + (stnm) + "&STIME=" + stime + "&ETIME=" + etime + "&TYPENAME=降雨过程", stnm + "雨量柱状图", stcd);
+        }
+    </script>
+</body>
+</html>

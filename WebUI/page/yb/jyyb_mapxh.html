@@ -1,0 +1,574 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!--STATUS OK-->
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>行政分区预报降雨</title>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .mini-grid-row-alt {
+            background: #ffffff !important;
+        }
+
+        .btn {
+            margin-top: 3px;
+            width: 70px;
+            text-indent: 0px;
+            font-size: 14px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            float: right;
+            margin-right: 10px;
+        }
+
+        .onlytab {
+            width: 90% !important;
+            height: 40px;
+            margin: auto;
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 50% !important;
+                height: 30px;
+                font: 14px/30px "arial";
+                text-align: center;
+            }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+
+        .left-nav li.subitem {
+            background-position: 164px center;
+        }
+    </style>
+
+    <link href="../../arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+</head>
+<body style="font-size:14px;font-family:arial;">
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden; margin: auto">
+        <div style="width: 98%; height:40px;" class="right box">
+            <table cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td>
+                        <span style="float:left;margin-left: 5px;">
+                            <span class="label" style="width: 70px;line-height: 30px;">预报时间：</span>
+                            <!--ondrawdate="onDrawDate"-->
+                            <input id="STIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" />
+                            <input id="HOUR" name="HOUR" class="mini-combobox" style="width:60px;" textfield="text" valuefield="id" allowinput="true" />
+                            <a style="margin-top:1px;margin-left:2px;" class="btn" onclick="BreakLayerLoad()">查询</a>
+                        </span>
+                    </td>
+                </tr>
+                <tr style="display:none;">
+                    <td>
+                        <div style="height:30px;width:100%;">
+                            <p class="label" style="width: 70px; float: left; margin-left: 5px;line-height: 25px;">播放速度：</p>
+                            <div id="rb2" style="width:165px;margin-top:2px;float: left;" class="mini-radiobuttonlist" textfield="text" valuefield="id" value="1000" onvaluechanged="onCombChanged2"></div>
+                            <p id="playBtn" style="float:left;margin-top:0px;" class="btn" onclick="play()">播放</p>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            中央气象台预报降雨
+            <a href="###" id="source" onclick="lookTrans()" style="text-decoration:underline; font-weight:bold;margin-left:10px;color: blue;">【数据来源】</a>
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 98%; height: 100%; margin: auto; "
+             showpager="false" allowalternating="true" idfield="TBA_FILENAME" allowresize="false"
+             onselectionchanged="onRowClick" ondrawcell="ondrawcell">
+            <div property="columns">
+                <div field="DATESPAN" width="120" align="center" headeralign="center" allowsort="false">发生时间</div>
+            </div>
+        </div>
+    </div>
+    <div id="dataShow" style="position:absolute;top:50%;left:50%;margin-left:-55px; font-size:28px; font-weight:bold; display:none">暂无数据</div>
+    <!--页面载入显示-->
+    <div id="dataLoad">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img alt="" src="../../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</body>
+<script type="text/javascript">
+    function ShowPage() {
+        //openTL("jyybtl");
+    }
+    ShowPage();
+    var A_PathName = "";
+    mini.parse();
+    //实例化表格对象
+    var grid = mini.get("grid1");
+
+    var labels = new Array();
+    _destroy();
+    var list2 = mini.get("rb2");
+    var hour = 1000;
+    list2.load([{ "id": "1000", "text": "1秒" }, { "id": "1500", "text": "1.5秒" }, { "id": "2000", "text": "2秒" }]);
+
+    function onCombChanged2(e) {
+        hour = list2.getValue();
+        stopCount();
+        startCount(hour);
+        $("#playBtn").html() == "停止播放";
+    }
+    function lookTrans() {
+        var url = "http://www.nmc.cn/publish/forecast/ASH/xujiahui.html";
+        window.open(url);
+    }
+    function play() {
+        if ($("#playBtn").html() == "停止播放") {
+            stopCount();
+            $("#playBtn").html("播放");
+        }
+        else {
+            hour = list2.getValue();
+            debugger;
+            startCount(hour);
+            $("#playBtn").html("停止播放");
+        }
+    }
+    var t;
+    function startCount(hour) {
+        t = setInterval("TimeShowYT()", hour);
+    }
+    function stopCount() {
+        if (t) {
+            clearInterval(t);
+        }
+    }
+    function TimeShowYT() {
+        var row = grid.getSelected();
+        var index = grid.indexOf(row);
+        var total = grid.data.length;
+        index++;
+        index = index % total;
+        selectRow(index);
+    }
+    grid.on("beforeload", function (e) {
+        e.cancel = true;
+        var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+    });
+    function ondrawcell(e) {
+        var row = e.row,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+        rowIndex = e.rowIndex;
+        if (field == "TM") {
+            e.cellHtml = new Date(convertToDate(value)).format("yyyy-MM-dd");
+        }
+    }
+    var resultData;
+    var dt;
+    var myData = [];
+    var hourData = [{ "id": "08", "text": "8时" }, { "id": "12", "text": "12时" }, { "id": "20", "text": "20时" }];
+    mini.get("HOUR").setData(hourData);
+    window.onload = function () {
+        var s_where = { 
+			//PageIndex: 1, 
+			//PageSize: 1 ,
+			};
+        //GetJosns("DATA_ST_RNFL_FSel", s_where, "YBSel");
+		app.post("SWZZ_QXSJ_st_rnfl_f/selectByYBTMNew",s_where,(data)=>{
+			JosnSel(data,"YBSel")
+		})
+        window.parent.TZSetMapLayer();
+    };
+    var layer_hw;
+    var countyLayer1;
+    var map = window.parent.map;//获取地图对象
+
+    function getInfo() {
+        tableBind(resultData);
+    }
+    function tableBind(data) {
+        var dataResult = data;
+        grid.setData(dataResult);
+    }
+    // 分页填充细节处理
+    function fillData(pageIndex, pageSize, dataResult) {
+        var data = dataResult;
+        var totalCount = dataResult.length;
+        var arr = [];
+        var start = pageIndex * pageSize, end = start + pageSize;
+        for (var i = start, l = end; i < l; i++) {
+            var record = data[i];
+            if (!record) continue;
+            arr.push(record);
+        }
+
+        grid.setTotalCount(totalCount);
+        grid.setPageIndex(pageIndex);
+        grid.setPageSize(pageSize);
+        grid.setData(arr);
+    }
+    function onRowClick(e) {
+        var grid = e.sender;
+        var record = grid.getSelected();
+        if (record) {
+            var ctm = new Date(new Date(record.TM)).format("yyyy-MM-dd HH:mm:ss");
+            $.data(myData, "TM", ctm);
+            window.parent.showQXTips(ctm, "行政分区预报降雨图");
+            MapRainfallArea(ctm);
+        }
+    }
+    function showTipsNew() {
+        var ctm=$.data(myData, "TM");
+        window.parent.showQXTips(ctm, "行政分区预报降雨图");
+    }
+    function tlCount() {
+
+    }
+    function tlChecked() {
+        getInfo();
+    }
+    function BreakLayerLoad() {
+        $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
+        var TM = mini.get("STIME").getFormValue() + " " + mini.get("HOUR").getValue() + ":00:00";
+        //GetJosns("DATA_ST_RNFL_FDay", { "startdate": TM }, "Sel");
+		app.post("SWZZ_QXSJ_st_rnfl_f/DATA_ST_RNFL_FDay",{ "startdate": TM },(data)=>{
+			JosnSel(data,"Sel");
+		})
+    }
+    function JosnSel(ResultData, typeID) {
+        if (typeID == "Sel") {
+            if (ResultData.total > 0) {
+                $.data(myData, "resultData", ResultData.data);
+                resultData = ResultData.data;
+                resultData = groupBy(resultData, "TM");
+                var arr = [];
+                for (var num = 0; num < resultData.length; num++) {
+                    arr.push(resultData[num][0]);
+                }
+                resultData = [];
+                resultData = arr;
+                getInfo();
+                selectRow(0);
+                $('#dataShow').hide();
+            } else {
+                resultData = [];
+                getInfo();
+                $('#dataShow').show();
+            }
+            $("#dataLoad").hide();
+        }
+        else if (typeID == "YBSel") {
+            if (ResultData.total > 0) {
+                var TM = new Date(new Date(ResultData.data.ybtm)).format("yyyy-MM-dd HH:mm:ss");
+                mini.get("STIME").setValue(TM);
+                $.data(myData, "YBTM", TM);
+                var HOUR = new Date(new Date(ResultData.data.ybtm)).format("HH");
+                mini.get("HOUR").setValue(HOUR);
+                mini.get("STIME").setValue(TM);
+            } else {
+                var TM = new Date().format("yyyy-MM-dd");
+                mini.get("STIME").setValue(TM);
+                mini.get("HOUR").select(0);
+            }
+            countyLayer1 = CreateLayer("Area_Layer1");
+            countyLayer1.on("click", function (e) {
+                var graphic = e.graphic;
+                var attributes = graphic.attributes;
+                var title = attributes.NAME;
+                trans(title);
+            });
+            BreakLayerLoad();
+        }
+    }
+    function onDrawDate(e) {
+        var date = e.date;
+        var solutionArr = $.data(myData, "solutionArr");
+        var tempResult = solutionArr.filter(function (ex) {
+            return new Date(date).format("yyyy/MM/dd") == new Date(new Date(ex.TM)).format("yyyy/MM/dd");
+        });
+        if (tempResult.length > 0) {
+            e.dateStyle = "background:#A8D9B6;"
+        } else {
+            //e.allowSelect = false;
+        }
+    }
+    function selectRow(index) {
+        var row = grid.getRow(index);
+        grid.select(row, true);
+    }
+    function btnSearch() {
+        BreakLayerLoad();
+    }
+    var labels = new Array();
+    var _globallevel = 5;
+    function MapRainfallArea(tm) {
+        var result = $.data(myData, "resultData");
+        countyLayer1.clear();
+        require(["esri/geometry/Point",
+            "esri/graphic",
+            "myJs/MapText",
+            "esri/symbols/PictureMarkerSymbol",
+            "esri/symbols/SimpleFillSymbol",
+            "esri/symbols/SimpleLineSymbol",
+            "esri/Color",
+            "esri/InfoTemplate",
+            "esri/dijit/InfoWindow",
+            "esri/layers/GraphicsLayer",
+            "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font",
+            "dojo/_base/lang",
+            "esri/geometry/Polygon",
+            "dojo/domReady!"
+        ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow,
+            GraphicsLayer, webMercatorUtils, TextSymbol, Font, lang,Polygon) {
+            _destroy();
+            result = result.filter(function (item) {
+                return new Date(convertToDate(item.TM)).format("yyyy-MM-dd HH:mm:ss") == tm;
+            });
+            $.get(
+                "../../Common/上海市2000.json",//json路径
+                lang.hitch(this, function (data, status) {
+                    if (status === "success") {
+                        var features = data.features;
+                        features.forEach(function (feature) {
+                            var allrings = feature.geometry.coordinates;
+                            var properties = feature.properties;
+                            var mc = properties.name;
+                            var areaname = mc;
+                            var str = "区";
+                            if (mc == "浦东新区") {
+                                str = "新区";
+                            }
+                            var strCenter = "黄浦区,长宁区,静安区,普陀区,虹口区,杨浦区";//这几个区域用徐汇区代替
+                            if (strCenter.indexOf(mc) > -1) {
+                                mc = "徐汇区";
+                            }
+                            var arr = result.filter(function (item) {
+                                return item.NAME + str == mc;
+                            });
+                            if (arr.length > 0) {
+                                var cls = "  waterText";
+                                var textStr = "";//arr[0].NAME + ":" +
+                                textStr += parseFloat(arr[0].DRP).toFixed(1) + "mm";
+                                var point = new Point({
+                                    "x": properties.centroid[0],
+                                    "y": properties.centroid[1],
+                                    "spatialReference": {
+                                        "wkid": 4326
+                                    }
+                                });
+                                //cls += " slText ";
+                                var _align = "bottom";
+                                if (textStr == "") {
+                                    textStr = "—";
+                                }
+                                if (strCenter.indexOf(areaname) == -1) {
+                                    var label = new MapText(map, point, arr[0], textStr, _globallevel, _align, cls, 12);
+                                    labels.push(label);
+                                }
+                                var colorStr = getAreaColor(arr[0].DRP, "");
+                                if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                     var fillColorStr = getAreaColor(arr[0].DRP, "fill");
+
+                                    allrings.forEach(function (rings) {
+                                        var area = new Polygon(rings);
+                                        var symbol = new SimpleFillSymbol(
+                                            SimpleFillSymbol.STYLE_SOLID,
+                                            new SimpleLineSymbol(
+                                                SimpleLineSymbol.STYLE_SOLID,
+                                                new Color(colorStr),//rgb  边框色
+                                                1
+                                            ),
+                                            new Color(fillColorStr)//rgba  中间填充色
+                                        );
+                                        var g3 = new Graphic(area, symbol);
+                                        g3.attributes = arr[0];
+                                        countyLayer1.add(g3);
+                                    }, this);
+                                }
+
+                                var point = new Point({ "x": properties.centroid[0], "y": properties.centroid[1], "spatialReference": { "wkid": 4326 } });
+                                var font = new Font("14px", Font.STYLE_NORMAL, Font.VARIANT_NORMAL,
+                                    Font.WEIGHT_BOLDER);
+                                var textSymbol = new TextSymbol(
+                                    areaname,
+                                    font,
+                                    new Color("black")
+                                );
+                                var labelPointGraphic = new Graphic(point, textSymbol);
+                                countyLayer1.add(labelPointGraphic);
+                            }
+                        }, this);
+                    }
+                }),
+                "json"
+            );
+        });
+    }
+    function getAreaColor(zValue, type) {
+        var color = "#ffffff";
+        var colorTM = [255, 255, 255, 0];
+        var colors = ["#A6F28E", "#007B00", "#3DBCF9", "#0000F9", "#FB3DFA", "#7B0000"];
+        var colorsTM = [
+            [166, 242, 142, 0.45],
+            [0, 123, 0, 0.45],
+            [61, 188, 249, 0.45],
+            [0, 0, 249, 0.45],
+            [251, 61, 250, 0.45],
+            [123, 0, 0, 0.45]
+        ];
+        if (zValue > 0 && zValue <= 10) {
+            color = colors[0];
+            colorTM = colorsTM[0];
+        }
+        else if (zValue > 10 && zValue <= 25) {
+            color = colors[1];
+            colorTM = colorsTM[1];
+        }
+        else if (zValue > 25 && zValue <= 50) {
+            color = colors[2];
+            colorTM = colorsTM[2];
+        }
+        else if (zValue > 50 && zValue <= 100) {
+            color = colors[3];
+            colorTM = colorsTM[3];
+        }
+        else if (zValue > 100 && zValue <= 200) {
+            color = colors[4];
+            colorTM = colorsTM[4];
+        }
+        else if (zValue > 200) {
+            color = colors[5];
+            colorTM = colorsTM[5];
+        }
+        if (type == "fill") {
+            return colorTM;
+        } else {
+            return color;
+        }
+    }
+    function getJWD(name) {
+        var center = [];
+        switch (name) {
+            case "嘉宝北片":
+                center = [-15196.4, 15309.4];
+                break;
+            case "蕴南片":
+                center = [481.1,6771.0];
+                break;
+            case "中心片":
+                center = [-2004.6,-1983.8];
+                break;
+            case "淀北片":
+                center = [ -10318.7,-6509.2];
+                break;
+            case "青松片":
+                center = [-25258.7,-13524.8];
+                break;
+            case "淀南片":
+                center = [-6136.9,-20025.3];
+                break;
+            case "浦东片":
+                center = [22116.1,-22209.7];
+                break;
+            case "太北片":
+                center = [-47233.6,-20757.0];
+                break;
+            case "太南片":
+                center = [-38930.5,-27188.5];
+                break;
+            case "浦南西片":
+                center = [ -36936.0,-37704.3];
+                break;
+            case "浦南东":
+                center = [-17710.0,-43992.3];
+                break;
+            case "商榻片":
+                center = [-53796.5,-12985.9];
+                break;
+            case "浦东片浦东新区":
+                center = [22302.3,-17147.6];
+                break;
+            case "浦东片奉贤区":
+                center = [6458.5,-38181.0];
+                break;
+            case "浦南东片":
+                center = [-16662.8,-46240.0];
+                break;
+            case "青松片松江区":
+                center = [-23314.5,-22476.4];
+                break;
+            case "浦东片闵行区":
+                center = [4350.1,-20672.7];
+                break;
+            case "青松片青浦区":
+                center = [-31534.3,-8904.8];
+                break;
+            default:
+        }
+        return center;
+    }
+    function trans(title) {
+        var TM = mini.get("STIME").getFormValue() + " " + mini.get("HOUR").getValue() + ":00:00";
+        //var TM = $.data(myData, "TM");
+        //alert(TM);
+        var url = "././DanZhan/JYYBLineXH.html?YBTM=" + TM + "&RLSTM=" + $.data(myData, "TM") + "&FTM=" + $.data(myData, "TM") + "&NAME=" + title;
+        //查看计算成果
+        openChart(url, title, title);
+    }
+</script>
+</html>

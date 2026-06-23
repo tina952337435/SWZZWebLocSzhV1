@@ -1,0 +1,415 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="太湖流域预报调度一体化系统" />
+    <meta name="keywords" content="太湖流域预报调度一体化系统" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>预报水质</title>
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.14/3.14/init.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+	<script src="../../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <script src="ybhw.js" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/Progress/index.js" type="text/javascript"></script>
+    <style type="text/css">
+        .progressTime {
+            width: 88%;
+        }
+    </style>
+
+    <style>
+        .onlytab {
+            width: 60%;
+            height: 40px;
+            /*margin: 0px !important;*/
+            margin-top: 5px;
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 33.3333%;
+                height: 30px;
+                font: 14px/30px "Microsoft YaHei";
+                text-align: center;
+            }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden;">
+        <!--<div class="biaoheader">
+        <p class="NONEp">
+        </p>
+        条件选择</div>-->
+        <div class="right box" style="height: 110px;">
+            <div class="demo1" style="float: left;width:100%;">
+                <div class="inline">
+                        方案选择：&nbsp;
+                        <input id="STCD" name="STCD" class="mini-combobox" style="width: 250px;"
+                               textfield="DD_NAME" valuefield="DD_ID" allowinput="true" onvaluechanged="onSTCDChanged" />
+                        <div style="margin-top:10px;">
+                            指标类型：&nbsp;
+                            <input id="TYPEID" name="TYPEID" class="mini-combobox" style="width: 100px;"
+                                   textfield="text" valuefield="id" allowinput="true" onvaluechanged="onSTCDChanged" />
+                        </div>
+                        <ul class="onlytab" style="margin-top:10px;float:left;" id="faList">
+                            <li id="allRiver" class="onlyli start " onclick="OnClickTitle('allRiver',this.id)">全部</li>
+                            <li id="mainRiver" class="onlyli end onlyliHover" onclick="OnClickTitle('mainRiver',this.id)">主要河道</li>
+                        </ul>
+                </div>
+            </div>
+        </div> 
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            信息列表<span class="dwCss">(单位:水位m,流量m³/s)</span>&nbsp;&nbsp;&nbsp;
+            <!--<input id="thsq" name="thsq" class="mini-checkbox" checked="false" onvaluechanged="onValueChanged" />周边水情-->
+            <img title="导出表格" src="../../arcgis_js_api/myJs/images/excel.png" onclick="ExportExcel('信息列表')" style="position: relative;
+                top: 5px; right: 15px; float: right; cursor: pointer;" />
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 99%; height: 100%; margin: auto;"
+             showpager="false" idfield="STCD" allowresize="false" allowalternating="true" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+              pagesize="50" ondrawcell="ondrawcell" onrowclick="onRowClick"  showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+            <div property="columns">
+                <!--onselectionchanged="onSelectionChanged"-->
+                <div field="名称" width="80" align="center" headeralign="center">
+                    河道
+                </div>
+                <div field="断面名称" width="80" align="center" headeralign="center">
+                    断面
+                </div>
+                <div field="Z" width="80" align="center" headeralign="center">
+                    指标值
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        ShowPage(); //map页面会调用
+        function ShowPage() {
+            openTL("mxswtl");
+        }
+
+        var breakGraphicLayer;
+        var layer_hw;
+        function showDitu() {
+            map.on("click", onMapClick);
+            
+            var lysStr = "THMN";
+            layer_hw = map.getLayer(lysStr);
+            try {
+                var fzjibie = $.data(myData, "fzjibie");
+                var layerDefinitions = [];
+                if (fzjibie == "allRiver") {
+                    layerDefinitions[0] = "1=1";
+                } else {
+                    layerDefinitions[0] = "fzjibie='1'";
+                }
+                layer_hw.setLayerDefinitions(layerDefinitions);
+                layer_hw.setVisibility(true);
+            } catch (e) {
+            }
+        }
+
+        function refresh() {
+            try {
+                //layer_hw.setVisibility(true);
+                layer_hw.refresh();
+            } catch (e) {
+            }
+        }
+
+        var listTree = [
+            { id: "1", text: "水位" }, { id: "2", text: "流量" }
+        ];
+        mini.parse();
+        var grid = mini.get("grid1"); 
+        var myData = [];
+        var mydt = [];
+        mini.get("TYPEID").setData(listTree);
+        mini.get("TYPEID").select(0);
+
+        $(function () { 
+            _speed = 4000;
+            $.data(myData, "fzjibie","mainRiver");
+            grid.loading("数据加载中，请稍后......");
+            breakGraphicLayer = CreateLayer("Map_Layer18");
+            GetJosns("MODE_DD_SOLUTIONSel", { "DD_STATUS": "1"}, "STCD");
+            showDitu();
+        })
+        function onSTCDChanged(e) {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            $.data(myData, "DD_ID", nodes.DD_ID);
+            $.data(myData, "STM", new Date(convertToDate(nodes.DD_TM)).format("yyyy/MM/dd HH:mm:ss"));
+            $.data(myData, "TM", new Date(convertToDate(nodes.DD_TM)).format("yyyy/MM/dd HH:mm:ss"));
+            $.data(myData, "ETM", new Date(convertToDate(nodes.DD_CHECKBY)).format("yyyy/MM/dd HH:mm:ss"));
+            window.parent.YBClick($.data(myData, "STM"), $.data(myData, "ETM"));
+            grid.loading("数据加载中，请稍后......");
+            search();
+        }
+        function search() {
+            window.parent.showJCTips($.data(myData, "STM"));
+            //常规水质专题    
+            //2016年预报调度文档
+            var fzjibie = $.data(myData, "fzjibie");
+            if (fzjibie == "mainRiver") {
+                fzjibie = "1";
+            } else {
+                fzjibie = null;
+            }
+            var typeName = mini.get("TYPEID").getText();
+            if (typeName == "水位") { openTL("mxswtl"); } else {
+                openTL("mxlltl");
+            }
+            var s_where = {
+                "SolutionID": $.data(myData, "DD_ID"), "strPathName": "2019年实时调度文档", "typeName": typeName, "strTM": $.data(myData, "STM"), "FZJIBIE": fzjibie};
+            //更新sde库
+            GetJosns("FH_SetSDE", s_where, "FH_SetSDE");
+        }
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "STCD") {
+                mini.get("STCD").setData(ResultData.data);
+                mini.get("STCD").select(0);
+                var _stcd = mini.get("STCD");
+                var nodes = _stcd.getSelected();
+                $.data(myData, "DD_ID", nodes.DD_ID);
+                $.data(myData, "STM", new Date(convertToDate(nodes.DD_TM)).format("yyyy/MM/dd HH:mm:ss"));
+                $.data(myData, "TM", new Date(convertToDate(nodes.DD_TM)).format("yyyy/MM/dd HH:mm:ss"));
+                $.data(myData, "ETM", new Date(convertToDate(nodes.DD_CHECKBY)).format("yyyy/MM/dd HH:mm:ss"));
+
+                window.parent.YBClick($.data(myData, "STM"), $.data(myData, "ETM"));
+            } else if (typeID == "FH_SetSDE") {
+                var tempData = eval("("+ResultData.data+")");
+                refresh();
+                mydt = tempData;
+                gridLoad();
+            }
+            else if (typeID == "SDE_THHW_NEWPL") {
+                alert(data.data);
+            }
+        }
+        function gridLoad() {
+            var result = mydt;
+            grid.setData(result);
+        }
+        function GetMap(startDate, objSTCD) {
+            $.data(myData, "STM", new Date(startDate).format("yyyy/MM/dd HH:mm:ss"));
+            search();
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            var record = e.record;
+            var s;
+            if (field == "NAME") {
+                var sColor = "";
+                if (row.YBZ == null) {
+                    sColor = "style='color:#EAEAEA'";
+                }
+                e.cellHtml = '<a title="' + value + '" ' + sColor + '  href="JavaScript:Trans(\'' + record.ID + '\',\'' + record.名称 + '\',\'' + record.起始断面序 + '\')">' + value + '</a>';
+            }
+        }
+        function Trans(stcd, stnm, dm_id) {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var stime = new Date(convertToDate(nodes.DD_TM)).format("yyyy-MM-dd HH:mm:ss");
+            var etime = new Date(convertToDate(nodes.DD_CHECKBY)).format("yyyy-MM-dd HH:mm:ss");
+            var typeName = mini.get("TYPEID").getText()
+            var url = "/DanZhan/YBHWLine.html?stcd=" + stcd + "&stnm=" + stnm + "&stime=" + stime + "&etime=" + etime + "&PLAN_N=" + nodes.DD_ID + "&DATA_TYPE=" + typeName + "&dm_id=" + dm_id;
+            setTimeout(function () {
+                WindowsOpen(url, stnm, "1200@650");
+            }, 200);
+        }
+        function onSelectionChanged(e) {
+            var grid = e.sender;
+            var record = grid.getSelected();
+            if (record) {
+                //loc(record.LGTD, record.LTTD);
+            }
+        }
+        function loc(lgtd, lttd) {
+            if (lgtd == undefined && lttd == undefined) {
+                mini.alert("缺失经纬度");
+            } else {
+                dyCenter(lgtd, lttd);
+            }
+        }
+        function queryComplete(results) {
+            //var tempAgg = [];
+            var resultCount = results.result.features.length;
+            var features = results.result.features;
+            //for (var num = 0; num < resultCount; num++) {//输出对象编译形式
+            //    var lgtd = features[num].geometry.rings;
+            //    var lttd = features[num].geometry.rings;
+                
+            //}
+
+            if (resultCount>0) {
+                var graphic = features[0];
+                var lgtd;
+                var lttd;
+                if (graphic.geometry.type == "polygon") {
+                    lgtd = graphic.geometry.rings[0][0][0];
+                    lttd = graphic.geometry.rings[0][0][1];
+                } else if (graphic.geometry.type == "point") {
+                    lgtd = graphic.geometry.x;
+                    lttd = graphic.geometry.y
+                } else if (graphic.geometry.type == "polyline") {
+                    lgtd = graphic.geometry.paths[0][0][0];
+                    lttd = graphic.geometry.paths[0][0][1];
+                }
+                console.log(JSON.stringify(graphic));
+                breakGraphicLayer.clear();
+
+                window.parent.setMapZoom(10);
+                dyCenter(lgtd, lttd);
+                //window.parent.map.setLevel(16);
+                //根据类型设置显示样式
+                var symbol;
+                switch (graphic.geometry.type) {
+                    case "point":
+                        symbol = new esri.symbol.SimpleMarkerSymbol("diamond", 10, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255, 0, 0]), 5), new dojo.Color([255, 0, 0, 0.45]));
+                        break;
+                    case "polyline":
+                       symbol = new esri.symbol.SimpleLineSymbol("solid", new dojo.Color([255, 0, 0]), 5);
+                        break;
+                    case "polygon":
+                        symbol = new esri.symbol.SimpleFillSymbol("solid", new esri.symbol.SimpleLineSymbol("solid", new dojo.Color([255, 0, 0]), 5), new dojo.Color([255, 0, 0, 0.25])
+                        );
+                        break;
+                }
+                //设置显示样式
+                graphic.setSymbol(symbol);
+
+                //添加到graphics进行高亮显示
+                //window.parent.map.graphics.add(graphic);
+                //window.parent.map.graphics.on("click", closeDialog)
+                breakGraphicLayer.add(graphic);
+                breakGraphicLayer.on("click", closeDialog);
+                function closeDialog(evt) {
+                    setTimeout(function () {
+                        Trans(graphic.attributes.ID, graphic.attributes.名称, graphic.attributes.起始断面序);
+                    }, 200);
+                }
+            }
+        }
+        function query() {
+            var strWhere = {};
+            var fzjibie = $.data(myData, "fzjibie");
+            if (fzjibie == "mainRiver") {
+                strWhere = "fzjibie=1";
+            } else {
+                strWhere = "1=1";
+            }
+            require(["myJs/Query"], function (Query) {
+                var Url = "http://10.8.3.61:6080/arcgis/rest/services/THHW_New/MapServer/0";
+                var Querys = new Query(Url, strWhere, false, true);
+                Querys.addEvent("complete", queryComplete);
+            });
+        }
+        function onRowClick(e) {
+            var record = e.record;
+            var strWhere = "ID=" + record.ID + " and 起始断面序=" + record.起始断面序 + " ";
+            var fzjibie = $.data(myData, "fzjibie");
+            if (fzjibie == "mainRiver") {
+                strWhere += " and fzjibie='1' ";
+            }
+            require(["myJs/Query"], function (Query) {
+                var Url = "http://10.8.3.61:6080/arcgis/rest/services/THHW_New/MapServer/0";
+                var Querys = new Query(Url, strWhere, false, true);
+                Querys.addEvent("complete", queryComplete);
+            });
+        }
+        function OnClickTitle(obj, objID) {
+            var only = $(".onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            $.data(myData, "fzjibie", obj);
+            showDitu();
+            search();
+        }
+    </script>
+
+
+    <script>
+        
+        var lgtd;
+        var lttd;
+        function onMapClick(evt) {
+            var mp = evt.mapPoint;
+            lgtd = mp.x.toFixed(6);
+            lttd = mp.y.toFixed(6);
+            MapClick(mp);
+        }
+
+        function MapClick(mp) {
+            require(["myJs/Query", "esri/geometry/Circle",
+                "esri/geometry/Point", "esri/graphic",
+                "esri/symbols/SimpleFillSymbol", "esri/symbols/SimpleLineSymbol", "esri/Color"
+            ], function (Query, Circle, Point, Graphic, SimpleFillSymbol, SimpleLineSymbol, Color) {
+                var circleGeometry = new Circle(mp, {
+                    "radius": 100
+                });
+                var sfs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                    new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                        new Color("#FF0000"), 2), new Color("#FF0000"));
+
+                var fzjibie = $.data(myData, "fzjibie");
+                if (fzjibie == "mainRiver") {
+                    strWhere= "fzjibie='1' ";
+                } else {
+                    strWhere = "1=1 ";
+                }
+                var gra = new Graphic(circleGeometry, sfs);
+                var query = new Query("http://10.8.3.61:6080/arcgis/rest/services/THHW_New/MapServer/0", strWhere, circleGeometry, true);
+                query.addEvent("complete", MapClickComplete);
+            });
+        }
+        function MapClickComplete(evt) {
+            var features = evt.result.features;
+            if (features.length > 0) {
+                setTimeout(function () {
+                    Trans(features[0].attributes.ID, features[0].attributes.名称, features[0].attributes.起始断面序);
+                }, 200);
+            }
+        }
+
+    </script>
+</body>
+</html>

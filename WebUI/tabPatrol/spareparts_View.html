@@ -1,0 +1,136 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>值班安排</title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .table1 tr td:nth-child(odd) {
+            height: 80px !important;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1' style=' background-color: White; width: 95%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    设备预警管理
+                    <input id="ID" name="ID" class="mini-textbox Span90" style="display:none;" />
+                </td>
+            </tr>
+            <tr>
+                    <td class="lie1" align="right">
+                            测站名称
+                        </td>
+                        <td class="lie2 View" id="proname">
+                        </td> 
+                <td class="lie1" align="right">
+                    设备名称
+                </td>
+                <td class="lie2 View" id="SPANAME">
+                </td> 
+            </tr>
+            <tr>
+                    <td class="lie1" align="right">
+                            购置日期
+                        </td>
+                        <td class="lie2 View" id="SPATIME" >
+                        </td>
+                <td class="lie1" align="right">
+                    使用寿命(月)
+                </td>
+                <td class="lie2 View" id="SPADANWEI">
+                </td> 
+            </tr>
+            <tr>
+                    <td class="lie1" align="right">
+                            起始日期
+                        </td>
+                        <td class="lie2 View" id="SPAEJCTM" >
+                        </td>
+                    <td class="lie1" align="right">
+                        到期日期
+                    </td>
+                    <td class="lie2 View" id="SPAETM" >
+                    </td> 
+                </tr>
+                <tr>
+                       
+                        <td class="lie1" align="right">
+                                负责人
+                            </td>
+                            <td class="lie2 View" id="SPAOWEN" colspan="3">
+                            </td>
+                </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    设备描述
+                </td>
+                <td class="lie2 View"  id="SPADESCRIBE" colspan="3">
+                </td>
+            </tr>
+           
+            <tr>
+                <td class="lie1" align="right">
+                    备注
+                </td>
+                <td class="lie2 View" id="SPANOTE"  colspan="3">
+                </td>
+            </tr>
+         
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        var ID = GetQueryString("M_ID");
+        var WD_TYPE = GetQueryString("WD_TYPE");
+        //标准方法接口定义 
+        function SetData(data) {
+            $("#SpanTitle").html(WD_TYPE);
+
+            app.get("/spareparts/selectList?id="+data.ID, {}, function (res) {
+						JosnSel(res, "Sel");
+					})
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var o = mini.decode(data.data[0]);
+                FromSetinnerHTML(o, "View");
+                GetObj("SPANAME").innerHTML = SetNull(o.spaname);
+                GetObj("SPADESCRIBE").innerHTML = SetNull(o.spadescribe);
+                GetObj("SPADANWEI").innerHTML = SetNull(o.spadanwei);
+                GetObj("SPANUMBER").innerHTML = SetNull(o.spanumber);
+                if(o.spatime!=null){
+                    GetObj("SPATIME").innerHTML = formatDate(o.spatime).format("yyyy-MM-dd");
+                }
+                if(o.spaetm!=null){
+                    GetObj("SPAETM").innerHTML = formatDate(o.spaetm).format("yyyy-MM-dd");
+                }
+                GetObj("SPANOTE").innerHTML = SetNull(o.spanote);
+                GetObj("SPAOWEN").innerHTML = SetNull(o.spaowen);
+            }
+            else if (typeID == "Update") {
+                if (data.total > 0) {
+                    showTips(data.message);
+                    CloseWindow("save");
+                } else {
+                    onOk();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

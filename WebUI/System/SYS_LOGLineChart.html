@@ -1,0 +1,331 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title> 
+    <script src="../Common/boot.js" type="text/javascript"></script> 
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script> 
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            margin: 0;
+            padding: 0;
+            overflow: visible;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style="border-bottom:0;padding:0px;">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:80px; font-size:14px;" align="right">
+                    开始日期：
+                </td>
+                <td style="width: 110px; font-size: 14px;text-align:left; " align="left">
+                    <input id="STIME" name="STIME" class="mini-datepicker DivSpan100" format="yyyy-MM-dd" value="" emptytext="请输入开始时间" />
+                </td>
+                <td style="width: 80px; font-size: 14px; " align="right">
+                    结束日期：
+                </td>
+                <td style="width: 110px; font-size: 14px; " align="left">
+                    <input id="ETIME" name="ETIME" class="mini-datepicker DivSpan100" format="yyyy-MM-dd" value="" emptytext="请输入结束时间" />
+                </td>
+            
+                <td align="left">
+                    <a class="mini-button" onclick="search()">查询</a>
+                </td>
+            </tr>
+        </table>   
+    </div> 
+    <!--撑满页面-->
+    <div class="mini-fit" style="height:100px;">
+        <div id="container" style="background-color:white;width:100%;height:350px;"></div>
+
+        <div id="datagrid1" class="mini-datagrid" style="width: 100%;  height: -webkit-calc(100% -350px);height: -moz-calc(100% - 350px);height: calc(100% - 350px);" allowresize="true" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+             idfield="ID" multiselect="true" allowalternating="true" sortmode="client" sizelist="[15,20,30,50,100]" pagesize="15" ondrawcell="onDrawCell">
+            <div property="columns">
+                <div type="indexcolumn" headeralign="center" width="80">序号</div>
+                <!--<div type="checkcolumn"></div>-->
+                <div field="emp_NAME" width="120" headeralign="center" allowsort="true" align="center">登录人员</div>
+                <div field="flag" width="120" headeralign="center" allowsort="true" align="center" renderer="onActionRenderer">登录来源</div>
+                <!--<div field="IP" width="120" headeralign="center" allowsort="true" align="center">IP</div>-->
+                <div field="logo_DATE" width="120" headeralign="center" allowsort="true" align="center" dateformat="yyyy-MM-dd" renderer="onBirthdayRenderer">登录日期</div>
+                <!--<div name="action" width="120" headeralign="center" align="center" allowsort="true" renderer="onActionRenderer">基础操作</div>-->
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var _sTM = "2018-06-12 00:00:00", _eTM = '2018-06-19 23:59:59';
+        var grid = mini.get("datagrid1");
+
+        onload = function () {
+            mini.get("STIME").setValue(addDayDate(new Date().format("yyyy-MM-dd"), -7));
+            mini.get("ETIME").setValue(new Date().format("yyyy-MM-dd"));
+            search();
+        }
+        function search() {
+            _sTM = new Date(mini.get("STIME").getValue()).format("yyyy-MM-dd");
+            _eTM = new Date(mini.get("ETIME").getValue()).format("yyyy-MM-dd");
+            var strWhere;
+            strWhere = { startdate: _sTM, enddate: _eTM+" 23:59:59" };
+            //GetJosns("DATA_SYS_LOGSel", strWhere, "SYS_LOGRetrieve");
+			app.post("SWZZ_DATA_sys_log/findResult",strWhere,(data)=>{
+				JosnSel(data,"SYS_LOGRetrieve")
+			})
+        }
+        var dataResult;
+        function JosnSel(data, TYPEID) {
+            if (TYPEID == "SYS_LOGRetrieve") {
+                dataResult = data;
+                fillData(0, grid.getPageSize(), dataResult, grid);
+                JsonLineChart(data.data);
+
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+        function JsonLineChart(strJson) {
+            console.log(JSON.stringify(strJson))
+            var IntDay = GetDateDiff(_sTM, _eTM, "day");
+            var strData = "";
+            var _XData = [];
+            //var NodeSuccess = strJson.filter(function (e) { return new Date(convertToDate(e.TM)).format("yyyy-MM-dd") == addDayDate(sTM, II); });
+            //var NodeFail = strJson.filter(function (e) { return new Date(convertToDate(e.TM)).format("yyyy-MM-dd") == addDayDate(sTM, II); });
+            if (IntDay > 0) {
+                for (II = 0; II <= IntDay; II++) { 
+                    if (II == 0) {
+                        var Node_PC = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == _sTM && e.flag == "PC" && e.status=="true"); });
+                        var Node_IOS = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy-MM-dd") == _sTM && e.flag == "IOS" && e.status == "true"); });
+                        var Node_Android = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == _sTM && e.flag == "Android" && e.status == "true"); });
+                        _XData.push({ TM: _sTM, PC_COUNT: Node_PC.length, IOS_COUNT: Node_IOS.length, Android_COUNT: Node_Android.length });
+                    } else {
+                        var Node_PC = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == addDayDate(_sTM, II) && e.flag == "PC" && e.status == "true"); });
+                        var Node_IOS = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == addDayDate(_sTM, II) && e.flag == "IOS" && e.status == "true"); });
+                        var Node_Android = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == addDayDate(_sTM, II) && e.flag == "Android" && e.status == "true"); });
+                        _XData.push({ TM: addDayDate(_sTM, II), PC_COUNT: Node_PC.length, IOS_COUNT: Node_IOS.length, Android_COUNT: Node_Android.length });
+
+                    }
+
+                }
+            }
+            //绘制数据说明
+            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
+            strNote += ',{"name": "平台人数","codename": "PC_COUNT","tableV":"1","isShow":true,"width":"30%"}';
+           // strNote += ',{"name": "iPhone人数","codename": "IOS_COUNT","tableV":"1","isShow":true,"width":"30%"}';
+            //strNote += ',{"name": "Android人数","codename": "Android_COUNT","tableV":"1","isShow":true,"width":"30%"}';
+            strNote += ']';
+
+            //绘制过程线颜色设置
+            var LineColor = ['#0000FF', '#00FF00', '#FF0000'];
+            //绘制图形
+            chartSW("container", _XData, eval('(' + strNote + ')'), LineColor, "统计人数");
+
+        }
+
+        ///////////////////////////////////////////////// 
+        function onBirthdayRenderer(e) {
+            var value = e.value;
+			//console.log(e.value);
+            if (value != undefined) {
+                return value;//mini.formatDate(value, 'yyyy-MM-dd HH:mm:ss');
+            } else {
+                return "";
+            }
+        }
+
+        function onDrawCell(e) {
+            var record = e.record;
+            ////超链接任务
+            if (e.field == "STATUS") {
+                if (record.STATUS == "true") {
+                    e.cellHtml = '是';
+                } else {
+                    e.cellHtml = '否';
+                }
+            }
+            //格式化日期
+        }
+        var Genders = [{ id: "PC", text: '平台登录' }, { id: "IOS", text: 'iPhone手机' }, { id: "Android", text:'Android手机'}];
+        function onActionRenderer(e) {
+            for (var i = 0, l = Genders.length; i < l; i++) {
+                var g = Genders[i];
+                if (g.id == e.value)
+                    return g.text;
+            }
+            return "";
+        }
+        function chartSW(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+
+            //echarts.init(document.getElementById('quxian'), 'macarons');
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        console.log(value[value1.codename]);
+                        //chartTM.push(new Date(value[value1.codename].replaceAll("-","/")).format("MM-dd HH:mm")); //加入时间集合
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            //获得最大值最小值
+            //var max_min=GetSort(chartValue); 
+            var option = {
+                //backgroundColor: '#100E19',
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                    //控制过程线默认是否显示
+                    //       ,
+                    //		 selected: {
+                    //          '警戒水位' : false
+                    //      }
+                }, grid: {
+                    left: '2%',
+                    right: '8%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartTM,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1, //这里是为了突出显示加上的
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            }
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "登录人数",
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        //min:max_min.min, //动态设置最大值最小值。
+                        //max:max_min.max,
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(0);
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+                        if (max_min_Name != "" & max_min_Name == chartName[j]) {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>工程调度</title>
+    <link href="..//arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="..//arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <link href="..//arcgis_js_api/myJs/style/map.css" rel="stylesheet" type="text/css" />
+
+    <link href="..//arcgis_js_api/library/3.14/3.14/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="..//arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="..//arcgis_js_api/library/3.14/3.14/init.js" type="text/javascript"></script>
+
+    <script src="..//arcgis_js_api/myJs/parentIndex.js"></script>
+
+
+    <script src="../Common/Scripts/jquery-1.6.2.min.js"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="..//arcgis_js_api/myJs/bj.js" type="text/javascript"></script>
+    <script src="..//arcgis_js_api/myJs/mapIndex.js" type="text/javascript"></script>
+    <script src="..//arcgis_js_api/myJs/CommonTool.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        .TipClose {
+            text-align: right;
+        }
+
+        #layerbox_item {
+            background: #fff;
+            border-radius: 3px;
+            height: 18px;
+        }
+
+            #layerbox_item .roadnet {
+                opacity: 0;
+                padding: 0;
+                padding-bottom: 30px;
+                z-index: -1;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                -o-border-radius: 3px;
+                border-radius: 3px;
+                left: 0px;
+                top: 0;
+                background: #fff;
+                box-shadow: 1px 2px 1px 2px rgba(0,0,0,.15);
+                cursor: pointer;
+                display: none;
+            }
+
+        .usel {
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #layerbox_item .roadnet .raod_item {
+            height: 10px;
+            line-height: 10px;
+            color: #565656;
+            font-size: 14px;
+            display: inline-block;
+            padding: 0 10px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .roadnet.checked .roadnet_select_icon {
+            background-position: 0 -483px;
+        }
+
+        .roadnet .roadnet_select_icon {
+            display: inline-block;
+            vertical-align: middle;
+            background: url(..//arcgis_js_api/myJs/images/tools_layer_new.png?v=2) 0 -434px no-repeat;
+            width: 22px;
+            height: 20px;
+        }
+
+        .tongji {
+            font-size: 14px;
+        }
+
+            .tongji ul {
+                width: -webkit-calc(100% - 2px);
+                width: -moz-calc(100% - 2px);
+                width: calc(100% - 2px);
+                overflow: auto;
+                border-bottom: #4f83ff 1px solid; /*#c5d1ff*/
+                border-left: #4f83ff 1px solid;
+                border-right: #4f83ff 1px solid;
+                background: #fff;
+                filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+                -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+                -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+                box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+                border-radius: 0px 0px 5px 5px;
+            }
+
+            .tongji table {
+                /* width: -webkit-calc(100% - 2px);width: -moz-calc(100% - 2px);width: calc(100% - 2px);*/
+                width: 100%;
+                overflow: auto;
+                border-bottom: #4f83ff 1px solid;
+                border-left: #4f83ff 1px solid;
+                border-right: #4f83ff 1px solid;
+                background: #fff;
+                filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+                -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+                -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+                box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+                border-radius: 0px 0px 5px 5px;
+            }
+
+            .tongji .yltj li {
+                list-style: none;
+                float: left;
+                min-width: 22%;
+                height: 26px;
+                line-height: 26px;
+            }
+
+            .tongji ul li input {
+                display: block;
+                float: left;
+                height: 32px;
+                width: 14px;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+
+            .tongji ul li img {
+                display: block;
+                height: 15px;
+                float: left;
+                padding: 0px 5px 5px 5px;
+                position: relative;
+                top: 8px;
+            }
+
+        .tjheader {
+            line-height: 25px;
+            background: #4f83ff;
+            text-indent: 5px;
+            text-align: left;
+            font-size: 14px;
+            color: #fff;
+            border-radius: 5px 5px 0px 0px;
+            border-top: #4f83ff 1px solid;
+            border-left: #4f83ff 1px solid;
+            border-right: #4f83ff 1px solid;
+            filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+            -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+            -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+            box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+        }
+    </style>
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute">
+    </div>
+    <div id="TLDiv" style="right: 5px; bottom: 10px;overflow: hidden;
+                position: absolute; z-index: 1;display:none;">
+        <div title="图例">
+            <div id="gqtl" class="tongji" style="width: 66px;">
+                <div class="showthisbiao" style="display:none;">
+                    <!-- <img src="....//arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+                    <div style="float:right;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+                </div>
+                <div class="thisbiao">
+                    <p class="tjheader">
+                        <strong>图例</strong>
+                    </p>
+                    <ul class="yltj">
+                        <li>
+                            <img alt="" src="....//arcgis_js_api/myJs/images/z_green_1.png" style="width: 28px; height: 15px; " />
+                            <span>开</span>
+                        </li>
+                        <li>
+                            <img alt="" src="....//arcgis_js_api/myJs/images/z_red_1.png" style="width: 28px; height: 15px;" />
+                            <span>关</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var DD_ID = GetQueryString("DD_ID");
+        var resultData;
+
+        function JosnSel(data, typeID) {
+            if (typeID == "WJ_GONGCHENGSLR") {
+                if (data.total > 0) {
+                    resultData = eval(data.data);
+                    getInfo();
+                }
+            } else if (typeID == "MODE_DD_SOLUTIONSel") {
+                if (data.total > 0) {
+                    var fa_arr = data.data;
+                    $.data(myData, "stime", convertToDate(fa_arr[0].DD_TM));
+                    $.data(myData, "etime", convertToDate(fa_arr[0].DD_CHECKBY));
+                }
+            }
+        }
+        var SQnormalGraphicLayer;
+        var labels = new Array();
+        onload = function () {
+            SQnormalGraphicLayer = CreateLayer("sq_SQLayer4");
+            var _globallevel = 5;
+            /*设置图层的最小可见度*/
+            //setMinLevel(SQnormalGraphicLayer, 8);
+
+
+            /*设置图层的飞行提示*/
+            setLayerToolTip(SQnormalGraphicLayer, "STNM", "NEWDDFS", "调度方式");
+
+            //SQnormalGraphicLayer.on("click", onSQClick);
+            //function onSQClick(evt) {
+            //    var stcd = evt.graphic.attributes.STCD;
+            //    var stnm = evt.graphic.attributes.STNM;
+            //    var stime = $.data(myData, "stime");
+            //    var etime = $.data(myData, "etime");
+            //    openChart("/DanZhan/YBLLLine.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime + "&PLAN_N=" + DD_ID, stnm, stcd, "");
+            //}
+            var s_where = { DD_ID: DD_ID };
+            GetJosns("MODE_DD_SOLUTIONSel", s_where, "MODE_DD_SOLUTIONSel");
+
+            BreakLayerLoad();
+        }
+
+        function BreakLayerLoad() {
+            GetJosns("WJ_GONGCHENGSLR", { "DD_ID": DD_ID, "DATA_TYPE": "2" }, "WJ_GONGCHENGSLR");
+        }
+
+        function getInfo() {
+            if (resultData == null)
+                return;
+            setTimeout(function () {
+                addMark2(resultData);
+            }, 100);
+        }
+        
+        function addMark2(obj) {
+            SQnormalGraphicLayer.clear();
+            SQnormalGraphicLayer.setVisibility(true);
+
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol) {
+                var breakSymbol;
+                _destroy();
+
+                for (var i = 0; i < obj.length; i++) {
+                    var point = new Point({ "x": obj[i].LGTD, "y": obj[i].LTTD, "spatialReference": { "wkid": 4326 } });
+                    var objID = "gqColor" + obj[i].STCD;
+                    var cls = "waterText ' id='" + objID + "";
+
+                    var _align = "bottom";
+                    var item = obj[i];
+                    var DDFS = item.DDFS;
+                    var stcd = item.STCD;
+                    breakSymbol = new PictureMarkerSymbol("..//arcgis_js_api/myJs/images/blue_hd.gif", 18, 18);
+                    
+                    if (stcd == "63201216" || stcd == "63201400" || stcd =="63202755") {
+                        _align = "top";
+                    } else if (stcd == "63204301" || stcd == "63203305" || stcd =="63202106") {
+                        _align = "left";
+                    } else if (stcd == "63202751" || stcd == "63201215" || stcd == "63201108") {
+                        _align = "right";
+                    }
+
+                    var text = DDFS;
+                    if (!isNaN(text)) {
+                        text = text + " m³/s";
+                    }
+                    var label = new MapText(map, point, obj[i], text, 1, _align, cls, 14);
+                    labels.push(label);
+
+                    var graphic = new Graphic(point, breakSymbol, obj[i], null);
+                    SQnormalGraphicLayer.add(graphic);
+                }
+            });
+        }
+
+        function SpanItem() {
+            var temp = GetObj("ShouWen").checked;
+            if (temp == true) {
+                $("#roadnet").removeClass("checked");
+                $(".MapText").addClass("none");
+                GetObj("ShouWen").checked = "";
+            } else {
+                $("#roadnet").addClass("checked");
+                $(".MapText").removeClass("none");
+                GetObj("ShouWen").checked = "checked";
+            }
+        }
+
+        function loc(stcd) {
+            if (resultData == null)
+                return;
+            var fa_arr = resultData.filter(function (item) {
+                return item.ZHANID == stcd;
+            });
+            if (fa_arr.length > 0) {
+                var lgtd = fa_arr[0].LGTD, lttd = fa_arr[0].LTTD;
+                if (lgtd == undefined && lttd == undefined) {
+                } else {
+                    map.setZoom(8);
+                    dyCenter(lgtd, lttd);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1297 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>模型计算</title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+
+
+    <!-- 新版模型接口调用js文件 -->
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.3"></script>
+    <!-- <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script> -->
+
+    <style type="text/css">
+        html {
+            overflow-y: hidden;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            background: #52B2EF;
+            background: url(../Common/images/mws-body-bg.png);
+        }
+
+        .box {
+            padding: 5px 30px;
+            width: 100%;
+            overflow-y: hidden;
+            height:100%;
+        }
+
+        .yb_left {
+            float: left;
+            width: 600px;
+            /*border: 1px solid #d3d3d3;*/
+            /*background: #ffffff;*/
+            margin-top: 5px;
+            height: calc(100% - 10px);
+        }
+
+        .tqyb_right {
+            float: right;
+            width: calc(100% - 615px);
+            height: calc(100% - 15px);
+        }
+
+        .sysList {
+            width: 125px;
+            margin-top: 2px;
+            color: gray;
+            margin-left: -25%;
+            /* padding: 5px;
+            height: 60px;*/
+            position: relative;
+            border: 1px solid #3291f9;
+            background-color: #FFF;
+        }
+
+            .sysList table td {
+                padding: 10px 3px 0px 3px;
+                /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+            }
+
+            #sysList table td {
+                padding: 0px 3px 0px 3px !important;
+            }
+
+                .sysList table td span {
+                    line-height: 20px;
+                }
+
+        .form-table {
+            width: 90%;
+            margin: 0px auto;
+        }
+
+        .form-table tr td {
+            width:50%;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            /*background: #DDE7FF;*/
+        }
+        
+        .asLabel .mini-textbox-border,
+        .asLabel .mini-textbox-input,
+        .asLabel .mini-buttonedit-border,
+        .asLabel .mini-buttonedit-input,
+        .asLabel .mini-textboxlist-border {
+            border: 0;
+            background: none;
+            cursor: default;
+            cursor: default;
+        }
+
+        .asLabel .mini-buttonedit-button,
+        .asLabel .mini-textboxlist-close {
+            display: none;
+        }
+
+        .asLabel .mini-textboxlist-item {
+            padding-right: 8px;
+        }
+
+
+        .onlytab {
+            width: 70%;
+            height: 40px;
+            margin: auto;
+            margin-top:5px;
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 20%;
+                height: 30px;
+                font: 14px/30px "Microsoft YaHei";
+                text-align: center;
+            }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+
+        .mini-buttonedit-border {
+            padding-left: 0px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="yb_left">
+            <div style="width:100%;height:390px;background:#CFE4FF;padding:5px 0px;">
+                <div style="text-align:left; width:100%;line-height: 35px; background-color: #FFF;padding-left: 10px; color: black;font-size:16px;width:calc(100% - 10px);margin:0px auto;">
+                    &nbsp;<span style="width: 5px;height: 17px;margin-top: 9px;background-color: #0C52C4;vertical-align: top;display: inline-block;">&nbsp;</span>
+                    洪水预报
+                </div>
+                <div style="height: calc(100% - 35px);width:calc(100% - 10px);margin:0px auto;background-color: #FFF;/* border-top: solid 1px #e8e8e8;*/">
+                    <table class="form-table" border="0" cellpadding="1" cellspacing="2">
+                        <tr height="35">
+                            <td class="form-label" align="left" colspan="2">
+                                方案名称&nbsp;&nbsp;<input id="FA_NAME" name="FA_NAME" class="mini-textbox" style="width:85%;" />
+                            </td>
+                        </tr>
+                        <tr height="35">
+                            <td class="form-label" align="left">
+                                依据时间&nbsp;&nbsp;<input id="TM" class="mini-datepicker" style="width: 145px;"
+                                                       format="yyyy-MM-dd HH:00" showtime="true" onvaluechanged="onvaluechangedTM"
+                                                       ondrawdate="onDrawDate"/>&nbsp;
+                            </td>
+                        </tr>
+                        <tr height="35">
+                            <td style="width:150px;">
+                                预&nbsp;&nbsp;见&nbsp;&nbsp;期&nbsp;
+                                <!--<input id="NUM" name="NUM" class="mini-spinner" value="1" minValue="1" maxValue="15" style="width:80px" onvaluechanged="onvaluechangedTM" />-->
+                                <input id="NUM" name="NUM" class="mini-combobox" style="width:80px;" textField="text" valueField="id" allowInput="true" 
+                                       onvaluechanged="onvaluechangedTMHOUR" />
+                                小时
+                            </td>
+                            <td class="form-label" align="right" style="display:none;">运河水位：</td>
+                            <td align="left" style="display:none;"><input id="YHSW" name="YHSW" value="2.90" class="mini-textbox" style="width: 80px;" format="n" onvaluechanged="onvaluechangedTM" />m</td>
+                            <td class="form-label" align="right" style="display:none;">内河（东城河）水位：</td>
+                            <td align="left" style="display:none;"><input id="NHSW" name="NHSW" value="3.15" class="mini-textbox" style="width: 80px;" format="n" onvaluechanged="onvaluechangedTM" />m</td>
+                        </tr>
+                        <tr height="35">
+                            <td align="left">降雨预报&nbsp;&nbsp;<span id="JYYB"></span></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                方案简介&nbsp;&nbsp;<input id="FA_NOTE" name="FA_NOTE" class="mini-textarea" style=" height:125px;margin:5px 1%;width:98%;float:left;" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div style="width:100%;height: calc(100% - 405px);background-color:#fff;margin-top:10px;">
+                <div style="width: 100%; height:100%; border-top: solid 1px #e8e8e8;">
+                    <div id="gridGC" class="mini-datagrid" style="width:100%;height: calc(100% - 35px);" borderStyle="border:0;"
+                         allowcellselect="true" allowcelledit="true" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                         headercontextmenu="#headerMenu" sortMode="client">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tqyb_right">
+            <div style="width:100%;height:100%; background-color:White;margin-top:5px;">
+                <div id="gridJY" class="mini-datagrid" style="z-index: 0;width: 100%; height: 100%;"
+                     borderStyle="border-right:0px;border-bottom:0px;"
+                     allowcellselect="true" allowcelledit="true" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                     headercontextmenu="#headerMenu" showFilterRow="true" ondrawcell="ondrawcell">
+                </div>
+            </div>
+        </div>
+        <div style="clear:both"></div>
+    </div>
+    <style type="text/css">
+        .progress {
+            overflow: hidden;
+            height: 20px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+            margin-left: 30px;
+            background-color: #f7f7f7;
+            background-image: -moz-linear-gradient(top, #f5f5f5, #f9f9f9);
+            background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#f9f9f9));
+            background-image: -webkit-linear-gradient(top, #f5f5f5, #f9f9f9);
+            background-image: -o-linear-gradient(top, #f5f5f5, #f9f9f9);
+            background-image: linear-gradient(to bottom, #f5f5f5, #f9f9f9);
+            background-repeat: repeat-x;
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff5f5f5', endColorstr='#fff9f9f9', GradientType=0);
+            -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+            width: 408px;
+            margin-right: 12px;
+        }
+
+            .progress .bar {
+                width: 0%;
+                height: 100%;
+                color: #ffffff;
+                float: left;
+                font-size: 12px;
+                text-align: center;
+                align-items: center;
+                display: flex;
+                justify-content: center;
+                text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+                background-color: #0e90d2;
+                background-image: -moz-linear-gradient(top, #149bdf, #0480be);
+                background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#149bdf), to(#0480be));
+                background-image: -webkit-linear-gradient(top, #149bdf, #0480be);
+                background-image: -o-linear-gradient(top, #149bdf, #0480be);
+                background-image: linear-gradient(to bottom, #149bdf, #0480be);
+                background-repeat: repeat-x;
+                filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff149bdf', endColorstr='#ff0480be', GradientType=0);
+                -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+                -moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+                box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: width 0.6s ease;
+                -moz-transition: width 0.6s ease;
+                -o-transition: width 0.6s ease;
+                transition: width 0.6s ease;
+            }
+
+        .mini-mask-loadingnew {
+            padding: 10px 8px 10px 5px;
+            background: #fff no-repeat scroll 5px 50%;
+            border: 2px solid #517fad;
+        }
+
+        .progress {
+            height: 25px;
+            background: #e5e5e5;
+            padding: 5px;
+            overflow: visible;
+            border-radius: 20px;
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
+            margin-top: 15px;
+        }
+
+            .progress .progress-bar {
+                border-radius: 20px;
+                position: relative;
+                animation: animate-positive 2s;
+            }
+
+            .progress .progress-value {
+                display: block;
+                padding: 3px 7px;
+                font-size: 13px;
+                color: #000;
+                border-radius: 4px;
+                background: #e5e5e5;
+                border: 1px solid #e5e5e5;
+                position: absolute;
+                top: -40px;
+                right: -30px;
+            }
+
+                .progress .progress-value:after {
+                    content: "";
+                    border-top: 10px solid #e5e5e5;
+                    border-left: 10px solid transparent;
+                    border-right: 10px solid transparent;
+                    position: absolute;
+                    bottom: -6px;
+                    left: 26%;
+                }
+
+        .progress-bar.active {
+            animation: reverse progress-bar-stripes 0.40s linear infinite, animate-positive 2s;
+        }
+
+        .progress-bar-info {
+            background-color: #5bc0de;
+        }
+
+        .progress-bar {
+            float: left;
+            width: 0;
+            height: 100%;
+            font-size: 12px;
+            line-height: 20px;
+            color: #fff;
+            text-align: center;
+            background-color: #337ab7;
+            -webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+            -webkit-transition: width .6s ease;
+            -o-transition: width .6s ease;
+            transition: width .6s ease;
+        }
+
+        .progress-bar-striped {
+            background-image: -webkit-linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+            background-image: -o-linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+            background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+            -webkit-background-size: 40px 40px;
+            background-size: 40px 40px;
+        }
+
+        @-webkit-keyframes animate-positive {
+            0% {
+                width: 0;
+            }
+        }
+
+        @keyframes animate-positive {
+            0% {
+                width: 0;
+            }
+        }
+    </style>
+
+    <script>
+        var solutionArr;
+        mini.parse();
+        //定义全局变量
+        var grid = mini.get("gridJY");
+        var gridGC = mini.get("gridGC");
+        var myData = [];
+        var GCDATATYPE = "DDFN";
+        var JYDATATYPE = "SK@6";
+        var tongbuZDMD = GetQueryString("tongbuZDMD");
+        var DD_ZD = "2";//平台手动计算状态
+        var _dd_id = GetTableID();
+    </script>
+
+    <!--获取模型边界条件-->
+    <script>
+        function onDrawDate(e) {
+            var date = e.date;
+            var tempResult = solutionArr.filter(function (ex) {
+                return new Date(date).format("yyyy/MM/dd") == new Date(convertToDate(ex.DD_TM)).format("yyyy/MM/dd");
+            });
+            if (tempResult.length > 0) {
+                e.dateStyle = "background:#A8D9B6;"
+            } else {
+                //e.allowSelect = false;
+            }
+        }
+        $(function () {
+            //GetJosns("MODE_DD_SOLUTIONSel", { "DD_STATUS": "1" }, "MODE_DD_SOLUTIONSel");
+
+            //首先判断是不是自动计算发来的命令
+            var DD_TM = new Date().format("yyyy-MM-dd") + " 08:00:00";
+            
+            //var listNum = [{ id: 1, text: 1 }, { id: 2, text: 2 }, { id: 3, text: 3 }, { id: 4, text: 4 }, { id: 5, text: 5 },
+            //{ id: 6, text: 6 }, { id: 7, text: 7 }, { id: 8, text: 8 }, { id: 9, text: 9 }, { id: 10, text: 10 }
+            //    , { id: 11, text: 11 }, { id: 12, text: 12 }, { id: 13, text: 13 }, { id: 14, text: 14 }, { id: 15, text: 15 }, { id: 16, text: 16 }
+            //    , { id: 17, text: 17 }, { id: 18, text: 18 }
+            //    , { id: 19, text: 19 }, { id: 20, text: 20 }, { id: 21, text: 21 }, { id: 22, text: 22 }, { id: 23, text: 23 }
+            //    , { id: 24, text: 24 }, { id: 25, text: 25 }, { id: 26, text: 26 }, { id: 27, text: 27 }, { id: 28, text: 29 }
+            //    , { id: 30, text: 30 }, { id: 31, text: 31 }, { id: 32, text: 32 }, { id: 33, text: 33 }, { id: 34, text: 34 }, { id: 35, text: 35 }
+            //];
+
+            var listNum = [{ id: 24, text: "1天" }, { id: 48, text: "2天" }, { id: 72, text: "3天" }, { id: 96, text: "4天" }, { id: 120, text: "5天" },
+            { id: 144, text: "6天" }, { id: 168, text: "7天" }, { id: 15 * 24, text: "15天" }, { id: 30 * 24, text: "30天" },
+            ];
+
+
+            mini.get("NUM").setData(listNum);
+            
+            if (tongbuZDMD != null) {
+                var DNAME = GetQueryString("DNAME");
+                var DTYPE = GetQueryString("DTYPE");
+                var DD_NUM = GetQueryString("DD_NUM");
+                var CWTYPE = GetQueryString("CWTYPE");
+                mini.get("NUM").setValue(DD_NUM);
+                DD_ZD = GetQueryString("DD_ZD");
+                $.data(myData, "TYPE", DTYPE);//欧洲
+                $.data(myData, "TYPEANME", DNAME);
+                $.data(myData, "CWTYPE", CWTYPE);//潮位类型
+                $("#JYYB").html("数值模式");
+                JYDATATYPE =DTYPE + "@" + CWTYPE;
+                DD_TM = GetQueryString("DD_TM");
+                _dd_id = GetQueryString("DD_ID");
+                $('#qxyb').html(DNAME);
+            } else {
+                $.data(myData, "TYPE", 6);//欧洲
+                $.data(myData, "TYPEANME", "欧洲");
+                $("#JYYB").html("数值模式");
+                JYDATATYPE = "SK@6";
+                mini.get("NUM").select(2);
+            }
+            mini.get("TM").setValue(DD_TM);
+            $.data(myData, "DD_ID",_dd_id);
+            onload();
+        });
+        
+
+        var arrLYPJ = [];
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field != "TM") {
+                if (parseFloat(value) < 0) {
+                    e.cellHtml = 0;
+                }
+            }
+        }
+        function onload() {
+            var stime = mini.get("TM").getFormValue() + ":00";
+            //var title = new Date(stime.replaceAll("-", "/")).format("yyyyMMddHH") + "水情预报(上海气象台)";
+            var title = new Date(stime.replaceAll("-", "/")).format("yyyyMMddHH") + "水情预报(自动预报)";
+            mini.get("FA_NAME").setValue(title);
+            upDataZhandianData();
+        }
+
+        function onvaluechangedTM() {
+            showCYTQClick();
+        }
+        function onvaluechangedTMHOUR(e) {
+            mini.get("NUM").setText(e.value);
+            showCYTQClick();
+        }
+
+        function showCYTQClick() {
+            var stime = mini.get("TM").getFormValue() + ":00";
+            var num = parseInt(mini.get("NUM").getValue());
+            var etime = AddHourDate(stime, num);
+            $.data(myData, "stime", stime);
+            $.data(myData, "etime", etime);
+            $.data(myData, "HOUR", num);
+            mini.mask({
+                el: document.getElementById("tabs1"),
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            upDataZhandianData();
+        }
+        
+
+        var chooseGCTYPE = "zggc";
+        //预报降雨加载表格
+        function GridColum() {
+                var strWhere = {
+                    "pattem": "0"
+                }
+                app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", strWhere, function (res) {
+                    var data = {};
+                    var GridColumStr = "";
+                    var listNew = res.data;
+                    GridColumStr += "{\"columns\":[{ \"field\":  \"TM\", \"header\": \"降雨时间\", \"headerAlign\": \"center\", \"align\": \"center\", \"autoescape\": \"true\",\"width\":\"150\",\"dateFormat\": \"yyyy-MM-dd HH:mm:ss\" }";
+
+                    for (var num = 0; num < listNew.length; num++) {
+                        GridColumStr += ",{ \"header\": \"" + listNew[num].zhanname + "\", \"field\": \"" + listNew[num].zhanid + "\", \"headerAlign\": \"center\", \"align\": \"center\",\"decimalPlaces\":\"1\", \"dataType\": \"float\", \"summaryType\": \"sum\", \"editor\": { \"type\":\"textbox\",\"name\":\"" + listNew[num].zhanid + "\",\"onValueChanged\":\"onValueChanged\"} "
+                            + ",\"filter\":{\"id\":\"" + listNew[num].zhanid + "\",\"onvaluechanged\":\"onFilterChanged\",\"type\":\"textbox\",\"width\":\"80%\",\"emptyText\":\"批量输入\"}"
+                            + "}";
+                    }
+                    GridColumStr += "]}";
+                    data.data = GridColumStr;
+                    JosnSel(data, "GridColum");
+                });
+            }
+
+        function onLoadData() {
+             var s_where = {
+                "datatype": "0",
+                dayhour:"hour",
+                "solutionid": _dd_id
+            }
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", s_where, function(res){
+                JosnSel(res,"FH_GetBind");
+            });
+        }
+
+        function GridColumGC() {
+                var strWhere = {
+                    "pattem": "3,3001,3002,3003,3004,3005,3006,3007,3008,3009"
+                }
+                app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", strWhere, function (res) {
+                    var data = {};
+                    var GridColumStr = "";
+                    var listNew = res.data;
+                    GridColumStr += "{\"columns\":[{ \"field\":  \"TM\", \"header\": \"时间\", \"headerAlign\": \"center\", \"align\": \"center\", \"autoescape\": \"true\",\"width\":\"150\",\"dateFormat\": \"yyyy-MM-dd HH:mm:ss\" }";
+
+                    for (var num = 0; num < listNew.length; num++) {
+                        var zhanid = listNew[num]["zhanid"];
+                        var zhanname = listNew[num]["zhanname"];
+                        var tempName = zhanname.split('_');
+                        // console.error(zhanname,tempName);
+                        if (tempName.length > 0) {
+                            zhanname = tempName[tempName.length - 1];
+                        }
+                        GridColumStr += ",{ \"header\": \"" + zhanname + "\", \"field\": \"" + zhanid + "\", \"headerAlign\": \"center\", \"align\": \"center\",\"decimalPlaces\":\"2\", \"dataType\": \"float\", \"summaryType\": \"max\", \"editor\": { \"type\":\"textbox\",\"name\": \"" + zhanid + "\",\"onValueChanged\":\"onValueChanged\"},\"filter\":{\"id\":\"" + zhanid + "\",\"onvaluechanged\":\"onFilterChanged\",\"type\":\"textbox\",\"width\":\"100%\",\"emptyText\":\"批量输入恒定流量\"} }";
+                    }
+                    GridColumStr += "]}";
+                    data.data = GridColumStr;
+                    JosnSel(data, "FH_JosnHtml_GongCheng");
+                });
+            }
+
+        function onLoadDataGC() {
+            var s_where = {
+                dayhour:"hour",
+                datatype: "3,3001,3002,3003,3004,3005,3006,3007,3008,3009",
+                solutionid: _dd_id
+            }
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", s_where, function(res){
+                JosnSel(res,"FH_GetBindGC");
+            });
+        }
+
+        //每次更新模型计算站点表，并添加计算边界默认基础数据（预报降雨设定默认用预报降雨，工程调度默认用实测流量）
+        function upDataZhandian() {
+            mini.mask({
+                el: document.getElementById("tabs1"),
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            GetJosns("UPDATA_MODEZHAND", "", "UPDATA_MODEZHAND");
+        }
+
+        function upDataZhandianData() {
+            var stime = mini.get("TM").getFormValue() + ":00";
+            var num = parseInt(mini.get("NUM").getValue());
+            var etime = AddHourDate(stime, num).replaceAll("/","-");
+            $.data(myData, "stime", stime);
+            $.data(myData, "etime", etime);
+            $.data(myData, "HOUR", num);
+            var s_where = {
+                 "startdate": $.data(myData, "stime"),
+                 "enddate": $.data(myData, "etime"), 
+                 "solutionid":_dd_id, 
+                 "jydatatype": JYDATATYPE, 
+                 "gcdatatype": GCDATATYPE,
+                 username: GetCookie("LOGINNAME")
+            };
+            app.post("/SWZZ_MODE_ES_ZHANDIANDATA/MODIFY_MODEZHANDData", s_where, function(res){
+                JosnSel(res,"UPDATA_MODEZHANDData");
+            });
+        }
+    </script>
+    <script type="text/javascript">
+        function StartHP() {
+            var stime = mini.get("TM").getFormValue() + ":00";
+            var num = parseInt(mini.get("NUM").getValue());
+            var etime = AddHourDate(stime, num);
+            $.data(myData, "stime", stime);
+            $.data(myData, "HOUR", num);
+            $.data(myData, "etime", etime);
+            var _year = formatDate(stime).getFullYear();
+
+            var s_where = { "yj_time": stime, "str_hour": num, "userName": GetCookie("username"), "str_year": _year, "ISOK": "true" };
+            GetJosns("FH_StartModel", s_where, "Sel");
+        }
+
+        //模型状态：补算或计算
+        var modelStatus = "js";
+
+        function JosnSel(result, typeID) {
+            if (typeID == "Sel") {
+                //alert(result.data);
+                if (result.data == "3") {
+                    var tempResult = $.data(myData, "BtnOK");
+                    $.data(myData, "MX_STATUS", "3");//记录模型是在补算中
+                    $(".mini-mask-loading").html("模型预热期计算......");
+                    tempResult = "模型正在进行预热期计算";
+
+                    mini.unmask(document.body);
+                    getProcess();
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loadingnew',
+                        html: tempResult
+                    });
+                    var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;">' + tempResult + '</div>';
+                    miniMsg += '<div class="progress">';
+                    miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                    miniMsg += '<div class="progress-value">0%</div>';
+                    miniMsg += '</div>';
+
+                    //取消计算
+                    miniMsg += '<div style="margin:25px auto;width:160px;"><a id="A4" style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div>';
+
+                    miniMsg += '</div>';
+                    $(".mini-mask-loadingnew").html(miniMsg);
+                } else if (result.data == "1") {
+                    //说明正常启动了模型
+                    if (tongbuZDMD != null) {
+                        GetJosns("MODE_DD_SOLUTION_AUTOAdd", { DD_TM: $.data(myData, "stime"), TYPE: "0" }, "MODE_DD_SOLUTION_AUTOAdd");
+                    }
+                    $.data(myData, "MX_STATUS", "1");//记录模型补算完成，进入计算
+                    $(".mini-mask-loading").html("模型初始化数据");
+
+
+                    if (tongbuZDMD != null) {//自动计算
+                        DD_ZD = "1";//自动计算状态
+                        GetJosns("FH_redicretion_method", {}, "Method");
+                    }
+                } else {
+                    mini.alert(result.data);
+                    mini.unmask(document.body);
+                }
+            } 
+            else if (typeID == "Method") {
+                if (GetCookie("Initialization") == null) {
+                    SetCookie("Initialization", "1", 1);
+                }
+                if (result.data == "err") {
+                    mini.alert("预报调度计算不能成功启动！");
+                    window.location.href = "Initialization.html";
+                } else {
+                    SetCookie("current1", "1", 1);
+                    SetCookie("current2", "1", 1);
+                    var tempResult = $.data(myData, "BtnOK");
+                    if (tempResult != null && tempResult != "") {
+                        startJisuan();
+                    } else {
+                        //window.location.href = "JiangYuSet.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime");
+                        window.location.href = "/WJ_MX/" + result.data + "&DD_EVALUE=" + $.data(myData, "DD_EVALUE");
+                    }
+                }
+            } else if (typeID == "Sel2") {
+                if (result.data == "1") {
+                    getMadelState();
+                }
+            } 
+            else if (typeID == "GetProcessData") {
+                var tempResult = $.data(myData, "BtnOK");
+                var tempJson = mini.decode(result.data);
+                //console.log(result.data);
+                //当进度条等于100%时，说明程序在等待模型给正确的状态值，无须再执行赋值进度条的代码
+                if ($(".progress-value").html() == "100%") {
+                    return;
+                }
+                if (Number(tempJson.Process).toFixed(0) >= 100) {
+                    return;
+                }
+                $("#progress").css("width", Number(tempJson.Process).toFixed(0) + "%");
+                $(".progress-value").html(Number(tempJson.Process).toFixed(0) + "%");
+            } 
+            else if (typeID == "DikeComputeInfo") {
+                if (result.data == "0" || result.data == "-1") {
+                    t = setTimeout("getProcess()", 1000);
+                    var tempResult = $.data(myData, "BtnOK");
+                    var mx_status = $.data(myData, "MX_STATUS");
+                    if (mx_status != null && mx_status == "1") {//表示获取模型计算进度数据
+                        modelStatus = "js";
+                        //计算
+                        var s_where = { "yj_time": $.data(myData, "stime"), "num_str": $.data(myData, "HOUR") };
+                        GetJosns("FH_JS_GetProcessData", s_where, "GetProcessData");
+                    }
+                    else {
+                        //补算
+                        modelStatus = "bs";
+                        var s_where = { "yj_time": $.data(myData, "stime"), "num_str": $.data(myData, "HOUR") };
+                        GetJosns("FH_BS_GetProcessData", s_where, "GetProcessData");
+                    }
+                } else if (result.data == "1" || result.data == "2") {
+                    $("#progress").css("width", "100%");
+                    $(".progress-value").html("100%");
+                    if (!timeout) {
+                        var tempResult = $.data(myData, "BtnOK");
+                        //补算或者计算完成
+                        if (modelStatus == "bs") {//记录模型补算完成，进入计算
+                            var stime = $.data(myData, "stime");
+                            var num = $.data(myData, "HOUR");
+                            var _year = formatDate(stime).getFullYear();
+                            var s_where = { "yj_time": stime, "str_hour": num, "userName": GetCookie("username"), "str_year": _year, "ISOK": "" };
+                            GetJosns("FH_StartModel", s_where, "Sel");
+                        } else {//记录模型计算完成，进入成果界面
+                            $.data(myData, "MX_STATUS", "1");
+                            //计算完成，清空计时器
+                            window.clearInterval(t);
+                            timeout = true;
+                            getMadelFilish();
+                        }
+                    }
+                } else {
+                    //模型计算出现问题，清空定时器
+                    window.clearInterval(t);
+                    GetJosns("WJ_ReturnToken", {}, "WJ_ReturnToken");
+                    timeout = true;
+                    mini.alert(result.data);
+                    mini.unmask(document.body);
+                }
+            } 
+            else if (typeID == "finish_method") {
+                if (result.data == "0" || result.data == "1") {
+                    mini.unmask(document.body);
+                    //加上进度条
+                    var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;">模型预见期计算...</div>';
+                    miniMsg += '<div class="progress">';
+                    miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                    miniMsg += '<div class="progress-value">已完成：0%</div>';
+                    miniMsg += '</div>';
+
+                    //取消计算
+                    miniMsg += '<div style="margin:25px auto;width:160px;"><a id="A4" style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div>';
+
+                    miniMsg += '</div>';
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loadingnew',
+                        html: miniMsg
+                    });
+                    getProcess();
+                } else {
+                    mini.alert(result.data);
+                    mini.unmask(document.body);
+                }
+            } 
+            else if (typeID == "redicretion_finishmethod") {
+                if (result.data == "2") {
+                    GetJosns("FH_getModelRunState", "", "getModelRunState");
+                } else if (result.data == "1") {
+                    if (GetCookie("DD_ID") != null) {
+                        DelCookie("DD_ID");
+                    }
+                    //整个计算完成，进入结果
+                    //保存方案，根据调度预案进入不同成果展示界面
+
+                    //var url = "Jisuan.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime") + "&DD_EVALUE=" + $.data(myData, "DD_EVALUE");
+                    //window.location.href = "/WJ_MX/" + url;
+
+                    var mtype = [{ id: "1", text: "水位" }, { id: "2", text: "流量" }, { id: "102", text: "BOD5浓度" }, { id: "103", text: "DO浓度" }, { id: "104", text: "COD浓度(Cr)" }, { id: "105", text: "总磷浓度" }, { id: "106", text: "总氮浓度" }, { id: "128", text: "氨氮浓度" }];
+                    var s_where = { "jsonText": JSON.stringify(mtype) };
+
+                    //站点入库
+                    //GetJosns("FH_GetSTCD", s_where, "STCD");
+
+
+                    timeout = false;//可以重新计算
+                    mini.unmask(document.body);
+                    //var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;">预报数据保存中</div>';
+                    //miniMsg += '<div class="progress">';
+                    //miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                    //miniMsg += '<div class="progress-value">0%</div>';
+                    //miniMsg += '</div>';
+                    //miniMsg += '</div>';
+                    //mini.mask({
+                    //    el: document.body,
+                    //    cls: 'mini-mask-loadingnew',
+                    //    html: miniMsg
+                    //});
+                    //GetJosns("FH_GetLOC", {}, "GetLOC");
+
+                    onResultOk();
+                } else {
+                    mini.alert(result.data);
+                    timeout = false;//可以重新计算
+                    mini.unmask(document.body);
+                }
+            } 
+            else if (typeID == "getModelRunState") {
+                if (result.data != "") {
+                    timeout = false;//可以重新计算
+                    mini.alert(result.data);
+                }
+            } 
+            else if (typeID == "GridColum") {
+                var dataResult = mini.decode(result.data);
+                grid.set(dataResult);
+                onLoadData();
+            } 
+            else if (typeID == "UPDATA_MODEZHAND") {
+                //添加一条边界过程数据
+                upDataZhandianData();
+            } 
+            else if (typeID == "UPDATA_MODEZHANDData") {
+                if (result.message.indexOf("操作失败")==-1) {
+                    $.data(myData, "UPDATA_MODEZHANDData", result.data);
+                    //根据条件获取调度方案
+                    //alert(JSON.stringify(result.data));
+                    var html_Str = "";
+                    for (var i = 0; i < result.data.length; i++) {
+                        var style = "style='width:" + (100 / result.data.length) + "%'";
+                        if (i == 0) { html_Str += "<li " + style + " id=\"TitleLi" + result.data[i].ID + "\"  name=\"" + result.data[i].TYPE + "\" title=\"" + result.data[i].NOTE + "\" onclick=\"OnClickTitle(this.id, this.id, '" + result.data[i].ID + "', '" + result.data[i].FA_NAME + "')\" class=\"onlyli start onlyliHover\">" + result.data[i].FA_NAME + "</li>"; }
+                        else { html_Str += "<li " + style + " id=\"TitleLi" + result.data[i].ID + "\"  name=\"" + result.data[i].TYPE + "\" title=\"" + result.data[i].NOTE + "\"  onclick=\"OnClickTitle(this.id, this.id, '" + result.data[i].ID + "', '" + result.data[i].FA_NAME + "')\" class=\"onlyli\">" + result.data[i].FA_NAME + "</li>"; }
+                    }
+                    //alert(html_Str);
+                    //$("#faList").html(html_Str);
+                    GridColum();
+                    GridColumGC();
+                } else {
+                    console.error(result.Message);
+                    mini.alert("操作失败!");
+                }
+            } 
+            else if (typeID == "FH_GetBind") {
+                arrLYPJ = [];
+                var dataResult = mini.decode(result.data);
+                grid.setData(dataResult);
+            } 
+            else if (typeID == "FH_JosnHtml_GongCheng") {
+                var dataResult = mini.decode(result.data);
+                // console.error(result.data);
+                gridGC.set(dataResult);
+                $.data(myData, "gridGCColumns", dataResult);
+                onLoadDataGC();
+            } 
+            else if (typeID == "FH_GetBindGC") {
+                var dataResult = mini.decode(result.data);
+                $.data(myData, "gridGCData", dataResult);
+                gridGC.setData(dataResult);
+                //获取token
+                checkData();
+                mini.unmask(document.body);
+            } 
+            else if (typeID == "update_batch") {
+                ShowMsg(result.data);
+                onLoadData();
+            } 
+            else if (typeID == "UpdataMethod") {
+                ShowMsg(result.data);
+                onLoadData();
+                onLoadDataGC();
+            } 
+            else if (typeID == "PLAdd") {
+                function showTips() {
+                    var x = "right";
+                    var y = "bottom";
+                    var state = "default";
+                    mini.showTips({
+                        content: data.message,
+                        state: state,
+                        x: x,
+                        y: y,
+                        timeout: 1500
+                    });
+                }
+                mini.unmask(document.body);
+            } 
+            else if (typeID == "FH_GetLOCNEW") {
+                //下载完了之后更新方案是否计算完成状态
+                GetJosns("MODE_DD_SOLUTION_YSUpdate", { DD_ID: _dd_id, DD_FINISH: "1" }, "MODE_DD_SOLUTION_YSUpdate");
+            }
+            else if (typeID == "STCD") {
+                //var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;">预报数据保存中</div>';
+                //miniMsg += '<div class="progress">';
+                //miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                //miniMsg += '<div class="progress-value">0%</div>';
+                //miniMsg += '</div>';
+                //miniMsg += '</div>';
+                //mini.mask({
+                //    el: document.body,
+                //    cls: 'mini-mask-loadingnew',
+                //    html: miniMsg
+                //});
+                //GetJosns("FH_GetLOC", {}, "GetLOC");
+            } 
+            else if (typeID == "GetLOC") {
+                var tempJson = mini.decode(result.data);
+                if (parseFloat(tempJson.Process) >= 98) {
+                    mini.unmask(document.body);
+                    //search();
+                    SetCookie("GetLOC", "完成", 3);
+                    //保存完成
+                    onResultOk();
+                } else {
+                    $("#progress").css("width", Number(tempJson.Process).toFixed(2) + "%");
+                    $(".progress-value").html(Number(tempJson.Process).toFixed(2) + "%");
+                    GetJosns("FH_GetLOC", {}, "GetLOC");
+                }
+            } 
+            else if (typeID == "updateJYSJBY") {
+                //ShowMsg(result.data);
+                onLoadData();
+                mini.unmask(document.body);
+            } 
+            else if (typeID == "updateJYSKBY") {
+                onLoadData();
+                mini.unmask(document.body);
+            } 
+            else if (typeID == "MODE_DD_SOLUTIONSel") {
+                solutionArr = result.data;
+            } 
+            else if (typeID == "WJ_GetToken") {
+                //启动模型
+                setTimeout(function () { StartHP(); }, 500);
+            }
+            else if (typeID =="MODE_DD_SOLUTION_YSUpdate") {
+                cancelModel();
+            }
+
+            //新模型接口
+            else if (typeID == "GetSubjectList") {
+				if (result.info.success) {
+					var docid = result._id.doc;
+					$.data(myData, "docid", docid);//模型文档id
+					var bCurresult=result.data.filter(res=>{
+                        return res.bCur==true;
+                    });
+					if(bCurresult.length>0){
+						var sbjID = bCurresult[0].id;
+                  	    var timeStepHydro=bCurresult[0].timeStepHydro;
+					    var timeStep=bCurresult[0].timeStep;
+						//记录doc、sbjID、timeStepHydro、timeStep
+						$.data(myData, "sbjID", sbjID);//模型专题ID
+                    	$.data(myData, "timeStepHydro", timeStepHydro);//模型步长
+						$.data(myData, "timeStep", timeStep);//模型步数
+						//模型获取控制调度对象列表
+						modelGetScheduleObjList();
+						//获取主图形输出项
+						modelGetPresetResultInfoList();
+					}
+					startJisuan();
+				}
+            }
+            else if(typeID=="GetScheduleObjList"){
+                console.error(typeID,result);
+                $.data(myData,"bjModelZhan",result.data);
+            }
+            else if (typeID == "DATASel") {
+				$.data(myData, "bjModelData", result.data);
+				//设置预报调度任务
+				modelSetTask();
+            }
+            else if(typeID=="SetTask"){//设置任务
+                var info=result.info;
+                if(info.success){
+                    $.data(myData, "taskID",result.taskID);//模型任务编号
+                    mini.unmask(document.body);
+                    //加上进度条
+                    var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;" id="progressTitle">模型预见期计算...</div>';
+                    miniMsg += '<div class="progress">';
+                    miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                    miniMsg += '<div class="progress-value">已完成：0%</div>';
+                    miniMsg += '</div>';
+
+                    //取消计算
+                    miniMsg += '<div style="margin:25px auto;width:160px;"><a id="A4" style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div>';
+
+                    miniMsg += '</div>';
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loadingnew',
+                        html: miniMsg
+                    });
+                    setTimeout("modelGetTaskStatus()", 2000);
+                }
+            }
+            else if(typeID=="GetTaskStatus"){
+                var info=result.info;
+                if (!info.success) {
+                    $("#progressTitle").html(info.msg);
+                    if (info.modelTime != undefined) {
+                        var stime = $.data(myData, "stime");
+                        var etime = $.data(myData, "etime");
+                        var totalhour = GetDateDiff(stime, etime, 'hour');
+                        var gooverhour=GetDateDiff(stime,info.modelTime, 'hour');//计算了多少时间
+                        var Process=((gooverhour/totalhour)*100).toFixed(0);
+                        if (Number(Process) >= 0) {
+                            $("#progress").css("width", Number(Process).toFixed(0) + "%");
+                            $(".progress-value").html(Number(Process).toFixed(0) + "%");
+                        }
+                    }
+                    if (!timeout) {//说明取消计算了
+                        setTimeout("modelGetTaskStatus()", 1500);
+                    }
+                }else{
+                    // //模型计算完成，取模型计算的结果
+                    // console.error(typeID,info);
+                    // SetCookie("five", "1", 1);
+                    // //保存方案，根据调度预案进入不同成果展示界面
+                    // var url = "JiSuan.html";
+                    // Next_Click(url);
+                   
+                    //获取主图形输出项
+                    onResultOk();
+                }
+            }
+            else if (typeID == 'GetPresetResultInfoList') {
+                $.data(myData, 'zhuData', result.data);
+                
+            }
+        }
+
+         function startJisuan() {
+            timeout = false;//可以重新计算
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '开始模型计算'
+            });
+            var localDD_ID = _dd_id;
+            if (localDD_ID == null || localDD_ID == "") {
+                localDD_ID = "0";
+            }
+            var strWhere = { "strExp": localDD_ID };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult", strWhere, function (res) {
+                JosnSel(res, "DATASel");
+            });
+        }
+        function getModelResult(dd_id) {
+            //获取模型的成果
+            var zhuData = $.data(myData, 'zhuData');
+            var stime = $.data(myData, "stime");
+            var etime = $.data(myData, "etime");
+            var taskID = $.data(myData, "taskID");
+            var bdms_predictSql=[];
+            for (var num = 0; num < zhuData.length; num++) {
+                var id = zhuData[num].id;
+                var dataType = zhuData[num].type;
+                var stcd = zhuData[num].stcd;
+                stcd=stcd!=""?stcd.replace('.',''):id;
+                var strWhere = {
+                    "version": 1,
+                    "api": "GetResultPresetByTimePeriod",
+                    "id": id,//主图形编号
+                    "startTM": stime,
+                    "endTM": etime,
+                    "taskID": taskID
+                }
+                GetJosnsModeNew("", strWhere,false,function (res) {
+                    console.error(id, stcd, res);
+                    var data = res.data;
+                    if (data != undefined && data != null) {
+                        var vals = data.vals;
+                        var times = data.times;
+                        if (times != undefined && times != null) {
+                            for (var _index = 0; _index < times.length; _index++) {
+                                var _tm = new Date(times[_index]);
+                                var _data = Number(vals[_index]);
+                                var pREDICT = {};
+                                if (dataType == 1) {//水位，取五分钟的数据
+                                    pREDICT.ID = GetTableID();
+                                    pREDICT.USERID ="自动预报";
+                                    pREDICT.STCD = stcd;
+                                    pREDICT.YMDHM = _tm.format("yyyy-MM-dd HH:mm:ss");
+                                    pREDICT.PLAN_N = dd_id;
+                                    pREDICT.DATA_TYPE = dataType;
+                                    pREDICT.DATA = _data.toFixed(2);
+                                    bdms_predictSql.push(pREDICT);
+                                }
+                                else {//其他取一小时一个数据
+                                    if (_tm.getMinutes() == 0) {
+                                        if (dataType == 15 || dataType == 14) {//水面积和蓄量需要转单位：万m³转百万m³，平方米转平方公里
+                                            _data = _data / 1000000;
+                                        }
+                                        pREDICT.ID = GetTableID();
+                                        pREDICT.USERID ="自动预报";
+                                        pREDICT.STCD = stcd;
+                                        pREDICT.YMDHM = _tm.format("yyyy-MM-dd HH:mm:ss");
+                                        pREDICT.PLAN_N = dd_id;
+                                        pREDICT.DATA_TYPE = dataType;
+                                        pREDICT.DATA = _data.toFixed(2);
+                                        bdms_predictSql.push(pREDICT);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            return bdms_predictSql;
+        }
+        
+    //计算完成之后保存计算结果
+    function onResultOk() {
+        //保存数据
+        mini.mask({
+            el: document.body,
+            cls: 'mini-mask-loading',
+            html: '成果保存中...'
+        });
+        var bdms_predictSql = getModelResult(_dd_id);
+        // var bdms_predictSqlNew=[];
+        // bdms_predictSqlNew.push(bdms_predictSql[0]);
+        var bdms_predictSqlStr = JSON.stringify(bdms_predictSql);
+        console.error(bdms_predictSql.length);
+        // console.error(bdms_predictSqlStr);
+        var title= new Date($.data(myData, "stime").replaceAll("-", "/")).format("yyyyMMddHH") + "水情预报(自动预报)";
+        var ms = new Date($.data(myData, "etime")).getTime() - new Date($.data(myData, "stime")).getTime();
+        if (ms < 0) return 0;
+        var hour = Math.floor(ms / 1000 / 60 / 60);
+        var ddobj = {
+            "id": _dd_id,
+            "dd_ID": _dd_id,
+            "dd_NAME":title,
+            "dd_BY": "自动预报员",
+            "dd_TM": new Date($.data(myData, "stime")).format('yyyy-MM-dd HH:mm:ss'),
+            "dd_CARRYTM": new Date().format('yyyy-MM-dd HH:mm:ss'),
+            "dd_NOTE": "自动预报",
+            "typeid": $.data(myData, "TYPE"),
+            "dd_EVALUE": "1",
+            "dd_CHECKBY": new Date($.data(myData, "etime")).format('yyyy-MM-dd HH:mm:ss'),
+            "dd_STANA": hour,
+            "dd_FOR": $.data(myData, "taskID")
+        }
+        var s_where = {
+            solutionid: _dd_id,
+            isGetCookieDD_ID: false,
+            bdms_predictSqlStr: bdms_predictSqlStr,//成果
+            ddobj: ddobj
+        };
+        app.post("SWZZ_MODE_ES_ZHANDIANDATA/FH_inset_ModifyApi", s_where, function (res) {
+            JosnSel(res, "PLAdd");
+        });
+    }
+        var t = null;
+        var timeout = false;
+        function getProcess() {
+            window.clearTimeout(t);
+            if (timeout) return;
+            GetJosns("FH_get_GetPredictDikeComputeInfo", {}, "DikeComputeInfo");
+        }
+        function getMadelState() {
+            GetJosns("FH_redicretion_method", {}, "Method");
+        }
+
+        //模型取消计算
+        function cancelModel() {
+            //计算取消之后，归还令牌
+            GetJosns("WJ_ReturnToken", {}, "WJ_ReturnToken");
+            mini.unmask(document.body);
+            timeout = true;
+            window.clearTimeout(t);
+        }
+    </script>
+    <!--模型计算-->
+    <script type="text/javascript">
+        //记录方案数
+        var fa_index = 0;
+
+        //一键计算
+        function checkData() {
+            timeout = false;
+            $.data(myData, "BtnOK", "true");
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '模型准备计算'
+            });
+            modelGetSubjectList();
+        }
+
+        //计算完成
+        function getMadelFilish() {
+            GetJosns("FH_redicretion_finishmethod", {}, "redicretion_finishmethod");
+        }
+        
+
+
+        
+        function OpenHref() {
+            var objID = $.data(myData, "ID");
+            var DD_ID = $.data(myData, "DD_ID");
+            window.parent.OpenTab("fa-delicious", "调度方案成果展示", "/DD_MX/ResultsRelease.html?ID=" + objID + "&DD_ID=" + DD_ID +"&type=list");
+        }
+    </script>
+    <!--批量操作-->
+    <script>
+        function onFilterChanged(e) {
+            var field = e.sender.getId();
+            var value = e.value;
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            if (value == "") {
+                return;
+            }
+            methodJY(field, value);
+        }
+        function onValueChanged(e) {
+            var selected = grid.getSelected();
+            if (selected) {
+                var s_where = { "ZhanData": e.value, "ZhanTime": new Date(selected.TM).format("yyyy-MM-dd HH:mm:ss"), "ZhanID": e.sender.getName(), DayHour: "HOUR", username: GetCookie("LOGINNAME")}
+                GetJosns("FH_UpdataMethod", s_where, "UpdataMethod");
+            }
+        }
+        function onValueChangedGC(e) {
+            var selected = gridGC.getSelected();
+            if (selected) {
+                var s_where = { "ZhanData": e.value, "ZhanTime": new Date(mini.get("TM").getFormValue()).format("yyyy-MM-dd HH:mm:ss"), "ZhanID": selected.STCD, DayHour: "DAY",username: GetCookie("LOGINNAME") }
+                GetJosns("FH_UpdataMethod", s_where, "UpdataMethod");
+            }
+        }
+        function methodJY(field, fieldText) {
+            var s_where = "";
+            var tempID = GetCookie("DD_ID");
+            if (tempID == null || tempID == "") {
+                tempID = "0";
+            }
+            var s_where = {
+                "ZhanData": fieldText, "ZhanID": field, "DayHour": "DAY", "dd_id": tempID, username: GetCookie("LOGINNAME")
+            };
+            GetJosns("FH_update_batch", s_where, "update_batch");
+        }
+        function ShowMsg(strMsg) {
+            var x = "right";
+            var y = "bottom";
+            mini.showMessageBox({
+                showModal: false,
+                width: 150,
+                title: "提示",
+                iconCls: "mini-messagebox-warning",
+                message: strMsg,
+                timeout: 3000,
+                x: x,
+                y: y
+            });
+        }
+        function compareAscSort(property) {
+            return function (a, b) {
+                var value1 = a[property];
+                var value2 = b[property];
+                return value1 - value2;
+            }
+        }
+        function SELECT_AVGRain() {
+            $('#sysList').hide();
+            $.data(myData, "TYPEANME", "实况反演");
+            $('#qxyb').html("数值模式");
+            JYDATATYPE = "SSJY";
+            var stm = mini.get("TM").getFormValue() + ":00";
+            var num = parseInt(mini.get("NUM").getValue());
+            var etm = AddHourDate(stm, num);
+            var stime = new Date(stm).format("yyyy-MM-dd");
+            var etime = new Date(etm).format("yyyy-MM-dd");
+            var strWhere = { ST: stime, ET: etime, SOLUTIONID: "0", username: GetCookie("LOGINNAME")};
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '操作中，请稍等...'
+            });
+            //修改为实况降雨
+            GetJosns("updateJYSKBY", strWhere, "updateJYSKBY");
+        }
+
+        function FQDATAExel() {
+            mini.open({
+                url: "/DD_MX/ExcelDATA.html?TM=" + mini.get("TM").getFormValue() + ":00",
+                title: "水利分区降雨数据",
+                iconCls: "icon-add",
+                width: "70%",
+                height: "65%",
+                showCloseButton: true,   //显示关闭按钮
+                showMaxButton: true,     //显示最大化按钮
+                showModal: true,         //显示遮罩
+                onload: function () {
+                },
+                ondestroy: function (action) {
+                    onLoadData();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

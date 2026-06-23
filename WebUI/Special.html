@@ -1,0 +1,843 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>上海市专题</title>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            /*overflow-x: hidden;*/
+            background-color: #f5f2f2;
+            padding:0px;
+            margin:5px 0px;
+        }
+
+        .Main {
+            width: 98%;
+            height: 100%;
+            margin: 0px auto;
+        }
+
+        .yb_left {
+            float: left;
+            width: 49.75%;
+            height:100%;
+            /*border: 1px solid #d3d3d3;*/
+            /*background: #ffffff;*/
+        }
+
+        .tqyb_right {
+            float: right;
+            width: 49.75%;
+            height: 100%;
+            /*background: #CFE4FF;*/
+        }
+
+        .tableNY tr {
+            height: 33px;
+        }
+
+            .tableNY tr th {
+                /*border-bottom: solid 1px #e8e8e8;*/
+                height: 50px;
+                padding: 10px 0px;
+                background: rgb(211, 229, 251) !important;
+            }
+            .tableNY tr td,th{
+                text-align:center;
+            }
+
+                .tableNY tr td img {
+                    padding: 2px;
+                }
+
+        .chartData325 {
+            float: left;
+            width: 32.5%;
+            margin-left: 0.5%;
+            height: 280px;
+            border: solid 1px #e8e8e8;
+            border-radius: 6px;
+            margin-top: 10px;
+            background: rgb(245, 245, 245)
+        }
+
+        .chartData33 {
+            float: left;
+            width: 33%;
+            margin-left: 0.5%;
+            height: 280px;
+            margin-top: 10px;
+            border: solid 1px #e8e8e8;
+            border-radius: 6px;
+            background: rgb(245, 245, 245)
+        }
+
+        .gqRed {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: rgb(161, 161, 161);
+            padding: 4px;
+            border-width: 2px;
+            border-style: solid;
+            border-color: rgb(161, 161, 161);
+            border-image: initial;
+            border-radius: 50%;
+        }
+
+        .gqGreen {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #00DB00;
+            border-radius: 50%;
+            background: rgba(0,219,0,0.7);
+        }
+
+        .data-title {
+            width: 100%;
+            height: 154px;
+            /*padding: 30px 0 35px 0;*/
+            box-sizing: border-box;
+            background-color: #1618193b;
+            text-align: center;
+        }
+
+            .data-title > .title-center {
+                /*width: 540px;*/
+                height: 154px;
+                line-height: 154px;
+                box-sizing: border-box;
+                /*border-right: 5px solid #57b9ff;
+                border-left: 5px solid #57b9ff;*/
+                /*border: 5px dashed #57b9ff;
+            background: url("../img/title.png") no-repeat;
+                text-align: center;
+                -webkit-animation: hue 1.5s infinite linear;
+                -webkit-text-fill-color: transparent;
+                -webkit-background-clip: text;
+                padding: 0.1rem;
+                -webkit-appearance: none;
+                border-radius: 10px;
+                    */
+            }
+
+            .data-title > .title-left,
+            .data-title > .title-right {
+                /*width: calc(50% - 270px);
+            height: 3px;
+            background: #57b9ff;
+            margin-top: 41px;*/
+            }
+
+        .sysList {
+            margin-top: 25px;
+            color: gray;
+            margin-left: 0%;
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+            z-index: 99;
+            width: 240px;
+            border-radius: 6px;
+            box-shadow: 0px 0px 10px #878788;
+        }
+
+        .menuTitle {
+            text-align: left;
+            width: 100%;
+            line-height:44px;
+            background-color: #FFF;
+            padding-left: 10px;
+            padding-right: 10px;
+            color: black;
+            font-size: 18px;
+            /*border-bottom: solid 1px #e8e8e8;*/
+            /*font-size: 18px;*/
+            background: url(/Common/Images/ksh333.png) no-repeat 10px bottom;
+            /*margin-left: 10px;*/
+            font-weight: bold;
+            border-bottom: solid 1px #e8e8e8;
+        }
+
+            .menuTitle i {
+                color: #6DA9FF;
+            }
+
+        .shutter {
+            overflow: hidden;
+            width: 1000px;
+            height: 358px;
+            position: relative;
+            margin: 0px auto;
+            border-radius: 10px;
+        }
+
+        .px-4 {
+            padding-right: 20px !important;
+            padding-left: 20px !important;
+            margin-bottom: 10px !important;
+            margin-top: 5px !important;
+            font-size: 16px;
+            line-height: 21px;
+        }
+        .col-sm-3{
+            float:left;
+            width:40%;
+            text-align:center;
+        }
+        .num {
+            font-size:25px;
+        }
+    </style>
+
+</head>
+<body>
+    <div class="Main">
+        <div class="data-title">
+            <div class="title-center fl">
+                <div id="resultTitle" style="font-size:35px;
+    color: white;
+    font-weight: 600;
+    text-shadow: 0px 0px 0px #030927;
+    color:white;background:url(/Common/images//上海市.jpg);background-size: 100% 100%;letter-spacing:8px;">上海市防洪形势分析</div>
+            </div>
+        </div>
+        <div style="margin-top: 10px;height:auto;width:100%;height:400px;">
+            <div class="yb_left">
+                <div style="width:100%;height:100%;margin:0px auto;background:#fff;float:left;" class="mwsChart">
+                    <div class="menuTitle">
+                        <i class="fa fa-tint" style="font-size:20px;"></i>
+                        实时水情
+                    </div>
+                    <div style="width: 100%; background-color: #FFF;height:350px;">
+                        <div class="px-4" id="SQNOTE" style="height:40px;">
+                        </div>
+                        <div style="height:300px;width:90%;margin:0px auto;">
+                            <div class="yb_left" id="RIVERTJ">
+
+                            </div>
+                            <div class="tqyb_right" id="SKTJ">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tqyb_right">
+                <div style="height:100%;width:100%;background: #fff;">
+                    <div class="menuTitle">
+                        <i class="fa  fa-umbrella" style="font-size:20px;"></i>
+                        实时雨情
+                    </div>
+                    <div style="width:100%;height: calc(100%);height:350px;">
+                        <div class="px-4" id="YQNOTE" style="height:40px;">
+                        </div>
+                        <div style="height:300px;width:90%;margin:0px auto;">
+                            <div class="yb_left" id="echart1" style="width:60%;">
+                                <img src="/Common/images/降雨量图.png" style="height:100%;" />
+                            </div>
+                            <div class="tqyb_right" id="echart2" style="width:39%;">
+                                <div class="row text-center" id="splashSummary">
+                                    <div class="col-sm-3">
+                                        <h1 class="num">40.0</h1>
+                                        <small>近24小时单站最大</small>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <h1 class="num">424</h1>
+                                        <small>全市雨量站</small>
+                                    </div>
+                                </div>
+                                <div class="row text-center" style="margin-top:30px;">
+                                    <div class="col-sm-3" style="width:30%;margin-top:60px;">
+                                        <div class="num">0</div>
+                                        <small>1小时超30mm</small>
+                                    </div>
+                                    <div class="col-sm-3" style="width:30%;margin-top:60px;">
+                                        <div class="num">0</div>
+                                        <small>3小时超50mm</small>
+                                    </div>
+                                    <div class="col-sm-3" style="width:30%;margin-top:60px;">
+                                        <div class="num">0</div>
+                                        <small>3小时超50mm</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width:100%;height:830px;margin:0px auto;background:#fff;margin-top: 10px;" class="mwsChart">
+            <div class="menuTitle">
+                <i class="fa fa-bar-chart-o" style="font-size:20px;"></i>
+                水库纳蓄纳洪
+            </div>
+            <div style="width: 100%; background-color: #FFF;height:350px;padding: 20px;overflow-y:scroll;" class="tableNY">
+                <table cellspacing="0" cellpadding="0" border="0" style="width: 100%; margin: 0px auto;" id="myTable">
+                    <tr class="line-height-small">
+                        <th>序号</th>
+                        <th>
+                            水库名称
+                        </th>
+                        <th>
+                            面积（km²）
+                        </th>
+                        <th>
+                            当前水位(m)
+                        </th>
+                        <th>
+                            安全水位(m)
+                        </th>
+                        <th>实时库容（百万m³）</th>
+                        <th>预报雨量(mm)</th>
+                        <th>可纳降雨量(mm)</th>
+                    </tr>
+                </table>
+
+            </div>
+            <div id="echart3" style="width:100%;height:400px;margin-top:25px;">
+
+            </div>
+        </div>
+
+    </div>
+    <script>
+        $(function () {
+            $("#SQNOTE").html("[水情预警] " + new Date().format("M月d日H时m分") + "，全市河道站点142个，超警15个，超保10个。大中型水库13座，0座超汛限。");
+            $("#YQNOTE").html("近24小时,全市面雨量19.3毫米。面雨量较大的有:路桥区28.3毫米,温岭市27.5毫米,仙居县23.2毫米。单站雨量最大为五丰闸40.0毫米。");
+            chartPieTj("RIVERTJ");
+            chartPieTjSK("SKTJ");
+            loadArealrainfall();
+            loadSK();
+        });
+
+        //行政区面雨量
+        function loadArealrainfall() {
+            var data = [{ "NAME": "椒江区", "AVVALUE": 16.1, "STATIONLIS": "*椒江石柱24，石柱22.5，*岩头闸22，滨海工业园20.5，*栅桥20，明珠里(3)水库19，*洪家19，*海门18.5，葭芷闸18.5，*栅浦闸18" }, { "NAME": "黄岩区", "AVVALUE": 23.1, "STATIONLIS": "*秀岭水库31，半山30.5，王家店(长)30，*上垟29.5，西坑(2)水库29.5，*抱料28.5，*白石(长)28，望春27.5，*长潭水库27，大寺基27" }, { "NAME": "路桥区", "AVVALUE": 28.3, "STATIONLIS": "*五丰闸36.5，*德升34.5，*金清新闸上32.5，墙下陶(3)水库32，*新桥31.5，友谊闸31.5，下盟闸31.5，*横街31.5，*峰江30.5，*悟空亭(2)水库29.5" }, { "NAME": "临海市", "AVVALUE": 19, "STATIONLIS": "*谷溪岙(1)水库33，马横溪28.5，*柏枝岙28，*黄家寮(1)水库26，*牛头山水库25.5，义城港25，阮家洋24.5，红岩脚(1)水库24，狮子山(1)水库23.5，两水23" }, { "NAME": "温岭市", "AVVALUE": 27.5, "STATIONLIS": "*泽国36.5，山北村35，*金清闸33.5，龙潭坑(2)水库31，珠山村30.5，*太湖水库30.5，石景(2)水库29.5，马步溪(2)水库29.5，乌龙潭(2)水库29.5，明净(2)水库29" }, { "NAME": "玉环市", "AVVALUE": 17.4, "STATIONLIS": "*芳杜(1)水库25，*小闾(1)水库24.5，玉潭(1)水库21.5，楚门新站21，*楚门19.5，石门坎(1)水库19.5，漩门二期上18，*玉环18，*里墩(1)水库17，济里堂(2)水库16.5" }, { "NAME": "天台县", "AVVALUE": 9.1, "STATIONLIS": "下田(里)17.5，浪水溪(2)水库17.5，岭里(龙)16.5，下辽(龙)16，四协(里)15.5，牛栏头(龙)15.5，后塘(2)水库15.5，寺家坑(里)15，*王琅(1)水库13，竹塘岙(2)水库13" }, { "NAME": "仙居县", "AVVALUE": 23.2, "STATIONLIS": "*苗寮31，*溪上29，*仙居梅岙28，永安27.5，*龙潭头27.5，羊麻坑(2)水库27.5，*下回头27，*仙居26，前王(1)水库26，方山(1)水库26" }, { "NAME": "三门县", "AVVALUE": 10.8, "STATIONLIS": "*山场21，南山20，*石门(1)水库18.5，洞港闸18，小岭(2)水库15.5，麻岙(2)水库15.5，里岙(2)水库14.5，界岙(佃)13.5，朝阳(2)水库13.5，*佃石水库13" }, { "NAME": "全市", "AVVALUE": 19.3, "STATIONLIS": "*五丰闸36.5，*泽国36.5，山北村35，*德升34.5，*金清闸33.5，*谷溪岙(1)水库33，*金清新闸上32.5，墙下陶(3)水库32，友谊闸31.5，下盟闸31.5" }];
+            var chartTM = [], chartData = [];
+            for (var num = 0; num < data.length; num++) {
+                chartTM.push(data[num].NAME);
+                chartData.push(data[num].AVVALUE);
+            }
+            //chartAreaYL('echart1', chartTM, chartData)
+        }
+
+        function loadSK() {
+            var dataSK = [{ "resCode": "51568b97-8bb8-4236-aad3-6f9893833522", "resName": "湖南镇水库", "stcd": "70105850", "resScale": "大（Ⅰ）型", "waterShapeArea": 2151.0, "nowWater": 217.7, "nowCap": 112566.00000000001, "deadWater": 190.0, "normalWater": 230.0, "txFloodWater": 228.0, "mxFloodWater": 228.0, "highWater": 235.5, "yiMinWater": 232.60000610351562, "deadCap": 44884.0, "normalCap": 158424.0, "txFloodCap": 150188.0, "mxFloodCap": 150188.0, "highCap": 182937.0, "yiMinCap": 169659.62701416016, "canRainCapacity": 265.3999938964844, "canYiMinCap": 57093.62701416014, "time": "2021-04-02", "swRainfallAccept": 265.4, "adcd": "330803" }, { "resCode": "79366f73-4f0a-4204-9167-0c390626c456", "resName": "珊溪水库", "stcd": "70600500", "resScale": "大（Ⅰ）型", "waterShapeArea": 1529.0, "nowWater": 125.49, "nowCap": 76738.0, "deadWater": 117.0, "normalWater": 142.04, "txFloodWater": 142.0, "mxFloodWater": null, "highWater": 148.0, "yiMinWater": 147.7100067138672, "deadCap": 57448.0, "normalCap": 125616.15999999997, "txFloodCap": 125478.0, "mxFloodCap": null, "highCap": 147109.0, "yiMinCap": 148590.86569213867, "canRainCapacity": 469.8999938964844, "canYiMinCap": 71852.86569213867, "time": "2021-04-02", "swRainfallAccept": 469.9, "adcd": "330328" }, { "resCode": "96e8e5ca-306c-493f-916a-9b0ea04264fc", "resName": "滩坑水库", "stcd": "70507700", "resScale": "大（Ⅰ）型", "waterShapeArea": 3330.0, "nowWater": 137.97, "nowCap": 219969.0, "deadWater": 120.0, "normalWater": 160.0, "txFloodWater": 156.5, "mxFloodWater": null, "highWater": 161.5, "yiMinWater": 160.16000366210938, "deadCap": 139400.0, "normalCap": 352000.0, "txFloodCap": 327945.0, "mxFloodCap": null, "highCap": 362625.0, "yiMinCap": 353131.2258911133, "canRainCapacity": 403.29998779296875, "canYiMinCap": 133162.22589111328, "time": "2021-04-02", "swRainfallAccept": 403.3, "adcd": "331121" }, { "resCode": "9e7a6e3f-af0c-4bb7-96d5-aad46fb853d6", "resName": "紧水滩水库", "stcd": "70501100", "resScale": "大（Ⅰ）型", "waterShapeArea": 2761.0, "nowWater": 168.67, "nowCap": 59374.0, "deadWater": 164.0, "normalWater": 184.0, "txFloodWater": 184.0, "mxFloodWater": null, "highWater": null, "yiMinWater": 188.0500030517578, "deadCap": 49002.6, "normalCap": 103482.7, "txFloodCap": 103482.7, "mxFloodCap": null, "highCap": null, "yiMinCap": 118140.46178894045, "canRainCapacity": 213.0, "canYiMinCap": 58766.46178894045, "time": "2021-04-02", "swRainfallAccept": 213.0, "adcd": "331125" }, { "resCode": "c8913531-8866-4d34-80dc-2f8918005c56", "resName": "新安江水库", "stcd": "70112000", "resScale": "大（Ⅰ）型", "waterShapeArea": 10422.0, "nowWater": 99.95, "nowCap": 1341650.0, "deadWater": 86.0, "normalWater": 108.0, "txFloodWater": 106.5, "mxFloodWater": 106.5, "highWater": null, "yiMinWater": 108.0, "deadCap": 757400.0, "normalCap": 1784000.0, "txFloodCap": 1689400.0, "mxFloodCap": 1689400.0, "highCap": null, "yiMinCap": 1784000.0, "canRainCapacity": 422.1000061035156, "canYiMinCap": 442350.0, "time": "2021-04-02", "swRainfallAccept": 422.1, "adcd": "330182" }, { "resCode": "05611810-4135-4a3d-969a-e67f0f0911c0", "resName": "陈蔡水库", "stcd": "70119000", "resScale": "大（Ⅱ）型", "waterShapeArea": 187.0, "nowWater": 66.07, "nowCap": 718.5, "deadWater": 62.0, "normalWater": 82.68, "txFloodWater": 81.18, "mxFloodWater": 82.68, "highWater": 90.58, "yiMinWater": 88.37999725341797, "deadCap": 232.3, "normalCap": 5944.0, "txFloodCap": 5254.992000000003, "mxFloodCap": 5944.0, "highCap": 10533.679999999998, "yiMinCap": 9099.086276245118, "canRainCapacity": 448.0, "canYiMinCap": 8380.586276245118, "time": "2021-04-02", "swRainfallAccept": 448.0, "adcd": "330681" }, { "resCode": "017f7fda-68bd-4fb0-af27-0fdbd7bdfab8", "resName": "对河口水库", "stcd": "63003200", "resScale": "大（Ⅱ）型", "waterShapeArea": 148.7, "nowWater": 42.12, "nowCap": 3619.0, "deadWater": 33.0, "normalWater": 48.5, "txFloodWater": 44.0, "mxFloodWater": null, "highWater": 55.18, "yiMinWater": 54.0, "deadCap": 810.0, "normalCap": 7030.0, "txFloodCap": 4550.0, "mxFloodCap": null, "highCap": 11393.2, "yiMinCap": 10560.0, "canRainCapacity": 465.79998779296875, "canYiMinCap": 6941.0, "time": "2021-04-02", "swRainfallAccept": 465.8, "adcd": "330521" }, { "resCode": "10e3382d-8103-4e97-85dc-6cb4af4fe494", "resName": "四明湖水库", "stcd": "70303900", "resScale": "大（Ⅱ）型", "waterShapeArea": 103.1, "nowWater": 12.74, "nowCap": 4409.0, "deadWater": 7.0, "normalWater": 16.28, "txFloodWater": 15.28, "mxFloodWater": null, "highWater": 17.28, "yiMinWater": 17.280000686645508, "deadCap": 585.0, "normalCap": 7946.0, "txFloodCap": 6890.0, "mxFloodCap": null, "highCap": 9062.0, "yiMinCap": 9062.000789642332, "canRainCapacity": 451.70001220703125, "canYiMinCap": 4653.000789642332, "time": "2021-04-02", "swRainfallAccept": 451.7, "adcd": "330281" }, { "resCode": "12c1bd3f-693c-466b-bde7-9d6f1628dffa", "resName": "石壁水库", "stcd": "70118880", "resScale": "大（Ⅱ）型", "waterShapeArea": 108.8, "nowWater": 88.85, "nowCap": 3852.0000000000005, "deadWater": 70.0, "normalWater": null, "txFloodWater": 87.71, "mxFloodWater": 93.5, "highWater": 98.24, "yiMinWater": 97.55999755859375, "deadCap": 325.1, "normalCap": null, "txFloodCap": 3500.9999999999973, "mxFloodCap": 5478.0, "highCap": 7491.399999999998, "yiMinCap": 7178.598876953127, "canRainCapacity": 305.20001220703125, "canYiMinCap": 3326.5988769531264, "time": "2021-04-02", "swRainfallAccept": 305.2, "adcd": "330681" }, { "resCode": "13fa629a-cd81-4e53-8018-e0a8cf05cf6c", "resName": "白溪水库", "stcd": "70704700", "resScale": "大（Ⅱ）型", "waterShapeArea": 254.0, "nowWater": 124.28, "nowCap": 3592.0, "deadWater": 100.0, "normalWater": 170.0, "txFloodWater": 170.0, "mxFloodWater": null, "highWater": 173.5, "yiMinWater": 173.5, "deadCap": 950.0, "normalCap": 14500.0, "txFloodCap": 14500.0, "mxFloodCap": null, "highCap": 15740.0, "yiMinCap": 15740.0, "canRainCapacity": 478.29998779296875, "canYiMinCap": 12148.0, "time": "2021-04-02", "swRainfallAccept": 478.3, "adcd": "330226" }, { "resCode": "1e46ce72-723a-44a5-9149-bd00df60f678", "resName": "皎口水库", "stcd": "70301600", "resScale": "大（Ⅱ）型", "waterShapeArea": 259.0, "nowWater": 51.94, "nowCap": 2596.0, "deadWater": 37.0, "normalWater": 68.08, "txFloodWater": 62.18, "mxFloodWater": null, "highWater": 72.41, "yiMinWater": 72.18000030517578, "deadCap": 218.3, "normalCap": 7807.199999999997, "txFloodCap": 5629.0, "mxFloodCap": null, "highCap": 9654.649999999996, "yiMinCap": 9550.000138854977, "canRainCapacity": 268.5, "canYiMinCap": 6954.000138854977, "time": "2021-04-02", "swRainfallAccept": 268.5, "adcd": "330212" }, { "resCode": "22e8d869-9aa0-4868-a442-7d61b5c26cb4", "resName": "合溪水库", "stcd": "63202210", "resScale": "大（Ⅱ）型", "waterShapeArea": 235.0, "nowWater": 19.47, "nowCap": 2646.0, "deadWater": 12.0, "normalWater": 22.0, "txFloodWater": 22.0, "mxFloodWater": null, "highWater": 28.6, "yiMinWater": 26.799999237060547, "deadCap": 461.0, "normalCap": 4027.0, "txFloodCap": 4027.0, "mxFloodCap": null, "highCap": 9176.3, "yiMinCap": 7510.099410455877, "canRainCapacity": 207.0, "canYiMinCap": 4864.099410455877, "time": "2021-04-02", "swRainfallAccept": 207.0, "adcd": "330522" }, { "resCode": "3984811b-175c-44ea-9825-2cfce228a174", "resName": "亭下水库", "stcd": "70300450", "resScale": "大（Ⅱ）型", "waterShapeArea": 176.0, "nowWater": 72.6, "nowCap": 5636.0, "deadWater": 43.0, "normalWater": 82.65, "txFloodWater": 81.0, "mxFloodWater": null, "highWater": 89.26, "yiMinWater": 89.44999694824219, "deadCap": null, "normalCap": 10000.0, "txFloodCap": 9186.500000000002, "mxFloodCap": null, "highCap": 13626.000000000004, "yiMinCap": 13739.99816894531, "canRainCapacity": 460.5, "canYiMinCap": 8103.998168945311, "time": "2021-04-02", "swRainfallAccept": 460.5, "adcd": "330213" }, { "resCode": "3dd4f6a1-3700-4ec5-b50c-f6f14a59354e", "resName": "富春江水库", "stcd": "70101500", "resScale": "大（Ⅱ）型", "waterShapeArea": 31645.0, "nowWater": 22.9, "nowCap": 43570.0, "deadWater": 21.5, "normalWater": 23.0, "txFloodWater": null, "mxFloodWater": null, "highWater": 23.5, "yiMinWater": 23.5, "deadCap": 36400.0, "normalCap": 44100.0, "txFloodCap": null, "mxFloodCap": null, "highCap": 47000.0, "yiMinCap": 47000.0, "canRainCapacity": null, "canYiMinCap": 3430.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330122" }, { "resCode": "3f5b3210-c140-4829-9622-4c43cf714a36", "resName": "里石门水库", "stcd": "70402900", "resScale": "大（Ⅱ）型", "waterShapeArea": 296.0, "nowWater": 171.05, "nowCap": 9202.0, "deadWater": 156.0, "normalWater": 176.04, "txFloodWater": 175.54, "mxFloodWater": null, "highWater": 180.69, "yiMinWater": 180.83999633789062, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 211.10000610351562, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 211.1, "adcd": "331023" }, { "resCode": "4151822a-0f9b-4363-893f-416356fe601b", "resName": "长诏水库", "stcd": "70203600", "resScale": "大（Ⅱ）型", "waterShapeArea": 276.0, "nowWater": 118.34, "nowCap": 6459.0, "deadWater": 99.0, "normalWater": 131.16, "txFloodWater": 124.26, "mxFloodWater": 131.16, "highWater": 132.85, "yiMinWater": 137.17999267578125, "deadCap": 796.0000000000005, "normalCap": 13640.0, "txFloodCap": 9356.000000000005, "mxFloodCap": 13640.0, "highCap": 14829.899999999998, "yiMinCap": 18166.593920898442, "canRainCapacity": 424.20001220703125, "canYiMinCap": 11707.593920898442, "time": "2021-04-02", "swRainfallAccept": 424.2, "adcd": "330624" }, { "resCode": "42055ab6-b066-419f-b508-c0c69461e615", "resName": "横锦水库", "stcd": "70107900", "resScale": "大（Ⅱ）型", "waterShapeArea": 378.0, "nowWater": 152.37, "nowCap": 9638.0, "deadWater": 130.0, "normalWater": 164.0, "txFloodWater": 161.0, "mxFloodWater": 164.0, "highWater": 166.59, "yiMinWater": 165.89999389648438, "deadCap": 681.0, "normalCap": 18279.0, "txFloodCap": 15813.0, "mxFloodCap": 18279.0, "highCap": 20566.08, "yiMinCap": 19939.394592285156, "canRainCapacity": 271.29998779296875, "canYiMinCap": 10301.394592285156, "time": "2021-04-02", "swRainfallAccept": 271.3, "adcd": "330783" }, { "resCode": "480b6c13-42e2-4631-aa42-2a02060c3c6a", "resName": "南山水库", "stcd": "70204500", "resScale": "大（Ⅱ）型", "waterShapeArea": 109.8, "nowWater": 113.31, "nowCap": 4787.0, "deadWater": 88.0, "normalWater": 122.22, "txFloodWater": 116.72, "mxFloodWater": 122.22, "highWater": 124.92, "yiMinWater": 133.22000122070312, "deadCap": null, "normalCap": 6987.0, "txFloodCap": 5586.5, "mxFloodCap": 6987.0, "highCap": 7723.900000000001, "yiMinCap": 10175.00037841797, "canRainCapacity": 489.79998779296875, "canYiMinCap": 5388.00037841797, "time": "2021-04-02", "swRainfallAccept": 489.8, "adcd": "330683" }, { "resCode": "5bb040cc-e867-4088-b82a-d68ebf33c174", "resName": "分水江水库", "stcd": "70115150", "resScale": "大（Ⅱ）型", "waterShapeArea": 2630.0, "nowWater": 42.58, "nowCap": 4746.0, "deadWater": 38.0, "normalWater": 45.0, "txFloodWater": 43.5, "mxFloodWater": 40.0, "highWater": 50.44, "yiMinWater": 48.599998474121094, "deadCap": 1494.0, "normalCap": 7636.0, "txFloodCap": 5751.0, "mxFloodCap": 2562.0, "highCap": 16904.399999999998, "yiMinCap": 13306.997283935545, "canRainCapacity": 32.599998474121094, "canYiMinCap": 8560.997283935545, "time": "2021-04-02", "swRainfallAccept": 32.6, "adcd": "330122" }, { "resCode": "60924c61-8c12-4255-89e3-014a5cb9192f", "resName": "汤浦水库", "stcd": "70206700", "resScale": "大（Ⅱ）型", "waterShapeArea": 460.0, "nowWater": 23.77, "nowCap": 8965.0, "deadWater": 12.0, "normalWater": 32.05, "txFloodWater": 31.05, "mxFloodWater": 32.05, "highWater": 34.35, "yiMinWater": 36.54999923706055, "deadCap": 975.0999999999997, "normalCap": 18513.0, "txFloodCap": 17173.0, "mxFloodCap": 18513.0, "highCap": 21786.200000000008, "yiMinCap": 25205.998759460454, "canRainCapacity": 298.20001220703125, "canYiMinCap": 16240.998759460454, "time": "2021-04-02", "swRainfallAccept": 298.2, "adcd": "330604" }, { "resCode": "60f06858-f463-4bf3-ab66-e31a8ac69a1e", "resName": "白水坑水库", "stcd": "70104380", "resScale": "大（Ⅱ）型", "waterShapeArea": 330.0, "nowWater": 339.01, "nowCap": 15577.000000000002, "deadWater": 326.0, "normalWater": null, "txFloodWater": 343.8, "mxFloodWater": 348.3, "highWater": 351.6, "yiMinWater": 350.5899963378906, "deadCap": null, "normalCap": null, "txFloodCap": 18473.0, "mxFloodCap": 21504.0, "highCap": 23927.2, "yiMinCap": 23166.917260742204, "canRainCapacity": 230.10000610351562, "canYiMinCap": 7589.917260742202, "time": "2021-04-02", "swRainfallAccept": 230.1, "adcd": "330881" }, { "resCode": "74720fde-90cf-4210-be64-c6cb28cdc754", "resName": "横山水库", "stcd": "70302500", "resScale": "大（Ⅱ）型", "waterShapeArea": 150.8, "nowWater": 82.51, "nowCap": 1747.0, "deadWater": 67.0, "normalWater": 109.67, "txFloodWater": 104.17, "mxFloodWater": null, "highWater": 117.77, "yiMinWater": 118.16999816894531, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 550.2000122070312, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 550.2, "adcd": "330213" }, { "resCode": "7c8db516-b7f4-47ed-8b01-cb10ab9b6059", "resName": "长潭水库", "stcd": "70404400", "resScale": "大（Ⅱ）型", "waterShapeArea": 441.3, "nowWater": 29.19, "nowCap": 24378.0, "deadWater": 16.0, "normalWater": 36.05, "txFloodWater": 35.05, "mxFloodWater": null, "highWater": 38.91, "yiMinWater": 38.0, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 640.2000122070312, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 640.2, "adcd": "331003" }, { "resCode": "7cac12c4-8f25-4328-aadc-f3cac8660dd9", "resName": "周公宅水库", "stcd": "70301560", "resScale": "大（Ⅱ）型", "waterShapeArea": 132.0, "nowWater": 208.8, "nowCap": 5359.0, "deadWater": 145.0, "normalWater": null, "txFloodWater": 227.13, "mxFloodWater": null, "highWater": 237.12, "yiMinWater": 237.1199951171875, "deadCap": 232.14800000000008, "normalCap": null, "txFloodCap": 8702.4, "mxFloodCap": null, "highCap": 10993.782000000003, "yiMinCap": 10993.780819335938, "canRainCapacity": 426.8999938964844, "canYiMinCap": 5634.780819335938, "time": "2021-04-02", "swRainfallAccept": 426.9, "adcd": "330212" }, { "resCode": "7de04d6e-cb86-4614-8ad0-be44adacc1f9", "resName": "赋石水库", "stcd": "63006800", "resScale": "大（Ⅱ）型", "waterShapeArea": 331.0, "nowWater": 75.16, "nowCap": 7297.0, "deadWater": 71.0, "normalWater": 79.12, "txFloodWater": 78.12, "mxFloodWater": null, "highWater": 84.39, "yiMinWater": 86.66999816894531, "deadCap": 4840.0, "normalCap": 10250.0, "txFloodCap": 9450.0, "mxFloodCap": null, "highCap": 15147.0, "yiMinCap": 17739.99780273437, "canRainCapacity": 315.5, "canYiMinCap": 10442.997802734371, "time": "2021-04-02", "swRainfallAccept": 315.5, "adcd": "330523" }, { "resCode": "8292e862-99e4-4cc9-8d82-5551ac077832", "resName": "老石坎水库", "stcd": "63008800", "resScale": "大（Ⅱ）型", "waterShapeArea": 258.0, "nowWater": 107.11, "nowCap": 2245.0, "deadWater": 103.0, "normalWater": 115.13, "txFloodWater": 113.67, "mxFloodWater": null, "highWater": 121.08, "yiMinWater": 121.66999816894531, "deadCap": 1452.6, "normalCap": 5400.0, "txFloodCap": 4693.0, "mxFloodCap": null, "highCap": 9282.5, "yiMinCap": 9876.19811401367, "canRainCapacity": 295.79998779296875, "canYiMinCap": 7631.19811401367, "time": "2021-04-02", "swRainfallAccept": 295.8, "adcd": "330523" }, { "resCode": "855f2f94-8110-481f-ad50-a821bf79d092", "resName": "青山水库", "stcd": "63000600", "resScale": "大（Ⅱ）型", "waterShapeArea": 603.0, "nowWater": 23.01, "nowCap": 3472.0, "deadWater": 17.0, "normalWater": 25.0, "txFloodWater": 23.2, "mxFloodWater": null, "highWater": 31.16, "yiMinWater": 31.15999984741211, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 169.6999969482422, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 169.7, "adcd": "330112" }, { "resCode": "b0d3f9dd-1a03-4e18-8cad-339439f89847", "resName": "铜山源水库", "stcd": "70106700", "resScale": "大（Ⅱ）型", "waterShapeArea": 180.0, "nowWater": 133.56, "nowCap": 9673.0, "deadWater": 110.0, "normalWater": 137.12, "txFloodWater": 136.0, "mxFloodWater": 137.12, "highWater": 137.2, "yiMinWater": 141.16000366210938, "deadCap": 590.0, "normalCap": 12057.600000000008, "txFloodCap": 11270.0, "mxFloodCap": 12057.600000000008, "highCap": 12116.0, "yiMinCap": 15020.002746582039, "canRainCapacity": 297.1000061035156, "canYiMinCap": 5347.0027465820385, "time": "2021-04-02", "swRainfallAccept": 297.1, "adcd": "330803" }, { "resCode": "cdc19ec1-8cbd-11e9-8555-005056bf5ab4", "resName": "钦寸水库", "stcd": "70204595", "resScale": "大（Ⅱ）型", "waterShapeArea": 316.0, "nowWater": 80.93, "nowCap": 6221.0, "deadWater": 66.0, "normalWater": 98.0, "txFloodWater": null, "mxFloodWater": 96.0, "highWater": 102.86, "yiMinWater": 100.44999694824219, "deadCap": 1004.0, "normalCap": 17662.0, "txFloodCap": null, "mxFloodCap": 15967.0, "highCap": 22170.5, "yiMinCap": 19869.047164916992, "canRainCapacity": 431.8999938964844, "canYiMinCap": 13648.047164916992, "time": "2021-04-02", "swRainfallAccept": 431.9, "adcd": "330624" }, { "resCode": "df492c8d-f1c8-4be6-9bb2-19459f24fa61", "resName": "牛头山水库", "stcd": "70404100", "resScale": "大（Ⅱ）型", "waterShapeArea": 254.0, "nowWater": 33.84, "nowCap": 5609.0, "deadWater": 19.0, "normalWater": 46.5, "txFloodWater": 45.0, "mxFloodWater": null, "highWater": 53.12, "yiMinWater": 55.400001525878906, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 847.2999877929688, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 847.3, "adcd": "331082" }, { "resCode": "e00d542a-d979-43eb-9763-8b467e7ea426", "resName": "南江水库", "stcd": "70109700", "resScale": "大（Ⅱ）型", "waterShapeArea": 210.0, "nowWater": 197.01, "nowCap": 5611.0, "deadWater": 172.0, "normalWater": 204.24, "txFloodWater": 200.24, "mxFloodWater": 203.74, "highWater": 205.0, "yiMinWater": 205.0399932861328, "deadCap": null, "normalCap": 9134.0, "txFloodCap": 7115.0, "mxFloodCap": 8881.625, "highCap": 9548.0, "yiMinCap": 9571.156606415172, "canRainCapacity": 188.5, "canYiMinCap": 3960.156606415172, "time": "2021-04-02", "swRainfallAccept": 188.5, "adcd": "330783" }, { "resCode": "e2256124-0acb-4fad-a26a-a5da0412aaae", "resName": "碗窑水库", "stcd": "70105150", "resScale": "大（Ⅱ）型", "waterShapeArea": 212.5, "nowWater": 185.53, "nowCap": 13396.0, "deadWater": 149.0, "normalWater": 193.74, "txFloodWater": 194.24, "mxFloodWater": 193.74, "highWater": 195.16, "yiMinWater": 195.17999267578125, "deadCap": null, "normalCap": 20350.624000000007, "txFloodCap": 20840.944000000007, "mxFloodCap": 20350.624000000007, "highCap": 21769.615999999998, "yiMinCap": 21790.16047363281, "canRainCapacity": 394.1000061035156, "canYiMinCap": 8394.160473632812, "time": "2021-04-02", "swRainfallAccept": 394.1, "adcd": "330881" }, { "resCode": "e51b6466-28f6-4c85-9b4a-e1572b132fec", "resName": "下岸水库", "stcd": "70400300", "resScale": "大（Ⅱ）型", "waterShapeArea": 257.0, "nowWater": 196.44, "nowCap": 6152.0, "deadWater": 172.0, "normalWater": 208.0, "txFloodWater": 204.0, "mxFloodWater": null, "highWater": 211.97, "yiMinWater": 212.0, "deadCap": 588.0, "normalCap": 10693.0, "txFloodCap": 8979.0, "mxFloodCap": null, "highCap": 12551.48, "yiMinCap": 12566.0, "canRainCapacity": 249.60000610351562, "canYiMinCap": 6414.0, "time": "2021-04-02", "swRainfallAccept": 249.6, "adcd": "331024" }, { "resCode": "f4fe0169-5ee0-4849-b842-6d334ec6ecae", "resName": "沐尘水库", "stcd": "70106890", "resScale": "大（Ⅱ）型", "waterShapeArea": 397.0, "nowWater": 170.17, "nowCap": 5049.0, "deadWater": 148.0, "normalWater": 176.5, "txFloodWater": 171.0, "mxFloodWater": 172.0, "highWater": 183.15, "yiMinWater": 181.2100067138672, "deadCap": 319.0, "normalCap": 7576.0, "txFloodCap": 5353.0, "mxFloodCap": 5730.0, "highCap": 10765.500000000004, "yiMinCap": 9773.423370361328, "canRainCapacity": 119.0, "canYiMinCap": 4724.423370361328, "time": "2021-04-02", "swRainfallAccept": 119.0, "adcd": "330825" }, { "resCode": "002e2c22-c4b1-4962-9617-5ef1d25b23e2", "resName": "东方红水库", "stcd": "70109150", "resScale": "中型", "waterShapeArea": 327.0, "nowWater": 192.27, "nowCap": 741.0, "deadWater": 168.0, "normalWater": 196.27, "txFloodWater": 193.27, "mxFloodWater": 195.27, "highWater": 197.88, "yiMinWater": 199.0500030517578, "deadCap": null, "normalCap": 1020.0, "txFloodCap": 807.0, "mxFloodCap": 947.0, "highCap": null, "yiMinCap": null, "canRainCapacity": 82.19999694824219, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 82.2, "adcd": "330783" }, { "resCode": "01f49164-3927-4cd5-8ceb-f82f26d6d65b", "resName": "杨梅岭水库", "stcd": "70703700", "resScale": "中型", "waterShapeArea": 176.0, "nowWater": 23.41, "nowCap": 710.0, "deadWater": 18.0, "normalWater": 24.11, "txFloodWater": 24.11, "mxFloodWater": null, "highWater": 24.25, "yiMinWater": null, "deadCap": null, "normalCap": 824.8055555555554, "txFloodCap": 824.8055555555554, "mxFloodCap": null, "highCap": 848.4285714285713, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330226" }, { "resCode": "01f7f121-68b0-401b-9e2b-51dcd0598be9", "resName": "西溪水库", "stcd": "70704820", "resScale": "中型", "waterShapeArea": 95.64, "nowWater": 123.07, "nowCap": 2430.0, "deadWater": 100.0, "normalWater": 147.0, "txFloodWater": 145.0, "mxFloodWater": null, "highWater": 151.82, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330226" }, { "resCode": "04c2a9ea-ac65-40c1-b48a-9fb76108316f", "resName": "赵山渡水库", "stcd": "70600700", "resScale": "中型", "waterShapeArea": 2302.0, "nowWater": 21.65, "nowCap": 2331.0, "deadWater": 21.0, "normalWater": 22.0, "txFloodWater": 22.0, "mxFloodWater": null, "highWater": 22.5, "yiMinWater": null, "deadCap": 2070.0, "normalCap": 2477.0, "txFloodCap": 2477.0, "mxFloodCap": null, "highCap": 2692.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330381" }, { "resCode": "056ca124-5874-413a-bc85-3d8f8f40b725", "resName": "大奕坑水库", "stcd": "70508150", "resScale": "中型", "waterShapeArea": 61.8, "nowWater": 229.52, "nowCap": 1559.0, "deadWater": 214.0, "normalWater": 240.0, "txFloodWater": null, "mxFloodWater": null, "highWater": 243.0, "yiMinWater": null, "deadCap": null, "normalCap": 2318.0, "txFloodCap": null, "mxFloodCap": null, "highCap": 2560.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331121" }, { "resCode": "05a23b53-c62b-46c5-8dd3-3da2810fcab2", "resName": "肖岭水库", "stcd": "70115580", "resScale": "中型", "waterShapeArea": 107.6, "nowWater": 126.69, "nowCap": 1258.0, "deadWater": 98.0, "normalWater": 126.7, "txFloodWater": 126.8, "mxFloodWater": 126.7, "highWater": 127.77, "yiMinWater": 127.98, "deadCap": null, "normalCap": 1259.7, "txFloodCap": 1269.0, "mxFloodCap": 1259.7, "highCap": 1363.1399999999996, "yiMinCap": 1384.2000000000003, "canRainCapacity": null, "canYiMinCap": 126.20000000000027, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330122" }, { "resCode": "05f8c003-7022-4a3d-91c0-87a12c7c00b2", "resName": "雅溪水库", "stcd": "70505865", "resScale": "中型", "waterShapeArea": 184.0, "nowWater": 228.36, "nowCap": 1172.0, "deadWater": 208.0, "normalWater": 242.0, "txFloodWater": 242.0, "mxFloodWater": null, "highWater": 243.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331102" }, { "resCode": "0b6b77c3-8eab-4f86-975d-6737918a2764", "resName": "丽湖水库", "stcd": "70508130", "resScale": "中型", "waterShapeArea": 23.3, "nowWater": 439.62, "nowCap": 496.0, "deadWater": 421.0, "normalWater": 454.7, "txFloodWater": null, "mxFloodWater": null, "highWater": 454.7, "yiMinWater": null, "deadCap": 110.0, "normalCap": 1180.4999999999993, "txFloodCap": null, "mxFloodCap": null, "highCap": 1180.4999999999993, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331121" }, { "resCode": "0d9de7b7-35fa-411c-bff9-12a4bcdbf3ce", "resName": "丰潭水库", "stcd": "70204480", "resScale": "中型", "waterShapeArea": 68.0, "nowWater": 342.84, "nowCap": 917.0, "deadWater": 313.0, "normalWater": 353.19, "txFloodWater": 325.19, "mxFloodWater": 346.19, "highWater": 353.67, "yiMinWater": 353.67, "deadCap": null, "normalCap": 1449.3549999999998, "txFloodCap": 333.489, "mxFloodCap": 1068.615, "highCap": 1480.315000000001, "yiMinCap": 1480.315000000001, "canRainCapacity": null, "canYiMinCap": 563.315000000001, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330683" }, { "resCode": "0e08c57f-f6c9-477e-b3c6-c06bb6aae97a", "resName": "梧桐源水库", "stcd": "70505460", "resScale": "中型", "waterShapeArea": 53.2, "nowWater": 233.72, "nowCap": 727.0, "deadWater": 220.0, "normalWater": null, "txFloodWater": 231.0, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 195.0, "normalCap": null, "txFloodCap": 588.0, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331124" }, { "resCode": "132ac36f-704e-43a2-99fb-d9e3dd2ddd14", "resName": "玉溪水库", "stcd": "70501500", "resScale": "中型", "waterShapeArea": 3407.0, "nowWater": 77.91, "nowCap": 893.0, "deadWater": 78.0, "normalWater": 79.1, "txFloodWater": null, "mxFloodWater": null, "highWater": 79.1, "yiMinWater": null, "deadCap": 914.0, "normalCap": 1187.0, "txFloodCap": null, "mxFloodCap": null, "highCap": 1187.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331102" }, { "resCode": "1784d8bc-90d7-4363-acce-8acf31ef1bd3", "resName": "柏峰水库", "stcd": "70109830", "resScale": "中型", "waterShapeArea": 23.4, "nowWater": 119.39, "nowCap": 1669.0000000000002, "deadWater": 93.0, "normalWater": 122.5, "txFloodWater": 119.71, "mxFloodWater": 121.5, "highWater": 124.08, "yiMinWater": 120.4800033569336, "deadCap": null, "normalCap": 2010.0, "txFloodCap": 1702.549999999999, "mxFloodCap": 1897.5, "highCap": 2193.5200000000004, "yiMinCap": 1785.3203659057615, "canRainCapacity": 50.79999923706055, "canYiMinCap": 116.32036590576126, "time": "2021-04-02", "swRainfallAccept": 50.8, "adcd": "330782" }, { "resCode": "1a1710db-cee7-41ea-9d99-df049ed16571", "resName": "黄坛口电站", "stcd": "70106200", "resScale": "中型", "waterShapeArea": 2388.0, "nowWater": 114.87, "nowCap": 7866.0, "deadWater": 114.0, "normalWater": 115.0, "txFloodWater": 115.0, "mxFloodWater": 115.0, "highWater": 115.0, "yiMinWater": 115.0, "deadCap": 7300.0, "normalCap": 7950.0, "txFloodCap": 7950.0, "mxFloodCap": 7950.0, "highCap": 7950.0, "yiMinCap": 7950.0, "canRainCapacity": null, "canYiMinCap": 84.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330803" }, { "resCode": "1b1b4dca-696e-439c-a948-e228011e0193", "resName": "仓岙水库", "stcd": "70703750", "resScale": "中型", "waterShapeArea": 12.6, "nowWater": 60.22, "nowCap": 289.0, "deadWater": 55.0, "normalWater": 72.83, "txFloodWater": 65.0, "mxFloodWater": null, "highWater": null, "yiMinWater": null, "deadCap": 145.45, "normalCap": 913.5419999999999, "txFloodCap": 472.0, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330225" }, { "resCode": "1c173ad0-bbf1-443c-abe1-f1f1ff758b1b", "resName": "太湖水库", "stcd": "70800150", "resScale": "中型", "waterShapeArea": 25.0, "nowWater": 19.71, "nowCap": 370.0, "deadWater": 15.0, "normalWater": 28.46, "txFloodWater": 27.46, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 87.8, "normalCap": 1580.112, "txFloodCap": 1397.9340000000002, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331081" }, { "resCode": "1d2c1641-d83d-4162-92e7-4114dd7f2ec2", "resName": "水涛庄水库", "stcd": "63002550", "resScale": "中型", "waterShapeArea": 58.0, "nowWater": 124.1, "nowCap": 512.0, "deadWater": 112.0, "normalWater": 141.2, "txFloodWater": 138.0, "mxFloodWater": null, "highWater": 150.87, "yiMinWater": 151.1999969482422, "deadCap": 118.8, "normalCap": 1677.0, "txFloodCap": 1392.4, "mxFloodCap": null, "highCap": 2724.41, "yiMinCap": null, "canRainCapacity": 386.29998779296875, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 386.3, "adcd": "330112" }, { "resCode": "1d43066c-3492-40bd-b6bf-be7d80a0225a", "resName": "华光潭一级水库", "stcd": "70114990", "resScale": "中型", "waterShapeArea": 266.1, "nowWater": 423.32, "nowCap": 2266.0, "deadWater": 414.0, "normalWater": 444.0, "txFloodWater": 444.0, "mxFloodWater": 442.0, "highWater": 446.92, "yiMinWater": 446.92, "deadCap": 1283.0, "normalCap": 6423.0, "txFloodCap": 6423.0, "mxFloodCap": 5860.0, "highCap": 7311.880000000005, "yiMinCap": 7311.880000000005, "canRainCapacity": null, "canYiMinCap": 5045.880000000005, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330112" }, { "resCode": "1e4745d2-869f-11e9-9bdd-a9d9880b2aa5", "resName": "岩樟溪一级电站水库", "stcd": "70503850", "resScale": "中型", "waterShapeArea": 102.92, "nowWater": 434.58, "nowCap": 308.0, "deadWater": 419.0, "normalWater": 455.0, "txFloodWater": null, "mxFloodWater": null, "highWater": 455.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331181" }, { "resCode": "1eda7b8f-130c-45ec-a988-71ded0de4b6d", "resName": "枫树岭水库", "stcd": "70114650", "resScale": "中型", "waterShapeArea": 227.0, "nowWater": 229.48, "nowCap": 3164.0, "deadWater": 210.0, "normalWater": 240.0, "txFloodWater": 238.0, "mxFloodWater": 237.1, "highWater": 0.0, "yiMinWater": 240.0, "deadCap": 790.0, "normalCap": 5310.0, "txFloodCap": 4863.0, "mxFloodCap": 4667.0, "highCap": null, "yiMinCap": 5310.0, "canRainCapacity": null, "canYiMinCap": 2146.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330127" }, { "resCode": "1fd311c9-b7c0-4924-831c-46bf650e2905", "resName": "瑞垟一级电站水库", "stcd": "70503810", "resScale": "中型", "waterShapeArea": 71.04, "nowWater": 866.82, "nowCap": 358.0, "deadWater": 850.0, "normalWater": 876.5, "txFloodWater": 875.0, "mxFloodWater": null, "highWater": 878.2, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331181" }, { "resCode": "20075457-3fcf-406e-89de-ae2296f3e659", "resName": "芙蓉水库", "stcd": "70104340", "resScale": "中型", "waterShapeArea": 126.0, "nowWater": 265.38, "nowCap": 4983.0, "deadWater": 245.0, "normalWater": 275.08, "txFloodWater": 273.08, "mxFloodWater": 275.08, "highWater": 276.75, "yiMinWater": 278.0799865722656, "deadCap": 941.0, "normalCap": 8135.199999999988, "txFloodCap": 7426.999999999988, "mxFloodCap": 8135.199999999988, "highCap": 8788.0, "yiMinCap": 9319.994628906243, "canRainCapacity": 345.0, "canYiMinCap": 4336.994628906243, "time": "2021-04-02", "swRainfallAccept": 345.0, "adcd": "330822" }, { "resCode": "222e7ee1-c9df-4d4e-95dc-612e2286d1a3", "resName": "力洋水库", "stcd": "70704620", "resScale": "中型", "waterShapeArea": 16.1, "nowWater": 36.56, "nowCap": 488.99999999999994, "deadWater": 23.0, "normalWater": 44.5, "txFloodWater": 36.525, "mxFloodWater": null, "highWater": 45.62, "yiMinWater": null, "deadCap": 23.6, "normalCap": 1102.5, "txFloodCap": 486.8749999999999, "mxFloodCap": null, "highCap": 1210.2153846153842, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330226" }, { "resCode": "2355ac66-824a-4c71-a551-389b60e2e51c", "resName": "桐柏抽水蓄能电站上水库", "stcd": null, "resScale": "中型", "waterShapeArea": 6.7, "nowWater": null, "nowCap": null, "deadWater": 376.0, "normalWater": 396.21, "txFloodWater": null, "mxFloodWater": null, "highWater": null, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": null, "swRainfallAccept": null, "adcd": "331023" }, { "resCode": "26b3f5d6-d61a-46e4-a5b9-0754a29cafb0", "resName": "龙溪水库", "stcd": "70403610", "resScale": "中型", "waterShapeArea": 35.5, "nowWater": 389.92, "nowCap": 1348.0, "deadWater": 372.0, "normalWater": 398.04, "txFloodWater": 398.0, "mxFloodWater": null, "highWater": 398.04, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331023" }, { "resCode": "28777fd2-cd1b-4118-9663-4ba24cbbaf4e", "resName": "成屏二级水库", "stcd": "70505120", "resScale": "中型", "waterShapeArea": 30.0, "nowWater": 262.06, "nowCap": 869.0, "deadWater": 249.0, "normalWater": 263.0, "txFloodWater": 263.0, "mxFloodWater": null, "highWater": 264.0, "yiMinWater": null, "deadCap": 273.0, "normalCap": 920.0, "txFloodCap": 920.0, "mxFloodCap": null, "highCap": 990.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331123" }, { "resCode": "2a657a8e-e443-472d-ac6a-f91fd86e33a6", "resName": "五丈岩水库", "stcd": "70200100", "resScale": "中型", "waterShapeArea": 106.2, "nowWater": 480.01, "nowCap": 1134.0, "deadWater": 464.0, "normalWater": 484.07, "txFloodWater": 484.07, "mxFloodWater": 484.07, "highWater": 0.0, "yiMinWater": 484.57, "deadCap": 209.0750000000002, "normalCap": 1658.0, "txFloodCap": 1658.0, "mxFloodCap": 1658.0, "highCap": null, "yiMinCap": 1737.0, "canRainCapacity": null, "canYiMinCap": 603.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330727" }, { "resCode": "2afe2d04-2932-47af-8f14-ecc44c8837bd", "resName": "金坑岭水库", "stcd": "70118150", "resScale": "中型", "waterShapeArea": 12.4, "nowWater": 162.39, "nowCap": 1292.0, "deadWater": 138.0, "normalWater": 170.32, "txFloodWater": 169.82, "mxFloodWater": 170.32, "highWater": 171.12, "yiMinWater": 175.0, "deadCap": 130.7900000000001, "normalCap": 2000.0, "txFloodCap": 1946.4, "mxFloodCap": 2000.0, "highCap": 2076.660000000001, "yiMinCap": null, "canRainCapacity": 95.4000015258789, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 95.4, "adcd": "330726" }, { "resCode": "2bdaa82e-140d-4783-9091-8d8bc4b6fda6", "resName": "高溪水库", "stcd": "70505670", "resScale": "中型", "waterShapeArea": 26.0, "nowWater": 85.75, "nowCap": 233.0, "deadWater": 74.0, "normalWater": 96.07, "txFloodWater": 96.07, "mxFloodWater": null, "highWater": 96.07, "yiMinWater": null, "deadCap": 6.0, "normalCap": 825.5999999999995, "txFloodCap": 825.5999999999995, "mxFloodCap": null, "highCap": 825.5999999999995, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331102" }, { "resCode": "2e66f65f-d930-4a00-a329-14a6b8d25a9e", "resName": "梁辉水库", "stcd": "70309080", "resScale": "中型", "waterShapeArea": 35.06, "nowWater": 33.4, "nowCap": 916.0, "deadWater": 17.0, "normalWater": 45.0, "txFloodWater": 39.91, "mxFloodWater": null, "highWater": 46.68, "yiMinWater": 46.2400016784668, "deadCap": 16.0, "normalCap": 2476.0, "txFloodCap": 1703.7599999999995, "mxFloodCap": null, "highCap": 2760.64, "yiMinCap": 2684.520290374756, "canRainCapacity": 505.29998779296875, "canYiMinCap": 1768.5202903747559, "time": "2021-04-02", "swRainfallAccept": 505.3, "adcd": "330281" }, { "resCode": "2e9d12ed-2a6b-4c1a-85d0-26a1862bc564", "resName": "仙居水库", "stcd": "70600850", "resScale": "中型", "waterShapeArea": 166.6, "nowWater": 245.05, "nowCap": 1475.0, "deadWater": 238.0, "normalWater": 260.0, "txFloodWater": 260.0, "mxFloodWater": null, "highWater": 261.63, "yiMinWater": null, "deadCap": 1058.0, "normalCap": 2788.0, "txFloodCap": 2788.0, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330329" }, { "resCode": "314212c6-befe-4c1f-b87d-0d926a347ec6", "resName": "淡溪水库", "stcd": "70805100", "resScale": "中型", "waterShapeArea": 46.0, "nowWater": 27.77, "nowCap": 367.0, "deadWater": 19.0, "normalWater": 42.76, "txFloodWater": 40.76, "mxFloodWater": null, "highWater": 47.17, "yiMinWater": null, "deadCap": null, "normalCap": 2650.0, "txFloodCap": 2223.0, "mxFloodCap": null, "highCap": 3675.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330382" }, { "resCode": "33ff6cf5-ebd3-4057-a287-80bc84813c6f", "resName": "杨溪水库", "stcd": "70110170", "resScale": "中型", "waterShapeArea": 124.0, "nowWater": 148.59, "nowCap": 3209.0000000000005, "deadWater": 126.0, "normalWater": 153.84, "txFloodWater": 152.54, "mxFloodWater": 153.24, "highWater": 154.21, "yiMinWater": 154.21, "deadCap": null, "normalCap": 5317.560000000001, "txFloodCap": 4732.359999999997, "mxFloodCap": 5042.160000000004, "highCap": 5495.1600000000035, "yiMinCap": 5495.1600000000035, "canRainCapacity": null, "canYiMinCap": 2286.160000000003, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330784" }, { "resCode": "342489cc-cf9f-4d78-beee-d4a5ba22d87c", "resName": "霞源水库", "stcd": "70114620", "resScale": "中型", "waterShapeArea": 12.8, "nowWater": 300.42, "nowCap": 547.0, "deadWater": 288.0, "normalWater": 308.1, "txFloodWater": 308.0, "mxFloodWater": 307.6, "highWater": 309.92, "yiMinWater": 308.0, "deadCap": null, "normalCap": 1109.6, "txFloodCap": 1100.0, "mxFloodCap": 1067.6, "highCap": 1284.3200000000033, "yiMinCap": 1100.0, "canRainCapacity": null, "canYiMinCap": 553.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330127" }, { "resCode": "3452a7a0-91d9-4f9b-a733-e0b49d7de3f5", "resName": "黄坛水库", "stcd": "70704830", "resScale": "中型", "waterShapeArea": 114.0, "nowWater": 77.05, "nowCap": 997.0000000000001, "deadWater": 55.0, "normalWater": 78.8, "txFloodWater": 78.8, "mxFloodWater": null, "highWater": 83.96, "yiMinWater": null, "deadCap": 11.8, "normalCap": 1150.0, "txFloodCap": 1150.0, "mxFloodCap": null, "highCap": 1625.9999999999993, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330226" }, { "resCode": "3811b779-bd95-426e-b5f1-c8a28dbeeacf", "resName": "瑞垟二级电站水库", "stcd": "70500100", "resScale": "中型", "waterShapeArea": 163.95, "nowWater": 513.1, "nowCap": 755.0, "deadWater": 498.0, "normalWater": 535.0, "txFloodWater": null, "mxFloodWater": null, "highWater": 535.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331181" }, { "resCode": "3a5d2d19-5021-4276-99ea-422270ddcb2b", "resName": "大洋水库", "stcd": "70506700", "resScale": "中型", "waterShapeArea": 43.37, "nowWater": 806.25, "nowCap": 494.00000000000006, "deadWater": 790.0, "normalWater": 820.0, "txFloodWater": 810.5, "mxFloodWater": null, "highWater": 820.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331122" }, { "resCode": "3a796e77-97a9-4a21-8874-fb0ab7971d03", "resName": "门溪水库", "stcd": "70203260", "resScale": "中型", "waterShapeArea": 42.0, "nowWater": 349.54, "nowCap": 1299.0, "deadWater": 335.0, "normalWater": 354.83, "txFloodWater": 354.83, "mxFloodWater": 354.83, "highWater": 0.0, "yiMinWater": 354.83, "deadCap": 330.8106000000007, "normalCap": 1856.0, "txFloodCap": 1856.0, "mxFloodCap": 1856.0, "highCap": null, "yiMinCap": 1856.0, "canRainCapacity": null, "canYiMinCap": 557.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330624" }, { "resCode": "3c80e16f-8584-46ab-82cc-0038754354a1", "resName": "黄龙水库", "stcd": "70704810", "resScale": "中型", "waterShapeArea": 622.0, "nowWater": 486.41, "nowCap": 636.0, "deadWater": 460.0, "normalWater": 500.0, "txFloodWater": 500.0, "mxFloodWater": null, "highWater": 504.36, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331023" }, { "resCode": "3d4452c6-90f8-4a75-8e29-b9f35956e759", "resName": "金兰水库", "stcd": "70110700", "resScale": "中型", "waterShapeArea": 274.0, "nowWater": 111.31, "nowCap": 3640.9999999999995, "deadWater": 94.0, "normalWater": 120.19, "txFloodWater": 119.19, "mxFloodWater": 120.19, "highWater": 122.32, "yiMinWater": 122.69000244140625, "deadCap": 356.70000000000016, "normalCap": 6800.0, "txFloodCap": 6390.0, "mxFloodCap": 6800.0, "highCap": 7739.799999999997, "yiMinCap": 7910.001123046876, "canRainCapacity": 155.8000030517578, "canYiMinCap": 4269.001123046877, "time": "2021-04-02", "swRainfallAccept": 155.8, "adcd": "330702" }, { "resCode": "3f81538a-f243-4b3e-a86f-d1df85dd3a0f", "resName": "三插溪水库", "stcd": "70600140", "resScale": "中型", "waterShapeArea": 267.5, "nowWater": 318.8, "nowCap": 1587.0, "deadWater": 305.0, "normalWater": 340.0, "txFloodWater": 340.0, "mxFloodWater": null, "highWater": 342.0, "yiMinWater": null, "deadCap": 744.0, "normalCap": 3770.0, "txFloodCap": 3770.0, "mxFloodCap": null, "highCap": 4040.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330329" }, { "resCode": "3f86a482-a6a8-446f-a76b-8012da1fe479", "resName": "九峰水库", "stcd": "70107710", "resScale": "中型", "waterShapeArea": 119.5, "nowWater": 134.07, "nowCap": 5304.0, "deadWater": 107.0, "normalWater": 140.0, "txFloodWater": 139.0, "mxFloodWater": 140.0, "highWater": 146.14, "yiMinWater": 146.64999389648438, "deadCap": 580.0, "normalCap": 7062.0, "txFloodCap": 6742.0, "mxFloodCap": 7062.0, "highCap": 9189.939999999995, "yiMinCap": 9379.147735595703, "canRainCapacity": 339.6000061035156, "canYiMinCap": 4075.147735595703, "time": "2021-04-02", "swRainfallAccept": 339.6, "adcd": "330702" }, { "resCode": "41f48241-704e-4823-84f6-0c1d3e226df8", "resName": "枫坑水库", "stcd": "70109810", "resScale": "中型", "waterShapeArea": 17.0, "nowWater": 176.2, "nowCap": 963.0000000000001, "deadWater": 142.0, "normalWater": 186.0, "txFloodWater": 156.18, "mxFloodWater": 185.0, "highWater": 186.0, "yiMinWater": 187.53, "deadCap": 30.0, "normalCap": 1501.0, "txFloodCap": 239.41000000000042, "mxFloodCap": 1441.0, "highCap": 1501.0, "yiMinCap": 1597.39, "canRainCapacity": null, "canYiMinCap": 634.39, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330782" }, { "resCode": "43604315-d87b-4b77-ab79-76d152c93a04", "resName": "长堰水库", "stcd": "70109820", "resScale": "中型", "waterShapeArea": 14.0, "nowWater": 129.47, "nowCap": 547.0, "deadWater": 114.0, "normalWater": 135.45, "txFloodWater": 134.45, "mxFloodWater": 135.45, "highWater": 136.61, "yiMinWater": 136.76, "deadCap": 19.0, "normalCap": 940.0999999999991, "txFloodCap": 863.7499999999991, "mxFloodCap": 940.0999999999991, "highCap": 1033.0200000000011, "yiMinCap": 1045.3199999999993, "canRainCapacity": null, "canYiMinCap": 498.31999999999925, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330782" }, { "resCode": "43675891-e5bb-4dc3-b804-98db1f829964", "resName": "福溪水库", "stcd": "70804500", "resScale": "中型", "waterShapeArea": 39.17, "nowWater": 214.16, "nowCap": 475.0, "deadWater": 194.0, "normalWater": 228.31, "txFloodWater": 225.72, "mxFloodWater": null, "highWater": 232.3, "yiMinWater": null, "deadCap": null, "normalCap": 1531.0, "txFloodCap": 1291.4899999999998, "mxFloodCap": null, "highCap": 1942.860000000001, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330382" }, { "resCode": "4d3462b8-1ded-4d9f-8ae1-fa8d8e7a5c96", "resName": "内庵水库", "stcd": "70505830", "resScale": "中型", "waterShapeArea": 57.0, "nowWater": 309.15, "nowCap": 1880.9999999999998, "deadWater": 293.0, "normalWater": 315.5, "txFloodWater": 311.98, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 865.0, "normalCap": 2452.0980000000004, "txFloodCap": 2122.3469999999998, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330723" }, { "resCode": "4e5e22a8-35a8-467f-8737-fe35e6ed73ea", "resName": "兰溪桥水库", "stcd": "71111480", "resScale": "中型", "waterShapeArea": 235.0, "nowWater": 415.97, "nowCap": 902.0, "deadWater": 402.0, "normalWater": 421.0, "txFloodWater": 420.0, "mxFloodWater": null, "highWater": 421.0, "yiMinWater": null, "deadCap": null, "normalCap": 1324.0, "txFloodCap": 1230.0, "mxFloodCap": null, "highCap": 1324.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331126" }, { "resCode": "54ae8b39-a937-4926-972c-d632b2f3ab0e", "resName": "泽雅水库", "stcd": "70508440", "resScale": "中型", "waterShapeArea": 102.0, "nowWater": 80.07, "nowCap": 1237.0, "deadWater": 60.0, "normalWater": 112.22, "txFloodWater": 105.0, "mxFloodWater": null, "highWater": 112.22, "yiMinWater": null, "deadCap": 115.0, "normalCap": 5435.84, "txFloodCap": 4200.0, "mxFloodCap": null, "highCap": 5435.84, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330304" }, { "resCode": "56a998a0-a6ff-45cf-98c5-ad6ff6a9c394", "resName": "梅湖水库", "stcd": "70702650", "resScale": "中型", "waterShapeArea": 23.5, "nowWater": 12.91, "nowCap": 507.0, "deadWater": 9.0, "normalWater": 19.5, "txFloodWater": 20.13, "mxFloodWater": null, "highWater": 20.13, "yiMinWater": 22.1299991607666, "deadCap": 206.0, "normalCap": 1202.0, "txFloodCap": 1284.4199999999998, "mxFloodCap": null, "highCap": 1284.4199999999998, "yiMinCap": 1552.9798774719238, "canRainCapacity": 434.8999938964844, "canYiMinCap": 1045.9798774719238, "time": "2021-04-02", "swRainfallAccept": 434.9, "adcd": "330282" }, { "resCode": "575def8c-45fe-436a-8c9c-5215f2cd5d92", "resName": "坂头水库", "stcd": "70204530", "resScale": "中型", "waterShapeArea": 23.6, "nowWater": 223.99, "nowCap": 778.0, "deadWater": 215.0, "normalWater": 225.1, "txFloodWater": 222.87, "mxFloodWater": 225.1, "highWater": 225.51, "yiMinWater": 225.51, "deadCap": null, "normalCap": 872.5999999999995, "txFloodCap": 697.9920000000003, "mxFloodCap": 872.5999999999995, "highCap": 907.8599999999992, "yiMinCap": 907.8599999999992, "canRainCapacity": null, "canYiMinCap": 129.85999999999922, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330683" }, { "resCode": "59b9ae59-d365-436c-8226-311ffb33d7ed", "resName": "里杜湖水库", "stcd": "70702750", "resScale": "中型", "waterShapeArea": 20.2, "nowWater": 5.83, "nowCap": 256.0, "deadWater": 3.0, "normalWater": 15.71, "txFloodWater": 15.85, "mxFloodWater": null, "highWater": 14.06, "yiMinWater": null, "deadCap": null, "normalCap": 1675.0, "txFloodCap": 1701.5999999999997, "mxFloodCap": null, "highCap": 1384.5, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330282" }, { "resCode": "5b88a6cc-93bb-4f06-861e-0fa2378104ac", "resName": "三溪浦水库", "stcd": "70303700", "resScale": "中型", "waterShapeArea": 48.8, "nowWater": 24.67, "nowCap": 886.9999999999999, "deadWater": 14.0, "normalWater": 32.62, "txFloodWater": 31.13, "mxFloodWater": null, "highWater": 34.32, "yiMinWater": 33.400001525878906, "deadCap": 26.1, "normalCap": 2534.0, "txFloodCap": 2167.3511363636358, "mxFloodCap": null, "highCap": 2993.024, "yiMinCap": 2743.680407714844, "canRainCapacity": 378.8999938964844, "canYiMinCap": 1856.680407714844, "time": "2021-04-02", "swRainfallAccept": 378.9, "adcd": "330212" }, { "resCode": "5cf703b7-c0c3-47d1-9522-5d9cbe45eb0d", "resName": "百丈漈水库", "stcd": "70601150", "resScale": "中型", "waterShapeArea": 88.6, "nowWater": 618.65, "nowCap": 801.0, "deadWater": 614.0, "normalWater": 652.0, "txFloodWater": 652.0, "mxFloodWater": null, "highWater": 630.13, "yiMinWater": null, "deadCap": 366.0, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": 3326.2000000000075, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330328" }, { "resCode": "62a2ce56-db9f-4578-b81e-74303eb428ba", "resName": "上标水库", "stcd": "70508060", "resScale": "中型", "waterShapeArea": 30.1, "nowWater": 970.4, "nowCap": 643.0, "deadWater": 962.0, "normalWater": 986.0, "txFloodWater": 987.0, "mxFloodWater": null, "highWater": 987.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331127" }, { "resCode": "641b61ba-1397-4694-9bcd-5200897710f0", "resName": "巧溪水库", "stcd": "70118820", "resScale": "中型", "waterShapeArea": 40.0, "nowWater": 171.32, "nowCap": 1671.0, "deadWater": 138.0, "normalWater": 184.0, "txFloodWater": 183.0, "mxFloodWater": 183.0, "highWater": 184.97, "yiMinWater": 184.0, "deadCap": 77.0, "normalCap": 2933.0, "txFloodCap": 2820.0, "mxFloodCap": 2820.0, "highCap": 3045.52, "yiMinCap": 2933.0, "canRainCapacity": null, "canYiMinCap": 1262.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330782" }, { "resCode": "645cf922-6c08-4b8a-b89a-8a5f989970db", "resName": "峡口水库", "stcd": "70104500", "resScale": "中型", "waterShapeArea": 399.3, "nowWater": 233.54, "nowCap": 4300.0, "deadWater": 218.0, "normalWater": 235.24, "txFloodWater": 235.24, "mxFloodWater": 235.24, "highWater": 236.84, "yiMinWater": 239.5399932861328, "deadCap": 1597.0, "normalCap": 4680.2, "txFloodCap": 4680.2, "mxFloodCap": 4680.2, "highCap": 5062.0, "yiMinCap": null, "canRainCapacity": 36.70000076293945, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 36.7, "adcd": "330881" }, { "resCode": "68189224-ed21-4a77-97ba-5d9c3f69c52e", "resName": "社阳水库", "stcd": "70107620", "resScale": "中型", "waterShapeArea": 84.4, "nowWater": 87.88, "nowCap": 475.0, "deadWater": 81.0, "normalWater": 90.91, "txFloodWater": 112.0, "mxFloodWater": 90.91, "highWater": 89.91, "yiMinWater": 92.20999908447266, "deadCap": 69.0, "normalCap": 789.199999999999, "txFloodCap": null, "mxFloodCap": 789.199999999999, "highCap": 674.9999999999991, "yiMinCap": null, "canRainCapacity": 57.20000076293945, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 57.2, "adcd": "330825" }, { "resCode": "689a2c29-ac0b-44ba-a063-43abb47eefa9", "resName": "谢村源水库", "stcd": "70505440", "resScale": "中型", "waterShapeArea": 47.16, "nowWater": 462.1, "nowCap": 753.0, "deadWater": 440.0, "normalWater": 474.0, "txFloodWater": 474.0, "mxFloodWater": null, "highWater": 475.86, "yiMinWater": null, "deadCap": 120.0, "normalCap": 1360.0, "txFloodCap": 1360.0, "mxFloodCap": null, "highCap": 1473.3200000000008, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331124" }, { "resCode": "6a2495d8-9b33-43d8-92ec-2072716964be", "resName": "青山殿水库", "stcd": "70115080", "resScale": "中型", "waterShapeArea": 1429.0, "nowWater": 84.1, "nowCap": 3572.9999999999995, "deadWater": 79.0, "normalWater": 86.4, "txFloodWater": 86.4, "mxFloodWater": 80.1, "highWater": 84.07, "yiMinWater": 87.55000305175781, "deadCap": 2405.0, "normalCap": 4309.400000000002, "txFloodCap": 4309.400000000002, "mxFloodCap": 2623.299999999999, "highCap": 3585.439999999998, "yiMinCap": null, "canRainCapacity": 7.800000190734863, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 7.8, "adcd": "330112" }, { "resCode": "6b529ec7-3096-46ea-b290-6e145bcbd70a", "resName": "平水江水库", "stcd": "70212300", "resScale": "中型", "waterShapeArea": 70.0, "nowWater": 41.18, "nowCap": 2075.0, "deadWater": 32.0, "normalWater": 46.5, "txFloodWater": 45.0, "mxFloodWater": 46.5, "highWater": 47.32, "yiMinWater": 47.32, "deadCap": 340.0, "normalCap": 3953.0, "txFloodCap": 3354.0, "mxFloodCap": 3953.0, "highCap": 4299.600000000001, "yiMinCap": 4299.600000000001, "canRainCapacity": null, "canYiMinCap": 2224.6000000000013, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330603" }, { "resCode": "6c4ca451-6c1d-470a-9fbf-a050bc17eacd", "resName": "岩石岭水库", "stcd": "70115850", "resScale": "中型", "waterShapeArea": 329.0, "nowWater": 50.93, "nowCap": 1249.0, "deadWater": 40.0, "normalWater": 54.14, "txFloodWater": 50.1, "mxFloodWater": 52.14, "highWater": 57.73, "yiMinWater": 55.93, "deadCap": null, "normalCap": 2133.9, "txFloodCap": 1053.49, "mxFloodCap": 1536.34, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330111" }, { "resCode": "6d57d9a2-a3ab-4908-b569-f5badb30ee48", "resName": "大河口水库", "stcd": "63009590", "resScale": "中型", "waterShapeArea": 19.6, "nowWater": 122.91, "nowCap": 514.0, "deadWater": 105.0, "normalWater": 125.04, "txFloodWater": 123.06, "mxFloodWater": null, "highWater": 126.55, "yiMinWater": null, "deadCap": null, "normalCap": 702.0, "txFloodCap": 523.4, "mxFloodCap": null, "highCap": 862.3, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330523" }, { "resCode": "6df7e3b5-2ecb-419a-9540-1edb783809a0", "resName": "金溪水库", "stcd": "70509620", "resScale": "中型", "waterShapeArea": 118.0, "nowWater": 247.77, "nowCap": 1015.0, "deadWater": 230.0, "normalWater": 260.0, "txFloodWater": 260.0, "mxFloodWater": null, "highWater": 260.7, "yiMinWater": null, "deadCap": 332.0, "normalCap": 1735.0, "txFloodCap": 1735.0, "mxFloodCap": null, "highCap": 1783.2999999999993, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330324" }, { "resCode": "6fc026c3-2c21-4d62-b03e-46747d767867", "resName": "莘畈水库", "stcd": "70107640", "resScale": "中型", "waterShapeArea": 49.1, "nowWater": 138.89, "nowCap": 2138.0, "deadWater": 110.0, "normalWater": 144.0, "txFloodWater": 142.18, "mxFloodWater": 144.0, "highWater": 145.81, "yiMinWater": 144.0, "deadCap": null, "normalCap": 3028.0, "txFloodCap": 2706.600000000003, "mxFloodCap": 3028.0, "highCap": 3356.8999999999983, "yiMinCap": 3028.0, "canRainCapacity": null, "canYiMinCap": 890.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330702" }, { "resCode": "70c8aa60-75ad-46d2-a275-b8c23a3dbf95", "resName": "仙华水库", "stcd": "70118130", "resScale": "中型", "waterShapeArea": 5.03, "nowWater": 224.76, "nowCap": 646.0, "deadWater": 222.0, "normalWater": 237.0, "txFloodWater": 233.0, "mxFloodWater": 237.0, "highWater": 238.0, "yiMinWater": 238.03, "deadCap": 565.0, "normalCap": 1090.0, "txFloodCap": 928.0, "mxFloodCap": 1090.0, "highCap": 1132.0, "yiMinCap": 1133.3200000000002, "canRainCapacity": null, "canYiMinCap": 487.32000000000016, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330726" }, { "resCode": "71d095b0-24a3-4df4-a724-d1707aaf62e5", "resName": "五泄水库", "stcd": "70119050", "resScale": "中型", "waterShapeArea": 31.5, "nowWater": 136.84, "nowCap": 696.0, "deadWater": 109.0, "normalWater": 137.66, "txFloodWater": 135.96, "mxFloodWater": 135.66, "highWater": 141.96, "yiMinWater": 141.96, "deadCap": null, "normalCap": 740.8000000000003, "txFloodCap": 650.6000000000004, "mxFloodCap": 635.7000000000003, "highCap": 1001.2, "yiMinCap": 1001.2, "canRainCapacity": null, "canYiMinCap": 305.20000000000005, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330681" }, { "resCode": "72d829a5-b504-48b7-99a2-e479f4ce641d", "resName": "大白岸水库", "stcd": "70503860", "resScale": "中型", "waterShapeArea": 150.0, "nowWater": 207.69, "nowCap": 1238.0, "deadWater": 200.0, "normalWater": 214.0, "txFloodWater": 214.0, "mxFloodWater": null, "highWater": 214.6, "yiMinWater": null, "deadCap": 630.0, "normalCap": 1860.0, "txFloodCap": 1860.0, "mxFloodCap": null, "highCap": 1921.3, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331181" }, { "resCode": "739d6484-5182-4a6c-99b0-fda3c5b03cb0", "resName": "北溪水库", "stcd": "70508560", "resScale": "中型", "waterShapeArea": 132.0, "nowWater": 392.22, "nowCap": 1381.0, "deadWater": 385.0, "normalWater": 408.0, "txFloodWater": 408.0, "mxFloodWater": null, "highWater": 408.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330324" }, { "resCode": "73ab4905-9f7c-4677-86b8-e9722204cb9e", "resName": "巧英水库", "stcd": "70204590", "resScale": "中型", "waterShapeArea": 46.0, "nowWater": 278.18, "nowCap": 1141.0, "deadWater": 254.0, "normalWater": 286.79, "txFloodWater": 276.89, "mxFloodWater": 286.79, "highWater": 288.4, "yiMinWater": 290.0, "deadCap": 53.152000000000086, "normalCap": 2000.0, "txFloodCap": 1042.4999999999975, "mxFloodCap": 2000.0, "highCap": 2196.2499999999945, "yiMinCap": 2436.709999999997, "canRainCapacity": null, "canYiMinCap": 1295.7099999999969, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330624" }, { "resCode": "73c63e7d-ac28-4b54-b184-272b1d0d6224", "resName": "安地水库", "stcd": "70110440", "resScale": "中型", "waterShapeArea": 162.0, "nowWater": 122.12, "nowCap": 4864.0, "deadWater": 90.0, "normalWater": 126.44, "txFloodWater": 124.94, "mxFloodWater": 126.44, "highWater": 0.0, "yiMinWater": 127.44000244140625, "deadCap": 114.0, "normalCap": 6249.999999999999, "txFloodCap": 5737.919999999999, "mxFloodCap": 6249.999999999999, "highCap": null, "yiMinCap": 6600.0008544921875, "canRainCapacity": 107.19999694824219, "canYiMinCap": 1736.0008544921875, "time": "2021-04-02", "swRainfallAccept": 107.2, "adcd": "330702" }, { "resCode": "74eccb72-0aca-4c47-b9a1-5ac4b41fa964", "resName": "佃石水库", "stcd": "70704880", "resScale": "中型", "waterShapeArea": 32.16, "nowWater": 80.19, "nowCap": 578.0, "deadWater": 68.0, "normalWater": 106.0, "txFloodWater": 22.0, "mxFloodWater": null, "highWater": 109.27, "yiMinWater": null, "deadCap": null, "normalCap": 2563.0, "txFloodCap": null, "mxFloodCap": null, "highCap": 2907.4299999999994, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331022" }, { "resCode": "77981b15-570f-4d42-a568-6f508509d939", "resName": "东坞水库", "stcd": "70505500", "resScale": "中型", "waterShapeArea": 29.0, "nowWater": 196.84, "nowCap": 882.0, "deadWater": 175.0, "normalWater": null, "txFloodWater": 206.0, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": 206.61000061035156, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 121.30000305175781, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 121.3, "adcd": "331124" }, { "resCode": "7cdeee1e-20b1-4775-b57a-51c6ce17d102", "resName": "雾溪水库", "stcd": "70503900", "resScale": "中型", "waterShapeArea": 29.7, "nowWater": 233.17, "nowCap": 650.0, "deadWater": 218.0, "normalWater": 239.37, "txFloodWater": 239.37, "mxFloodWater": null, "highWater": 241.04, "yiMinWater": null, "deadCap": 118.06999999999991, "normalCap": 1018.0, "txFloodCap": 1018.0, "mxFloodCap": null, "highCap": 1133.0659999999991, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331125" }, { "resCode": "7d0af1b1-175f-40fa-be5c-4f87ab8969c2", "resName": "黄村水库", "stcd": "70506730", "resScale": "中型", "waterShapeArea": 150.7, "nowWater": 148.44, "nowCap": 1126.0, "deadWater": 136.0, "normalWater": 149.2, "txFloodWater": 149.2, "mxFloodWater": null, "highWater": 149.2, "yiMinWater": null, "deadCap": 292.0, "normalCap": 1186.571428571428, "txFloodCap": 1186.571428571428, "mxFloodCap": null, "highCap": 1186.571428571428, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331102" }, { "resCode": "7d765f69-cc1b-494f-83de-76b284c1463e", "resName": "金坑水库", "stcd": "70506770", "resScale": "中型", "waterShapeArea": 107.3, "nowWater": 197.07, "nowCap": 1318.0, "deadWater": 190.0, "normalWater": 210.0, "txFloodWater": 210.0, "mxFloodWater": null, "highWater": 212.0, "yiMinWater": 218.60000610351562, "deadCap": 1020.0, "normalCap": 2040.0, "txFloodCap": 2040.0, "mxFloodCap": null, "highCap": 2180.0, "yiMinCap": null, "canRainCapacity": 104.80000305175781, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 104.8, "adcd": "331121" }, { "resCode": "7daba88a-7be6-4460-b2b0-a7d37ec6d272", "resName": "佛岭水库", "stcd": "70405750", "resScale": "中型", "waterShapeArea": 18.26, "nowWater": 36.0, "nowCap": 0.0, "deadWater": 43.0, "normalWater": 68.64, "txFloodWater": 61.44, "mxFloodWater": null, "highWater": 69.17, "yiMinWater": 70.0, "deadCap": 9.1, "normalCap": 1332.5, "txFloodCap": 763.42, "mxFloodCap": null, "highCap": 1377.0, "yiMinCap": 1449.2, "canRainCapacity": 805.0999755859375, "canYiMinCap": 1449.2, "time": "2021-04-01", "swRainfallAccept": 805.1, "adcd": "331003" }, { "resCode": "7f96d031-523b-428d-ae76-1147dad70b2c", "resName": "大岩坑水库", "stcd": "70508010", "resScale": "中型", "waterShapeArea": 100.2, "nowWater": 810.51, "nowCap": 354.0, "deadWater": 790.0, "normalWater": 829.0, "txFloodWater": 829.0, "mxFloodWater": null, "highWater": 829.5, "yiMinWater": null, "deadCap": 82.0, "normalCap": 967.0, "txFloodCap": 967.0, "mxFloodCap": null, "highCap": 991.3093922651941, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331126" }, { "resCode": "80d937c1-e87f-4528-9724-5903bf0d1d51", "resName": "八都水库", "stcd": "70118850", "resScale": "中型", "waterShapeArea": 35.1, "nowWater": 139.45, "nowCap": 1720.0, "deadWater": 108.0, "normalWater": 148.1, "txFloodWater": 148.1, "mxFloodWater": 148.1, "highWater": 152.0, "yiMinWater": 152.1, "deadCap": null, "normalCap": 2668.5349999999994, "txFloodCap": 2668.5349999999994, "mxFloodCap": 2668.5349999999994, "highCap": 3187.08, "yiMinCap": 3201.198999999999, "canRainCapacity": null, "canYiMinCap": 1481.1989999999992, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330782" }, { "resCode": "82d00ae4-6db9-4efe-bcc2-1547a096f1a2", "resName": "周公源一级水库", "stcd": "70106545", "resScale": "中型", "waterShapeArea": 162.0, "nowWater": 465.39, "nowCap": 1379.0, "deadWater": 451.0, "normalWater": 472.0, "txFloodWater": null, "mxFloodWater": 471.0, "highWater": 0.0, "yiMinWater": 472.5, "deadCap": 512.5, "normalCap": 1964.0, "txFloodCap": null, "mxFloodCap": 1867.5, "highCap": null, "yiMinCap": 2016.5, "canRainCapacity": null, "canYiMinCap": 637.5, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331123" }, { "resCode": "82ee26d3-39a1-4b80-b527-25478689a664", "resName": "天子岗水库", "stcd": "63009900", "resScale": "中型", "waterShapeArea": 23.8, "nowWater": 20.68, "nowCap": 434.0, "deadWater": 17.0, "normalWater": 23.16, "txFloodWater": 22.16, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 51.5, "normalCap": 941.4, "txFloodCap": 726.6, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330523" }, { "resCode": "849440ed-6b5a-4907-8b32-f86490fb2902", "resName": "钟前水库", "stcd": "70509700", "resScale": "中型", "waterShapeArea": 38.7, "nowWater": 105.13, "nowCap": 342.0, "deadWater": 93.0, "normalWater": null, "txFloodWater": 122.0, "mxFloodWater": null, "highWater": 126.05, "yiMinWater": 126.5, "deadCap": 32.40000000000003, "normalCap": null, "txFloodCap": 1467.0000000000002, "mxFloodCap": null, "highCap": 1898.7999999999995, "yiMinCap": 1950.8000000000004, "canRainCapacity": 412.5, "canYiMinCap": 1608.8000000000004, "time": "2021-04-02", "swRainfallAccept": 412.5, "adcd": "330382" }, { "resCode": "851f446d-5d69-4ddd-bf02-eed75cb4046d", "resName": "胡陈港水库", "stcd": "70704500", "resScale": "中型", "waterShapeArea": 196.0, "nowWater": -0.04, "nowCap": 5025.0, "deadWater": 0.0, "normalWater": 0.35, "txFloodWater": 0.3, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 5060.7, "normalCap": 5400.2, "txFloodCap": 5350.2, "mxFloodCap": null, "highCap": 5060.7, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330226" }, { "resCode": "86962cb2-4f02-44e8-8ff4-44ee62eacf1e", "resName": "双溪口水库", "stcd": "70311550", "resScale": "中型", "waterShapeArea": 40.01, "nowWater": 45.55, "nowCap": 910.0, "deadWater": 26.0, "normalWater": 65.3, "txFloodWater": 64.3, "mxFloodWater": null, "highWater": 67.2, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330281" }, { "resCode": "8dc80d69-f127-4dd4-bea5-a6ad27eeadd9", "resName": "源口水库", "stcd": "70110420", "resScale": "中型", "waterShapeArea": 115.0, "nowWater": 204.08, "nowCap": 1727.0, "deadWater": 177.0, "normalWater": 208.2, "txFloodWater": 206.0, "mxFloodWater": 208.2, "highWater": 214.0, "yiMinWater": 209.5, "deadCap": 70.0, "normalCap": 2220.0, "txFloodCap": 1945.0, "mxFloodCap": 2220.0, "highCap": null, "yiMinCap": 2373.0, "canRainCapacity": 73.30000305175781, "canYiMinCap": 646.0, "time": "2021-04-02", "swRainfallAccept": 73.3, "adcd": "330723" }, { "resCode": "8e2a79f3-baa1-46f4-9c97-0703a3dcd107", "resName": "里畈水库", "stcd": "63000100", "resScale": "中型", "waterShapeArea": 83.0, "nowWater": 218.52, "nowCap": 797.0, "deadWater": 198.0, "normalWater": 234.7, "txFloodWater": 236.7, "mxFloodWater": null, "highWater": 236.8, "yiMinWater": null, "deadCap": 160.1, "normalCap": 1644.5, "txFloodCap": 1773.6, "mxFloodCap": null, "highCap": 1780.2, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330112" }, { "resCode": "8fa92f31-ab23-4019-886e-34cacd37f9de", "resName": "溪下水库", "stcd": "70303220", "resScale": "中型", "waterShapeArea": 29.9, "nowWater": 44.95, "nowCap": 934.0, "deadWater": 27.0, "normalWater": null, "txFloodWater": 54.0, "mxFloodWater": null, "highWater": 59.56, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330212" }, { "resCode": "8fef57ad-a066-4683-b582-53343e7e382a", "resName": "横溪水库", "stcd": "70303500", "resScale": "中型", "waterShapeArea": 39.8, "nowWater": 19.79, "nowCap": 610.0, "deadWater": 13.0, "normalWater": 31.42, "txFloodWater": 25.98, "mxFloodWater": null, "highWater": 32.89, "yiMinWater": 32.220001220703125, "deadCap": null, "normalCap": 2516.6, "txFloodCap": 1459.88, "mxFloodCap": null, "highCap": 2850.8, "yiMinCap": 2690.700286865234, "canRainCapacity": 520.2000122070312, "canYiMinCap": 2080.700286865234, "time": "2021-04-02", "swRainfallAccept": 520.2, "adcd": "330212" }, { "resCode": "90efe1b6-909f-4003-b590-aca3f4aeda8c", "resName": "高岭头二级水库", "stcd": "70601100", "resScale": "中型", "waterShapeArea": 124.6, "nowWater": 308.61, "nowCap": 580.0, "deadWater": 302.0, "normalWater": 327.0, "txFloodWater": 327.0, "mxFloodWater": null, "highWater": 328.09, "yiMinWater": null, "deadCap": null, "normalCap": 1490.571999999999, "txFloodCap": 1490.571999999999, "mxFloodCap": null, "highCap": 1568.036999999997, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330328" }, { "resCode": "934b3243-675e-40ff-b236-765937a18463", "resName": "泗安水库", "stcd": "63201950", "resScale": "中型", "waterShapeArea": 108.0, "nowWater": 13.26, "nowCap": 1194.0, "deadWater": 10.0, "normalWater": 13.57, "txFloodWater": 13.02, "mxFloodWater": null, "highWater": 16.52, "yiMinWater": null, "deadCap": 58.3, "normalCap": 1368.7, "txFloodCap": 1062.0, "mxFloodCap": null, "highCap": 3883.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330522" }, { "resCode": "935c7663-cb7d-4d0d-9be4-7ac4f1159f27", "resName": "上张水库", "stcd": "70703740", "resScale": "中型", "waterShapeArea": 35.7, "nowWater": 25.28, "nowCap": 608.0, "deadWater": 20.0, "normalWater": 35.0, "txFloodWater": 33.0, "mxFloodWater": null, "highWater": 35.0, "yiMinWater": null, "deadCap": 182.0, "normalCap": 1817.0, "txFloodCap": 1526.5, "mxFloodCap": null, "highCap": 1817.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330225" }, { "resCode": "95753fdc-ed10-4c2c-a730-13e1913b584a", "resName": "双涧溪水库", "stcd": "71500540", "resScale": "中型", "waterShapeArea": 78.0, "nowWater": 376.56, "nowCap": 292.0, "deadWater": 373.0, "normalWater": 389.0, "txFloodWater": 389.0, "mxFloodWater": null, "highWater": 389.6, "yiMinWater": null, "deadCap": 197.0, "normalCap": 850.0, "txFloodCap": 850.0, "mxFloodCap": null, "highCap": 887.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330329" }, { "resCode": "9997077a-8a2a-4a99-9364-70ca08aea07f", "resName": "应村水库", "stcd": "70107010", "resScale": "中型", "waterShapeArea": 79.6, "nowWater": 424.43, "nowCap": 1186.0, "deadWater": 400.0, "normalWater": 435.0, "txFloodWater": 432.0, "mxFloodWater": 434.5, "highWater": null, "yiMinWater": 435.9, "deadCap": 188.0, "normalCap": 2020.0, "txFloodCap": 1758.0, "mxFloodCap": 1975.0, "highCap": null, "yiMinCap": 2101.9, "canRainCapacity": null, "canYiMinCap": 915.9000000000001, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331123" }, { "resCode": "a0dcd616-c259-4719-b337-cf93786a6167", "resName": "桐柏抽水蓄能电站下水库", "stcd": null, "resScale": "中型", "waterShapeArea": 21.4, "nowWater": null, "nowCap": null, "deadWater": 110.0, "normalWater": 396.21, "txFloodWater": null, "mxFloodWater": null, "highWater": null, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": null, "swRainfallAccept": null, "adcd": "331023" }, { "resCode": "a25da8ba-cad0-4de1-a756-ce7e7397745c", "resName": "周公畈水库", "stcd": "70106850", "resScale": "中型", "waterShapeArea": 14.1, "nowWater": 62.22, "nowCap": 346.0, "deadWater": 55.0, "normalWater": 64.4, "txFloodWater": 64.08, "mxFloodWater": 64.4, "highWater": 64.71, "yiMinWater": 64.71, "deadCap": 8.0, "normalCap": 624.2000000000008, "txFloodCap": 575.2399999999998, "mxFloodCap": 624.2000000000008, "highCap": 671.6299999999991, "yiMinCap": 671.6299999999991, "canRainCapacity": null, "canYiMinCap": 325.6299999999991, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330825" }, { "resCode": "a3a72398-a98f-427f-b127-849de4b5f6ea", "resName": "桥墩水库", "stcd": "70612100", "resScale": "中型", "waterShapeArea": 138.0, "nowWater": 31.61, "nowCap": 1166.0, "deadWater": 23.0, "normalWater": 52.19, "txFloodWater": 49.5, "mxFloodWater": null, "highWater": 61.05, "yiMinWater": 57.56999969482422, "deadCap": 263.0, "normalCap": 5122.16, "txFloodCap": 4447.5, "mxFloodCap": null, "highCap": 7759.299999999999, "yiMinCap": 6639.849906921387, "canRainCapacity": 396.70001220703125, "canYiMinCap": 5473.849906921387, "time": "2021-04-02", "swRainfallAccept": 396.7, "adcd": "330327" }, { "resCode": "a43a14a1-f62a-4a1f-889e-f2407b464dc7", "resName": "溪口水库", "stcd": "70407000", "resScale": "中型", "waterShapeArea": 35.6, "nowWater": 15.26, "nowCap": 615.0, "deadWater": 8.0, "normalWater": 23.84, "txFloodWater": 22.04, "mxFloodWater": null, "highWater": 26.2, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331082" }, { "resCode": "a65fc3ca-bdce-4f1e-b562-9f704fdab094", "resName": "前岩水库", "stcd": "70206300", "resScale": "中型", "waterShapeArea": 38.6, "nowWater": 65.65, "nowCap": 864.0, "deadWater": 47.0, "normalWater": 68.25, "txFloodWater": 63.05, "mxFloodWater": 68.25, "highWater": 68.85, "yiMinWater": 71.2, "deadCap": null, "normalCap": 1053.2000000000003, "txFloodCap": 680.0, "mxFloodCap": 1053.2000000000003, "highCap": 1098.7999999999997, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330683" }, { "resCode": "a753e906-0156-4079-a778-cda931dabd9f", "resName": "成屏一级水库", "stcd": "70505100", "resScale": "中型", "waterShapeArea": 185.0, "nowWater": 341.71, "nowCap": 4004.0, "deadWater": 324.0, "normalWater": 346.0, "txFloodWater": 346.0, "mxFloodWater": null, "highWater": 353.38, "yiMinWater": 352.1000061035156, "deadCap": 1865.7439999999992, "normalCap": 4665.079999999998, "txFloodCap": 4665.079999999998, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 68.0, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 68.0, "adcd": "331123" }, { "resCode": "a75ce1e0-db42-4663-b3dd-ef734cbf01a7", "resName": "辽湾水库", "stcd": "70204420", "resScale": "中型", "waterShapeArea": 40.4, "nowWater": 147.12, "nowCap": 723.0, "deadWater": 106.0, "normalWater": 151.85, "txFloodWater": 139.05, "mxFloodWater": 151.85, "highWater": 154.97, "yiMinWater": 156.11, "deadCap": null, "normalCap": 891.0548999999999, "txFloodCap": 488.2790500000004, "mxFloodCap": 891.0548999999999, "highCap": 1015.2384105960264, "yiMinCap": 1062.0, "canRainCapacity": null, "canYiMinCap": 339.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330683" }, { "resCode": "a9e6dffe-b2af-406b-95b8-bddb8c8bc82e", "resName": "石塘水库", "stcd": "70501300", "resScale": "中型", "waterShapeArea": 3234.0, "nowWater": 101.9, "nowCap": 7004.000000000001, "deadWater": 101.0, "normalWater": 102.5, "txFloodWater": 102.5, "mxFloodWater": null, "highWater": null, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331125" }, { "resCode": "ab0ed984-afc0-4ffa-9a2f-89c1aff673e9", "resName": "英公水库", "stcd": "70115510", "resScale": "中型", "waterShapeArea": 81.3, "nowWater": 160.33, "nowCap": 1512.0, "deadWater": 130.0, "normalWater": 166.1, "txFloodWater": 162.0, "mxFloodWater": 166.1, "highWater": 168.58, "yiMinWater": 168.0, "deadCap": null, "normalCap": 2267.13, "txFloodCap": 1705.13, "mxFloodCap": 2267.13, "highCap": 2690.0, "yiMinCap": 2597.2, "canRainCapacity": null, "canYiMinCap": 1085.1999999999998, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330112" }, { "resCode": "ab3b930e-80e5-4722-a758-633b2c485a5c", "resName": "安华水库", "stcd": "70117250", "resScale": "中型", "waterShapeArea": 640.0, "nowWater": 24.8, "nowCap": 401.99999999999994, "deadWater": 18.0, "normalWater": null, "txFloodWater": 25.65, "mxFloodWater": 25.19, "highWater": 25.65, "yiMinWater": 29.09, "deadCap": null, "normalCap": null, "txFloodCap": 600.0, "mxFloodCap": 479.0, "highCap": 600.0, "yiMinCap": 2057.0, "canRainCapacity": null, "canYiMinCap": 1655.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330681" }, { "resCode": "ad6f006e-bd17-4acd-b7c8-e0a8028595a8", "resName": "老虎潭水库", "stcd": "63005300", "resScale": "中型", "waterShapeArea": 110.0, "nowWater": 36.36, "nowCap": 2136.0, "deadWater": 28.0, "normalWater": 49.0, "txFloodWater": 47.0, "mxFloodWater": null, "highWater": 53.56, "yiMinWater": 53.38999938964844, "deadCap": 394.0, "normalCap": 7207.0, "txFloodCap": 6196.0, "mxFloodCap": null, "highCap": 9827.080000000002, "yiMinCap": 9722.019622802734, "canRainCapacity": 689.5999755859375, "canYiMinCap": 7586.019622802734, "time": "2021-04-02", "swRainfallAccept": 689.6, "adcd": "330502" }, { "resCode": "b4ae6a1d-3b4f-40b0-8ba5-23430620b6f6", "resName": "太平水库", "stcd": "70110180", "resScale": "中型", "waterShapeArea": 37.88, "nowWater": 144.4, "nowCap": 2736.0, "deadWater": 130.0, "normalWater": 145.25, "txFloodWater": 145.25, "mxFloodWater": 145.25, "highWater": 147.36, "yiMinWater": 146.94, "deadCap": 103.0, "normalCap": 3039.25, "txFloodCap": 3039.25, "mxFloodCap": 3039.25, "highCap": 3866.560000000006, "yiMinCap": 3691.239999999999, "canRainCapacity": null, "canYiMinCap": 955.2399999999989, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330784" }, { "resCode": "b6fa3c9a-143f-4bba-bbec-e3dcf818fafc", "resName": "湖漫水库", "stcd": "70801300", "resScale": "中型", "waterShapeArea": 32.48, "nowWater": 10.99, "nowCap": 499.0, "deadWater": 9.0, "normalWater": 20.47, "txFloodWater": 19.97, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": 25.469999313354492, "deadCap": 255.58999999999992, "normalCap": 2671.0, "txFloodCap": 2515.0, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 1072.9000244140625, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 1072.9, "adcd": "331081" }, { "resCode": "bc30ad2a-0b26-41cf-bb52-23825ac9a46b", "resName": "虹桥水库", "stcd": "70700620", "resScale": "中型", "waterShapeArea": 13.4, "nowWater": 27.82, "nowCap": 528.0, "deadWater": 12.0, "normalWater": 33.65, "txFloodWater": 33.65, "mxFloodWater": null, "highWater": 33.65, "yiMinWater": null, "deadCap": 11.7, "normalCap": 1012.9999999999999, "txFloodCap": 1012.9999999999999, "mxFloodCap": null, "highCap": 1012.9999999999999, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330902" }, { "resCode": "be778c9e-f900-4847-9d2c-929c96b202ee", "resName": "秀岭水库", "stcd": "70406100", "resScale": "中型", "waterShapeArea": 13.9, "nowWater": 14.46, "nowCap": 654.0, "deadWater": 8.0, "normalWater": null, "txFloodWater": 15.9, "mxFloodWater": null, "highWater": 19.16, "yiMinWater": 19.649999618530273, "deadCap": 92.19999999999997, "normalCap": null, "txFloodCap": 828.8499999999999, "mxFloodCap": null, "highCap": 1319.6799999999998, "yiMinCap": 1411.7999282836913, "canRainCapacity": 541.2999877929688, "canYiMinCap": 757.7999282836913, "time": "2021-04-02", "swRainfallAccept": 541.3, "adcd": "331003" }, { "resCode": "bf698339-7ae1-462a-a7bb-fbbd2e63df5b", "resName": "东钱湖水库", "stcd": "70303650", "resScale": "中型", "waterShapeArea": 79.1, "nowWater": 3.34, "nowCap": 3628.0, "deadWater": 2.0, "normalWater": 3.75, "txFloodWater": 3.45, "mxFloodWater": null, "highWater": 4.11, "yiMinWater": null, "deadCap": 1104.0000000000002, "normalCap": 4429.0, "txFloodCap": 3841.0, "mxFloodCap": null, "highCap": 5144.8, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330212" }, { "resCode": "c2f02896-eae9-4e54-b852-004ec4760ebc", "resName": "左溪水电站一级水库", "stcd": null, "resScale": "中型", "waterShapeArea": 90.2, "nowWater": null, "nowCap": null, "deadWater": 618.0, "normalWater": 648.0, "txFloodWater": 648.0, "mxFloodWater": null, "highWater": 649.16, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": null, "swRainfallAccept": null, "adcd": "331126" }, { "resCode": "c35dce6f-136b-4e6f-b45d-0b90882435d7", "resName": "严家水库", "stcd": "70114240", "resScale": "中型", "waterShapeArea": 73.0, "nowWater": 439.87, "nowCap": 1131.0, "deadWater": 434.0, "normalWater": 446.0, "txFloodWater": 441.5, "mxFloodWater": 441.5, "highWater": 445.9, "yiMinWater": 450.69, "deadCap": 746.0, "normalCap": 1624.0, "txFloodCap": 1251.0, "mxFloodCap": 1251.0, "highCap": 1615.299999999998, "yiMinCap": 2069.0, "canRainCapacity": null, "canYiMinCap": 938.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330127" }, { "resCode": "c406ffc4-3e2a-4682-a727-2bae00c8810b", "resName": "外雄水库", "stcd": "70502080", "resScale": "中型", "waterShapeArea": 9265.0, "nowWater": 27.87, "nowCap": 1679.0, "deadWater": 28.0, "normalWater": 28.0, "txFloodWater": null, "mxFloodWater": null, "highWater": 28.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331121" }, { "resCode": "c4abb281-a2a0-404b-a094-001a89924b58", "resName": "罗村水库", "stcd": "70114950", "resScale": "中型", "waterShapeArea": 44.7, "nowWater": 259.99, "nowCap": 1332.0, "deadWater": 228.0, "normalWater": 268.07, "txFloodWater": 262.0, "mxFloodWater": 262.07, "highWater": 266.82, "yiMinWater": 268.07, "deadCap": null, "normalCap": 1955.9499999999998, "txFloodCap": 1467.0, "mxFloodCap": 1471.5499999999997, "highCap": 1849.6999999999985, "yiMinCap": 1955.9499999999998, "canRainCapacity": null, "canYiMinCap": 623.9499999999998, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330182" }, { "resCode": "c6a6969e-c73b-4b82-84a8-328e35c19089", "resName": "岩口水库", "stcd": "70109840", "resScale": "中型", "waterShapeArea": 53.5, "nowWater": 100.07, "nowCap": 1206.0, "deadWater": 95.0, "normalWater": 108.5, "txFloodWater": 106.74, "mxFloodWater": 107.74, "highWater": 109.0, "yiMinWater": 109.05, "deadCap": 514.2, "normalCap": 3140.0, "txFloodCap": 2639.7, "mxFloodCap": 2913.5, "highCap": 3284.0, "yiMinCap": 3300.0, "canRainCapacity": null, "canYiMinCap": 2094.0, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330782" }, { "resCode": "c84d9c38-e0ea-4ca3-a00c-e19091b79c3f", "resName": "上林湖水库", "stcd": "70702700", "resScale": "中型", "waterShapeArea": 14.07, "nowWater": 6.32, "nowCap": 639.0, "deadWater": 4.0, "normalWater": 9.92, "txFloodWater": 11.8, "mxFloodWater": null, "highWater": 10.35, "yiMinWater": null, "deadCap": 305.0, "normalCap": 1299.16, "txFloodCap": 1699.2000000000003, "mxFloodCap": null, "highCap": 1388.1499999999999, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330282" }, { "resCode": "c8ba2829-ec56-4943-864a-f27bfee76818", "resName": "新路岙水库", "stcd": "70702850", "resScale": "中型", "waterShapeArea": 24.0, "nowWater": 17.13, "nowCap": 656.0, "deadWater": 3.0, "normalWater": 21.46, "txFloodWater": 21.46, "mxFloodWater": null, "highWater": 23.4, "yiMinWater": null, "deadCap": null, "normalCap": 1077.6000000000001, "txFloodCap": 1077.6000000000001, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330206" }, { "resCode": "c957cfe8-f715-4182-b646-1d7d28a59e6c", "resName": "顺溪水库", "stcd": "70610150", "resScale": "中型", "waterShapeArea": 92.3, "nowWater": 153.09, "nowCap": 1043.0, "deadWater": 135.0, "normalWater": 175.0, "txFloodWater": 160.0, "mxFloodWater": null, "highWater": 191.36, "yiMinWater": 175.0, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 141.10000610351562, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 141.1, "adcd": "330326" }, { "resCode": "cb0016e6-1786-4b36-8336-3dca4a91e2ed", "resName": "塘坑水库", "stcd": "70508420", "resScale": "中型", "waterShapeArea": 46.25, "nowWater": 193.84, "nowCap": 419.00000000000006, "deadWater": 182.0, "normalWater": 209.5, "txFloodWater": 205.0, "mxFloodWater": null, "highWater": 211.5, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331121" }, { "resCode": "cda6922a-988c-45da-83da-d581513650f2", "resName": "铜山水库", "stcd": "70114680", "resScale": "中型", "waterShapeArea": 45.1, "nowWater": 430.48, "nowCap": 1313.0, "deadWater": 405.0, "normalWater": 434.0, "txFloodWater": 432.0, "mxFloodWater": 431.9, "highWater": 434.32, "yiMinWater": 434.32, "deadCap": 151.7, "normalCap": 1604.2, "txFloodCap": 1436.8, "mxFloodCap": 1428.8, "highCap": 1626.5999999999992, "yiMinCap": 1626.5999999999992, "canRainCapacity": null, "canYiMinCap": 313.5999999999992, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330127" }, { "resCode": "cdc179d9-8cbd-11e9-8555-005056bf5ab4", "resName": "闲林水库", "stcd": "63301833", "resScale": "中型", "waterShapeArea": 16.89, "nowWater": 66.82, "nowCap": 1357.0, "deadWater": 48.0, "normalWater": 70.0, "txFloodWater": null, "mxFloodWater": null, "highWater": 70.63, "yiMinWater": null, "deadCap": 43.8, "normalCap": 1835.0, "txFloodCap": null, "mxFloodCap": null, "highCap": 1942.0999999999997, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330112" }, { "resCode": "cdc1a268-8cbd-11e9-8555-005056bf5ab4", "resName": "永宁水库", "stcd": "70119280", "resScale": "中型", "waterShapeArea": 73.6, "nowWater": 41.1, "nowCap": 942.0, "deadWater": 31.0, "normalWater": 44.0, "txFloodWater": null, "mxFloodWater": 42.0, "highWater": 48.36, "yiMinWater": 48.36, "deadCap": 129.0, "normalCap": 1332.0, "txFloodCap": null, "mxFloodCap": 1055.0, "highCap": 2083.3599999999997, "yiMinCap": 2083.3599999999997, "canRainCapacity": null, "canYiMinCap": 1141.3599999999997, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330681" }, { "resCode": "cdc1fa71-8cbd-11e9-8555-005056bf5ab4", "resName": "浙江仙居抽水蓄能电站上水库", "stcd": null, "resScale": "中型", "waterShapeArea": 1.21, "nowWater": null, "nowCap": null, "deadWater": 641.0, "normalWater": 675.0, "txFloodWater": null, "mxFloodWater": null, "highWater": null, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": null, "swRainfallAccept": null, "adcd": "331024" }, { "resCode": "cfab2c91-7edc-43a3-94d6-27cba2d5e62f", "resName": "四岭水库", "stcd": "63003100", "resScale": "中型", "waterShapeArea": 71.6, "nowWater": 64.93, "nowCap": 794.0, "deadWater": 46.0, "normalWater": 72.21, "txFloodWater": 65.4, "mxFloodWater": null, "highWater": 78.52, "yiMinWater": 78.45999908447266, "deadCap": null, "normalCap": 1459.099999999999, "txFloodCap": 828.0, "mxFloodCap": null, "highCap": 2237.7999999999997, "yiMinCap": 2229.3998718261714, "canRainCapacity": 199.39999389648438, "canYiMinCap": 1435.3998718261714, "time": "2021-04-02", "swRainfallAccept": 199.4, "adcd": "330110" }, { "resCode": "d0c41436-d612-4fa3-91d9-08bd5ac5a2e0", "resName": "三渡溪水库", "stcd": "70110320", "resScale": "中型", "waterShapeArea": 22.24, "nowWater": 194.09, "nowCap": 650.0, "deadWater": 164.0, "normalWater": 198.76, "txFloodWater": 197.76, "mxFloodWater": 198.76, "highWater": 199.26, "yiMinWater": 199.89, "deadCap": null, "normalCap": 921.0, "txFloodCap": 856.75, "mxFloodCap": 921.0, "highCap": 954.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330784" }, { "resCode": "d439ac19-3d2f-461e-ab4e-c320021f6df4", "resName": "征天水库", "stcd": "70119520", "resScale": "中型", "waterShapeArea": 18.45, "nowWater": 43.57, "nowCap": 637.0, "deadWater": 32.0, "normalWater": 46.27, "txFloodWater": 44.47, "mxFloodWater": 46.27, "highWater": 47.27, "yiMinWater": 47.87, "deadCap": 65.9, "normalCap": 866.1800000000004, "txFloodCap": 709.04, "mxFloodCap": 866.1800000000004, "highCap": 962.0000000000005, "yiMinCap": 1021.9999999999999, "canRainCapacity": null, "canYiMinCap": 384.9999999999999, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330681" }, { "resCode": "d6315008-3278-4738-a074-884bcda5cea3", "resName": "大塘港水库", "stcd": "70704250", "resScale": "中型", "waterShapeArea": 134.0, "nowWater": 0.43, "nowCap": 2136.0, "deadWater": -3.0, "normalWater": 0.05, "txFloodWater": 0.7, "mxFloodWater": null, "highWater": 2.77, "yiMinWater": null, "deadCap": 643.4000000000001, "normalCap": 1872.0, "txFloodCap": 2317.5, "mxFloodCap": null, "highCap": 4672.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330225" }, { "resCode": "d689d362-eb71-4286-ab63-e288d07c1aad", "resName": "梅溪水库", "stcd": "70702950", "resScale": "中型", "waterShapeArea": 40.01, "nowWater": 32.02, "nowCap": 440.00000000000006, "deadWater": 21.0, "normalWater": null, "txFloodWater": 44.0, "mxFloodWater": null, "highWater": 47.85, "yiMinWater": null, "deadCap": 19.992000000000004, "normalCap": null, "txFloodCap": 1492.5420000000001, "mxFloodCap": null, "highCap": 1982.5360000000003, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330212" }, { "resCode": "d71c1159-16a5-463d-bee3-e203601c1fc6", "resName": "齐溪水库", "stcd": "70100050", "resScale": "中型", "waterShapeArea": 182.65, "nowWater": 275.84, "nowCap": 1705.0, "deadWater": 264.0, "normalWater": 288.21, "txFloodWater": 286.2, "mxFloodWater": 286.21, "highWater": 290.77, "yiMinWater": 291.4599914550781, "deadCap": 587.0, "normalCap": 3800.0, "txFloodCap": 3388.19090909091, "mxFloodCap": 3390.0, "highCap": 4397.0, "yiMinCap": 4564.997863769533, "canRainCapacity": 114.5, "canYiMinCap": 2859.997863769533, "time": "2021-04-02", "swRainfallAccept": 114.5, "adcd": "330824" }, { "resCode": "d96e5a25-d95a-4935-86bf-701e3739ceb0", "resName": "仰义水库", "stcd": "70508500", "resScale": "中型", "waterShapeArea": 11.5, "nowWater": 52.17, "nowCap": 101.0, "deadWater": 49.0, "normalWater": 72.2, "txFloodWater": 72.8, "mxFloodWater": null, "highWater": 74.61, "yiMinWater": null, "deadCap": 51.20000000000002, "normalCap": 913.0, "txFloodCap": 953.4999999999995, "mxFloodCap": null, "highCap": 1083.8333333333333, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330302" }, { "resCode": "daa8bcbf-554c-4425-b5e2-5b00700db5cf", "resName": "千家排水库", "stcd": "62414650", "resScale": "中型", "waterShapeArea": 27.0, "nowWater": 213.01, "nowCap": 1284.0, "deadWater": 182.0, "normalWater": 216.6, "txFloodWater": 213.4, "mxFloodWater": null, "highWater": 218.44, "yiMinWater": 218.7100067138672, "deadCap": 15.499999999999972, "normalCap": 1604.0, "txFloodCap": 1317.5, "mxFloodCap": null, "highCap": 1790.3999999999994, "yiMinCap": 1817.75285405698, "canRainCapacity": 197.6999969482422, "canYiMinCap": 533.7528540569799, "time": "2021-04-02", "swRainfallAccept": 197.7, "adcd": "330822" }, { "resCode": "dcfd78d6-beb1-43a8-8107-99a7b5f90bfc", "resName": "清溪口水库", "stcd": "70110410", "resScale": "中型", "waterShapeArea": 35.3, "nowWater": 132.77, "nowCap": 1003.9999999999999, "deadWater": 113.0, "normalWater": 134.31, "txFloodWater": 134.31, "mxFloodWater": 134.31, "highWater": 135.64, "yiMinWater": 135.64, "deadCap": null, "normalCap": 1160.0, "txFloodCap": 1160.0, "mxFloodCap": 1160.0, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330723" }, { "resCode": "dd5489bc-4413-4c77-b5d9-0a4d9b187461", "resName": "沙畈水库", "stcd": "70110480", "resScale": "中型", "waterShapeArea": 131.0, "nowWater": 265.92, "nowCap": 6729.000000000001, "deadWater": 230.0, "normalWater": 270.06, "txFloodWater": 270.06, "mxFloodWater": 270.06, "highWater": 272.97, "yiMinWater": 272.20001220703125, "deadCap": 985.5399999999997, "normalCap": 7696.0, "txFloodCap": 7696.0, "mxFloodCap": 7696.0, "highCap": 8432.78, "yiMinCap": 8234.123149414067, "canRainCapacity": 116.0999984741211, "canYiMinCap": 1505.1231494140657, "time": "2021-04-02", "swRainfallAccept": 116.1, "adcd": "330702" }, { "resCode": "ddb29fe4-10c5-4b4d-85d3-b2d152ce7f8a", "resName": "溪口水库", "stcd": "70704270", "resScale": "中型", "waterShapeArea": 43.33, "nowWater": 43.67, "nowCap": 306.0, "deadWater": 35.0, "normalWater": 51.0, "txFloodWater": 52.5, "mxFloodWater": null, "highWater": 52.55, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330225" }, { "resCode": "de8db53e-7e46-4891-a7f0-8f67ed14634c", "resName": "开潭电站水库", "stcd": "70501900", "resScale": "中型", "waterShapeArea": 8544.0, "nowWater": 47.45, "nowCap": 2810.0, "deadWater": 47.0, "normalWater": 47.5, "txFloodWater": null, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331102" }, { "resCode": "df1366d0-71d8-444f-ba71-194e6a3535aa", "resName": "剡源水库", "stcd": "70204510", "resScale": "中型", "waterShapeArea": 52.0, "nowWater": 114.8, "nowCap": 717.0, "deadWater": 94.0, "normalWater": 116.8, "txFloodWater": 112.05, "mxFloodWater": 116.8, "highWater": 118.61, "yiMinWater": null, "deadCap": 46.0, "normalCap": 822.1999999999998, "txFloodCap": 577.4999999999999, "mxFloodCap": 822.1999999999998, "highCap": 921.16, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330683" }, { "resCode": "e06f0dc6-1bc6-4d99-b7d2-fe7e7f1e8e98", "resName": "英川水库", "stcd": "70508040", "resScale": "中型", "waterShapeArea": 199.0, "nowWater": 539.85, "nowCap": 1650.0, "deadWater": 518.0, "normalWater": 555.0, "txFloodWater": 552.0, "mxFloodWater": null, "highWater": 557.66, "yiMinWater": null, "deadCap": 480.7, "normalCap": 3038.3, "txFloodCap": 2716.8, "mxFloodCap": null, "highCap": 3343.8799999999965, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331127" }, { "resCode": "e1ed6b84-abfa-49ec-bb63-f16d2b07b010", "resName": "狮子口水库", "stcd": "70104330", "resScale": "中型", "waterShapeArea": 84.43, "nowWater": 101.49, "nowCap": 816.0, "deadWater": 93.0, "normalWater": 102.8, "txFloodWater": 101.8, "mxFloodWater": 101.8, "highWater": 0.0, "yiMinWater": 104.30000305175781, "deadCap": 65.0, "normalCap": 1030.0, "txFloodCap": 866.0, "mxFloodCap": 866.0, "highCap": null, "yiMinCap": 1290.0004577636723, "canRainCapacity": 29.399999618530273, "canYiMinCap": 474.00045776367233, "time": "2021-04-02", "swRainfallAccept": 29.4, "adcd": "330822" }, { "resCode": "e3f98a8e-6e9a-4e9a-874c-c6f713e549ca", "resName": "郑徐水库", "stcd": "70702610", "resScale": "中型", "waterShapeArea": 5.83, "nowWater": 4.46, "nowCap": 4222.0, "deadWater": -2.0, "normalWater": 4.5, "txFloodWater": 4.5, "mxFloodWater": null, "highWater": 4.5, "yiMinWater": null, "deadCap": 734.31, "normalCap": 4245.61, "txFloodCap": 4245.61, "mxFloodCap": null, "highCap": 4245.61, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330282" }, { "resCode": "e4c684d6-5709-4c1c-b87e-a7801dd6e1b5", "resName": "隔溪张水库", "stcd": "70703730", "resScale": "中型", "waterShapeArea": 10.6, "nowWater": 67.46, "nowCap": 30.0, "deadWater": 66.0, "normalWater": 102.93, "txFloodWater": 104.0, "mxFloodWater": null, "highWater": 105.41, "yiMinWater": null, "deadCap": 19.6, "normalCap": 904.0150000000003, "txFloodCap": 953.9, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330225" }, { "resCode": "e5bda67d-8e18-47b1-9455-2dd76e78c2bf", "resName": "凤凰水库", "stcd": "63009500", "resScale": "中型", "waterShapeArea": 39.5, "nowWater": 50.49, "nowCap": 537.0, "deadWater": 43.0, "normalWater": 60.12, "txFloodWater": 59.0, "mxFloodWater": null, "highWater": 63.82, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330523" }, { "resCode": "e67dd084-2bb5-4910-b295-1c2b8417c6a8", "resName": "吴家园水库", "stcd": "70612600", "resScale": "中型", "waterShapeArea": 32.6, "nowWater": 30.88, "nowCap": 518.0, "deadWater": 23.0, "normalWater": 44.5, "txFloodWater": 38.4, "mxFloodWater": null, "highWater": 46.45, "yiMinWater": 47.0, "deadCap": 102.0, "normalCap": 1747.8000000000002, "txFloodCap": 1140.3999999999999, "mxFloodCap": null, "highCap": 1960.7050000000004, "yiMinCap": 2022.8, "canRainCapacity": 456.0, "canYiMinCap": 1504.8, "time": "2021-04-02", "swRainfallAccept": 456.0, "adcd": "330327" }, { "resCode": "e6cfbf93-f93a-4cf7-8490-d879c1723556", "resName": "童燎水库", "stcd": "70800100", "resScale": "中型", "waterShapeArea": 17.5, "nowWater": 18.43, "nowCap": 354.0, "deadWater": 16.0, "normalWater": 28.36, "txFloodWater": 24.16, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 235.0, "normalCap": 1073.12, "txFloodCap": 728.2, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331082" }, { "resCode": "e93bda4d-b128-4077-9369-bfb85456c2cd", "resName": "十字路水库", "stcd": "70312300", "resScale": "中型", "waterShapeArea": 10.8, "nowWater": 22.46, "nowCap": 1686.0, "deadWater": 6.0, "normalWater": 24.38, "txFloodWater": 25.63, "mxFloodWater": null, "highWater": 26.51, "yiMinWater": null, "deadCap": 78.1, "normalCap": 1970.0839999999998, "txFloodCap": 2165.304, "mxFloodCap": null, "highCap": 2308.4840000000004, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330211" }, { "resCode": "ec192da6-8464-420e-a38b-253ac10b0817", "resName": "茅岗水库", "stcd": "70103660", "resScale": "中型", "waterShapeArea": 30.0, "nowWater": 294.58, "nowCap": 530.0, "deadWater": 272.0, "normalWater": 301.04, "txFloodWater": 299.04, "mxFloodWater": 301.04, "highWater": 302.75, "yiMinWater": 305.0, "deadCap": null, "normalCap": 874.9000000000001, "txFloodCap": 759.0, "mxFloodCap": 874.9000000000001, "highCap": 980.0000000000001, "yiMinCap": null, "canRainCapacity": 196.1999969482422, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 196.2, "adcd": "330824" }, { "resCode": "eed6df78-bd05-43a9-a1d1-b1377d091d5a", "resName": "陆埠水库", "stcd": "70311300", "resScale": "中型", "waterShapeArea": 55.5, "nowWater": 39.98, "nowCap": 1079.0, "deadWater": 19.0, "normalWater": 46.19, "txFloodWater": 46.13, "mxFloodWater": null, "highWater": null, "yiMinWater": 48.189998626708984, "deadCap": null, "normalCap": 1830.0, "txFloodCap": 1822.2000000000003, "mxFloodCap": null, "highCap": null, "yiMinCap": 2139.999780273438, "canRainCapacity": 189.5, "canYiMinCap": 1060.9997802734379, "time": "2021-04-02", "swRainfallAccept": 189.5, "adcd": "330281" }, { "resCode": "ef5514fc-89a4-40ab-8164-2dcd4ee0abaa", "resName": "高岭头一级水库", "stcd": "70601110", "resScale": "中型", "waterShapeArea": 32.6, "nowWater": 761.96, "nowCap": 204.99999999999997, "deadWater": 758.0, "normalWater": 792.0, "txFloodWater": 790.0, "mxFloodWater": null, "highWater": 792.0, "yiMinWater": null, "deadCap": 133.4, "normalCap": 1575.1, "txFloodCap": 1429.5, "mxFloodCap": null, "highCap": 1575.1, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330328" }, { "resCode": "f16ae2c1-453a-441e-966c-b8abc1324944", "resName": "二界岭水库", "stcd": "63202060", "resScale": "中型", "waterShapeArea": 26.88, "nowWater": 41.3, "nowCap": 302.0, "deadWater": 33.0, "normalWater": 46.15, "txFloodWater": 45.65, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": 7.7, "normalCap": 849.5, "txFloodCap": 747.9, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330522" }, { "resCode": "f18dea35-bd30-41f1-9f15-56e1d00fbb89", "resName": "白鹤水库", "stcd": "70600120", "resScale": "中型", "waterShapeArea": 149.4, "nowWater": 542.43, "nowCap": 482.0, "deadWater": 532.0, "normalWater": 560.0, "txFloodWater": 560.0, "mxFloodWater": null, "highWater": 560.2, "yiMinWater": null, "deadCap": 192.0, "normalCap": 1419.0, "txFloodCap": 1419.0, "mxFloodCap": null, "highCap": 1434.7000000000035, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331127" }, { "resCode": "f3657807-dec4-4f59-b4d7-dbff8ce977e8", "resName": "和平水库", "stcd": "63010240", "resScale": "中型", "waterShapeArea": 20.2, "nowWater": 60.54, "nowCap": 408.0, "deadWater": 52.0, "normalWater": 61.67, "txFloodWater": 63.0, "mxFloodWater": null, "highWater": 66.73, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330522" }, { "resCode": "f510d3f6-0f00-4ea6-8161-4e8501edeb23", "resName": "车岙港水库", "stcd": "70704300", "resScale": "中型", "waterShapeArea": 13.0, "nowWater": 3.48, "nowCap": 656.0, "deadWater": 0.0, "normalWater": 4.52, "txFloodWater": null, "mxFloodWater": null, "highWater": 5.02, "yiMinWater": null, "deadCap": null, "normalCap": 1020.0, "txFloodCap": null, "mxFloodCap": null, "highCap": 1200.0, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330226" }, { "resCode": "f7864355-d14b-49d9-ae29-45ebe45d0634", "resName": "青山水库", "stcd": "70119220", "resScale": "中型", "waterShapeArea": 50.0, "nowWater": 74.86, "nowCap": 707.0, "deadWater": 60.0, "normalWater": 76.16, "txFloodWater": 74.66, "mxFloodWater": 76.16, "highWater": 77.06, "yiMinWater": 78.01, "deadCap": 18.08000000000004, "normalCap": 828.0, "txFloodCap": 689.0, "mxFloodCap": 828.0, "highCap": 917.2000000000006, "yiMinCap": 1017.5000000000009, "canRainCapacity": null, "canYiMinCap": 310.5000000000009, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330681" }, { "resCode": "f833e0dd-6d0a-48a2-9def-52fa67d01542", "resName": "通济桥水库", "stcd": "70116800", "resScale": "中型", "waterShapeArea": 104.5, "nowWater": 102.93, "nowCap": 3404.0, "deadWater": 88.0, "normalWater": 108.6, "txFloodWater": 108.6, "mxFloodWater": 108.6, "highWater": 110.28, "yiMinWater": 110.02999877929688, "deadCap": null, "normalCap": 5924.479999999997, "txFloodCap": 5924.479999999997, "mxFloodCap": 5924.479999999997, "highCap": 6866.992000000001, "yiMinCap": 6720.391284179687, "canRainCapacity": 315.20001220703125, "canYiMinCap": 3316.3912841796873, "time": "2021-04-02", "swRainfallAccept": 315.2, "adcd": "330726" }, { "resCode": "f906bd49-bc9a-4eda-b727-ff6276de5314", "resName": "白石水库", "stcd": "70509820", "resScale": "中型", "waterShapeArea": 48.5, "nowWater": 14.61, "nowCap": 133.0, "deadWater": 10.0, "normalWater": 33.86, "txFloodWater": 31.0, "mxFloodWater": null, "highWater": 34.06, "yiMinWater": 40.0, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": 240.1999969482422, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": 240.2, "adcd": "330382" }, { "resCode": "fb64ddad-d5bd-496f-84bb-283ab70db545", "resName": "里林水库", "stcd": "70402100", "resScale": "中型", "waterShapeArea": 82.3, "nowWater": 187.12, "nowCap": 923.0, "deadWater": 166.0, "normalWater": 187.0, "txFloodWater": 187.0, "mxFloodWater": null, "highWater": 0.0, "yiMinWater": null, "deadCap": null, "normalCap": 917.7999999999995, "txFloodCap": 917.7999999999995, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "331024" }, { "resCode": "fbf549ee-479f-4dcf-9e04-3e61ebffd0cb", "resName": "四灶浦水库", "stcd": "70702320", "resScale": "中型", "waterShapeArea": 4.78, "nowWater": 5.81, "nowCap": 1780.0, "deadWater": 3.0, "normalWater": 6.13, "txFloodWater": 8.0, "mxFloodWater": null, "highWater": 6.27, "yiMinWater": null, "deadCap": null, "normalCap": null, "txFloodCap": null, "mxFloodCap": null, "highCap": null, "yiMinCap": null, "canRainCapacity": null, "canYiMinCap": null, "time": "2021-04-02", "swRainfallAccept": null, "adcd": "330282" }];
+            $.getJSON("/common/water.json", function (data) {
+                var resultData = [];
+                var ResultData = { "data": [{ "STCD": "3206400101", "STNM": "东亭", "LGTD": 120.346113, "LTTD": 31.604030, "SORT": "1                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.170, "Z3": "3.17(0.00)", "Z6": "3.17(0.00)", "Z9": "3.18(0.01)", "Z12": "3.20(0.03)", "Z24": "3.18(0.01)", "DRP12": 7.0, "DRP24": 7.1, "DRP3": 3.9, "DRP6": 6.7, "DRP9": 7.0 }, { "STCD": "D10-2468", "STNM": "云林", "LGTD": 120.382986, "LTTD": 31.606397, "SORT": "2                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.350, "Z3": "3.33(-0.02)", "Z6": "3.35(0.00)", "Z9": "3.35(0.00)", "Z12": "3.37(0.02)", "Z24": "3.38(0.03)", "DRP12": 8.3, "DRP24": 8.3, "DRP3": 3.7, "DRP6": 7.6, "DRP9": 8.3 }, { "STCD": "D10-1865", "STNM": "安镇", "LGTD": 120.420959, "LTTD": 31.610572, "SORT": "3                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.540, "Z3": "3.55(0.01)", "Z6": "3.58(0.04)", "Z9": "3.54(0.00)", "Z12": "3.50(-0.04)", "Z24": "3.47(-0.07)", "DRP12": 6.8, "DRP24": 6.8, "DRP3": 2.7, "DRP6": 6.6, "DRP9": 6.8 }, { "STCD": "3206401102", "STNM": "羊尖", "LGTD": 120.556093, "LTTD": 31.623567, "SORT": "4                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.350, "Z3": "3.28(-0.07)", "Z6": "3.24(-0.11)", "Z9": "3.24(-0.11)", "Z12": "3.32(-0.03)", "Z24": "3.34(-0.01)", "DRP12": 9.0, "DRP24": 9.1, "DRP3": 4.0, "DRP6": 8.6, "DRP9": 9.0 }, { "STCD": "D10-1999", "STNM": "厚桥", "LGTD": 120.537676, "LTTD": 31.573559, "SORT": "5                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.410, "Z3": "3.40(-0.01)", "Z6": "3.40(-0.01)", "Z9": "3.37(-0.04)", "Z12": "3.38(-0.03)", "Z24": "3.38(-0.03)", "DRP12": 7.6, "DRP24": 7.6, "DRP3": 3.2, "DRP6": 7.5, "DRP9": 7.6 }, { "STCD": "3206400105", "STNM": "鹅湖", "LGTD": 120.535937, "LTTD": 31.523197, "SORT": "6                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.310, "Z3": "3.35(0.04)", "Z6": "3.34(0.03)", "Z9": "3.30(-0.01)", "Z12": "3.29(-0.02)", "Z24": "3.28(-0.03)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400103", "STNM": "东北塘", "LGTD": 120.357522, "LTTD": 31.636765, "SORT": "7                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.360, "Z3": "3.33(-0.03)", "Z6": "3.36(0.00)", "Z9": "3.36(0.00)", "Z12": "3.37(0.01)", "Z24": "3.38(0.02)", "DRP12": 5.1, "DRP24": 5.4, "DRP3": 2.8, "DRP6": 4.8, "DRP9": 5.1 }, { "STCD": "D10-1568", "STNM": "锡北", "LGTD": 120.430107, "LTTD": 31.662728, "SORT": "8                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.620, "Z3": "3.64(0.02)", "Z6": "3.68(0.06)", "Z9": "3.64(0.02)", "Z12": "3.61(-0.01)", "Z24": "3.58(-0.04)", "DRP12": 7.2, "DRP24": 7.2, "DRP3": 3.7, "DRP6": 7.2, "DRP9": 7.2 }, { "STCD": "3206400104", "STNM": "东港", "LGTD": 120.529906, "LTTD": 31.701427, "SORT": "9                             ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.470, "Z3": "3.48(0.01)", "Z6": "3.46(-0.01)", "Z9": "3.43(-0.04)", "Z12": "3.44(-0.03)", "Z24": "3.43(-0.04)", "DRP12": 6.5, "DRP24": 6.5, "DRP3": 4.4, "DRP6": 6.4, "DRP9": 6.5 }, { "STCD": "313", "STNM": "八士港", "LGTD": 120.401923, "LTTD": 31.696389, "SORT": "8001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.480, "Z3": "3.38(-0.10)", "Z6": "3.36(-0.12)", "Z9": "3.39(-0.09)", "Z12": "3.41(-0.07)", "Z24": "3.47(-0.01)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "D10-2244", "STNM": "南大联圩", "LGTD": 120.346140, "LTTD": 31.603761, "SORT": "1001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.430, "Z3": "3.40(-0.03)", "Z6": "3.41(-0.02)", "Z9": "3.40(-0.03)", "Z12": "3.42(-0.01)", "Z24": "3.39(-0.04)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400001", "STNM": "七号桥圩", "LGTD": 120.365537, "LTTD": 31.575594, "SORT": "1002                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.290, "Z3": "3.08(-0.21)", "Z6": "3.03(-0.26)", "Z9": "3.09(-0.20)", "Z12": "3.14(-0.15)", "Z24": "3.34(0.05)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "301", "STNM": "北街排区", "LGTD": 120.367843, "LTTD": 31.585384, "SORT": "1001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.350, "Z3": "3.33(-0.02)", "Z6": "3.33(-0.02)", "Z9": "3.34(-0.01)", "Z12": "3.36(0.01)", "Z24": "3.33(-0.02)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "302", "STNM": "潘家里排区", "LGTD": 120.354396, "LTTD": 31.571074, "SORT": "1001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.360, "Z3": "3.36(0.00)", "Z6": "3.35(-0.01)", "Z9": "3.37(0.01)", "Z12": "3.38(0.02)", "Z24": "3.03(-0.33)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400102", "STNM": "北大联圩", "LGTD": 120.374020, "LTTD": 31.597938, "SORT": "2001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 2.310, "Z3": "2.12(-0.19)", "Z6": "2.15(-0.16)", "Z9": "2.17(-0.14)", "Z12": "2.18(-0.13)", "Z24": "2.23(-0.08)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "303", "STNM": "长春排区", "LGTD": 120.357068, "LTTD": 31.613489, "SORT": "2001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 2.310, "Z3": "2.34(0.03)", "Z6": "2.39(0.08)", "Z9": "2.41(0.10)", "Z12": "2.43(0.12)", "Z24": "2.48(0.17)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "304", "STNM": "长大厦排区", "LGTD": 120.376752, "LTTD": 31.594976, "SORT": "2001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 1.940, "Z3": "1.88(-0.06)", "Z6": "2.02(0.08)", "Z9": "2.05(0.11)", "Z12": "2.06(0.12)", "Z24": "2.02(0.08)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "204", "STNM": "谈村圩", "LGTD": 120.408338, "LTTD": 31.590921, "SORT": "3003                          " }, { "STCD": "3206400002", "STNM": "谢埭荡圩", "LGTD": 120.536877, "LTTD": 31.572336, "SORT": "5001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": -0.180, "Z3": "-0.55(-0.37)", "Z6": "-0.35(-0.17)", "Z9": "-0.19(-0.01)", "Z12": "-0.06(0.12)", "Z24": "-0.02(0.16)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "320640000B", "STNM": "甘露联圩", "LGTD": 120.580447, "LTTD": 31.558511, "SORT": "6001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.410, "Z3": "0.00(0.00)", "Z6": "3.41(0.00)", "Z9": "3.41(0.00)", "Z12": "0.00(0.00)", "Z24": "3.38(-0.03)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "D10-3653", "STNM": "荡北联圩", "LGTD": 120.551827, "LTTD": 31.530313, "SORT": "6002                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.300, "Z3": "3.32(0.02)", "Z6": "3.32(0.02)", "Z9": "3.28(-0.02)", "Z12": "3.28(-0.02)", "Z24": "3.27(-0.03)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400003", "STNM": "荡南联圩", "LGTD": 120.540617, "LTTD": 31.518004, "SORT": "6003                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.410, "Z3": "3.42(0.01)", "Z6": "3.43(0.02)", "Z9": "3.43(0.02)", "Z12": "3.43(0.02)", "Z24": "3.43(0.02)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "320640000A", "STNM": "获泽圩", "LGTD": 120.538077, "LTTD": 31.499608, "SORT": "6004                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.310, "Z3": "3.31(0.00)", "Z6": "3.33(0.02)", "Z9": "3.35(0.04)", "Z12": "3.36(0.05)", "Z24": "3.38(0.07)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206401101", "STNM": "茅庄圩", "LGTD": 120.591209, "LTTD": 31.530331, "SORT": "6005                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.050, "Z3": "2.97(-0.08)", "Z6": "2.94(-0.11)", "Z9": "2.96(-0.09)", "Z12": "2.96(-0.09)", "Z24": "2.98(-0.07)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "305", "STNM": "步枪圩排区", "LGTD": 120.570982, "LTTD": 31.586286, "SORT": "6001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.240, "Z3": "3.24(0.00)", "Z6": "3.25(0.01)", "Z9": "3.25(0.01)", "Z12": "3.26(0.02)", "Z24": "3.23(-0.01)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "306", "STNM": "姚巷荡排区", "LGTD": 120.560085, "LTTD": 31.581438, "SORT": "6001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 0.290, "Z3": "0.31(0.02)", "Z6": "0.13(-0.16)", "Z9": "0.19(-0.10)", "Z12": "0.22(-0.07)", "Z24": "0.28(-0.01)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "307", "STNM": "解放桥排区", "LGTD": 120.547848, "LTTD": 31.523311, "SORT": "6001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.320, "Z3": "3.33(0.01)", "Z6": "3.30(-0.02)", "Z9": "3.31(-0.01)", "Z12": "3.31(-0.01)", "Z24": "3.31(-0.01)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "308", "STNM": "朝东屋排区", "LGTD": 120.545993, "LTTD": 31.512036, "SORT": "6001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.040, "Z3": "3.05(0.01)", "Z6": "3.08(0.04)", "Z9": "3.01(-0.03)", "Z12": "3.03(-0.01)", "Z24": "3.06(0.02)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "309", "STNM": "沉苏圩", "LGTD": 120.529416, "LTTD": 31.525146, "SORT": "6001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": -0.220, "Z3": "-0.21(0.01)", "Z6": "-0.18(0.04)", "Z9": "-0.17(0.05)", "Z12": "-0.17(0.05)", "Z24": "-0.14(0.08)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400004", "STNM": "大小冯巷圩", "LGTD": 120.341596, "LTTD": 31.653255, "SORT": "7005                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.160, "Z3": "3.17(0.01)", "Z6": "3.18(0.02)", "Z9": "3.19(0.03)", "Z12": "3.20(0.04)", "Z24": "3.21(0.05)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400005", "STNM": "北兴塘圩", "LGTD": 120.335326, "LTTD": 31.613325, "SORT": "7001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 2.850, "Z3": "2.86(0.01)", "Z6": "2.89(0.04)", "Z9": "2.90(0.05)", "Z12": "2.88(0.03)", "Z24": "2.90(0.05)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3500400000", "STNM": "西北塘圩", "LGTD": 120.326286, "LTTD": 31.624244, "SORT": "7004                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 2.760, "Z3": "2.82(0.06)", "Z6": "2.42(-0.34)", "Z9": "2.47(-0.29)", "Z12": "2.50(-0.26)", "Z24": "2.60(-0.16)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400007", "STNM": "下浦联圩", "LGTD": 120.314753, "LTTD": 31.616603, "SORT": "7002                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 2.610, "Z3": "2.67(0.06)", "Z6": "2.83(0.22)", "Z9": "2.87(0.26)", "Z12": "2.95(0.34)", "Z24": "2.93(0.32)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400008", "STNM": "严埭西圩", "LGTD": 120.321026, "LTTD": 31.629139, "SORT": "7003                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.010, "Z3": "3.06(0.05)", "Z6": "3.14(0.13)", "Z9": "3.18(0.17)", "Z12": "3.22(0.21)", "Z24": "3.31(0.30)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "3206400009", "STNM": "勤新联圩", "LGTD": 120.519610, "LTTD": 31.729629, "SORT": "9001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.150, "Z3": "3.17(0.02)", "Z6": "3.20(0.05)", "Z9": "3.21(0.06)", "Z12": "3.22(0.07)", "Z24": "3.24(0.09)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "201", "STNM": "芙蓉塘", "LGTD": 120.480618, "LTTD": 31.606816, "SORT": "3001                          " }, { "STCD": "203", "STNM": "东枢纽西", "LGTD": 120.481032, "LTTD": 31.591115, "SORT": "3002                          " }, { "STCD": "206", "STNM": "吼山港", "LGTD": 120.420999, "LTTD": 31.609834, "SORT": "3004                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 3.160, "Z3": "3.13(-0.03)", "Z6": "3.27(0.11)", "Z9": "3.34(0.18)", "Z12": "3.39(0.23)", "Z24": "3.52(0.36)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "310", "STNM": "万塘浜", "LGTD": 120.410162, "LTTD": 31.660496, "SORT": "8001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 5.520, "Z3": "5.52(0.00)", "Z6": "5.55(0.03)", "Z9": "5.56(0.04)", "Z12": "5.57(0.05)", "Z24": "5.57(0.05)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "311", "STNM": "花园浜", "LGTD": 120.430680, "LTTD": 31.664651, "SORT": "8001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 6.010, "Z3": "6.03(0.02)", "Z6": "6.03(0.02)", "Z9": "6.02(0.01)", "Z12": "6.01(0.00)", "Z24": "6.04(0.03)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }, { "STCD": "312", "STNM": "北新河", "LGTD": 120.453098, "LTTD": 31.692069, "SORT": "8001                          ", "TM1": "\/Date(1592463600000-0000)\/", "Z1": 4.820, "Z3": "4.85(0.03)", "Z6": "4.90(0.08)", "Z9": "4.91(0.09)", "Z12": "4.92(0.10)", "Z24": "5.00(0.18)", "DRP12": 0.0, "DRP24": 0.0, "DRP3": 0.0, "DRP6": 0.0, "DRP9": 0.0 }], "PageTotal": 0, "PageSize": 0, "PageIndex": 0, "total": 41, "IsSuccess": true, "Message": "操作成功", "ElapseTime": 485 };
+                var data_R = ResultData.data;
+                var data = data.data.filter(function (e) {
+                    return e.name.lastIndexOf("水库") > -1;
+                });
+                var strHtml = '';
+                    strHtml += '<tr class="line-height-small">';
+                strHtml += '<th style="width:40px;">序号</th>';
+                strHtml += '<th>水库名称</th>';
+                strHtml += '<th>面积（km²）</th>';
+                strHtml += '<th>当前水位(m)</th>';
+                strHtml += '<th>安全水位(m)</th>';
+                strHtml += '<th>实时库容（百万m³）</th>';
+                strHtml += '<th>预报雨量(mm)</th>';
+                strHtml += '<th>可纳降雨量(mm)</th>';
+                strHtml += '</tr>';
+
+                var categoryData = [], valueData=[];
+                for (var num = 0; num < data_R.length; num++) {
+                    var name = data[num].name
+                    if (num % 2 != 0) {
+                        name = "\n" + name;
+                    }
+                    categoryData.push(name);
+                    valueData.push(dataSK[num].swRainfallAccept);
+                    var yiMinWater = dataSK[num].yiMinWater != null && dataSK[num].yiMinWater != undefined ? parseFloat(dataSK[num].yiMinWater).toFixed(2) : "-";
+                    var swRainfallAccept = dataSK[num].swRainfallAccept != null && dataSK[num].swRainfallAccept != undefined ? parseFloat(dataSK[num].swRainfallAccept).toFixed(2) : "-";
+
+                    strHtml += '<tr>';
+                    strHtml += '<td>' + (num + 1) + '</td>';
+                    strHtml += '<td>' + data[num].name+'</td>';
+                    strHtml += '<td>' + dataSK[num].waterShapeArea +'</td>';
+                    strHtml += '<td>' + dataSK[num].nowWater + '</td>';
+                    strHtml += '<td>' + yiMinWater + '</td>';
+                    strHtml += '<td>' + (parseFloat(dataSK[num].nowCap) / 100).toFixed(3)  + '</td>';
+                    strHtml += '<td>' + (parseFloat(dataSK[num].nowCap) / 1000).toFixed(3)+ '</td>';
+                    strHtml += '<td>' +swRainfallAccept + '</td>';
+                    strHtml += '</tr>';
+                }
+                $("#myTable").html(strHtml);
+                var result = { categoryData: categoryData,valueData: valueData};
+                chartSKBar("echart3", result);
+            });
+            
+        }
+        function chartSKBar(chartName,data) {
+            var myChart = echarts.init(document.getElementById(chartName));
+            var dataCount = 5e5;
+            var option = {
+                title: {
+                    text: '水库纳雨能力对比图',
+                    left: 'center',
+                },
+                color:'#649DFF',
+                toolbox: {
+                    show: false,
+                    feature: {
+                        dataZoom: {
+                            yAxisIndex: false
+                        },
+                        saveAsImage: {
+                            pixelRatio: 2
+                        }
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: 80,
+                    right: 80,
+                    top: 80,
+                    bottom: 100,
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow',
+                            label: {
+                                show: true,
+                                formatter: function (params) {
+                                    return params.value.replace('\n', '');
+                                }
+                            }
+                        }
+                    }
+                },
+                //dataZoom: [{
+                //    type: 'inside'
+                //}, {
+                //    type: 'slider'
+                //}],
+                dataZoom: [{
+                    type: 'inside',
+                    start: 0,
+                    end: 40
+                }, {
+                    start: 0,
+                        end: 40
+                }],
+                xAxis: {
+                    data: data.categoryData,
+                    axisLabel: { 'interval': 0 },
+                    silent: false,
+                    splitLine: {
+                        show: false
+                    },
+                    splitArea: {
+                        show: false
+                    }
+                },
+                yAxis: {
+                    name: '雨量(mm)',
+                    splitArea: {
+                        show: false
+                    }
+                },
+                series: [{
+                    type: 'bar',
+                    data: data.valueData,
+                    // Set `large` for large data amount
+                    large: true,
+                    barWidth:"30px"
+                }]
+            };
+            myChart.setOption(option);
+
+        }
+
+        function chartAreaYL(chartName, chartTM, chartData) {
+            var myChart = echarts.init(document.getElementById(chartName));
+            option = {
+                color: ['#7de494', '#7fd7b1', '#5578cf', '#5ebbeb', '#d16ad8', '#f8e19a', '#00b7ee', '#81dabe', '#5fc5ce'],
+                tooltip: {
+                    trigger: 'axis'
+                },
+                grid: {
+                    left: '8%',
+                    right: '5%',
+                    bottom: 40,
+                    top: '16%'
+                },
+                toolbox: {
+                    show: false
+                },
+                xAxis: {
+                    type: 'category',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#666'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#666'
+                        },
+                        show: false
+                    },
+                    axisLabel: {
+                        color: "#666",
+                        interval: 0,
+                        rotate: 30,
+                        show: true,
+                        splitNumber: 15
+                    },
+                    data: chartTM,
+                },
+                yAxis: [{
+                    name: "雨量(mm)",
+                    type: 'value',
+                    nameTextStyle: {
+                        color: '#666'
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: '#666'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: '#666'
+                        },
+                        show: false
+                    },
+                    axisLabel: {
+                        color: "#666"
+                    }
+                }
+                ],
+                series: [
+                    {
+                        name: '雨量',
+                        type: 'bar',
+                        yAxisIndex: 0,
+                        barWidth: 15,
+                        itemStyle: {
+                            normal: {
+                                show: true,
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                    offset: 0,
+                                    color: '#00c0e9'
+                                }, {
+                                    offset: 1,
+                                    color: '#3b73cf'
+                                }]),
+                                barBorderRadius: 50,
+                                borderWidth: 0,
+                            },
+                            emphasis: {
+                                shadowBlur: 15,
+                                shadowColor: 'rgba(105,123, 214, 0.7)'
+                            }
+                        },
+                        data: chartData
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+        function chartPieTj(ChartName) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.clear();
+            var scaleData = [
+                {
+                    'name': '超保',
+                    'value': 10
+                },
+                {
+                    'name': '超警',
+                    'value': 15
+                },
+                {
+                    'name': '警戒以下',
+                    'value':117 
+                }
+            ];
+            var rich = {
+                white: {
+                    color: '#fff',
+                    align: 'center',
+                    fontWeight: 'bold',
+                    padding: [3, 0]
+                }
+            };
+            var placeHolderStyle = {
+                normal: {
+                    label: {
+                        show: false
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    color: 'rgba(0, 0, 0, 0)',
+                    borderColor: 'rgba(0, 0, 0, 0)',
+                    borderWidth: 0
+                }
+            };
+            var data = [];
+            var color1 = ['rgb(255,0,0)', 'rgb(255,240,0)', 'rgb(61, 186, 45)', 'rgb(0,128,255)', 'rgb(255,222,0)', 'rgb(255,0,0)'];
+
+            for (var i = 0; i < scaleData.length; i++) {
+                data.push({
+                    value: scaleData[i].value,
+                    name: scaleData[i].name,
+                    itemStyle: {
+                        normal: {
+                            borderWidth: 4,
+                            shadowBlur: 30,
+                            borderColor: color1[i],
+                            //shadowColor: color1[i],
+                            color: color1[i],
+                            opacity: 0.75,
+                        }
+                    }
+                }, {
+                        value: 2,
+                        name: '',
+                        itemStyle: placeHolderStyle
+                    });
+            }
+            var seriesObj = [{
+                name: '',
+                type: 'pie',
+                clockWise: false,
+                radius: ['45%', '65%'],
+                center: ['40%', '50%'],
+                hoverAnimation: false,
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: false,
+                            position: 'inner',
+                            fontWeight: 'bold',
+                            formatter: function (params) {
+                                var percent = 0;
+                                var total = 0;
+                                for (var i = 0; i < scaleData.length; i++) {
+                                    total += scaleData[i].value;
+                                }
+                                percent = ((params.value / total) * 100).toFixed(0);
+                                if (params.name !== '') {
+                                    return params.name + '\n{white|' + '占比' + percent + '%}';
+                                } else {
+                                    return '';
+                                }
+                            },
+                            rich: rich
+                        },
+                        labelLine: {
+                            show: false,
+                        }
+                    }
+                },
+                data: data
+            }];
+            option = {
+                title: {
+                    text: '{a|142}{c|\n}{c|\r\r\r\r\r总数}',
+                    textStyle: {
+                        color: "#fff",
+                        fontSize: 40,
+                        fontWeight: '100',
+                        rich: {
+                            a: {
+                                fontSize: 45,
+                                color: '#29EEF3'
+                            },
+                            c: {
+                                fontSize: 14,
+                                lineHeight: 75,
+                                color: '#000',
+                                // padding: [5,0]
+                            }
+                        }
+                    },
+                    x: "29.5%",
+                    y: "33%"
+                },
+                //backgroundColor: '#04243E',
+                tooltip: {
+                    show: false
+                },
+                legend: {
+                    data: ["超保", "超警", "警戒以下"],
+                    type: "scroll",
+                    right: '15',
+                    top: 'center',
+                    orient: 'vertical',
+                    itemGap: 20,
+                    textStyle: {
+                        lineHeight: 20,
+                        color: '#000',
+
+                    },
+                },
+                toolbox: {
+                    show: false
+                },
+                series: seriesObj
+            }
+            myChart.resize();
+            myChart.setOption(option);
+        }
+        function chartPieTjSK(ChartName) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.clear();
+            var scaleData = [
+                {
+                    'name': '超汛限',
+                    'value': 1
+                },
+                {
+                    'name': '汛限以下',
+                    'value': 12
+                }
+            ];
+            var rich = {
+                white: {
+                    color: '#fff',
+                    align: 'center',
+                    fontWeight: 'bold',
+                    padding: [3, 0]
+                }
+            };
+            var placeHolderStyle = {
+                normal: {
+                    label: {
+                        show: false
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    color: 'rgba(0, 0, 0, 0)',
+                    borderColor: 'rgba(0, 0, 0, 0)',
+                    borderWidth: 0
+                }
+            };
+            var data = [];
+            var color1 = [ 'rgb(255,240,0)', 'rgb(61, 186, 45)', 'rgb(0,128,255)', 'rgb(255,222,0)', 'rgb(255,0,0)'];
+
+            for (var i = 0; i < scaleData.length; i++) {
+                data.push({
+                    value: scaleData[i].value,
+                    name: scaleData[i].name,
+                    itemStyle: {
+                        normal: {
+                            borderWidth: 4,
+                            shadowBlur: 30,
+                            borderColor: color1[i],
+                            //shadowColor: color1[i],
+                            color: color1[i],
+                            //opacity: 0.75,
+                        }
+                    }
+                }, {
+                        value: 2,
+                        name: '',
+                        itemStyle: placeHolderStyle
+                    });
+            }
+            var seriesObj = [{
+                name: '',
+                type: 'pie',
+                clockWise: false,
+                radius: ['45%', '65%'],
+                center: ['40%', '50%'],
+                hoverAnimation: false,
+                itemStyle: {
+                    normal: {
+                        label: {
+                            show: false,
+                            position: 'inner',
+                            fontWeight: 'bold',
+                            formatter: function (params) {
+                                var percent = 0;
+                                var total = 0;
+                                for (var i = 0; i < scaleData.length; i++) {
+                                    total += scaleData[i].value;
+                                }
+                                percent = ((params.value / total) * 100).toFixed(0);
+                                if (params.name !== '') {
+                                    return params.name + '\n{white|' + '占比' + percent + '%}';
+                                } else {
+                                    return '';
+                                }
+                            },
+                            rich: rich
+                        },
+                        labelLine: {
+                            show: false,
+                        }
+                    }
+                },
+                data: data
+            }];
+            option = {
+                title: {
+                    text: '{a|13}{c|\n}{c|\r\r\r\r总数}',
+                    textStyle: {
+                        color: "#fff",
+                        fontSize: 40,
+                        fontWeight: '100',
+                        rich: {
+                            a: {
+                                fontSize: 45,
+                                color: '#29EEF3'
+                            },
+                            c: {
+                                fontSize: 14,
+                                lineHeight: 75,
+                                color: '#000',
+                                // padding: [5,0]
+                            }
+                        }
+                    },
+                    x: "29.5%",
+                    y: "33%"
+                },
+                //backgroundColor: '#04243E',
+                tooltip: {
+                    show: false
+                },
+                legend: {
+                    data: ["超汛限", "汛限以下"],
+                    type: "scroll",
+                    right: '15',
+                    top: 'center',
+                    orient: 'vertical',
+                    itemGap: 20,
+                    textStyle: {
+                        lineHeight: 20,
+                        color: '#000',
+
+                    },
+                },
+                toolbox: {
+                    show: false
+                },
+                series: seriesObj
+            }
+            myChart.resize();
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

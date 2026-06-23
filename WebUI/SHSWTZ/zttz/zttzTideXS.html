@@ -1,0 +1,703 @@
+﻿<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100mm以上暴雨查询</title>
+    <link href="../../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../..//Common/boot.js" type="text/javascript"></script>
+    <link href="../..//Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="../..//Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <!--<script src="/Common/Scripts/echarts.js" type="text/javascript"></script>-->
+    <script src="../..//Common/Scripts/echarts.min5.2.2.js"></script>
+    <style>
+        html,
+        body {
+            background: transparent;
+        }
+
+        ul.ui-choose>li {
+            width: auto;
+            padding: 0px 20px;
+        }
+
+        .mini-toolbar {
+            background: transparent;
+            border: 0px;
+        }
+
+        html body .mini-grid-row-hover,
+        .mini-grid-row-alt {
+            background: none !important;
+            color: #fff !important;
+        }
+
+        html body .mini-grid-row-selected {
+            background: none !important;
+            color: #fff !important;
+        }
+
+        .mini-grid .mini-grid-bottomCell {
+            background: none !important;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            background: none !important;
+            color: #fff !important;
+            background: rgba(33, 58, 68, 0.5) !important;
+            color: #00A3FF !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow {
+            background: none !important;
+            padding-top: 10px;
+        }
+
+
+        .mini-radiobuttonlist-item .mini-list-icon {}
+
+        .mini-grid-summaryRow div {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow table {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+
+        .mini-grid-summaryRow tr td span {
+            color: #fff !important;
+            line-height: 25px;
+            font-weight: 400 !important;
+        }
+
+        .mini-buttonedit-button-hover,
+        .mini-buttonedit-hover .mini-buttonedit-trigger {
+            border: 0px solid #ababab;
+            padding: 0;
+            background: none !important;
+        }
+
+        .mini-grid-viewport {
+            background: none !important;
+        }
+
+        .mini-buttonedit-button-hover,
+        .mini-buttonedit-hover .mini-buttonedit-trigger {
+            border: 0px solid #ababab;
+            padding: 0;
+            background: none !important;
+        }
+
+        .mini-grid-viewport {
+            background: none !important;
+        }
+
+        .mini-buttonedit-border {
+            border: 1px solid rgba(44, 58, 65, 0.60);
+            background: none;
+        }
+
+        .mini-buttonedit-button,
+        .mini-buttonedit-close {
+            border: 0px;
+        }
+
+        .mini-buttonedit-button-pressed,
+        .mini-buttonedit-popup .mini-buttonedit-trigger {
+            background: none;
+            border: 0px;
+        }
+
+        .mini-buttonedit-input {
+            color: #fff;
+        }
+
+        .mini-grid-headerCell,
+        .mini-grid-topRightCell,
+        .mini-grid-columnproxy {
+            background: transparent;
+            border: none;
+        }
+
+        .mini-panel-border {
+            border: 0px !important;
+        }
+
+        .mini-grid-cell-inner {
+            padding: 0 !important;
+            font-size: 14px !important;
+            font-family: "arial" !important;
+            /* color: #FFFFFF ; */
+        }
+
+        .mini-grid-cell {
+            color: #fff;
+        }
+
+        .bootstrap-switch-handle-off {
+            margin-left: -3px;
+        }
+
+        .mini-buttonedit-border {
+            border: 1px solid rgb(1 105 164);
+        }
+
+        .bootstrap-switch-handle-off {
+            background: url(/SHSWTZ/zttz/images/menuTop.png) no-repeat center;
+            background-size: 100% 100%;
+            color: #fff;
+        }
+
+        .bootstrap-switch-handle-on {
+            background: url(/SHSWTZ/zttz/images/menuTopSelected.png) no-repeat center;
+            background-size: 100% 100%;
+        }
+
+        .mini-grid-cell-selected {
+            background: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mini-toolbar">
+        <div id="zhanList">
+            <label style="color:#00e2e3;">站点：</label>
+            <input id="STCD" name="STCD" class="mini-combobox" style="width:85px;" textField="STNM" valueField="STCD"
+                allowInput="true" onvaluechanged="onvaluechangedTM" />
+
+            <div style="margin-left:12px;float:left;display:none;" id="zhanDiv">
+
+            </div>
+            &nbsp;&nbsp;
+            <label style="color:#00e2e3;">开始：</label>
+            &nbsp;<input id="STIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd"
+                showOkButton="false" showClearButton="false" />
+            &nbsp;<input id="startHour" class="mini-spinner" minValue="0" maxValue="23" style="width:50px;" />
+            &nbsp;&nbsp;
+            <label style="color:#00e2e3;">结束：</label>
+            &nbsp;<input id="ETIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd"
+                showOkButton="false" showClearButton="false" />
+            &nbsp;<input id="endHour" class="mini-spinner" minValue="0" maxValue="23" style="width:50px;" />
+
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()"
+                style="background: #013b56;border-color: #016aa4;width: 55px;height: 28px;line-height: 25px;">查询</a>
+            <a class="mini-button" onclick="Exp()"
+                style="background: #013b56;border-color: #016aa4;width: 55px;height: 28px;line-height: 25px;">导出</a>
+            <a class="mini-button" onclick="ApplicationModelMethod()" id="modeButton"
+                style="background:rgb(10 50 30);border-color: rgb(28 122 5);width: 80px;height: 28px;line-height: 25px;display:none;">模型应用</a>
+
+            <div class="bootstrap-switch" style="border:0px;height:30px;float:right;">
+                <div class="bootstrap-switch-container">
+                    <!--<span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit0')" id="switch0"><i class="fa fa-adjust"></i></span>-->
+                    <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i
+                            class="fa fa-line-chart"></i></span>
+                    <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i
+                            class="fa fa-table"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="fit1" class="fit" style="float:left;width:100%;height:100%;">
+            <div id="cwchart" style="width:100%;height:100%;">
+            </div>
+        </div>
+        <div id="fit2" class="fit" style="height:100%;float:left;width:100%;">
+            <div id="grid1" class="mini-datagrid" style="width:100%;height:100%;" allowalternating="true"
+                borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+                showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                allowcellselect="true" allowcelledit="true" ondrawcell="ondrawcell" showSummaryRow="true"
+                ondrawsummarycell="onDrawSummaryCell">
+                <div property="columns">
+                    <div type="indexcolumn" field="orderNum" headeralign="center" align="center">序号</div>
+                    <div field="tm" headeralign="center" align="center" allowsort="true">
+                        时间
+                    </div>
+                    <div field="tdz" headeralign="center" align="center" allowsort="true" decimalPlaces="2"
+                        dataType="float">
+                        潮位(m)
+                    </div>
+                    <div field="htdz" headeralign="center" align="center" allowsort="true" decimalPlaces="2"
+                        dataType="float">
+                        天文潮(m)
+                    </div>
+                    <div field="ztdz" headeralign="center" align="center" allowsort="true" decimalPlaces="2"
+                        dataType="float">
+                        增水(m)
+                    </div>
+                    <div field="stnm" headeralign="center" align="center">
+                        站名
+                    </div>
+                    <div field="stcd" headeralign="center" align="center">
+                        站码
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        mini.parse();
+        var grid = mini.get("grid1");
+        var stime = GetQueryString("STIME");
+        var etime = GetQueryString("ETIME");
+        var ApplicationModel = GetQueryString("ApplicationModel");
+        var ZJ_YBSJ = GetQueryString("ZJ_YBSJ");
+        var tfbh = GetQueryString('tfbh');
+        $(function () {
+            $("#modeButton").hide();
+            if (ApplicationModel != null) {
+                $("#modeButton").show();
+            }
+            $("#fit2").hide();
+            var dataResult = [
+                { STCD: "63401750", STNM: "吴淞口" },
+                { STCD: "62701710", STNM: "高桥（二）" },
+                { STCD: "63405800", STNM: "芦潮港" },
+                { STCD: "63401100", STNM: "米市渡" },
+                { STCD: "63401500", STNM: "黄浦公园" },
+                { STCD: "63405900", STNM: "金山嘴" }
+            ];
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+            var startHour = new Date(stime).getHours();
+            var endHour = new Date(etime).getHours();
+            mini.get("startHour").setValue(startHour);
+            mini.get("endHour").setValue(endHour);
+            search();
+            GetTyphoonListLJ();
+        });
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            $(".fit").hide();
+            $("#" + objFit).show();
+        }
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var stime = mini.get("STIME").getFormValue() + " " + mini.get("startHour").getValue() + ":00:00";
+            var etime = mini.get("ETIME").getFormValue() + " " + mini.get("endHour").getValue() + ":59:59";
+            var strWhere = {
+                startdate: stime,
+                enddate: etime,
+                stcd: mini.get("STCD").getValue(),
+                tdptn: "2"
+            };
+            // GetJosns("SWZZ_FLOODTIDEDATA_ST_TIDEHIGH_RSel", strWhere, "Sel");
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/SWZZ_FLOODTIDEDATA_ST_TIDEHIGH_RSel", strWhere, (data) => {
+                JosnSel(data, "Sel")
+            });
+        }
+        function GetTyphoonListLJ() {
+            var strWhere = { tfbh: tfbh, isYB: "false" };
+            app.post("ZJ_TYPHOON_ZJ_TF/GetTyphoonList", strWhere, (data) => {
+                JosnSel(data, "GetTyphoonList")
+            })
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var xdata = [];
+                var ydata = [], ydataH = [], ydataZ = [];
+                for (var num = 0; num < data.data.length; num++) {
+                    var tm = new Date((data.data[num].tm)).format("yyyy-MM-dd HH:mm");
+                    xdata.push(tm);
+                    var tdz = data.data[num].tdz != undefined ? Number(data.data[num].tdz).toFixed(2) : null;
+                    ydata.push(tdz);
+                    var htdz = data.data[num].htdz != undefined ? Number(data.data[num].htdz).toFixed(2) : null;
+                    ydataH.push(htdz);
+                    var ztdz = data.data[num].ztdz != undefined ? Number(data.data[num].ztdz).toFixed(2) : null;
+                    ydataZ.push(ztdz);
+                }
+                chartCW("cwchart", xdata, ydata, ydataH, ydataZ);
+                grid.setData(data.data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "GetTyphoonList") {
+                $.data(myData, "tfData", data.data);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "tm") {
+                var s = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+                e.cellHtml = s;
+            }
+        }
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var grid = e.sender;
+            //服务端汇总计算
+            var JSONArray = grid.getData();
+
+            if (e.field == "TM") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:#00e2e3;font-size:14px;'>最大值</div>";
+                //s += "<div class='classColor' style='color:#00e2e3;font-size:14px;'>高潮位增水</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+            else if (e.field == "TDZ" || e.field == "HTDZ" || e.field == "ZTDZ") {
+                JSONArray = sortObjectArray(JSONArray, [e.field], 'desc');
+                if (JSONArray.length > 0) {
+                    var tdz = JSONArray[0][e.field];
+                    var s = "<span style='color:Brown;'>";
+                    s += "<div class='classColor' style='color:#00e2e3;font-size:14px;'>" + Number(tdz).toFixed(2) + "(" + convertToDate(JSONArray[0].TM).format("M-d HH:mm") + ")</div>";
+                    if (e.field == "ZTDZ") {
+                        //高潮位增水=最高潮位减去这段时间最高天文潮，时间上会推后
+                        JSONArray = sortObjectArray(JSONArray, ["TDZ"], 'desc');
+                        tdz = JSONArray[0]["TDZ"];
+                        var tdztm = JSONArray[0]["TM"];//高潮位出现时间
+                        JSONArray = sortObjectArray(JSONArray, ["TM"], 'asc');
+                        var JSONArray = JSONArray.filter(function (e) {
+                            return e.TM >= tdztm;
+                        });
+                        var htdz;
+                        for (var num = 0; num < JSONArray.length; num++) {
+                            //console.error(convertToDate(JSONArray[num].TM).format("yyyy-MM-dd HH:mm:ss"));
+                            var tdzValue = JSONArray[num].HTDZ;
+                            if (num > 0 && num < JSONArray.length - 1) {
+                                var qtdzValue = JSONArray[num - 1].HTDZ;
+                                var htdzValue = JSONArray[num + 1].HTDZ;
+                                //console.error(convertToDate(JSONArray[num].TM).format("yyyy-MM-dd HH:mm:ss") + "," + qtdzValue + "," + tdzValue + "," + htdzValue);
+
+                                if (tdzValue > htdzValue && tdzValue >= qtdzValue) {
+                                    //console.error("高潮位对应的天文潮高潮位：" + tdzValue);
+                                    htdz = tdzValue;
+                                    break;
+                                } else { }
+                            }
+                        }
+                        var tdzcha = tdz - htdz;
+                        //s += "<div class='classColor' style='color:#00e2e3;font-size:14px;'>" + Number(tdzcha).toFixed(2) + "</div>";
+                    } else {
+                        //s += "<div class='classColor' style='color:#00e2e3;font-size:14px;'>&nbsp;&nbsp;</div>";
+                    }
+                    s += "</span>";
+                    e.cellHtml = s;
+                }
+            }
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = mini.get("STCD").getText() + "(" + mini.get("STCD").getValue() + ")";
+            name += new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日") + "-";
+            name += new Date(mini.get("ETIME").getFormValue()).format("yyyy年M月d日") + "整点潮位数据";
+            ExportExcel(data, grid, name);
+        }
+        function ApplicationModelMethod() {
+            var stime = mini.get("STIME").getFormValue() + " " + mini.get("startHour").getValue() + ":00:00";
+            var etime = mini.get("ETIME").getFormValue() + " " + mini.get("endHour").getValue() + ":59:59";
+            var url = '/DD_MX/Initialization.html?ApplicationModel=true';
+            url += '&AppModelstime=' + stime + "&AppModeletime=" + etime;
+            url += '&ZJ_YBSJ=' + ZJ_YBSJ;
+            window.parent.window.parent.addTab('模型计算', url);
+        }
+        function chartCW(ChartName, xdata, ydata, ydataH, ydataZ) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var realEx = [];
+            var maxTDZ = Math.max.apply(null, ydata);
+            var maxTDZTM = "";
+            var maxZS = 0;
+            for (var num = 0; num < ydata.length; num++) {
+                if (ydata[num] == maxTDZ) {
+                    maxTDZTM = xdata[num];
+                    maxZS = ydataZ[num];
+                    break;
+                }
+            }
+            var option = {
+                text: mini.get("STCD").getText() + "潮位过程",
+                title: {
+                    //text: mini.get("STCD").getText()+"潮位过程",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 14,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    },
+                    borderWidth: "0", //设置边框宽度
+                    borderColor: '', // 设置边框颜色
+                    textStyle: {
+                        color: "white" //设置文字颜色
+                    },
+                    backgroundColor: 'rgba(47,47,47,0.50)',
+                    formatter: (params) => {
+                        // 打印确认params是对象还是数组
+                        //console.error(params);
+                        var str = '';
+                        var tipTM = '';
+                        for (var num = 0; num < params.length; num++) {
+                            str += params[num].seriesName + '：' + params[num].value + 'm<br/>';
+                            tipTM = params[num].name;
+                        }
+                        var tfData = $.data(myData, "tfData");
+                        if (tfData != null) {
+                            tipTM = tipTM + ":00";
+                            tipTM = new Date(tipTM).format("yyyy-MM-dd HH");
+                            var points = tfData[0].points;
+                            var pointsTemp = points.filter(function (res) {
+                                return new Date(convertToDate(res.RQSJ2)).format("yyyy-MM-dd HH") == tipTM;
+                            });
+                            //console.error(pointsTemp);
+                            if (pointsTemp.length > 0) {
+                                str += '风速：' + pointsTemp[0].FS + 'm/s<br/>';
+                                //str += '风力：' + pointsTemp[0].FL + '<br/>';
+                                str += '气压：' + pointsTemp[0].QY + '百帕<br/>';
+                                str += '移向：' + pointsTemp[0].MOVEFX + '<br/>';
+                            }
+                        }
+                        return str
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['潮位', '天文潮', '增水'],
+                    show: true,
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 12
+                    },
+                    selected: {
+                        '天文潮': false,
+                        '潮位': false,
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xdata,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1, //这里是为了突出显示加上的
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            }
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        nameTextStyle: {
+                            color: '#fff',
+                        },
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#1B2B2F',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '潮位',
+                        type: 'line',
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydata,
+                        markPoint: {
+                            data: [{ type: 'max', name: '最大值' }],
+                            label: {
+                                offset: [0, 0],
+                                textStyle: {
+                                    color: "#000000",
+                                    fontSize: 13,
+                                },
+                            },
+                        },
+                        itemStyle: {
+                            color: "rgba(20,253,129,1)",
+                            //borderColor: "#646ace",
+                            //borderWidth: 1
+                        },
+                        areaStyle: { //区域填充样式
+                            normal: {
+                                //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                    offset: 0,
+                                    color: "rgba(20,253,129,.3)"
+                                },
+                                {
+                                    offset: 1,
+                                    color: "rgba(25,163,223, 0)"
+                                }
+                                ], false),
+                                shadowColor: 'rgba(20,253,129, 0.5)', //阴影颜色
+                                shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+                            }
+                        },
+                    },
+                    {
+                        name: '天文潮',
+                        type: 'line',
+                        color: "blue",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydataH
+                    },
+                    {
+                        name: '增水',
+                        type: 'line',
+                        color: "#FF0000",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydataZ,
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: '最大值' },
+                                {
+                                    name: '高潮增水',
+                                    value: maxZS,
+                                    xAxis: maxTDZTM,
+                                    yAxis: maxZS,
+                                    label: {
+                                        position: "inside",
+                                        offset: [0, 10],
+                                    },
+                                    symbolRotate: 180,
+                                },
+                            ]
+                        },
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

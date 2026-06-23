@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script src="../Common/Scripts/jquery-1.9.1.min.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+
+    <script src="../Common/boot.js" type="text/javascript"></script>
+
+    <script src="../Common/Scripts/ChartJs.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+            background: white;
+        }
+        .mini-grid-rows-view{
+		 overflow: auto !important;
+		}
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+                &nbsp;&nbsp;站点：
+                <input id="STCD" name="STCD" class="mini-combobox" style="width:110px;" textField="stnm" valueField="stcd" allowInput="true" />
+                
+            &nbsp; &nbsp;
+            开始日期： &nbsp;<input id="STIME" class="mini-datepicker" style="width:160px;" format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="false" showClearButton="false" ondrawdate="onMinDrawDate" />&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:160px;" format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="false" showClearButton="false" ondrawdate="onMaxDrawDate" />&nbsp;&nbsp;
+
+            <!-- 预报日期：<input id="TM" class="mini-datepicker" style="width:150px;" format="yyyy-MM-dd H:mm:ss" timeFormat="H:mm:ss" showTime="true" showOkButton="false" showClearButton="false" /> -->
+            <!-- 预报时长： <input id="DAY"  name="DAY" class="mini-spinner" value="3" minValue="1" maxValue="90" style="width:80px"/> -->
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+        </div>
+    </div>
+    <div style="width:100%;height:350px; margin:0 auto;" id="Chart">
+
+    </div>
+
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 385px);height: -moz-calc(100% - 385px);height: calc(100% - 385px);    background: red;" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50,100,500,1000]" pagesize="20" showPager="false" ondrawcell="ondrawcell" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+        
+    </div>
+    <script language="javascript" type="text/javascript">
+    var stcdArr=[
+        {stcd:"63301183",stnm:"嘉兴"},
+        {stcd:"12190083",stnm:"昆山"},	
+        {stcd:"12200083",stnm:"陈墓"},	
+        {stcd:"11150083",stnm:"平望"},		
+    ]
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        var allStcd=GetQueryString("STCD");
+        if(allStcd==null){
+            allStcd="63301183";
+        }
+        $(function () {
+            var tm = new Date();
+            // mini.get("STIME").setValue(addDayDate(tm.format("yyyy/MM/dd"), -7)+" 08:00:00");
+            // mini.get("ETIME").setValue(tm.format("yyyy/MM/dd HH:mm:ss"));
+            mini.get("STIME").setValue("2022-03-01 08:00:00");
+            mini.get("ETIME").setValue("2022-03-07 08:00:00");
+			mini.get("STCD").setData(stcdArr);
+            mini.get("STCD").select(0);
+            //默认加载数据
+            search();
+        })
+        //鼠标移动上去的提示信息。遍历数据
+        function ondrawcell(e) {
+            var record = e.record;
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if(field=="TM"){ 
+                if(value!=undefined){
+                    e.cellHtml =convertToDate(value).format("yyyy-MM-dd HH:mm:ss");
+                }else{
+                    e.cellHtml="—";
+                }
+            }
+        }
+        function onKeyEnter() {
+            //关键字
+            search();
+        }
+        var dataResult = null;
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            setTimeout(function () {
+                PageFillData(0, 20);
+            }, 100);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            var Startime = mini.get("STIME").getFormValue();
+            var Endtime = mini.get("ETIME").getFormValue();
+            Startime=new Date(Startime).format("yyyy-MM-dd HH:mm:ss");
+			Endtime=new Date(Endtime).format("yyyy-MM-dd HH:mm:ss");
+            //查询方法
+            var strWhere = {
+                "startdate": Startime,
+                "enddate": Endtime,
+                "stcd": allStcd,
+                "pattem":"sc"
+            };
+			app.post("SWZZ_FLOOD_ST_TIDE_R/WaterRainfallFlowBINJX", strWhere, function (res) {
+				JosnSel(res, "Sel");
+			});
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {  
+                var columnsName=[];
+                columnsName.push({ field: "tm",width:"60", headerAlign: "center", allowSort: true, header: "时间",align: "center"});
+                columnsName.push({ field: "supz",width:"30", headerAlign: "center", allowSort: true, header: "期初水位（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                columnsName.push({ field: "eupz",width:"30", headerAlign: "center", allowSort: true, header: "期末水位（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                columnsName.push({ field: "drp",width:"30", headerAlign: "center", allowSort: true, header: "雨量（mm）",align: "center",decimalPlaces:"1",dataType:"float"});
+                if(allStcd=="63301183"){
+                    columnsName.push({ field: "otfl",width:"30", headerAlign: "center", allowSort: true, header: "南排水量（万方）",align: "center",decimalPlaces:"2",dataType:"float"});
+                    columnsName.push({ field: "tgtq",width:"30", headerAlign: "center", allowSort: true, header: "太浦闸水量（万方）",align: "center",decimalPlaces:"2",dataType:"float"});
+                    columnsName.push({ field: "upz1",width:"30", headerAlign: "center", allowSort: true, header: "米市渡（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                    columnsName.push({ field: "upz2",width:"30", headerAlign: "center", allowSort: true, header: "青阳汇（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                }else if(allStcd=="63301200"){
+                    columnsName.push({ field: "otfl",width:"30", headerAlign: "center", allowSort: true, header: "城防工程外排水量（万方）",align: "center",decimalPlaces:"2",dataType:"float"});
+                }else{
+                    columnsName.push({ field: "otfl",width:"30", headerAlign: "center", allowSort: true, header: "太浦闸水量（万方）",align: "center",decimalPlaces:"2",dataType:"float"});
+                    columnsName.push({ field: "upz1",width:"30", headerAlign: "center", allowSort: true, header: "米市渡（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                    columnsName.push({ field: "upz2",width:"30", headerAlign: "center", allowSort: true, header: "青阳汇（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                }
+                columnsName.push({ field: "ybupz",width:"30", headerAlign: "center", allowSort: true, header: "预报水位（m）",align: "center",decimalPlaces:"2",dataType:"float"});
+                grid.set({columns: columnsName});
+                var strJson = eval(data.data);
+                dataResult = strJson;
+                //PageServerFill(grid, data);
+                grid.setData(strJson);
+
+                var strNote = [];
+                strNote.push({ "name": "时间", "codename": "tm", "tableV": "1", "isShow": true, "width": "40%" });
+                strNote.push({ "name": "水位", "codename": "eupz", "tableV": "1", "isShow": true, "width": "40%" });
+                strNote.push({ "name": "预报水位", "codename": "ybupz", "tableV": "1", "isShow": true, "width": "40%" });
+                var LineColor = ['#0000FF', '#ff0909', '#00FF00', '#FFA500'];
+
+                chartSW("Chart", strJson, strNote, LineColor, "水位");
+
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        //--------------------------------
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+    </script>
+    <script type="text/javascript">
+
+        /* 过程线绘制 过程线 水位
+         * ChartName画图控件名称
+         * dataS数据对象，数据格式json
+         * strNote数据说明，数据类型数组，数据格式
+         * json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示过程线
+         * [
+         * {"name": "时间","codename": "TM","tableV":"1","isShow":true},
+         * {"name": "上游水位","codename": "UPZ","tableV":"1","isShow":true},
+         * {"name": "下游水位","codename": "DWZ","tableV":"1","isShow":true},
+         * {"name": "警戒水位","codename": "WRZ","tableV":"0","isShow":false}
+         * ]
+         */
+        function chartSW(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            //echarts.init(document.getElementById('quxian'), 'macarons');
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var ShowSelected = {};
+            var m = new Array();
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(new Date(value[value1.codename].replaceAll("-","/")).format("MM-dd HH:mm")); //加入时间集合
+                        //chartTM.push(value[value1.codename]); //加入时间集合
+                        chartTM.push(new Date(convertToDate(value[value1.codename])).format("yyyy-MM-dd HH:mm"))
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            //获得最大值最小值
+            //var max_min=GetSort(chartValue);
+            var option = {
+                //backgroundColor: '#100E19',
+                noDataLoadingOption: {
+                    text: '暂无数据',
+                    effect: 'bubble',
+                    effectOption: {
+                        effect: {
+                            n: 0 //气泡个数为0
+                        }
+                    },
+                    textStyle: {
+                        fontSize: 30,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis',
+                    /*formatter: function (datas) {
+                        return Number(datas[0].data).toFixed(2);
+                        //或者是下面这种，效果是一样的
+                        //return datas.value.toFixed(2);
+                    } */
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    },
+                    selected: ShowSelected
+                    //selected: {
+                    //    '警戒水位': false
+                    //}
+
+                }, grid: {
+                    left: '1%',
+                    right: '1%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        axisTick: {
+                            alignWithLabel: false
+                        },
+                        data: chartTM,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1, //这里是为了突出显示加上的
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            }
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                               return (value.min - (jiangenew - jiange) / 200);
+                            }
+                            else {
+                               return (value.min - (jiangenew - jiange - 1) / 200);
+                            }
+                            // return 1;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                               return (value.max + (jiangenew - jiange) / 200);
+                            }
+                            else {
+                               return (value.max + (jiangenew - jiange + 1) / 200);
+                            }
+                            // return 3.00
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+                        if (max_min_Name != "" & max_min_Name == chartName[j]) {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                "connectNulls": true, //这个是重点，将断点连接
+                                data: chartValue,
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                    , label: {
+                                        normal: {
+                                            formatter: function (datas) {
+                                                return Number(datas.value).toFixed(2);
+                                                //或者是下面这种，效果是一样的
+                                                //return datas.value.toFixed(2);
+                                            }
+                                        }
+                                    }
+                                },
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                "connectNulls": true, //这个是重点，将断点连接
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+
+    </script>
+
+</body>
+</html>

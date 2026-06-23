@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="/Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <style>
+        html,body{
+            width:100%;
+            height:100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar">
+        <div id="zhanList">
+            &nbsp;&nbsp;&nbsp;
+            开始日期：&nbsp;<input id="STIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+
+            &nbsp;&nbsp;&nbsp;
+            台风名称：&nbsp;
+            <input id="TFNAME" name="TFNAME" class="mini-combobox" style="width:140px;"
+                   textField="TFNAME" valueField="STATUS" allowInput="true"
+                   onvaluechanged="onvaluechangedTF" />
+
+            <!--快捷输入：
+            <input id="TMLIST" name="TMLIST" class="mini-combobox" style="width:90px;" textField="dayText" valueField="day" allowInput="true"
+                   onvaluechanged="onvaluechangedTMList" />-->
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            <button type="button" class="btn btn-info" onclick="Exp()" style="margin: 0px 0px;padding: 4px 12px;">数据导出</button>
+
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="grid1" class="mini-datagrid"
+             style="width: 100%;height:100%;"
+             allowalternating="true" borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]"
+             pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+             allowcellselect="true" allowcelledit="true"
+             ondrawcell="ondrawcell">
+            <div property="columns">
+                <!--<div type="indexcolumn" headeralign="center" align="center">序号</div>-->
+                <div field="STNM" headeralign="center" align="center">
+                    站名
+                </div>
+                <div field="AVGH" headeralign="center" align="center" decimalPlaces="2" dataType="float">
+                    平均高潮位(m)
+                </div>
+                <div field="AVGL" headeralign="center" align="center" decimalPlaces="2" dataType="float">
+                    平均低潮位(m)
+                </div>
+                <div field="MAXZ" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                    最高潮(m)
+                </div>
+                <div field="MAXZTM" headeralign="center" align="center">
+                    出现时间
+                </div>
+                <div field="MINZ" headeralign="center" align="center" decimalPlaces="2" dataType="float">
+                    最低潮(m)
+                </div>
+                <div field="MINZTM" headeralign="center" align="center">
+                    出现时间
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var zhandata = [
+            { STCD: "63401750", STNM: "吴淞口" },
+            { STCD: "62701710", STNM: "高桥（二）" },
+            { STCD: "63405800", STNM: "芦潮港" },
+            { STCD: "63401100", STNM: "米市渡" },
+            { STCD: "63401500", STNM: "黄浦公园" },
+            { STCD: "63405900", STNM: "金山嘴" }
+        ];
+        $(function () {
+            mini.get("STIME").setValue("2021-01-01");
+            mini.get("ETIME").setValue(new Date().format("yyyy-MM-dd HH:mm:ss"));
+            searchZT();
+            search();
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var stime = mini.get("STIME").getFormValue() + " 00:00:00";
+            var etime = mini.get("ETIME").getFormValue() + " 23:59:59";
+            var strWhere = {
+                STIME: stime, ETIME: etime
+            };
+            GetJosns("FIveStationTideLevelTJSel", strWhere, "Sel");
+        }
+        function searchZT() {
+            var strWhere = {
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTISel", strWhere, "SelZT");
+        }
+        function onvaluechangedTF(e) {
+            var value = e.value;
+            var selected = mini.get("TFNAME").getSelected();
+            var stm = convertToDate(selected.STM).format("yyyy-MM-dd");
+            var etm = convertToDate(selected.ETM).format("yyyy-MM-dd");
+            mini.get("STIME").setValue(stm);
+            mini.get("ETIME").setValue(etm);
+            search();
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "TM") {
+                var s = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+                e.cellHtml = s;
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = data.data;
+                var arr = [];
+                for (var num = 0; num < zhandata.length; num++) {
+                    var item = {
+                        STNM: zhandata[num].STNM,
+                    }
+                    var dataResultTemp = dataResult.filter(function (e) {
+                        return e.STCD == zhandata[num].STCD;
+                    });
+                    if (dataResultTemp.length > 0) {
+                        var dataResultTempH = dataResultTemp.filter(function (e) {
+                            return e.TDZRCD == "高";
+                        });
+                        var dataResultTempD = dataResultTemp.filter(function (e) {
+                            return e.TDZRCD == "低";
+                        });
+                        var HSum = SumJson(dataResultTempH, 'TDZ');
+                        var avgH = HSum / dataResultTempH.length;
+                        var LSum = SumJson(dataResultTempD, 'TDZ');
+                        var avgL = LSum / dataResultTempD.length;
+
+                        item.AVGH = avgH.toFixed(2);
+                        item.AVGL = avgL.toFixed(2);
+                        dataResultTempH = sortObjectArray(dataResultTempH, ['TDZ'], 'desc');
+                        dataResultTempD = sortObjectArray(dataResultTempD, ['TDZ'], 'asc');
+                        item.MAXZ = dataResultTempH[0].TDZ;
+                        item.MAXZTM = new Date(convertToDate(dataResultTempH[0].TM)).format("yyyy-MM-dd HH:mm");
+                        item.MINZ = dataResultTempD[0].TDZ;
+                        item.MINZTM = new Date(convertToDate(dataResultTempD[0].TM)).format("yyyy-MM-dd HH:mm");;
+                    }
+                    arr.push(item);
+                }
+                grid.setData(arr);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "SelZT") {
+                var dataResult = data.data.filter(function (e) {
+                    e.TFNAME = e.STATUS + "" + e.TITLE;
+                    return e.STM != null;
+                });
+                mini.get("TFNAME").setData(dataResult);
+            }
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name ="";
+            name += new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日") + "-";
+            name += new Date(mini.get("ETIME").getFormValue()).format("yyyy年M月d日") + "6个代表站统计信息";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+</body>
+</html>

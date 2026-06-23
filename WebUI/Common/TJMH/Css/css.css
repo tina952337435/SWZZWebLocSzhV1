@@ -1,0 +1,165 @@
+﻿/* CSS Document */
+*{margin:0px; padding:0px;}
+a{text-decoration:none; border:0px;}
+img{border:0px;}
+ui,li{list-style-type:none;}
+body{width:100%; height:100%; font-size:12px; font-family:"微软雅黑"; color:#000;}
+html{width:100%; height:100%;}
+
+
+
+
+/*登录*/
+.LoginALL{width:100%; height:100%; float:left; background-image:url(../images/LoginBJ.jpg); background-position:center top; background-color:#0064c2;}
+.Login{width:530px; height:530px; margin:0 auto; background-image:url(../images/LOGIN.png); background-repeat:no-repeat;}
+.Login_logo{width:530px; height:189px; float:left; background-image:url(../images/LoginTxt.png);}
+.Login_nbsp{width:530px; height:40px; float:left;}
+.Login_LG{width:530px; height:auto; float:left;}
+/*用户名*/
+.name{width:530px; height:40px; float:left;}
+.nameIN{width:288px; height:40px; float:left; background-image:url(../images/Login_input.png); line-height:40px; margin-left:120px; display:inline;}
+.nametxt{width:80px; height:40px; float:left; font-size:14px; font-weight:600; text-align:right;}
+.nameIN input{width:208px; height:40px; float:left; border:0px; background-color:transparent; color:#6FC; font-weight:600; line-height:40px;}
+/*密码*/
+.passw{width:530px; height:40px; float:left; margin-top:20px;}
+.passwIN{width:288px; height:40px; float:left; background-image:url(../images/Login_input.png); line-height:40px; margin-left:120px; display:inline;}
+.passwtxt{width:80px; height:40px; float:left; font-size:14px; font-weight:600; text-align:right;}
+.passwIN input{width:208px; height:40px; float:left; border:0px; background-color:transparent; color:#6FC; font-weight:600; line-height:40px;}
+
+/*登录按钮*/
+.Login_btn{width:530px; height:auto; float:left; margin-top:20px;}
+.Login_btnin{width:288px; height:37px; float:left;margin-left:120px; display:inline;}
+.Login_btn01{width:107px; height:37px; float:left; margin-right:18px;}
+.Login_btn01 a{display:block;width:107px; height:37px; float:left; background-image:url(../images/Login_DL1.png); background-repeat:no-repeat;}
+.Login_btn01 a:hover{width:107px; height:37px; float:left; background-image:url(../images/Login_DL2.png); background-repeat:no-repeat;}
+.Login_btn02{width:107px; height:37px; float:left;}
+.Login_btn02 a{display:block;width:107px; height:37px; float:left; background-image:url(../images/Login_CZ1.png); background-repeat:no-repeat;}
+.Login_btn02 a:hover{width:107px; height:37px; float:left; background-image:url(../images/Login_CZ2.png); background-repeat:no-repeat;}
+/*引导*/
+
+
+
+
+
+/*引导background-image:url(../images/LoginBJnewbj2.png); */
+.bodybg{width:100%; height:100%; float:left; background-repeat:no-repeat; background-position:center}
+.ydylogo2{width:1020px;height:113px; margin:0 auto;}
+.ydylogo2 img{float:left;}
+.ydylogo2name{width:255px; height:113px; float:right; background-color:#FFF;}
+.ydylogo2name2{width:255px; height:155px; float:left; background-color:#FFF;}
+.ydylogo2name3{width:255px; height:155px; float:right; background-color:#FFF;}
+
+.ydymenu{width:1020px; height:auto; margin:0 auto;}
+.ydymenu01{width:340px; float:left; height:212px;}
+.ydymenu01 a{width:340px; float:left; height:212px; background-color:#fda632;}
+.ydymenu02 a{width:340px; float:left; height:212px; background-color:#7ac701;}
+
+.ydymenu03 a{width:340px; float:left; height:212px; background-color:#39ace1;}
+
+.ydymenu01 a font,.ydymenu02 a font,.ydymenu03 a font{width:100%; height:30px; float:left; text-align:center; color:#FFF; font-size:18px;}
+.ydymenu01 a img,.ydymenu02 a img,.ydymenu03 a img{float:left; margin:40px 0px 15px 110px;}
+
+
+.ydymenuny1{width:255px; float:left; height:155px;}
+.ydymenuny1 a{width:255px; float:left; height:155px; background-color:#fda632;}
+.ydymenuny2 a{width:255px; float:left; height:155px; background-color:#7ac701;}
+
+.ydymenuny3 a{width:255px; float:left; height:155px; background-color:#39ace1;}
+
+.ydymenuny4 a{width:255px; float:left; height:155px; background-color:#fff;}
+
+.ydymenuny1 a font,.ydymenuny2 a font,.ydymenuny3 a font{width:100%; height:30px; float:left; text-align:center; color:#FFF; font-size:18px;}
+.ydymenuny1 a img,.ydymenuny2 a img,.ydymenuny3 a img,.ydymenuny4 a img{float:left; margin:20px 0px 15px 90px;}
+
+
+
+.ZMAIN{width:680px; height:527px; margin:0 auto; background-image:url(../images/ydymenu.png); background-repeat:no-repeat;}
+.ListL{width:250px; height:572px; float:left; overflow:hidden;}
+.ListM{width:182px; height:572px; float:left; overflow:hidden;}
+.ListR{width:224px; height:527px; float:right; overflow:hidden;}
+
+
+.List{width:112px; height:112px; float:left; margin:51px 0px 0px 26px;display:inline;}
+.List a{ display:block;width:112px; height:112px; float:left;}
+.List a img{float:left; margin:10px 0px 0px 18px;}
+.List a:hover{width: 114px;
+    height: 114px;  background-image:url(../images/Listhover.png);}
+
+
+.List2{width:112px; height:112px; float:left; margin:54px 0px 0px 29px;display:inline;}
+.List2 a{ display:block;width:112px; height:112px; float:left;}
+.List2 a img{float:left; margin:10px 0px 0px 18px;}
+.List2 a:hover{width: 114px;
+    height: 114px;
+	background-image:url(../images/Listhover.png);}
+.ListMian{width:182px; height:250px; float:left; margin-top:300px; display:inline;}
+
+.List3{width:112px; height:112px; float:left; margin:35px 0px 0px 135px;display:inline;}
+.List3 a{ display:block;width:112px; height:112px; float:left;}
+.List3 a img{float:left; margin:12px 0px 0px 18px;}
+.List3 a:hover{width: 114px;height: 114px; background-image:url(../images/Listhover.png);}
+
+
+.List4{width:112px; height:112px; float:right; margin:105px 16px 0px 0px;display:inline;}
+.List4 a{ display:block;width:112px; height:112px; float:left;}
+.List4 a img{float:left; margin:10px 0px 0px 18px;}
+.List4 a:hover{width: 114px;
+    height: 114px;
+	background-image:url(../images/Listhover.png);}
+
+.List5{width:112px; height:112px; float:right; margin:49px 20px 0px 0px;display:inline;}
+.List5 a{ display:block;width:112px; height:112px; float:left;}
+.List5 a img{float:left; margin:10px 0px 0px 18px;}
+.List5 a:hover{width: 114px;
+    height: 114px;
+	background-image:url(../images/Listhover.png);}
+.List6{width:112px; height:112px; float:right; margin:46px 24px 0px 0px;display:inline;}
+.List6 a{ display:block;width:112px; height:112px; float:left;}
+.List6 a img{float:left; margin:10px 0px 0px 18px;}
+.List6 a:hover{width: 114px;
+    height: 114px;
+	background-image:url(../images/Listhover.png);}
+.List7{width:112px; height:112px; float:left; margin:34px 0px 0px 7px; display:inline;}
+.List7 a{ display:block;width:112px; height:112px; float:left;}
+.List7 a img{float:left; margin:10px 0px 0px 18px;}
+.List7 a:hover{width: 114px;
+    height: 114px;
+	background-image:url(../images/Listhover.png);}
+
+
+
+
+#circle {
+    width: 112px;
+    height: 112px;
+    background: red;
+    -moz-border-radius: 56px;
+    -webkit-border-radius: 56px;
+    border-radius: 56px; margin-top:50px; margin-left:10px;
+}
+
+
+
+
+
+.ydbody{width:100%; height:100%; background-image:url(../images/LoginBJ.jpg); background-position: center; background-color:#52a7ff; background-repeat:no-repeat;}
+.ydtop{width:990px; height:auto; margin:0 auto; background-image:url(../images/quitbj.png); background-repeat:no-repeat; background-position:top right;}
+.ydymenuny1 a:hover,.ydymenuny2 a:hover,.ydymenuny3 a:hover{ background-image:url(../images/BGhover.png);}
+
+.ydydiv {
+    height: 30px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background-color: #0D42AA;
+    color: white;
+    margin: 5px;
+    float: left;
+    line-height: 30px;
+    text-align: center;
+    /*border-radius: 10px;*/
+    font-size: 14px;
+    filter:alpha(opacity:70); opacity:0.7;
+}
+/*background-color:rgba(0,0,0,0.2);*/

@@ -1,0 +1,1412 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="上海市水情预报调度一体化平台（一期）">
+    <meta name="keywords" content="上海市水情预报调度一体化平台（一期）">
+    <meta http-equiv="imagetoolbar" content="no">
+    <meta property="wb:webmaster" content="10fd28588b2f9686">
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne">
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>上海市水情预报调度一体化平台（一期）</title>
+    <script type="text/javascript" src="Common/Scripts/jquery-1.6.2.min.js"></script>
+    <script type="text/javascript" src="Common/Scripts/echarts.min.js"></script>
+    <script type="text/javascript" src="Common/boot.js"></script>
+    <link href="arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="arcgis_js_api/myJs/style/index.css?ver=0" rel="stylesheet" type="text/css" />
+    <link href="arcgis_js_api/myJs/style/map.css?ver=0" rel="stylesheet" type="text/css" />
+
+    <link href="arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+
+    <script src="arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+
+    <script src="arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="arcgis_js_api/myJs/bj.js?ver=1" type="text/javascript"></script>
+    <script src="arcgis_js_api/myJs/mapIndex.js?ver=1.0.7" type="text/javascript"></script>
+    <script src="arcgis_js_api/myJs/CommonTool.js" type="text/javascript"></script>
+    <link href="Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
+    <style type="text/css">
+        .progressTime {
+            width: 88%;
+        }
+
+        .IMGGQ {
+            margin-top: -20px;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 15px;
+        }
+
+            .colorL p {
+                width: 55px;
+                margin: 0px auto;
+                margin-top: -4px;
+            }
+
+        .colorSpan {
+            display: inline-block;
+            width: 15px;
+            height: 25px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+    </style>
+    <style type="text/css">
+        .ceng {
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            line-height: 30px;
+            font-size: 14px;
+        }
+
+            .ceng li {
+                width: 80px;
+                float: left;
+                position: relative;
+                padding-left: 10px;
+            }
+
+        .cengp {
+            width: 100%;
+            height: 30px;
+            float: left;
+            background: #ffffff;
+            color: black;
+        }
+
+            .cengp img {
+                position: relative;
+                left: 6px;
+                top: 3px;
+            }
+
+        .cengpson {
+            width: 80px;
+            border: 1px solid #DDDDDD;
+            position: absolute;
+            left: -2px;
+            top: 30px;
+            display: none;
+        }
+
+            .cengpson p {
+                width: 100%;
+                height: 30px;
+                position: relative;
+                text-indent: 27px;
+                background: white;
+                text-align: left;
+            }
+
+        .cengpson2 p {
+            width: 100%;
+            height: 30px;
+            position: relative;
+            text-indent: 27px;
+            background: white;
+            text-align: left;
+        }
+
+
+        .cengpson p:hover {
+            color: #2F87EB;
+        }
+
+        .color {
+            color: #2F87EB;
+        }
+
+        .smallimg {
+            display: block;
+            width: 15px;
+            height: 15px;
+            float: left;
+            position: absolute;
+            left: 4px;
+            top: 8px;
+        }
+
+        .smallimg1 {
+            display: block;
+            width: 15px;
+            height: 15px;
+            float: left;
+            position: absolute;
+            left: 8px;
+            top: 8px;
+        }
+
+        .xian {
+            background: white;
+            z-index: 99;
+            border-radius: 50%;
+            border: 1px solid #DDDDDD;
+            width: 30px;
+            height: 30px;
+            float: right;
+            position: relative;
+            left: -25px;
+        }
+
+        .baoqie {
+            position: relative;
+            left: 30px;
+            top: 20px;
+            border-radius: 17px 16px;
+            z-index: 1;
+            width: 322px;
+            height: 211px;
+            overflow: hidden;
+            padding: 2px 2px;
+        }
+
+        .xian img {
+            display: block;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+        }
+
+        .fatherceng {
+            width: 240px;
+            padding-right: 30px;
+            padding-left: 10px;
+            background: #ffffff;
+            height: 30px;
+            border: 1px solid #DDDDDD;
+            text-align: center;
+            float: right;
+            border-radius: 15px;
+        }
+
+        .mini-tabs-bodys {
+            border: none !important;
+            border-left: 0px solid #efefef !important;
+        }
+
+        .mini-tabs-space {
+            border-bottom: 1px solid #efefef !important;
+        }
+
+        .tcli {
+            width: 80px;
+            height: 26px;
+            border-right: 1px solid #ddd;
+            float: left;
+            text-align: center;
+            line-height: 26px;
+        }
+
+        .tclidiv {
+            width: 100%;
+            height: 26px;
+            text-indent: 20px;
+            text-align: center;
+            line-height: 26px;
+            position: relative;
+            cursor: pointer;
+            color: #565758;
+        }
+
+            .tclidiv:hover {
+                color: #1b61ff !important;
+            }
+
+        .faimg {
+            display: block;
+            float: left;
+            left: 10px;
+            position: absolute;
+            top: 2px;
+        }
+
+        .tcliul {
+            width: 90px;
+            position: absolute;
+            top: 36px;
+            z-index: 999;
+            border-left: 1px solid #c5d1ff;
+            border-right: 1px solid #c5d1ff;
+            border-bottom: 1px solid #c5d1ff;
+            background: #fff;
+        }
+
+        .ul1 {
+            left: 10px;
+        }
+
+        .ul2 {
+            left: -1px;
+        }
+
+        .ul3 {
+            left: 173px;
+        }
+
+        .tcliul::before {
+            content: "";
+            width: 0;
+            height: 0;
+            border-top: 5px solid #1b61ff;
+            border-bottom: 5px solid #1b61ff;
+            border-left: 7px solid #1b61ff;
+            border-right: 7px solid #1b61ff;
+            border-color: transparent transparent #1b61ff transparent;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            margin-left: -7px;
+            z-index: 99;
+        }
+
+        .tcliul li {
+            float: left;
+            position: relative;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            text-indent: 5px;
+            padding-left: 5px;
+            cursor: pointer;
+            color: #565758;
+        }
+
+            .tcliul li:hover {
+                color: #1b61ff;
+            }
+
+        .tcliul img {
+            width: 20px;
+            height: 20px;
+            display: block;
+            float: left;
+            position: relative;
+            top: 6px;
+        }
+
+        .opencz {
+            width: 50px;
+            height: 36px;
+            /*margin-left: 10px;*/
+            float: right;
+            background: #fff;
+            cursor: pointer;
+            border: 1px #c5d1ff solid;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .caozuo {
+            float: left;
+            background: #fff;
+            border-radius: 3px;
+            width: 0px;
+            position: absolute;
+            left: 65px;
+            height: 38px;
+        }
+
+        .esriPopup .titlePane {
+            background-color: #3291f9;
+        }
+
+        #myMap_graphics_layer path {
+            stroke: red;
+        }
+
+        .esriPopup .pointer.topRight {
+            background: #FFF;
+        }
+
+        .collapse {
+            width: 60px;
+        }
+
+            .collapse.titleSpan {
+                display: none;
+            }
+    </style>
+    <style type="text/css">
+        .TipClose {
+            text-align: right;
+        }
+
+        #layerbox_item {
+            background: #fff;
+            border-radius: 3px;
+            height: 18px;
+        }
+
+            #layerbox_item .roadnet {
+                opacity: 0;
+                padding: 0;
+                padding-bottom: 30px;
+                z-index: -1;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                -o-border-radius: 3px;
+                border-radius: 3px;
+                left: 0px;
+                top: 0;
+                background: #fff;
+                box-shadow: 1px 2px 1px 2px rgba(0,0,0,.15);
+                cursor: pointer;
+                display: none;
+            }
+
+        .usel {
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        #layerbox_item .roadnet .raod_item {
+            height: 10px;
+            line-height: 10px;
+            color: #565656;
+            font-size: 14px;
+            display: inline-block;
+            padding: 0 10px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .roadnet.checked .roadnet_select_icon {
+            background-position: 0 -483px;
+        }
+
+        .roadnet .roadnet_select_icon {
+            display: inline-block;
+            vertical-align: middle;
+            background: url(arcgis_js_api/myJs/images/tools_layer_new.png?v=2) 0 -434px no-repeat;
+            width: 22px;
+            height: 20px;
+        }
+
+
+        .mini-tips-success {
+            color: #ffffff;
+            background-color: #000000;
+            border-color: #9c9e9a;
+            padding: 15px;
+            font-size: 14px;
+            opacity: 0.4;
+        }
+
+        .mini-tips {
+            padding-right: 10px !important;
+        }
+
+        /*.mini-splitter-handler {
+            top: 30px !important;
+        }
+
+        .mini-splitter-handler {
+            left: 0px !important;
+        }*/
+
+        .fa {
+            /*padding-left: 20px;*/
+            font-size: 16px;
+            /*float: left;*/
+            padding-right: 10px;
+            padding-left: 20px;
+        }
+
+        .lihover .fa {
+            /*padding-left: 15px;*/
+        }
+
+        .mini-tabs-scrollCt {
+            border: 0px !important;
+        }
+
+        .collapse-btn {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 60px;
+            flex: 0 0 60px;
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            color: #409eff;
+            text-align: center;
+        }
+
+        .cursor-pointer {
+            cursor: pointer !important;
+        }
+
+        .menua {
+            text-decoration: none;
+            display: block;
+            width: 50px;
+            /* height: 40px; */
+            text-align: center;
+            float: left;
+            margin-top: 1px;
+        }
+
+        .gqRed,
+        .gqGreen {
+            width: 3px !important;
+            height: 3px !important;
+        }
+
+        .HUIsquare {
+            display: inline-block;
+            width: 5px !important;
+            height: 5px !important;
+            padding: 3px;
+            border: 2px solid #A1A1A1;
+            background-color: #A1A1A1;
+            font-size: 14px !important;
+            margin-left: 2px;
+        }
+
+        .Grentsquare {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            padding: 3px;
+            border: 2px solid #00DB00;
+            background-color: #00DB00;
+            font-size: 14px !important;
+            margin-left: 2px;
+        }
+
+        .grentsquare {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #00db00;
+            background-color: #00db00;
+            font-size: 14px !important;
+            margin-left: 2px;
+            margin-top: 5px;
+        }
+
+        .HUIsquare,
+        .Grentsquare,
+        .gqRed,
+        .gqGreen {
+            margin-top: 5px;
+        }
+
+        .XIUsquare {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #CDCDCD;
+            background-color: #CDCDCD;
+            font-size: 14px !important;
+        }
+
+
+        .gqXiu {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #A1A1A1;
+            border-radius: 50%;
+            background-color: #A1A1A1;
+        }
+
+        .gqRed {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #A1A1A1;
+            border-radius: 50%;
+            background-color: #A1A1A1;
+            margin-top: 5px;
+            margin-left: 2px;
+        }
+
+        .gqGreen {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #00DB00;
+            border-radius: 50%;
+            background: rgba(0,219,0,0.7);
+            margin-top: 5px;
+            margin-left: 2px;
+        }
+
+    </style>
+</head>
+<script type="text/javascript">
+    mini.parse();
+    var _GlobalTab = null;
+    var _GlobalIndexName = "";
+    var _GlobalIndexUrl = "";
+    //debugger;
+    var myData = [];
+    $(function () {
+        var leftMenu = GetQueryString("leftMenu");
+        var mokui = GetQueryString("menu");
+        $.data(myData, "MENU", mokui);
+        if (mokui == "NO072") {
+            $("#PreeBox").css("display", "block");
+            $("#TLDiv").css("bottom", "60px");
+        } else {
+            $("#PreeBox").css("display", "none");
+            $("#TLDiv").css("bottom", "0px");
+        }
+
+        var strURL = GetQueryString("URL");
+        var strQX_NAME = GetQueryString("QX_NAME");
+        if (leftMenu != null) {
+            //alert(leftMenu);
+            //是否隐藏左边菜单
+            $(".maplist").hide();
+            $(".mini-tabs").css({ "margin-left": "0px", "width": "100%" });
+            $(".mini-splitter-handler-buttons").css("display", "none");
+            $(".mini-splitter-pane1-button").css("display", "none");
+            $(".mini-splitter-pane2-button").css("display", "none");
+            $("#TLDiv").css("left", "10px");
+            $(".seecz").css("left", "10px");
+            $(".biaozhu").css("left", "10px");
+            _GlobalIndexUrl = strURL;
+            _GlobalIndexName = strQX_NAME;
+            addTab(_GlobalIndexName, _GlobalIndexUrl);
+            doInit();
+        } else {
+            if (strURL != null) {
+                var menulist = [{
+                    "qx_ID": new Date().format("yyyyMMddHHmmss"),
+                    "qx_PARENT": "",
+                    "qx_NAME": strQX_NAME,
+                    "qx_MENU": mokui + "00",
+                    "qx_URL": strURL,
+                    "qx_ORDERID": 1,
+                    "qx_SYS": "NO12",
+                    "qx_ICON": "11100"
+                }];
+                LeftMenu(menulist, "");
+            }
+            else {
+                var postParam = {
+                    "QX_SYS": "NO12",
+                    "QX_MENU": mokui,
+                    "GROUPID": GetCookie("GROUPID")
+                };
+                //GetJosns("QX_MAINSel", postParam, "QX_MAINSel");
+				app.post("SWZZ_DATA_qx_main/findResult",{},(data)=>{
+					var result = data;
+					var dataTwo = result.data.filter(m=>{
+						return m.qx_SYS == "NO12" && m.qx_MENU.indexOf(mokui) > -1;
+					})
+					app.post("SWZZ_DATA_qx_enable/findResult",{},(data)=>{
+						var mokuaiList = data.data.filter(m=>m.qx_ID == GetCookie("GROUPID")).map(m=>m.qx_MOKUAI);
+						result.data = dataTwo.filter(m=>mokuaiList.contains(m.qx_ID));
+						result.total = result.data.length;
+						JosnSel(result,"QX_MAINSel");
+					})
+				})
+            }
+        }
+        //if (strURL != null) {
+        //    var menulist = [{ "QX_ID": new Date().format("yyyyMMddHHmmss"), "QX_PARENT": "", "QX_NAME": strQX_NAME, "QX_MENU": mokui + "00", "QX_URL": strURL, "QX_ORDERID": 1, "QX_SYS": "NO12", "QX_ICON": "11100" }];
+        //    LeftMenu(menulist, "");
+        //} else {
+        //    var postParam = { "QX_SYS": "NO12", "QX_MENU": mokui, "GROUPID": GetCookie("GROUPID") };
+        //    GetJosns("QX_MAINSel", postParam, "QX_MAINSel");
+        //}
+    });
+    function JosnSel(data, typeID) {
+        if (typeID == "QX_MAINSel") {
+            var menulist;
+            var strID = "";
+			data.data.sort((a,b)=>{
+				return a.qx_ORDERID - b.qx_ORDERID;
+			})
+			console.log(data)
+            if (data.total > 0) {
+                if (data.total > 1) {
+                    strID = data.data[0].qx_ID;
+                    menulist = SetValueJson(data.data, "qx_PARENT", data.data[0].qx_PARENT);
+					console.log(menulist)
+                } else {
+                    if (data.total > 0) {
+                        strID = data.data[0].qx_PARENT;
+                        menulist = data.data;
+                        $(".maplist").hide();
+                        $("#mainTabs").css({ "width": "100%", "margin-left": "0px" });
+                    }
+                }
+                if (menulist.length > 0) {
+					
+                    LeftMenu(menulist, strID);
+                }
+            }
+
+        }
+    }
+    //获取有没有子类
+    function getChildrens(menulist, qx_id) {
+        var menulistTemp = menulist.filter(function (ex) {
+            return ex.qx_PARENT == qx_id;
+        });
+        return menulistTemp;
+    }
+    function LeftMenu(menulist, qx_id) {
+        var $li;
+        var $div;
+        var menuIndex = 0;
+		console.log(menulist.length)
+        for (var i = 0; i < menulist.length; i++) {
+            var item = menulist[i];
+			console.log(i)
+            //00表示一级菜单
+            // if (item.QX_MENU.toString().substr(item.QX_MENU.toString().length - 2) == "00") {
+            var cssStr = "<img class=\"liimg\" src=\"arcgis_js_api/myJs/images/menu/menu" + item.qx_ICON + ".png\" style='vertical-align: -5px;margin:0px 2px;'></img>";
+            if (isNaN(item.qx_ICON) == false) {
+                cssStr = "<img class=\"liimg\" src=\"arcgis_js_api/myJs/images/menu/menu" + item.qx_ICON + ".png\" style='vertical-align: -5px;margin:0px 2px;'></img>";
+            } else {
+                cssStr = "<i class=\"fa faMenu " + item.qx_ICON + "\" style=''></i>";
+            }
+            if (item.qx_PARENT == qx_id) {
+				console.log(item)
+                menuIndex++;
+
+                var menulistChid = getChildrens(menulist, item.qx_ID);
+				console.log(menulistChid)
+                var str = "";
+                if (item.qx_URL != null && item.qx_URL.replace(/\s+/g, "") != "") {
+                    var tempURL = item.qx_URL;
+                    if (tempURL.lastIndexOf("showIframeStr") > -1) {
+                        str = "onclick=\"showIframe('fa-warning','" + item.qx_NAME + "', '" + tempURL + "')\"";
+                    } else {
+                        if (tempURL.indexOf("http") > -1) {
+                            str = "onclick=\"window.parent.OpenTab('fa-warning', '" + item.qx_NAME + "', '" + tempURL + "')\"";
+                        } else {
+                            str = "onclick=\"addTab('" + item.qx_NAME + "', '" + tempURL + "')\"";
+                        }
+                    }
+                    if (_GlobalIndexName == "") {
+                        _GlobalIndexName = item.qx_NAME;
+                        _GlobalIndexUrl = item.qx_URL;
+                    }
+                }
+                var strI = ""
+                if (menulistChid.length > 0) {//有子类
+                    strI = '<i class="fa fa-chevron-down" style="font-size:15px;color:#909399;position: absolute;right:5px;top:12px;"></i>';
+                }
+
+                if (i == 0) {
+                    $li = $("<li class=\"lihover\" style=\"position: relative;\" " + str + "></li>");
+                    if (isNaN(item.qx_ICON) == false) {
+                        $li.append($("<a class=\"menua\"><img class=\"liimg\" src=\"arcgis_js_api/myJs/images/menu/menu" + item.qx_ICON + "@.png\"></img></a>"));
+                    } else {
+                        $li.append($("<a class=\"menua\"><i class=\"fa faMenu " + item.qx_ICON + "\"  style=''></i></a>"));
+                    }
+                }
+                else {
+                    $li = $("<li " + str + "></li>");
+                    if (isNaN(item.qx_ICON) == false) {
+                        $li.append($("<a class=\"menua\"><img class=\"liimg\" src=\"arcgis_js_api/myJs/images/menu/menu" + item.qx_ICON + "@.png\"></img></a>"));
+                    } else {
+                        $li.append($("<a class=\"menua\"><i class=\"fa faMenu " + item.qx_ICON + "\"  style=''></i></a>"));
+                    }
+
+                }
+                var qx_nameStr = item.qx_NAME;
+                $li.append($("<span class='titleSpan'>" + qx_nameStr + "</span>"));
+                $li.append(strI);
+                //var str = menulist[i + 1].QX_MENU.toString().substr(menulist[i + 1].QX_MENU.toString().length - 2);
+                //if (i == menulist.length - 1 || str== "00") {
+
+                //}
+                //else {
+                //    $div = $("<div  class=\"active\"></div>");
+                //    $li.append($div);
+                //}
+
+                if (menulistChid.length > 0) {
+                    if (i == 0) {
+                        $div = $("<div></div>");
+                    } else {
+                        $div = $("<div  class=\"active\"></div>");
+                    }
+
+                    $li.append($div);
+                }
+                $("#leftTree").append($li);
+            }
+            else {
+                var tempURL = item.qx_URL;
+                if (tempURL.lastIndexOf("showIframeStr") > -1) {
+                    var $p = $("<p class=\"children\" onclick=\"showIframe('fa-warning', '" + item.qx_NAME + "','" + tempURL + "')\">" + item.qx_NAME + "</p>");
+                } else {
+                    if (tempURL.indexOf("http") > -1) {
+                        var $p = $("<p class=\"children\" onclick=\"window.parent.OpenTab('fa-warning', '" + item.qx_NAME + "','" + tempURL + "')\">" + item.qx_NAME + "</p>");
+                    } else {
+                        var $p = $("<p class=\"children\" onclick=\"addTab('" + item.qx_NAME + "', '" + tempURL + "');\">" + item.qx_NAME + "</p>");
+                    }
+                }
+
+                if (_GlobalIndexName == "") {
+                    _GlobalIndexName = item.qx_NAME;
+                    _GlobalIndexUrl = item.qx_URL;
+                }
+                $div.append($p);
+            }
+        }
+        addTab(_GlobalIndexName, _GlobalIndexUrl);
+        doInit();
+    }
+
+
+    function showIframe(icon, qx_NAME, tempURL) {
+        showHideLayer(tempURL, null);
+
+        $("#myIframeRight").css("margin-top", "0px");
+        $("#myIframeRight").css("height", "100%");
+        if (tempURL.indexOf("TFXSIndex.html") > -1) {
+            // $("#myIframeRight").css("margin-top", "-80px");
+            // $("#myIframeRight").css("height", "calc(100% + 80px)");
+        }
+        $("#contentRight").hide();
+        $("#contentRightI").show();
+        $("#myIframeRight").attr("src", tempURL);
+    }
+    function hideIframe() {
+        //alert("e");
+        $("#contentRight").show();
+        $("#contentRightI").hide();
+    }
+
+    window.onload = function () {
+        var tl = document.getElementById("TLDiv").src;
+        if (tl != "") {
+            document.getElementById("TLDiv").style.display = "block";
+        }
+        //TestClick();
+    }
+    function ImgClick(objID, objMSG) {
+        //alert(objID.id);
+        //var strMsg = "<img id='" + objID + "_0' src='arcgis_js_api/myJs/images/gc/ggz.gif' class='IMGGQ' onclick='ImgClick(this)' style='cursor:pointer;'/>&nbsp;&nbsp";
+        //strMsg += "<img id='" + objID + "_1' src='arcgis_js_api/myJs/images/gc/ggz.gif' class='IMGGQ' onclick='ImgClick(this)' style='cursor:pointer;'/>&nbsp;&nbsp";
+        //strMsg += "<img id='" + objID + "_3' src='arcgis_js_api/myJs/images/gc/ggz.gif' class='IMGGQ' onclick='ImgClick(this)' style='cursor:pointer;'/>&nbsp;&nbsp";
+        //strMsg += "<img id='" + objID + "_4' src='arcgis_js_api/myJs/images/gc/ggz.gif' class='IMGGQ' onclick='ImgClick(this)' style='cursor:pointer;'/>&nbsp;&nbsp";
+        //strMsg += "<img id='" + objID + "_5' src='arcgis_js_api/myJs/images/gc/ggz.gif' class='IMGGQ' onclick='ImgClick(this)' style='cursor:pointer;'/>&nbsp;&nbsp";
+        //strMsg += "<img id='" + objID + "_6' src='arcgis_js_api/myJs/images/gc/ggz.gif' class='IMGGQ' onclick='ImgClick(this)' style='cursor:pointer;'/>&nbsp;&nbsp";
+        $("#" + objID + ">.TextTri").html(objMSG);
+    }
+    function TITLEClick(objID, objMSG) {
+        $("#" + objID + ">.TextTitle").html(objMSG);
+    }
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+    function addUrl(title, url) {
+        if (url != "") {
+            addTab(title, url);
+        }
+    }
+    function addTab(str, url) {
+        hideIframe();
+        clearEvent();
+        var tabs = mini.get("mainTabs");
+        var tab = tabs.getTab(str);
+        if (tab && url == tab.url) {
+            tabs.activeTab(tab);
+        }
+        else {
+            closeTL();
+            tab = { title: str, name: str, url: url, showCloseButton: true };
+            tab = tabs.addTab(tab);
+            tab.ondestroy = onTabDestroy;
+            tabs.activeTab(tab);
+        }
+
+        var url = tab.url;
+        setTimeout(function () {
+            showHideLayer(url, tab);
+        }, 500);
+    }
+    function showHideLayer(url, _GlobalTab) {
+        //TestClick();
+        $("#SSYQTTL").hide();
+        if (url.indexOf("jyyb.html") > - 1) {
+            $.data(myData, "TAB", _GlobalTab);
+            $("#SSTTL").show();
+            $(document).find(".mini-tips").show();
+            //var shhwTooltip = map.getLayer("SHHW");
+            //shhwTooltip.setVisibility(false);
+            //var swzzAreaMode = map.getLayer("swzzAreaMode");
+            //swzzAreaMode.setVisibility(true);
+            areaOverallLayer.clear();
+            var iframe = tabs.getTabIFrameEl(_GlobalTab);
+            iframe.contentWindow.showTipsNew();
+        }
+        else if (url.indexOf("jyyb_mapxh.html") > - 1) {
+            $.data(myData, "TAB", _GlobalTab);
+            $("#SSTTL").show();
+            $(document).find(".mini-tips").show();
+            var iframe = tabs.getTabIFrameEl(_GlobalTab);
+            iframe.contentWindow.showTipsNew();
+            //var shhwTooltip = map.getLayer("SHHW");
+            //shhwTooltip.setVisibility(false);
+            //var swzzAreaMode = map.getLayer("swzzAreaMode");
+            //swzzAreaMode.setVisibility(false);
+            //areaOverallLayer.clear();
+        } else if (url.indexOf("frequencyDiagram_area") > -1 || url.indexOf("frequencyDiagram_waterArea") > -1 || url.indexOf("frequencyDiagram_daibiaozhan") > -1) {
+            //var tempTooltip = map.getLayer("SHHW");
+            //tempTooltip.setVisibility(false);
+            //var swzzAreaMode = map.getLayer("swzzAreaMode");
+            //swzzAreaMode.setVisibility(false);
+
+            //var tempTooltip = map.getLayer("SHHW");
+            //tempTooltip.setVisibility(false);
+            //tempTooltip.setVisibleLayers([8]);
+        }
+        else {
+            $.data(myData, "TAB", null);
+            $("#SSTTL").hide();
+            $(document).find(".mini-tips").hide();
+            $("#PreeBox").css("display", "none");
+            $("#TLDiv").css("bottom", "0px");
+            //var shhwTooltip = map.getLayer("SHHW");
+            //shhwTooltip.setVisibility(true);
+            //var swzzAreaMode = map.getLayer("swzzAreaMode");
+            //swzzAreaMode.setVisibility(false);
+        }
+        if (myMapImageLayer != undefined) {
+            myMapImageLayer.setVisibility(false);
+        }
+        //if (bjLayer != undefined) {
+        //    bjLayer.setVisibility(false);
+        //}
+        if (areaOverallLayer != undefined) {
+            areaOverallLayer.setVisibility(false);
+        }
+    }
+    function onTabDestroy(e) {
+        //此时窗口还没被销毁
+        var tabs = e.sender;
+        var iframe = tabs.getTabIFrameEl(e.tab);
+        if (iframe) {
+            doFunc(iframe.contentWindow._destroy);
+            doFunc(iframe.contentWindow._hide);
+        }
+    }
+    function onTabChange(e) {
+        var tabs = e.sender;
+        //把之前的图层清理
+        if (_GlobalTab != null) {
+            var befiframe = tabs.getTabIFrameEl(_GlobalTab);
+            if (befiframe) {
+                doFunc(befiframe.contentWindow._hide);
+            }
+        }
+        //显示之后的图层
+        var iframe = tabs.getTabIFrameEl(tabs.getActiveTab());
+        if (iframe) {
+            doFunc(iframe.contentWindow.ShowPage);
+            doFunc(iframe.contentWindow._show);
+        }
+        _GlobalTab = tabs.getActiveTab();
+        var url = _GlobalTab.url;
+        $(document).find(".mini-tips").hide();
+        setTimeout(function () {
+            showHideLayer(url, _GlobalTab);
+        }, 500);
+        if (url.lastIndexOf("qx/") > -1) {
+            $("#YTImg").css("width", "auto");
+            if (url.lastIndexOf("Radar") > -1) {
+                $("#YTImg").css("height", "90%");
+            }
+            else if (url.lastIndexOf("Tide") > -1) {
+                $("#YTImg").css("height", "60%");
+            } else {
+                $("#YTImg").css("height", "70%");
+            }
+            doFunc(iframe.contentWindow.TimeShowYT);
+        }
+    }
+    //判断该方法是否存在,存在就调用方法
+    function doFunc(func) {
+        if (typeof (func) == "function") {
+            func();
+        }
+    }
+    function CloseInfoElement() {
+        if (info != null) {
+            info.clear();
+        }
+    }
+    function SpanShouWen() {
+        var temp = GetObj("ShouWen").checked;
+        if (temp == true) {
+            $(".switchery").removeClass("shouwenTrue");
+            $(".switchery").addClass("shouwenFalse");
+            $(".MapText").addClass("none");
+            $(".MapTextNew").addClass("none");
+            GetObj("ShouWen").checked = "";
+        } else {
+            $(".switchery").removeClass("shouwenFalse");
+            $(".switchery").addClass("shouwenTrue");
+            $(".MapText").removeClass("none");
+            $(".MapTextNew").removeClass("none");
+            GetObj("ShouWen").checked = "checked";
+        }
+    }
+    function SpanItem() {
+        var temp = GetObj("ShouWen").checked;
+        if (temp == true) {
+            $("#roadnet").removeClass("checked");
+            $(".MapText").addClass("none");
+            $(".MapTextNew").addClass("none");
+            GetObj("ShouWen").checked = "";
+        } else {
+            $("#roadnet").addClass("checked");
+            $(".MapText").removeClass("none");
+            $(".MapTextNew").removeClass("none");
+            GetObj("ShouWen").checked = "checked";
+        }
+    }
+    //返回是否显示标注
+    function SpanBiaoZhu(ischecked) {
+        if (ischecked != undefined) {
+            $(".roadnet_select_icon").removeClass("checked");
+            $(".roadnet").removeClass("checked");
+            if (ischecked == "checked") {
+                $(".roadnet_select_icon").addClass("checked");
+                $(".roadnet").addClass("checked");
+            }
+            GetObj("ShouWen").checked = ischecked;
+        }
+        return GetObj("ShouWen").checked;
+    }
+</script>
+<body>
+    <div class="maplist" style="z-index:99; display: block;width:180px;position:absolute;background-color: white;">
+        <div class="collapse-btn">
+            <span class="cursor-pointer" onclick="openMenu()">
+                <i class="fa fa-outdent" style="cursor:pointer;padding:0px;float:none;" title="收缩"></i>
+            </span>
+        </div>
+        <ul id="leftTree" style="width: 100%; height: 100%;" showtreeicon="false" idfield="id"
+            resultastree="false" showtreelines="false" showexpandbuttons="false" onnodeselect="onNodeSelect"></ul>
+    </div>
+    <div style="width: 355px; height: 822px; overflow: hidden;background:white;position:absolute;
+background:white;right: 3px;top: 10px;padding: 10px;
+    border-radius: 5px;z-index: 99;" id="contentRight">
+        <div id="mainTabs" class="mini-tabs" activeindex="0" style="width:100%; height: 100%;"
+             plain="true" showheader="false" onactivechanged="onTabChange">
+        </div>
+    </div>
+    <div style="height: 100%; overflow: hidden;background:white;position:absolute;
+background:#EDEDED;right: 0px;top:0px;padding:0px;left:180px;
+    border-radius: 5px;z-index: 99;display:none;" id="contentRightI">
+        <iframe id="myIframeRight" width="100%" height="100%" scrolling="no" frameborder="0" style="overflow: hidden;padding: 5px;"></iframe>
+    </div>
+    <div id="divLeft" showcollapsebutton="true" style="border: none;">
+        <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute">
+        </div>
+        <div id="TLDiv" style="left:185px;bottom:0px; display:none; overflow: hidden;
+                position: absolute; z-index: 1">
+            <div title="图例">
+                <iframe id="TLFrame" src="page/TLGroup.htm?ver=1" frameborder="0" style="overflow: hidden;"></iframe>
+            </div>
+        </div>
+        <div class="zuobiao" style="display: none; position: absolute; z-index: 1; right: 45px;
+                bottom: 10px; border: 1px solid #CCC; background: #08D66F;">
+            <span id="locationSpan" style="color: white; margin: 0px 8px 0px 8px">120.11,31.22</span>
+        </div>
+        <div class="seecz" style="position:absolute;top:10px;left:185px;">
+            <div class="opencz" title="操作">
+                <img src="page/img/caozuo.png" style="position:absolute;top:0;left:0; right:0;bottom:0;margin:auto;" />
+                <img src="arcgis_js_api/myJs/images/little2.png" style="position:absolute;top:50%;margin-top:-5px; left:48px;" />
+            </div>
+            <div class="caozuo" style="z-index: 99;">
+                <ul class="tuceng" style="overflow:hidden;height:26px;">
+                    <li class="tcli" style="display:none;">
+                        <div class="tclidiv" style="width:70px">
+                            <img src="arcgis_js_api/myJs/images/ditu.png" class="faimg" style="left:5px;" />
+                            底图
+                        </div>
+                        <ul class="tcliul ul1" style="display:none; width:100px;left: -1px;">
+                            <li onclick="setDtLayer('img')"><img src="arcgis_js_api/myJs/images/weixintu.png" />卫星图</li>
+                            <li onclick="setDtLayer('vec')"><img src="arcgis_js_api/myJs/images/dxt.png" />电子图</li>
+                            <li onclick="setDtLayer('dxt')"><img src="arcgis_js_api/myJs/images/shuixitu.png" />地形图</li>
+                            <li onclick="setDtLayer('sxt')"><img src="arcgis_js_api/myJs/images/dixingtu.png" />水系图</li>
+                            <!--<li onclick="setDtLayer('sxt')"><img src="arcgis_js_api/myJs/images/dixingtu.png" />水系图</li>-->
+                        </ul>
+                    </li>
+                    <li class="tcli">
+                        <div class="tclidiv">
+                            <img src="arcgis_js_api/myJs/images/gongju.png" class="faimg" />
+                            工具
+                        </div>
+                        <ul class="tcliul ul2" style="display:none;">
+                            <li onclick="setMeasureTool('distance')"><img src="arcgis_js_api/myJs/images/ceju.png" />测距</li>
+                            <li onclick="setMeasureTool('area')"><img src="arcgis_js_api/myJs/images/cemian.png" />测面</li>
+                            <li onclick="setMeasureTool('clear')"><img src="arcgis_js_api/myJs/images/delete.png" />清除</li>
+                            <li onclick="zuobiao()"><img src="arcgis_js_api/myJs/images/zuobiao.png" />坐标</li>
+                        </ul>
+                    </li>
+                    <li class="tcli"  style="display:none;">
+                        <div class="tclidiv">
+                            <img src="arcgis_js_api/myJs/images/tuceng.png" class="faimg" />
+                            图层
+                        </div>
+                        <ul class="tcliul ul3" style="display:none;">
+                            <li>
+                                <input type="checkbox" name="test" value="13" />
+                                <span>行政分区</span>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="test" value="12" />
+                                <span>水利片区</span>
+                            </li>
+                            <li>
+                                <input type="checkbox" checked="checked" name="test" value="8" />
+                                <span>河道现状</span>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="test" value="0" />
+                                <span>水文站</span>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="test" value="7" />
+                                <span>河道水闸</span>
+                            </li>
+                            <li>
+                                <input type="checkbox" name="test" value="9" />
+                                <span>现状湖泊</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <div style="position:absolute;top:50px;left:185px" class="biaozhu">
+            <div id="layerbox_item" onclick="SpanItem()">
+                <div class="roadnet usel checked" id="roadnet" style="opacity: 1; display: block; transform: translateX(0px);">
+                    <div class="raod_item">
+                        <span class="roadnet_select_icon icon checked" data-spm-anchor-id="0.0.0.i7.42e51c4eqRxl97"></span> <br />
+                        <span class="name" data-spm-anchor-id="0.0.0.i6.42e51c4eqRxl97">
+                            <span style="font-size:13px;">标注</span>
+                        </span>
+                    </div>
+                </div>
+                <input type="checkbox" checked="checked" id="ShouWen" style="display:none;" />
+            </div>
+        </div>
+        <div id="YTDiv" ondblclick="ShowYT('')" style="position: absolute;left:0px; right:355px; top: 0px;
+                z-index: 2;height: 100%; visibility: hidden;">
+            <div style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; background: #000000;
+                    filter: alpha(opacity=60); opacity: 0.6;">
+            </div>
+            <div style="position: absolute; width: 100%; height: 100%; vertical-align: middle;
+                    display: table-cell; text-align: center; left: 0px; top: 0px;">
+                <img id="YTImg" style="display: block; position: absolute; top: 0; left: 0; right: 0;
+                        bottom: 0; margin: auto;height:70%;cursor:pointer;" src="" alt="单击放大，双击关闭" title="单击放大，双击关闭"
+                     onclick="openeEnlarge()" />
+                <img onclick="ShowYT('')" style="position: absolute; top: 20px; right: 20px; cursor: pointer"
+                     src="arcgis_js_api/myJs/images/close32.png" />
+            </div>
+        </div>
+        <!--时间轴开始-->
+        <div class="box1" id="PreeBox" style="position:absolute;width: 100%; z-index:1; left:10px; bottom:2px;display: none;">
+            <div id="progressTime_control" onclick="progressTimeControl(this)" title="开始" style="background-image: url(&quot;Common/Scripts/Progress/img/play.png&quot;);"></div>
+            <div class="progressTime" id="progressTime" style="z-index: 9; width:95%; ">
+                <div>
+                    <p id="startTime" style=" float:left;margin-left:33px;opacity: 0;display: none;">2018/11/14 0:00:00</p>
+                    <p id="endTime" style=" float:right;margin-right:33px;opacity: 0;display: none;">2018/11/17 0:00:00</p>
+                </div>
+                <div class="time_slot"></div>
+                <div id="progressTime_concent">
+                    <div id="scrollBarBox">
+                        <div id="scrollBar">
+                            <div id="scroll_Track" style="width: 128.472px;"></div>
+                            <div id="scroll_Thumb" style="margin-left: 128.472px;">周日  30 - 13:00</div>
+                        </div>
+                    </div>
+                    <div class="timecode" style="display: none; left: 135px;">23:00</div>
+                    <div style="width:90%; margin-left: auto;margin-right: auto;">
+                        <div style="width:300px;float:right;margin-right:-110px;margin-top:-8px">
+                            <p id="TimeSpeed" style="float:left;margin-right:40px;display:none">×1</p>
+                            <p style="float:right" id="scrollBarTxt"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--时间轴结束-->
+        <div id="SSTTL" style="background:#ffffff;position:absolute;right:365px;top:30%;height:185px;
+    border: 1px solid #cecbcb;
+    width: 55px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;padding: 0px 5px;display:none;">
+            <div class="colorL">
+                <p><span class="colorSpan" style="background-color:#7B0000"></span><span class="colorSpanValue">200</span></p>
+                <p><span class="colorSpan" style="background-color:#FB3DFA"></span><span class="colorSpanValue">100</span></p>
+                <p><span class="colorSpan" style="background-color:#0000F9"></span><span class="colorSpanValue">50</span></p>
+                <p><span class="colorSpan" style="background-color:#3DBCF9"></span><span class="colorSpanValue">25</span></p>
+                <p><span class="colorSpan" style="background-color:#007B00"></span><span class="colorSpanValue">10</span></p>
+                <p><span class="colorSpan" style="background-color:#A6F28E"></span><span class="colorSpanValue">0</span></p>
+            </div>
+        </div>
+        <div id="SSTTL_TZ" style="background:#ffffff;position:absolute;right:365px;top:30%;height:185px;
+    border: 1px solid #cecbcb;
+    width: 65px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;padding: 0px 5px;display:none;">
+            <div class="colorL">
+                <p><span class="colorSpan" style="background-color:#FCCD03"></span><span class="colorSpanValue">255</span></p>
+                <p><span class="colorSpan" style="background-color:#E9D620"></span><span class="colorSpanValue">245</span></p>
+                <p><span class="colorSpan" style="background-color:#D4E03E"></span><span class="colorSpanValue">235</span></p>
+                <p><span class="colorSpan" style="background-color:#C1EB5D"></span><span class="colorSpanValue">225</span></p>
+                <p><span class="colorSpan" style="background-color:#ACF57A"></span><span class="colorSpanValue">215</span></p>
+                <p><span class="colorSpan" style="background-color:#99FF99"></span><span class="colorSpanValue">205</span></p>
+            </div>
+        </div>
+    </div>
+    <div id="SSYQTTL" style="background:#ffffff;position:absolute;top:24%;
+    right:365px;height: 360px;
+    border: 1px solid #cecbcb;
+    width: 50px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;display:block;padding: 0px 5px;display:none;">
+        <div class="colorL">
+            <p><span class="colorSpan" style="background-color:#172AA6"></span><span class="colorSpanValue">4.5</span></p>
+            <p><span class="colorSpan" style="background-color:#204ABD"></span><span class="colorSpanValue">4.0</span></p>
+            <p><span class="colorSpan" style="background-color:#2259C7"></span><span class="colorSpanValue">3.8</span></p>
+            <p><span class="colorSpan" style="background-color:#217BDB"></span><span class="colorSpanValue">3.6</span></p>
+            <p><span class="colorSpan" style="background-color:#3082DF"></span><span class="colorSpanValue">3.4</span></p>
+            <p><span class="colorSpan" style="background-color:#3A89E3"></span><span class="colorSpanValue">3.2</span></p>
+            <p><span class="colorSpan" style="background-color:#4695E3"></span><span class="colorSpanValue">3.0</span></p>
+            <p><span class="colorSpan" style="background-color:#5CA3E6"></span><span class="colorSpanValue">2.8</span></p>
+            <p><span class="colorSpan" style="background-color:#77B6E9"></span><span class="colorSpanValue">2.6</span></p>
+            <p><span class="colorSpan" style="background-color:#81C0EB"></span><span class="colorSpanValue">2.4</span></p>
+            <p><span class="colorSpan" style="background-color:#93CFED"></span><span class="colorSpanValue">2.2</span></p>
+            <p><span class="colorSpan" style="background-color:#A4DCED"></span><span class="colorSpanValue">2.0</span></p>
+            <p><span class="colorSpan" style="background-color:#B6EDF0"></span><span class="colorSpanValue">0.0</span></p>
+        </div>
+    </div>
+</body>
+<script src="arcgis_js_api/myJs/map.js?ver=1" type="text/javascript"></script>
+<script type="text/javascript">
+    mini.parse();
+    var tabs = mini.get("mainTabs");
+    function zuobiao() {
+        $(".zuobiao").toggle();
+    }
+    var caozuo = 0;
+    $(".opencz").click(function () {
+        caozuo++;
+        if (caozuo % 2 == 1) {
+            $(".caozuo").css({ "padding": "7px 10px", "border": "1px solid #c5d1ff", })
+            //$(".caozuo").animate({ "width": "265px" }, 500);
+            //$(".caozuo").animate({ "width": "185px" }, 500);
+
+            $(".caozuo").animate({ "width": "90px" }, 500);
+        } else {
+            $(".tclidiv").parent(".tcli").siblings("li").children(".tcliul").slideUp();
+            $(".caozuo").animate({ "width": "0px" }, 500);
+            $(".caozuo").css({ "padding": "8px 0px", "border": "none", });
+        }
+    });
+    $(".tclidiv").click(function () {
+        $(this).css("color", "#1b61ff");
+        $(this).parent(".tcli").siblings("li").children(".tclidiv").css("color", "#565758");
+        $(this).siblings(".tcliul").slideToggle();
+        $(this).parent(".tcli").siblings("li").children(".tcliul").slideUp();
+    })
+    $('input[name="test"]').click(function () {
+        TestClick();
+    });
+    function TestClick() {
+        var obj = document.getElementsByName('test');
+        var showAgg = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            var temp = obj[i].value;
+            var arg = temp.split(',');
+            var tempTooltip = map.getLayer("SHHW");
+            if (arg.length > 0) {
+                for (num = 0; num < arg.length; num++) {
+                    if (obj[i].checked) {
+                        showAgg.push(parseInt(temp));
+                    }
+                }
+            }
+            tempTooltip.setVisibility(true);
+            tempTooltip.setVisibleLayers(showAgg);
+        }
+        //var AggLayer = [];
+        //var AggSort = [];
+        //var flagTrue = false;
+        //for (var i = 0, len = obj.length; i < len; i++) {
+        //    var temp = obj[i].value;
+        //    var arg = temp.split(',');
+        //    if (arg.length > 0) {
+        //        for (num = 0; num < arg.length; num++) {
+        //            //var tempTooltip = map.getLayer("ZhswWaterMain_" + temp);
+        //            var tempTooltip = map.getLayer(arg[num]);
+        //            if (obj[i].checked) {
+        //                flagTrue = true;
+        //                if (tempTooltip == undefined) {
+        //                } else {
+        //                    tempTooltip.setVisibility(true);
+        //                }
+        //            } else {
+        //                if (tempTooltip == undefined) {
+        //                } else {
+        //                    tempTooltip.setVisibility(false);
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+    }
+    function ParentClick(list) {
+        for (num = 6; num < 30; num++) {
+            if (num != 15 && num != 26 && num != 27) {
+                var Tooltip = map.getLayer("ToolTipLayer" + num);
+                if (Tooltip == undefined) {
+                    //AggLayer.push(arg[num]);
+                } else {
+                    Tooltip.setVisibility(false)
+                }
+            }
+        }
+
+        var flagTrue = false;
+        if (list.length > 0) {
+            for (num = 0; num < list.length; num++) {
+                var tempTooltip = map.getLayer("ToolTipLayer" + list[num]);
+                if (tempTooltip == undefined) {
+                } else {
+                    flagTrue = true;
+                    tempTooltip.setVisibility(true);
+                }
+            }
+        }
+
+    }
+    function YBClick(objSTM, objETM) {
+        _DayNum = 24;
+        //alert(objSTM + "==" + objETM);
+        ScrollBar.value = 0;
+        SetProgressTime(null, objSTM, objETM);
+        progressTimeStop();
+    }
+    function SetMapData(startDate) {
+        $.data(myData, "TM", new Date(startDate).format("yyyy/MM/dd HH:mm:ss"));
+        var tabs = mini.get("mainTabs");
+        var tab = $.data(myData, "TAB");
+        var iframeTab = tabs.getTabIFrameEl(tab);
+        if (iframeTab) {
+            var _url = tab.url;
+            iframeTab.contentWindow.GetMap($.data(myData, "TM"), "", "08");
+        }
+    }
+    function showQXTips(tm, titlename) {
+        var strMsg = new Date(tm).format("yyyy年M月d日H时") + titlename;
+        if(tm==null||tm==undefined||tm==""){
+            strMsg=titlename;
+        }
+        var x = "center";
+        var y = "top";
+        var state = "info"
+        var strMsg = "<b style='font-size:16px;'>" + strMsg + "</b>";
+        if ($(".mini-tips-info").length > 0) {
+            $(".mini-tips-info").html(strMsg);
+        }
+        else {
+            mini.showTips({
+                content: strMsg,
+                state: state,
+                x: x,
+                y: y,
+                timeout: null
+            });
+        }
+    }
+    function setMapZoom(level) {
+        if (map != undefined) {
+            map.setZoom(level);
+        }
+    }
+</script>
+<script type="text/javascript">
+    function openMenu() {
+        var mapWidth = $(".maplist").css("width");
+        if (mapWidth == "180px") {
+            $(".maplist").addClass("collapse");
+            $(".maplist").css("width", "60px");
+            $("#leftTree li span").css("display", "none");
+            $("#leftTree li div").each(function () {
+                $(this).addClass("active");
+            });
+            $("#leftTree li .fa-chevron-down").css("display", "none");
+            $(".cursor-pointer i").removeClass("fa fa-outdent");
+            $(".cursor-pointer i").addClass("fa fa-indent");
+
+            $("#contentRightI").css("left", "60px");
+
+        } else {
+            $(".maplist").removeClass("collapse");
+            $(".maplist").css("width", "180px");
+            $("#leftTree li span").css("display", "block");
+            $("#leftTree li .fa-chevron-down").css("display", "block");
+            //$("#leftTree li div").css("display", "block");
+            $("#leftTree .lihover div").removeClass("active");
+            $(".cursor-pointer i").removeClass("fa fa-indent");
+            $(".cursor-pointer i").addClass("fa fa-outdent");
+
+            $("#contentRightI").css("left", "180px");
+        }
+    }
+    function openeEnlarge() {
+        var tabs = mini.get("mainTabs");
+        var _GlobalTab = tabs.getActiveTab();
+        var url = _GlobalTab.url;
+        $("#YTImg").css("width", "auto");
+        if (url.lastIndexOf("qx/") > -1) {
+            if (url.lastIndexOf("Radar") > -1) {
+                $("#YTImg").css("height", "98%");
+            }
+            else if (url.lastIndexOf("Tide") > -1) {
+                $("#YTImg").css("width", "98%");
+                $("#YTImg").css("height", "auto");
+            } else {
+                $("#YTImg").css("height", "90%");
+            }
+        }
+    }
+</script>
+</html>

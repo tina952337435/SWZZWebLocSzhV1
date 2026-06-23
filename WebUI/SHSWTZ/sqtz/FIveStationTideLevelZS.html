@@ -1,0 +1,456 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100mm以上暴雨查询</title>
+    <link href="../../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <link href="../../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="../../Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <style>
+        ul.ui-choose > li {
+            width: auto;
+            padding: 0px 20px;
+        }
+        .mini-grid-summaryRow tr td {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow {
+            background: none !important;
+            padding-top: 10px;
+        }
+
+
+        .mini-radiobuttonlist-item .mini-list-icon {
+        }
+
+        .mini-grid-summaryRow div {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow table {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+
+            .mini-grid-summaryRow tr td span {
+                color: #fff !important;
+                line-height: 25px;
+                font-weight: 400 !important;
+            }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar">
+        <div id="zhanList">
+            <div class="searchTitle" style="line-height:35px;float:left;">&nbsp; &nbsp;站点选择： </div>
+            <input id="STCD" name="STCD" class="mini-combobox" style="width:100px;"
+                   textField="STNM" valueField="STCD" allowInput="true"
+                   onvaluechanged="onvaluechangedTM" />
+
+            <div style="margin-left:12px;float:left;display:none;" id="zhanDiv">
+
+            </div>
+            &nbsp;&nbsp;&nbsp;
+            开始日期：&nbsp;<input id="STIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+
+            &nbsp;&nbsp;&nbsp;
+            台风名称：&nbsp;
+            <input id="TFNAME" name="TFNAME" class="mini-combobox" style="width:140px;"
+                   textField="TFNAME" valueField="status" allowInput="true"
+                   onvaluechanged="onvaluechangedTF" />
+
+            <!--快捷输入：
+    <input id="TMLIST" name="TMLIST" class="mini-combobox" style="width:90px;" textField="dayText" valueField="day" allowInput="true"
+           onvaluechanged="onvaluechangedTMList" />-->
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            <button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="margin: 0px 0px;padding: 4px 12px;display:none;">导出</button>
+
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="cwchart" style="width:100%;height:300px;">
+        </div>
+        <div id="grid1" class="mini-datagrid"
+             style="width: 100%;height: -webkit-calc(100% - 300px);height: -moz-calc(100% - 300px);height: calc(100% - 300px);"
+             allowalternating="true" borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]"
+             pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+             allowcellselect="true" allowcelledit="true" 
+             ondrawcell="ondrawcell"  showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+            <div property="columns">
+                <div type="indexcolumn" headeralign="center" align="center">序号</div>
+                <div field="tm" headeralign="center" align="center" allowsort="true">
+                    时间
+                </div>
+                <div field="tdz" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                    潮位(m)
+                </div>
+                <div field="htdz" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                    天文潮(m)
+                </div>
+                <div field="ztdz" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                    增水(m)
+                </div>
+                <div field="stnm" headeralign="center" align="center">
+                    站名
+                </div>
+                <div field="stcd" headeralign="center" align="center">
+                    站码
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        mini.parse();
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var dataResult = [
+                { STCD: "63401750", STNM: "吴淞口" },
+                { STCD: "62701710", STNM: "高桥（二）" },
+                { STCD: "63405800", STNM: "芦潮港" },
+                { STCD: "63401100", STNM: "米市渡" },
+                { STCD: "63401500", STNM: "黄浦公园" },
+                { STCD: "63405900", STNM:"金山嘴"}
+            ];
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+            var stime="2020-01-01";
+            var etime="2020-01-03";
+            etime =new Date().format("yyyy-MM-dd");
+            stime =addDayDate(etime,-1);
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+            searchZT();
+            search();
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var stime = mini.get("STIME").getFormValue() + " 00:00:00";
+            var etime = mini.get("ETIME").getFormValue() + " 23:59:59";
+            var strWhere = {
+                startdate: stime,
+                enddate: etime,
+                stcd: mini.get("STCD").getValue(),
+                tdptn: "2"
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/SWZZ_FLOODTIDEDATA_ST_TIDEHIGH_RSel", strWhere, (data) => {
+                JosnSel(data, "Sel")
+            });
+        }
+        function searchZT() {
+            var strWhere = {
+                ddwj:"提供2023"
+            };
+            app.post("SWZZ_FLOOD_ZhuanTi/selectZhuanTiList", strWhere,function(res){
+                JosnSel(res, "SelZT");
+            });
+        }
+        function onvaluechangedTF(e) {
+            var value = e.value;
+            var selected = mini.get("TFNAME").getSelected();
+            var stm = new Date(selected.stm).format("yyyy-MM-dd");
+            var etm = new Date(selected.etm).format("yyyy-MM-dd");
+            console.error(selected);
+            mini.get("STIME").setValue(stm);
+            mini.get("ETIME").setValue(etm);
+            search();
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var xdata = [];
+                var ydata = [], ydataH = [], ydataZ = [];
+                for (var num = 0; num < data.data.length; num++) {
+                    var tm = new Date(data.data[num].tm).format("yyyy-MM-dd HH:mm");
+                    xdata.push(tm);
+                    var tdz = data.data[num].tdz != undefined ? Number(Number(data.data[num].tdz).toFixed(2)) :null;
+                    ydata.push(tdz);
+                    var htdz = data.data[num].htdz != undefined ? Number(Number(data.data[num].htdz).toFixed(2)) : null;
+                    ydataH.push(htdz);
+                    var ztdz = data.data[num].ztdz != undefined ? Number(Number(data.data[num].ztdz).toFixed(2)) : null;
+                    ydataZ.push(ztdz);
+                }
+                chartCW("cwchart", xdata, ydata, ydataH, ydataZ);
+                grid.setData(data.data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "SelZT") {
+                var dataResult = data.data.filter(function (e) {
+                    e.TFNAME = e.status + "" + e.title;
+                    return e.stm != null;
+                });
+                mini.get("TFNAME").setData(dataResult);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "TM") {
+                var s = new Date(new Date(value)).format("yyyy-MM-dd HH:mm");
+                e.cellHtml = s;
+            }
+        }
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var grid = e.sender;
+            //服务端汇总计算
+            var JSONArray = grid.getData();
+            if (e.field == "tm") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:#FF0000;font-size:14px;'>最大值</div>";
+                s += "<div class='classColor' style='color:#FF0000;font-size:14px;'>高潮位增水</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+            else if (e.field == "tdz" || e.field == "htdz" || e.field == "ztdz") {
+                JSONArray = sortObjectArray(JSONArray, [e.field], 'desc');
+                if (JSONArray.length > 0) {
+                    var tdz = JSONArray[0][e.field];
+                    var s = "<span style='color:Brown;'>";
+                        if(tdz!=undefined){
+                            s += "<div class='classColor' style='color:#FF0000;font-size:14px;'>" + Number(tdz).toFixed(2) + "</div>";
+                        }
+                    if (e.field == "ztdz") {
+                        //高潮位增水=最高潮位减去这段时间最高天文潮，时间上会推后
+                        JSONArray = sortObjectArray(JSONArray, ["tdz"], 'desc');
+                        tdz = JSONArray[0]["tdz"];
+                        var tdztm = JSONArray[0]["tm"];//高潮位出现时间
+                        JSONArray = sortObjectArray(JSONArray, ["tm"], 'asc');
+                        var JSONArray = JSONArray.filter(function (e) {
+                            return e.tm >= tdztm;
+                        });
+                        var htdz;
+                        for (var num = 0; num < JSONArray.length; num++) {
+                            var tdzValue = JSONArray[num].htdz;
+                            if (num > 0 && num < JSONArray.length - 1) {
+                                var qtdzValue = JSONArray[num - 1].htdz;
+                                var htdzValue = JSONArray[num + 1].htdz;
+                             
+                                if (tdzValue > htdzValue && tdzValue >= qtdzValue) {
+                                    //console.error("高潮位对应的天文潮高潮位：" + tdzValue);
+                                    htdz = tdzValue;
+                                    break;
+                                } else { }
+                            }
+                        }
+                        //var htdz = JSONArray[0]["htdz"];
+                        var tdzcha = tdz - htdz;
+                        //console.error("高潮位增水：" + tdzValue);
+                        if(tdz!=undefined&&htdz!=undefined){
+                            s += "<div class='classColor' style='color:#FF0000;font-size:14px;'>" + Number(tdzcha).toFixed(2) + "</div>";
+                        }
+                    } else {
+                        s += "<div class='classColor' style='color:#FF0000;font-size:14px;'>&nbsp;&nbsp;</div>";
+                    }
+
+                    s += "</span>";
+                    e.cellHtml = s;
+                }
+            }
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = mini.get("STCD").getText() + "(" + mini.get("STCD").getValue() + ")";
+            name += new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日") + "-";
+            name += new Date(mini.get("ETIME").getFormValue()).format("yyyy年M月d日") + "整点潮位数据";
+            ExportExcel(data,grid,name);
+        }
+        function chartCW(ChartName, xdata, ydata, ydataH, ydataZ) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var realEx = [];
+            var maxTDZ = Math.max.apply(null, ydata);
+            var maxTDZTM = "";
+            var maxZS = 0;
+            for (var num = 0; num < ydata.length; num++) {
+                if (ydata[num] == maxTDZ) {
+                    maxTDZTM = xdata[num];
+                    maxZS = ydataZ[num];
+                    break;
+                }
+            }
+            var option = {
+                text: mini.get("STCD").getText() + "潮位过程",
+                title: {
+                    //text: mini.get("STCD").getText()+"潮位过程",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 14,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['潮位', '天文潮', '增水'],
+                    show: true,
+                    selected: {
+                        //'天文潮': false
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xdata
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                    }
+                ],
+                series: [
+                    {
+                        name: '潮位',
+                        type: 'line',
+                        color: "blue",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydata,
+                        markPoint: {
+                            data: [{ type: 'max', name: '最大值' }]
+                        },
+                    },
+                    {
+                        name: '天文潮',
+                        type: 'line',
+                        color: "#00FF00",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydataH
+                    },
+                    {
+                        name: '增水',
+                        type: 'line',
+                        color: "#FF0000",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydataZ,
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: '最大值' },
+                                { name: '高潮增水', value: maxZS, xAxis: maxTDZTM, yAxis: maxZS },
+                            ]
+                        },
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

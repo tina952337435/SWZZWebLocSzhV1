@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        fieldset {
+            border: solid 1px #aaa;
+        }
+            fieldset legend {
+                font-size: 18px;
+
+            }
+            .hideFieldset {
+                border-left: 0;
+                border-right: 0;
+                border-bottom: 0;
+            }
+
+        table.hovertable {
+            font-family: verdana,arial,sans-serif;
+            font-size:14px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #999999;
+            border-collapse: collapse;
+            width: 100%;
+            height: 100%;
+        }
+
+            table.hovertable th {
+                background-color: #F5FAFE;
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+            }
+
+            table.hovertable tr {
+                background-color: #FFFFFF;
+            }
+
+            table.hovertable td {
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+                text-align: center;
+            }
+    </style>
+
+</head>
+<body> 
+    <div id="divCount">
+            <table>
+                <tr>
+                    <td colspan="3" style="font-size:14px; text-align:center;line-height:450px;" onclick=""></td>
+                </tr>
+            </table>
+        </div>
+
+        <script type="text/javascript">
+            mini.parse();
+            var myData = [];
+            //实例化表格对象
+            var grid = mini.get("grid1");
+            $(function () {
+                var _stcd = GetQueryString("stcd");
+                var _stnm = GetQueryString("STNM");
+                var _stime = GetQueryString("STIME");
+                var _etime = GetQueryString("ETIME");
+                $.data(myData, "STCD", _stcd);
+                $.data(myData, "STNM", _stnm);
+                $.data(myData, "STIME", _stime);
+                $.data(myData, "ETIME", _etime);
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '加载中...'
+                });
+                var strWhere = { "stcd": _stcd };
+                app.post("/SWZZ_RTSQ_ST_GATE_RNEW/queryList", strWhere, (data) => {
+                    JosnSel(data, "Sel")
+                });
+            })
+
+            function search() {
+
+            }
+            function JosnSel(ResultData, typeID) {
+                if (typeID == "Sel") {
+                    console.log(JSON.stringify(ResultData));
+                    var strMsg = "";
+                    if (ResultData.total > 0) {
+                        var OMCNUM = ResultData.data[0].grq==null?0:ResultData.data[0].grq;//闸门数量
+                        var GTOPNUM=ResultData.data[0].flpq==null?0:ResultData.data[0].flpq;//泵站数量
+                        // $.data(myData, "STNM", ResultData.data[0].STNM);
+                        // $.data(myData, "STCD", ResultData.data[0].STCD);
+                        // var tempGTOPNUM = ResultData.data[0].flpq;
+                        // if (OMCNUM == 0) {
+                        //     OMCNUM = Number(tempGTOPNUM);
+                        // }
+                        // if (SetNull(ResultData.data[0].flpq) && SetNull(ResultData.data[0].grq) != "") {
+                        //     if (OMCNUM < tempGTOPNUM) {
+                        //         OMCNUM = tempGTOPNUM;
+                        //     }
+                        // }
+                        if (OMCNUM > 0) {
+                            for (num = 0; num < OMCNUM; num++) {
+                                var strJson = ResultData.data[0].gateList;
+                                var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+                                var p1 = strJson.filter(function (e) { 
+                                    return e.exkey == (num + 1) && Number(e.gtq) >= 0.02 &&new Date(e.tm) >= tempTM && (e.eqptp == "闸坝开度");
+                                });
+                                var tempXX = "<span style='color:red;'>关</span>";
+                                if (p1.length > 0) {
+                                    tempXX = "<span style='color:#4CE242;'>开</span>";
+                                }
+                                strMsg += '<fieldset id="fd1" style="width:100%;">';
+                                strMsg += '<legend><label>闸' + (num + 1) + '#信息（' + tempXX + '）</label></legend>';
+                                strMsg += '<div class="fieldset-body">';
+
+                                strMsg += '<table class="hovertable">';
+                                strMsg += '<tr>';
+                                strMsg += '<th>站名</th>';
+                                strMsg += '<th>类型</th>';
+                                strMsg += '<th>数据</th>';
+                                strMsg += '<th>时间</th>';
+                                strMsg += '</tr>';
+
+                                if (strJson.length > 0) {
+                                    var tempJson1 = strJson.filter(function (e) {
+                                        return e.exkey == (num + 1)&&new Date(e.tm) >= tempTM && (e.eqptp == "闸坝开度");
+                                    });
+                                    if (tempJson1.length > 0) {
+                                        for (II = 0; II < tempJson1.length; II++) {
+                                            strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                            strMsg += '<td><a id="Json_' + num + II + '" href="###" onclick="GetView(\'' + $.data(myData, "STCD") + '\',\'' + tempJson1[II].exkey + '\',\'' + tempJson1[II].eqptp + '\',\'' + $.data(myData, "STNM") + tempJson1[II].exkey + "#" + tempJson1[II].eqptp + '\')">' + $.data(myData, "STNM") + tempJson1[II].exkey + "#" + tempJson1[II].eqptp + '</a></td>';
+                                            strMsg += '<td>' + tempJson1[II].eqptp + '</td>';
+                                            if (tempJson1[II].eqptp == "泵站流量") {
+                                                strMsg += '<td>' + Number(tempJson1[II].gtq).toFixed(2) + 'm³/s</td>';
+                                            } else if (tempJson1[II].eqptp == "泵站电流") {
+                                                strMsg += '<td>' + Number(tempJson1[II].gtq).toFixed(2) + 'A</td>';
+                                            } else {
+                                                strMsg += '<td>' + Number(tempJson1[II].gtq).toFixed(2) + '</td>';
+                                            }
+                                            strMsg += '<td>' +new Date (tempJson1[II].tm).format("yyyy-MM-dd HH:mm") + '</td>';
+                                            strMsg += '</tr>';
+
+                                        }
+                                    } else {
+                                        strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                        strMsg += '<td colspan="4" align="center">暂无数据</td>';
+                                        strMsg += '</tr>';
+
+                                    }
+                                } else {
+                                    strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                    strMsg += '<td colspan="4" align="center">暂无数据</td>';
+                                    strMsg += '</tr>';
+                                }
+
+                                strMsg += '</table>';
+                                strMsg += '</div>';
+                                strMsg += '</fieldset>';
+                                //GetObj("fd" + (num + 1)).style.display = "block";
+                            }
+                        } else {
+                            //window.location.href = "/DanZhan/GQLine.html?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData,"ETIME");
+                            strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
+                            //strMsg = "";
+                        }
+                        if (GTOPNUM > 0) {
+                            for (num = 0; num < GTOPNUM; num++) {
+                                var strJson = ResultData.data[0].gateList;
+                                var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+                                var p1 = strJson.filter(function (e) { 
+                                    return e.exkey == (num + 1) && Number(e.gtq) >= 0.02 &&new Date(e.tm) >= tempTM && (e.eqptp == "泵站状态");
+                                });
+                                var tempXX = "<span style='color:red;'>关</span>";
+                                if (p1.length > 0) {
+                                    tempXX = "<span style='color:#4CE242;'>开</span>";
+                                }
+                                strMsg += '<fieldset id="fd1" style="width:100%;">';
+                                strMsg += '<legend><label>泵' + (num + 1) + '#信息（' + tempXX + '）</label></legend>';
+                                strMsg += '<div class="fieldset-body">';
+
+                                strMsg += '<table class="hovertable">';
+                                strMsg += '<tr>';
+                                strMsg += '<th>站名</th>';
+                                strMsg += '<th>类型</th>';
+                                strMsg += '<th>数据</th>';
+                                strMsg += '<th>时间</th>';
+                                strMsg += '</tr>';
+
+                                if (strJson.length > 0) {
+                                    var tempJson1 = strJson.filter(function (e) {
+                                        return e.exkey == (num + 1)&&new Date(e.tm) >= tempTM && (e.eqptp == "泵站状态");
+                                    });
+                                    if (tempJson1.length > 0) {
+                                        for (II = 0; II < tempJson1.length; II++) {
+                                            strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                            strMsg += '<td><a id="Json_' + num + II + '" href="###" onclick="GetView(\'' + $.data(myData, "STCD") + '\',\'' + tempJson1[II].exkey + '\',\'' + tempJson1[II].eqptp + '\',\'' + $.data(myData, "STNM") + tempJson1[II].exkey + "#" + tempJson1[II].eqptp + '\')">' + $.data(myData, "STNM") + tempJson1[II].exkey + "#" + tempJson1[II].eqptp + '</a></td>';
+                                            strMsg += '<td>' + tempJson1[II].eqptp + '</td>';
+                                            if (tempJson1[II].eqptp == "泵站流量") {
+                                                strMsg += '<td>' + Number(tempJson1[II].gtq).toFixed(2) + 'm³/s</td>';
+                                            } else if (tempJson1[II].eqptp == "泵站电流") {
+                                                strMsg += '<td>' + Number(tempJson1[II].gtq).toFixed(2) + 'A</td>';
+                                            } else {
+                                                strMsg += '<td>' + Number(tempJson1[II].gtq).toFixed(2) + '</td>';
+                                            }
+                                            strMsg += '<td>' +new Date (tempJson1[II].tm).format("yyyy-MM-dd HH:mm") + '</td>';
+                                            strMsg += '</tr>';
+
+                                        }
+                                    } else {
+                                        strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                        strMsg += '<td colspan="4" align="center">暂无数据</td>';
+                                        strMsg += '</tr>';
+
+                                    }
+                                } else {
+                                    strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                    strMsg += '<td colspan="4" align="center">暂无数据</td>';
+                                    strMsg += '</tr>';
+                                }
+
+                                strMsg += '</table>';
+                                strMsg += '</div>';
+                                strMsg += '</fieldset>';
+                                //GetObj("fd" + (num + 1)).style.display = "block";
+                            }
+                        } else {
+                            //window.location.href = "/DanZhan/GQLine.html?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData,"ETIME");
+                            strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
+                            //strMsg = "";
+                        }
+                    } else {
+                        strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
+                    }
+                    $("#divCount").html(strMsg);
+                    mini.unmask(document.body);
+                }
+            }
+            function GetView(stcd, exkey, eqptp, strTITLE) {
+                WindowsOpen("DanZhan/GQViewLine.html?stcd=" + stcd + "&stnm=" + $.data(myData, "STNM") + "&stime=" + $.data(myData, "STIME") + "&etime=" + $.data(myData, "ETIME") + "&exkey=" + exkey + "&eqptp=" + eqptp, strTITLE, "60%@600px");
+            }
+            function toggleFieldSet(ck, id) {
+                var dom = document.getElementById(id);
+                dom.className = !ck.checked ? "hideFieldset" : "";
+            }
+
+            function onTMRenderer(e) {
+                var value = e.value;
+                if (!value) {
+                    return;
+                }
+                if (value !== "") {
+                    return (value).format("yyyy-MM-dd HH:mm");
+                }
+                return "";
+            }
+            function ondrawcell(e) {
+                var row = e.row,
+                    column = e.column,
+                    field = e.field,
+                    value = e.value;
+                rowIndex = e.rowIndex;
+                var record = e.record;
+                if (field == "STNM") {
+                    var s = '';
+
+                    s = $.data(myData, "STNM") + record.exkey + "#" + record.eqptp;
+                    e.cellHtml = s;
+
+                }
+            }
+
+        </script>
+</body>
+</html>

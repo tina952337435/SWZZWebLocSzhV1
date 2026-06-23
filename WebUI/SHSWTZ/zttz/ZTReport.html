@@ -1,0 +1,815 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/boot.js?v=1" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: hidden;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+
+        .mini-toolbar {
+            border: 0px !important;
+        }
+
+        .contentSearch {
+            display: none;
+            position: absolute;
+            top: 35px;
+            right: 15px;
+            /*border: 1px solid #2f8fed;*/
+            border-radius: 5px;
+            z-index: 1;
+            background: white;
+            padding: 10px;
+            text-align: center;
+            background-image: url(/Common/images/smallfenxi.png);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            height: 300px;
+        }
+
+        .contentTitle {
+            margin: 0px auto;
+            width: 98%;
+            height: 45px;
+            text-align: center;
+            font-size: 20px;
+            letter-spacing: 4px;
+            line-height: 45px;
+            font-family: "arial","Hiragino Sans GB","Helvetica Neue",Helvetica,tahoma,arial,"WenQuanYi Micro Hei",Verdana,sans-serif,"\5B8B\4F53";
+        }
+
+        .contentText {
+            width: 100%;
+            /*border-bottom: 1px solid #dcdcdc;*/
+        }
+
+        .contentCondition {
+            width: 480px;
+            margin: 0px auto;
+            /*text-align: center;*/
+        }
+
+        .keyInput {
+            background-color: #fff;
+            background-image: none;
+            border-radius: 4px;
+            border: 1px solid #dcdfe6;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #606266;
+            display: inline-block;
+            font-size: inherit;
+            height: 35px;
+            line-height: 35px;
+            outline: 0;
+            padding: 0 15px;
+            -webkit-transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+            transition: border-color .2s cubic-bezier(.645,.045,.355,1);
+        }
+        .yListr {
+            /*border-bottom: 1px solid #dcdcdc;*/
+            padding-bottom: 10px;
+            margin-bottom: 13px;
+            list-style-type: none;
+        }
+        .yListrLi {
+            min-height: 36px;
+            margin-bottom: 15px;
+        }
+        .yListrSpan {
+            color: #000000;
+            font-size: 14px;
+            line-height: 36px;
+            display: inline-block;
+            width: 42px;
+            padding-left: 4px;
+        }
+        .yListrEm {
+            cursor: pointer;
+            color: #666666;
+            font-size: 14px;
+            display: inline-block;
+            padding: 0 16px;
+            font-style: normal;
+            border: 1px solid #dcdcdc;
+            line-height: 34px;
+            height: 34px;
+        }
+        .yListrclickem {
+            line-height: 32px;
+            border: 1px solid #ccc;
+            border-color: #0080ff;
+            height: 32px;
+            position: relative;
+            padding: 0 16px;
+        }
+        .yListrclickem i {
+            display: block;
+            width: 15px;
+            height: 14px;
+            color: #0080ff;
+            background: transparent url("/Common/images/icon-selected.png") no-repeat right bottom;
+            right: -1px;
+            bottom: -1px;
+            position: absolute;
+        }
+        .mini-buttonedit {
+            height: 30px;
+            padding-right: 10px;
+        }
+        .mini-buttonedit-border {
+            height: 30px;
+        }
+        .mini-buttonedit-input {
+            height: 30px;
+            line-height: 30px;
+        }
+        .mini-buttonedit-button {
+            height: 30px;
+            line-height: 30px;
+            border: 0px;
+        }
+        .mini-buttonedit-button-pressed, .mini-buttonedit-popup .mini-buttonedit-trigger, .mini-buttonedit-button-hover {
+            background: none;
+            border: 0px;
+        }
+
+        #button {
+            margin: 0 auto;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            width: 1000px;
+            width: 795px;
+            height: 45px;
+            border-radius: 2px;
+            /*background-color: #3d3e3d;*/
+            padding: 8px;
+            box-shadow: 2px 2px 0 #c1c1c1, 0 0 2px #c1c1c1 inset;
+        }
+
+            #button ul {
+                width: 1000px;
+                height: 30px;
+                border-radius: 2px;
+                text-align: center;
+                padding: 0px;
+            }
+
+                #button ul li {
+                    list-style: none;
+                    float: left;
+                    width: 175px;
+                    margin-left: 10px;
+                    margin-right: 10px;
+                    text-align: center;
+                    line-height: 30px;
+                    border-radius: 2px;
+                    cursor: pointer;
+                    color: #fff;
+                    font-size: 14px;
+                    letter-spacing: 2px;
+                    background: #9b9c9b;
+                    -webkit-transition: all 0.5s ease;
+                    -moz-transition: all 0.5s ease;
+                    -ms-transition: all 0.5s ease;
+                    -o-transition: all 0.5s ease;
+                    transition: all 0.5s ease;
+                }
+
+                #button ul .li_hover {
+                    -webkit-transform: scale(1.1);
+                    -moz-transform: scale(1.1);
+                    -ms-transform: scale(1.1);
+                    -o-transform: scale(1.1);
+                    transform: scale(1.1);
+                    background: -moz-linear-gradient(top, #8fa1ff, #3757fa);
+                    background: -ms-linear-gradient(top, #8fa1ff, #3757fa);
+                    background: -o-linear-gradient(top, #8fa1ff, #3757fa);
+                    /*background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #ff4f02), color-stop(1, #8f2c00));*/
+                    background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #2f90ee), color-stop(1, #1364b3));
+                    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c6ff00', endColorstr='#538300', GradientType='0');
+                }
+
+
+        .wrap ul li {
+            float: left;
+            width: 120px;
+            text-align: center;
+            height: 35px;
+            line-height: 35px;
+            font-size: 16px;
+            cursor:pointer;
+        }
+            .wrap ul li.hover {
+                color: #036ddd;
+                border-bottom: 3px solid #036ddd;
+                background: linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.08));
+            }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style="height: 50px;">
+        <div class="wrap" style="width: 300px;height:35px;position:absolute;top:5px;left:0px;">
+            <ul style="list-style: none;">
+                <li>台风信息</li>
+                <li class="hover">水文特征</li>
+            </ul>
+        </div>
+        <div class="searchContext" style="line-height:35px;position:absolute;top:5px;left:300px;">
+            <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+            <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                <input id="SYear" class="form-control" value="请选择年份" readonly>
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+            <span style="float:left;">—</span>
+            <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                <input id="EYear" class="form-control" value="请选择年份" readonly>
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()" style="">查询</a>
+            &nbsp;&nbsp;<button type="button" class="btn btn-info" onclick="Exp()" style="display:none;">导出报表</button>
+            <div style="float:right;margin-right:20px;color:#5f5c5c;cursor:pointer;display:none;">
+                <i class="fa fa-search" style="font-size:20px;" title="更多搜索" onclick="showSearch()"></i>
+            </div>
+        </div>
+    </div>
+    <div style="height:280px" id="chart">
+    </div>
+    <div id="button">
+        <ul>
+            <li class="li_hover" name="台风年份">台风年份排序</li>
+            <li name="吴淞口潮位最高">吴淞口最高潮位排序</li>
+            <li name="降雨量最大">累计降雨量排序</li>
+            <li name="风力登陆强度">风力强度排序</li>
+        </ul>
+    </div>
+    <div class="mini-fit">
+
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height:100%;" allowalternating="true"
+             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true"
+             emptytext="暂无数据" alwaysshowemptytext="true" showpager="false" ondrawcell="ondrawcell">
+            <div property="columns">
+                <div type="indexcolumn" width="20" headeralign="center" align="center"> 序号</div>
+                <div field="FAYA" name="FAYA" width="40" headeralign="center" align="center" allowsort="true">
+                    年份
+                </div>
+                <div field="TITLE" headeralign="center" align="center" allowsort="true">
+                    <!--台风名称-->
+                    专题名称
+                </div>
+                <div field="FD_TM" headeralign="center" align="center" allowsort="true">
+                    影响上海日期
+                </div>
+                <div field="BUMEN" headeralign="center" align="center" allowsort="true">
+                    上海受影响风力
+                </div>
+                <div field="SHIJIAN" headeralign="center" align="center" allowsort="true">
+                    登陆强度
+                </div>
+                <div field="ADDRESS" headeralign="center" align="center" allowsort="true">
+                    登陆位置
+                </div>
+                <div field="SHENHE" headeralign="center" align="center" allowsort="true">
+                    登陆时间
+                </div>
+                <div field="MAXZ" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                    吴淞口最高潮位(m)
+                </div>
+                <div field="DRP" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                    最大站降雨量(mm)
+                </div>
+                <div field="STNM" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                    最大降雨站
+                </div>
+                <div field="action" name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                    基本操作
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="contentSearch">
+        <div class="contentTitle">
+            专题更多搜索
+        </div>
+        <div class="contentText">
+            <div class="contentCondition">
+                <ul class="yListr">
+                    <li class="yListrLi">
+                        关键字：<input type="text" id="KEY" name="KEY" class="keyInput" style="width: 350px;" /> <!--placeholder="请输入关键字"-->
+                    </li>
+                    <li class="yListrLi">
+                        潮位站：<input id="CWZHAN" name="CWZHAN" class="mini-combobox" style="width:150px;" textfield="STNM"
+                                   valuefield="ZSTCD" allowinput="true" multiSelect="false" showNullItem="true" />
+                        <input id="edit1" class="mini-filteredit" value="3.00" filterValue=">" filterData="filters" showClose="false" style="width:200px;" />
+                    </li>
+                    <li class="yListrLi">
+                        雨量站：<input id="YLZHAN" name="YLZHAN" class="mini-combobox" style="width:150px;" textfield="STNM"
+                                   valuefield="STCD" allowinput="true" multiSelect="false" showNullItem="true" />
+                        <input id="edit2" class="mini-filteredit" value="50.0" filterValue=">" filterData="filters" showClose="false" style="width:200px;" />
+                    </li>
+                    <li class="yListrLi">
+                        <a class="mini-button" onclick="searchMore()" style="">搜 索</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        var filters = [{ text: '大于', value: '>' }, { text: '小于', value: '<' }, { text: '等于', value: '==' }];
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        var myData = [];
+        var isMore = false;//是否是选择了更多搜索
+        $(function () {
+            $.data(myData, "gridHeader", "水文信息");
+            var _year = new Date().format("yyyy");
+            GetObj("SYear").value = 1949;
+            GetObj("EYear").value = _year;
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1949",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+            loadSTB();
+            //默认加载数据
+            search();
+
+            var index_button = 0;
+            $("#button").on("click", "ul li", function () {
+                index_button = $(this).index();
+                $("#button li").removeClass("li_hover");
+                $(this).addClass("li_hover");
+                if (index_button == 0) {//效果一
+                    //$("img").stop().animate({ "width": "225px", "height": "132px" }, 600);
+                } else if (index_button == 1) {//效果二
+                    //$("img").stop().animate({ "width": "500px", "height": "294px" }, 600);
+                } else {//效果三
+                    //$("img").stop().animate({ "width": "1050px", "height": "618px" }, 600);
+                }
+                var name = $(this).attr('name');
+                bindGridData(name);
+            });
+            $("#button li").hover(function () {
+                $(this).addClass("li_hover");
+            }, function () {
+                if (index_button != $(this).index()) {
+                    $(this).removeClass("li_hover");
+                }
+                });
+            $(".wrap ul li").click(function () {
+                var html = $(this).html();
+                $.data(myData, "gridHeader", html);
+                $(".wrap ul li").removeClass("hover");
+                $(this).addClass("hover");
+                bindGridHeader();
+                var data =  $.data(myData, "dataAll");
+                PageServerFill(grid, data);
+                grid.mergeColumns(["FAYA", "company"]);
+            });
+        });
+        function search() {
+            bindGridHeader();
+            isMore = false;
+            $.data(myData, "KEY", null);
+            $.data(myData, "YLSTCD", null);
+            $.data(myData, "CWSTCD", null);
+            $.data(myData, "CWVALUE", null);
+            $.data(myData, "CWFUHAO", null);
+            $.data(myData, "YLVALUE", null);
+            $.data(myData, "YLFUHAO", null);
+            PageFillData(0, 15);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var Startime = GetObj("SYear").value + "-01-01";
+            var Endtime = GetObj("EYear").value + "-12-31 23:59:59";
+            //查询方法
+            var strWhere = {
+                "STIME": Startime, "ETIME": Endtime, KEY: $.data(myData, "KEY"),
+                "YLSTCD": $.data(myData, "YLSTCD"),
+                "CWSTCD": $.data(myData, "CWSTCD"),
+                "CWVALUE": $.data(myData, "CWVALUE"),
+                "CWFUHAO": $.data(myData, "CWFUHAO"),
+                "YLVALUE": $.data(myData, "YLVALUE"),
+                "YLFUHAO": $.data(myData, "YLFUHAO"),
+                "DDWJ":"提供2023"
+            };// ,"PageIndex": pageIndex, "PageSize": pageSize
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTIReportSel", strWhere, "Sel");
+        }
+        function searchMore() {
+            isMore = true;
+            $.data(myData, "KEY", $("#KEY").val());
+            //做处理
+            var YLSTCD = mini.get("YLZHAN").getValue();
+            var CWSTCD = mini.get("CWZHAN").getValue();
+            var CWVALUE = mini.get("edit1").getValue();
+            var CWFUHAO = mini.get("edit1").getFilterValue();
+            var YLVALUE = mini.get("edit2").getValue();
+            var YLFUHAO = mini.get("edit2").getFilterValue();
+            $.data(myData, "YLSTCD", YLSTCD);
+            $.data(myData, "CWSTCD", CWSTCD);
+            $.data(myData, "CWVALUE", CWVALUE);
+            $.data(myData, "CWFUHAO", CWFUHAO);
+            $.data(myData, "YLVALUE", YLVALUE);
+            $.data(myData, "YLFUHAO", YLFUHAO);
+            PageFillData(0, 15);
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data.data;
+                $.data(myData, "data", dataResult);
+                $.data(myData, "dataAll", data);
+                PageServerFill(grid, data);
+                grid.mergeColumns(["FAYA", "company"]);
+                var dataX = [], dataY = [];
+                var dataResult = groupBy(dataResult, "FAYA");
+                var totalTF = 0;
+                for (var num = (dataResult.length - 1); num >= 0; num--) {
+                    dataX.push(dataResult[num][0].FAYA);
+                    dataY.push(dataResult[num].length);
+                    totalTF += dataResult[num].length;
+                }
+                chartBar("chart", dataX, dataY, totalTF);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+            else if (typeID == "TYPESel") {
+                var strHtml = '<ul class="ul1" id="leixin">';
+                strHtml += '<li class="">全部</li>';
+                for (var num = 0; num < data.data.length; num++) {
+                    strHtml += '<li class="">' + data.data[num].FZNAME + '</li>';
+                }
+                strHtml += '</ul>';
+                $("#tzID").html(strHtml);
+            }
+            else if (typeID == "BSel") {
+                var dataYL = data.data.filter(function (e) {
+                    return e.TYPE == "2";
+                });
+                mini.get("YLZHAN").setData(dataYL);
+                mini.get("YLZHAN").select(0);
+
+                var dataCW = data.data.filter(function (e) {
+                    return e.TYPE == "1";
+                });
+                mini.get("CWZHAN").setData(dataCW);
+                mini.get("CWZHAN").select(0);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var grid = e.sender;
+            var record = e.record;
+            var rowIndex = e.rowIndex;
+            if (field == "STM") {
+                var stm = mini.formatDate(convertToDate(value), 'yyyy-MM-dd');
+                e.cellHtml = stm;
+            }
+            if (field == "SHENHE") {
+                // var stm = "";
+                // if (value != undefined) {
+                //     stm = new Date(value).format('yyyy-MM-dd HH:mm');
+                // }
+                // e.cellHtml = stm;
+            }
+            if (field == "ADDRESS") {
+                if (value == "未登陆") {
+                    //e.cellHtml = "-";
+                }
+            }
+            if (field == "SHIJIAN" || field == "BUMEN" || field == "SHENHE" || field == "FD_TM") {
+                if (value == "" || value == null || value == undefined) {
+                    e.cellHtml = "-";
+                }
+            }
+            if (field == "action") {
+                var s = '<span  style="cursor:pointer;" onclick="LookView(\'' + record.ID + '\',\'' + record.TITLE + '\',\'' + record.TYPE + '\')"><img src="/Common/miniui/themes/icons/look.gif" title="进入专题"/>&nbsp;进入专题</span>'
+                //s += '<span><img style="cursor:pointer;" onclick="del(\'' + record.ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除专题管理" />&nbsp;</span>';
+                e.cellHtml = s;
+            }
+        }
+        function LookView(objID, objTitle, objType) {
+            //alert(objType);
+            var url = "/SHSWTZ/zttz/DATA_ZHUANTI_index.html?ID=" + objID;
+            if (objType == "台风") {
+                url = "/SHSWTZ/zttz/TFZTindexV2.html?ZT_ID=" + objID;
+            }
+            window.open(url);
+        }
+        function showSearch() {
+            var dis = $(".contentSearch").css("display");
+            if (dis == "none") {
+                $(".contentSearch").css("display", "block");
+            } else {
+                $(".contentSearch").css("display", "none");
+            }
+        }
+        function loadSTB() {
+            var strWhere = {};
+            GetJosns("ST_STBPRP_BPTZ", strWhere, "BSel");
+        }
+        function bindGridData(year) {
+            var data = $.data(myData, "data");
+            var dataNew = [];
+            if (year == "外围") {
+                dataNew = data.filter(function (e) {
+                    return e.BUMEN == "外围";
+                });
+            } else if (year == "未登陆") {
+                dataNew = data.filter(function (e) {
+                    return e.SHIJIAN == "未登陆";
+                });
+            } else if (year == "经无锡") {
+                dataNew = data.filter(function (e) {
+                    return e.SHIJIAN != "未登陆" && e.BUMEN != "外围";
+                });
+            } else if (year == "吴淞口潮位最高") {
+                dataNew = sortObjectArray(data, ['MAXZ'], "desc");
+            } else if (year == "降雨量最大") {
+                dataNew = sortObjectArray(data, ["DRP"], "desc");
+            } else if (year == "台风年份") {
+                dataNew = sortObjectArray(data, ["FAYA"], "desc");
+            } else if (year == "风力登陆强度") {
+                //dataNew = sortObjectArray(data, ["SHIJIAN"], "desc");
+                dataNew = sortObjectArray(data, ["BUMEN"], "desc");
+            } else if (year == "无锡停留时间最久") {
+                dataNew = getTFSC(data);
+            }
+            else {//年份
+                dataNew = data.filter(function (e) {
+                    return e.FAYA == year;
+                });
+            }
+            grid.setData(dataNew);
+            grid.mergeColumns(["FAYA", "company"]);
+        }
+        function bindGridHeader() {
+            var gridHeader = $.data(myData, "gridHeader");
+            var createGrid = [];
+            if (gridHeader == "台风信息") {
+                createGrid = [
+                    { type: "indexcolumn", headerAlign: "center", align: "center", header: "序号" },
+                    { field: "FAYA", name:"FAYA", headerAlign: "center", align: "center", header: "年份" },
+                    { field: "TITLE", headerAlign: "center", align: "center", header: "专题名称" },
+                    { field: "FD_TM", headerAlign: "center", align: "center", header: "影响上海日期" },
+                    { field: "BUMEN", headerAlign: "center", align: "center", header: "上海受影响风力" },
+                    { field: "SHIJIAN", headerAlign: "center", align: "center", header: "登陆强度" },
+                    { field: "ADDRESS", headerAlign: "center", align: "center", header: "登陆位置" },
+                    { field: "SHENHE", headerAlign: "center", align: "center", header: "登陆时间" },
+                ];
+            } else {
+                createGrid = [
+                    { type: "indexcolumn", headerAlign: "center", align: "center", header: "序号" },
+                    { field: "FAYA", name: "FAYA", headerAlign: "center", align: "center", header: "年份" },
+                    { field: "TITLE", headerAlign: "center", align: "center", header: "专题名称" },
+                    { field: "FD_TM", headerAlign: "center", align: "center", header: "影响上海日期" },
+                    { field: "MAXZ", headerAlign: "center", align: "center", header: "吴淞口最高潮位", decimalPlaces: 2, dataType:"float" },
+                    { field: "MAXZG", headerAlign: "center", align: "center", header: "高桥最高潮位", decimalPlaces: 2, dataType: "float"},
+                    { field: "MAXZL", headerAlign: "center", align: "center", header: "芦潮港最高潮位", decimalPlaces: 2, dataType: "float"},
+                    { field: "MAXZM", headerAlign: "center", align: "center", header: "米市渡最高潮位", decimalPlaces: 2, dataType: "float"},
+                    { field: "MAXZH", headerAlign: "center", align: "center", header: "黄浦公园最高潮位", decimalPlaces: 2, dataType: "float"},
+                    { field: "MAXZJ", headerAlign: "center", align: "center", header: "金山嘴最高潮位", decimalPlaces: 2, dataType: "float" },
+                    { field: "DRP", headerAlign: "center", align: "center", header: "最大站降雨量(mm)", decimalPlaces: 1, dataType: "float" },
+                    { field: "STNM", headerAlign: "center", align: "center", header: "最大降雨站" },
+                ];
+            }
+            createGrid.push({ field: "action", name: "action", headerAlign: "center", align: "center", header: "基本操作" });
+            grid.set({
+                columns: createGrid
+            });
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = GetObj("SYear").value + "-" + GetObj("EYear").value + "年影响上海台风列表";
+            ExportExcel(name, columns, data);
+        }
+        function chartBar(ChartName, dataX, dataY, totalTF) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.clear();
+            var colorList = ['#afa3f5', '#00d488', '#3feed4', '#3bafff', '#f1bb4c', "rgba(250,250,250,0.5)"];
+            var sportsIcon = {
+                'a': '/asset/get/s/data-1559121268278-ozjd-lXoz.png',
+                'b': '/asset/get/s/data-1559121263841-UC5w7mTJ9.png',
+                'c': '/asset/get/s/data-1559121259198-sxyPSimU9.png',
+                'd': '/asset/get/s/data-1559121254241-xj5JAIBzC.png',
+                'e': '/asset/get/s/data-1559121249274-QxHDAdQGy.png',
+            };
+            option = {
+                backgroundColor: '#fff',
+                title: {
+                    text: "历史影响上海台风列表(" + totalTF + "个)",
+                    //subtext: '历史影响台风列表',
+                    //x: '72.5%',
+                    //y: '32%',
+                    x: "center",
+                    y: "top",
+                    textAlign: "center",
+                    textStyle: {
+                        fontSize: 24,
+                        fontWeight: 'normal',
+                        color: ['#333']
+                    },
+                    subtextStyle: {
+                        color: '#666',
+                        fontSize: 16
+                    },
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    axisPointer: {
+                        lineStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: '#FFD56E'
+                                }, {
+                                    offset: 0.5,
+                                    color: '#fff',
+                                }, {
+                                    offset: 1,
+                                    color: '#FFD56E'
+                                }],
+                                global: false
+                            }
+                        },
+                    }
+                },
+                legend: {
+                    right: 20,
+                    show: false,
+                    top: 0,
+                    itemGap: 10, // 各个item之间的间隔，单位px，默认为10，
+                    itemWidth: 30, // 图例图形宽度
+                    itemHeight: 10, // 图例图形高度
+                    textStyle: {
+                        //color: 'red',
+                        fontWeight: 'normal',
+                        fontSize: 14
+                    },
+                },
+                grid: {
+                    top: '5%',
+                    left: '3%',
+                    right: '1%',
+                    bottom: '8%',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: dataX,
+                        axisTick: {
+                            show: false // 是否显示坐标轴轴线
+                        },
+                        axisLabel: {
+                            color: '#282828'
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                        boundaryGap: true,
+                        axisLine: { //坐标轴轴线相关设置。
+                            show: true,
+                            inside: false,
+                            lineStyle: {
+                                color: '#000'
+                            }
+                        }
+                    },
+                ],
+                yAxis: [{
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 5;
+                    },
+                    min: 0,
+                    splitNumber: 4,
+                    splitLine: { show: true },
+                    axisLabel: { //坐标轴刻度标签的相关设置。
+                        show: true,
+                        textStyle: {
+                            color: '#737373',
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(131,101,101,0.2)',
+                            type: 'dashed',
+                        }
+                    },
+                    show: true,
+                }],
+                series: [
+                    {
+                        type: 'bar',
+                        barMaxWidth: 20,
+                        zlevel: 10,
+                        // barGap: '100%',
+                        data: dataY,
+                        itemStyle: {
+                            normal: {
+                                color: {
+                                    type: 'linear',
+                                    x: 0,
+                                    y: 0,
+                                    x2: 0,
+                                    y2: 1,
+                                    colorStops: [{
+                                        offset: 0,
+                                        color: '#2D8DED'
+                                    }, {
+                                        offset: 1,
+                                        color: '#5ED8FB'
+                                    }]
+                                },
+                                barBorderRadius: [30, 30, 0, 0],
+                            }
+                        },
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'top',
+                                formatter: function (params) {
+                                    return params.value;
+                                },
+                                textStyle: {
+                                    color: '#2D8DED', //color of value
+                                    fontSize: 14
+                                }
+                            }
+                        },
+
+                    }
+                ]
+            };
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var name = param.name;
+                bindGridData(name);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no"/>
+  <title>arcgis api结合echart 轨迹</title>
+  <link href="/arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+  <style>
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0px dashed black;
+      background-color: rgb(0, 38, 48);
+    }
+
+  </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="/Common/Scripts/echartsNew.js"></script>
+    <script src="/arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script>
+        var map;
+        require(
+            [
+                "esri/map",
+                'esri/layers/ArcGISTiledMapServiceLayer',
+                'esri/geometry/Extent',
+                "myJs/Echarts3LayerNew",
+                "dojo/domReady!"
+            ],
+            function (
+                Map,
+                ArcGISTiledMapServiceLayer,
+                Extent,
+                Echarts3LayerNew) {
+                //var mapExtent = new Extent({
+                //    xmax: 110.34219072728925,
+                //    xmin: 110.26916982794233,
+                //    ymax: 19.039261212140858,
+                //    ymin: 19.000847193662736,
+                //    spatialReference: {
+                //        wkid: 4326
+                //    }
+                //})
+                //map = new Map("map", {
+                //    logo: false,
+                //    extent: mapExtent,
+                //    isZoomSlider: false,
+                //    zoom: 8
+                //});
+
+                map = new Map("map", {
+                    basemap: "dark-gray",  //For full list of pre-defined basemaps, navigate to http://arcg.is/1JVo6Wd
+                    center: [122.45, 37.75], // longitude, latitude
+                    zoom: 5
+                });
+                
+
+                //转为float类型
+                function toNum(n) {
+                    return parseFloat(n)
+                }
+
+                //测试数据
+                var data = [
+                    { "from": "海口", "from_lon": 110.259516, "from_lat": 19.992593, "to": "三亚", "to_lon": 109.524805, "to_lat": 18.278795 },
+                    { "from": "海口", "from_lon": 110.259516, "from_lat": 19.992593, "to": "琼海", "to_lon": 110.358393, "to_lat": 18.751495 },
+                    { "from": "儋州", "from_lon": 109.576991, "from_lat": 19.527321, "to": "三亚", "to_lon": 109.524805, "to_lat": 18.278795 },
+                    { "from": "三亚", "from_lon": 109.524805, "from_lat": 18.278795, "to": "文昌", "to_lon": 110.776493, "to_lat": 19.573909 }
+                ]
+
+                var length = data.length
+                var allPoints = []
+                var lineft = []
+                var linetf = []
+                if (length > 0) {
+                    //获取所有点集合
+                    for (var i = 0; i < length; i++) {
+                        var flon = toNum(data[i].from_lon)
+                        var flat = toNum(data[i].from_lat)
+                        var fPoint = { "value": [flon, flat] }
+                        var tlon = toNum(data[i].to_lon)
+                        var tlat = toNum(data[i].to_lat)
+                        var tPoint = { "value": [tlon, tlat] }
+                        allPoints.push(fPoint)
+                        allPoints.push(tPoint)
+                        //流向线 from至to
+                        var ft = [
+                            { "coord": [flon, flat] },
+                            { "coord": [tlon, tlat] }
+                        ]
+                        lineft.push(ft)
+                        //流向线  to至from
+                        var tf = [
+                            { "coord": [tlon, tlat] },
+                            { "coord": [flon, flat] }
+                        ]
+                        linetf.push(tf)
+                    }
+                }
+
+                map.on('load', function () {
+                    map.hideZoomSlider()
+                    var overlay = new Echarts3LayerNew(map, echarts);
+                    var chartsContainer = overlay.getEchartsContainer();
+                    var myChart = overlay.initECharts(chartsContainer);
+
+                    var color = '#ffffff'
+                    var mySeries = []
+                    mySeries.push(
+                        {
+                            name: '流向图:from--→to',
+                            type: 'lines',
+                            zlevel: 1,
+                            effect: {
+                                "show": true,
+                                "period": 2, //轨迹速度
+                                "trailLength": 0.5,//轨迹长度
+                                "symbol": "pin",
+                                "symbolSize": 7, //轨迹宽度
+                                "color": "#00FA9A"
+                            },
+                            lineStyle: {
+                                normal:
+                                {
+                                    width: 1, //线的宽度
+                                    color: '#00BFFF', //线的颜色
+                                    opacity: 0.5, // 透明度
+                                    curveness: 0.1 //线的弧度，值越大，弧度越大
+                                }
+                            },
+                            data: lineft
+                        },
+                        {
+                            name: '流向图:to--→from',
+                            type: 'lines',
+                            zlevel: 1,
+                            effect: {
+                                "show": true,
+                                "period": 2, //轨迹速度
+                                "trailLength": 0.5,//轨迹长度
+                                "symbol": "pin",
+                                "symbolSize": 7,
+                                "color": "#00FA9A"
+                            },
+                            lineStyle: {
+                                normal:
+                                {
+                                    width: 1,
+                                    color: '#00BFFF',
+                                    opacity: 0.5,
+                                    curveness: 0.1
+                                }
+                            },
+                            data: linetf
+                        },
+                        {
+                            name: '涟漪效果散点',
+                            type: 'effectScatter',
+                            coordinateSystem: 'geo',
+                            zlevel: 2,
+                            rippleEffect: {
+                                "period": 2,
+                                "brushType": "stroke",
+                                "scale": 3
+                            },
+                            symbolSize: 6,
+                            symbolSize: 10,
+                            itemStyle: {
+                                normal: {
+                                    color: color
+                                }
+                            },
+                            data: allPoints
+                        }
+                    );
+
+                    var option = {
+                        title: {
+                            text: 'arcgis api结合echart 轨迹',
+                            subtext: '',
+                            left: 'center',
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        geo: {
+                            map: '',
+                            label: {
+                                emphasis: {
+                                    show: false
+                                }
+                            },
+                            roam: true,
+                            itemStyle: {
+                                normal: {
+                                    areaColor: '#323c48',
+                                    borderCOlor: '#404a59'
+                                },
+                                emphasis: {
+                                    areaColor: '#2a333d'
+                                }
+                            }
+                        },
+                        series: mySeries
+                    }
+                    myChart.setOption(option)
+                })
+            });
+    </script>
+</body>
+</html>
+

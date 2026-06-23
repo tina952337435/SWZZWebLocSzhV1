@@ -1,0 +1,1518 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <!--CSS RESET-->
+    <link href="dist/css/normalize.css" rel="stylesheet" type="text/css" />
+    <!--可无视-->
+    <link href="dist/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="dist/css/jquery.wizzy.css" rel="stylesheet" type="text/css" />
+    <!--<script src="js/jquery-1.11.0.min.js" type="text/javascript"></script>-->
+    <link href="/Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/bootstrap-fileinput/css/fileinput.css" rel="stylesheet" type="text/css" />
+    <link href="Css/css.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/viewer.min.css" rel="stylesheet" />
+
+    <style type="text/css">
+        .wz-step {
+            height: 100% !important;
+        }
+
+        #gridSQYQ > .mini-panel-body .mini-grid-rows {
+            height: 350px !important;
+        }
+
+        .panel .mini-panel-viewport {
+            height: 220px !important;
+        }
+
+        .file-input {
+            width: 98%;
+        }
+
+        .mini-button {
+            color: white !important;
+        }
+
+        .lie1 {
+            height: 50px;
+            line-height: 50px;
+        }
+        #img {
+            height:550px;
+        }
+            #img img {
+                height: 100% !important;
+                border-color: white;
+            }
+
+
+            /*内页table样式*/
+        #forGridView1m1 {
+            margin: auto;
+            border-collapse: collapse;
+            font-family: "microsoft yahei";
+            font-size: 13px;
+            width: 90%;
+            margin: 20px auto;
+        }
+
+        #form1 table tr td{
+            border: 1px solid #CFE5FB;
+            /*line-height: 44px;*/
+            height: 44px;
+ 
+        }
+            #form1 table tr td table tr td {
+                border: 0px;
+            }
+    </style>
+</head>
+<body>
+    <!-- Start Wizzy -->
+    <div class="wz-wrapper wizzy">
+        <div class="wz-inner">
+            <div class="wz-header">
+                <nav>
+                    <a href="#">基本信息</a>
+                    <a href="#">水情</a>
+                    <a href="#">雨情</a>
+                    <!--<a href="#">相关文件</a>
+    <a href="#">照片资料</a>-->
+                    <a href="#">气象情况</a>
+                </nav>
+            </div>
+            <div class="wz-body">
+                <div class="wz-step mini-fit">
+                    <div id="form1" style="width:80%;text-align:center; margin:0 auto;">
+                        <table cellspacing='0' cellpadding='0' border='0' id='GridView1' style=' background-color: White; width: 100%; border-collapse: collapse;'>
+                            <tr>
+                                <td align="right" class="lie1">专题名称</td>
+                                <td align="left" colspan="5">
+                                    <input id="RC_NAME" name="RC_NAME" class="mini-textbox Span90" required="true" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="lie1">专题类型</td>
+                                <td align="left" colspan="5">
+                                    <div id="ZT_TYPE" name="ZT_TYPE" class="mini-radiobuttonlist"
+                                         repeatitems="10" repeatlayout="table" onvaluechanged="ZT_TYPEonCLick"
+                                         textfield="FZNAME" valuefield="FZNAME" style="float:left;">
+                                    </div>
+                                    <!--选择台风时需要关联台风编号-->
+                                    <div style="float:left;line-height: 40px;height:100%;margin-left:40px;" id="gl_tfbh">
+                                        关联台风：<input id="comboTF" class="mini-combobox" style="width:150px;"
+                                                    textField="text" valueField="id" required="true" allowInput="true" onvaluechanged="tfvaluechanged" />
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td align="right" class="lie1">登陆时间</td>
+                                <td align="left">
+                                    <input id="ZT_SHENHE" name="ZT_SHENHE" class="mini-datepicker Span70" />
+                                </td>
+                                <td align="right" class="lie1">登陆强度</td>
+                                <td align="left" style="width:25% !important;">
+                                    <input id="SHIJIAN" name="SHIJIAN" class="mini-textbox Span70" />
+                                </td>
+                                <td align="right" class="lie1">登陆位置</td>
+                                <td align="left"><input id="ADDRESS" name="ADDRESS" class="mini-textbox Span70" /></td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="lie1">
+                                    影响上海日期
+                                </td>
+                                <td align="left">
+                                    <input id="FD_TM" name="FD_TM" class="mini-datepicker Span70" required="true" />
+                                </td>
+                                <td align="right" class="lie1">登陆上海强度</td>
+                                <td align="left" style="width:25% !important;" colspan="3">
+                                    <input id="BUMEN" name="BUMEN" class="mini-textbox Span70" required="true" />
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td align="right" class="lie1">起编日期</td>
+                                <td align="left">
+                                    <input id="ZT_STIME" name="ZT_STIME" class="mini-datepicker Span70" required="true" />
+                                </td>
+                                <td align="right" class="lie1">停编日期</td>
+                                <td align="left" style="width:25% !important;">
+                                    <input id="ZT_ETIME" name="ZT_ETIME" class="mini-datepicker Span70" required="true" />
+                                </td>
+                                <td align="right" class="lie1">发布人</td>
+                                <td align="left" colspan="3"><input id="RC_OWEN" name="RC_OWEN" class="mini-textbox Span70" required="true" /></td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="lie1">专题特征说明</td>
+                                <td colspan="5" align="left">
+                                    <input id="RC_CONTENT" name="RC_CONTENT" class="mini-textarea" style="width:90%; height:150px;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="lie1">专题降雨情况说明</td>
+                                <td colspan="5" align="left">
+                                    <input id="RC_TITLE2" name="RC_TITLE2" class="mini-textarea" style="width:90%; height:150px;" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="right" class="lie1">专题灾情情况说明</td>
+                                <td colspan="5" align="left">
+                                    <input id="RC_ZONGSHU" name="RC_ZONGSHU" class="mini-textarea" style="width:90%; height:150px;" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="wz-step">
+                    <div id="form2">
+                        <table style="width:100%;height:100%;">
+                            <tr>
+                                <td style="width:100%;" valign="top">
+                                    <div style="width:15%;float:left;">
+                                        <ul id="SQQ_STCD" class="mini-tree" style="width:200px;height:500px;padding:5px;"
+                                            showtreeicon="true" textfield="STNM" idfield="ZSTCD" parentfield="PID" resultastree="false"
+                                            showcheckbox="true" checkrecursive="true" expandonload="true"
+                                            onbeforenodecheck="onBeforeNodeCheckSQ" allowselect="false" enablehottrack="false"></ul>
+                                    </div>
+                                    <div style="width:85%;float:left;">
+                                        <div class="mini-toolbar" style="padding-top: 3px; line-height:35px;">
+                                            <span id="rbl" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical" style="float:left;display:none;"
+                                                  textField="text" valueField="id" value="DAY" data="[{'id':'Minute','text':'实时'},{'id':'HOUR','text':'小时'},{'id':'DAY','text':'日'}]" onvaluechanged="RblOnCLick"></span>
+                                            <a id="searchbtn" class="mini-button" onclick="btnSearch()" style="display:none;">查询</a>
+
+                                            <div class="bootstrap-switch " style="float:right">
+                                                <div class="bootstrap-switch-container">
+                                                    <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
+                                                    <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i class="fa fa-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;height:480px; ">
+                                            <tr id="fit1" class="fit">
+                                                <td>
+                                                    <div id="ChartSQYQ" style="width:98%;height:100%; text-align: center">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr id="fit2" class="fit">
+                                                <td>
+                                                    <div id="gridSQYQ" class="mini-datagrid" style="width:1300px;height: 480px;" allowAlternating="true" showSummaryRow="true" showpager="false"
+                                                         idField="STCD" allowResize="false" ondrawcell="ondrawcell" onDrawSummaryCell="onDrawSummaryCell" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                                        <div property="columns">
+                                                            <div field="TIME" width="150" align="center" headerAlign="center" allowSort="false">时间</div>
+                                                            <div field="STNM" width="120" align="center" headerAlign="center" allowSort="true">站点</div>
+                                                            <!--<div field="DRP" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">雨量(mm)</div>-->
+                                                            <div field="UPZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">上游水位(m)</div>
+                                                            <div field="DWZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="min">下游水位(m)</div>
+                                                        </div>
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="wz-step">
+                    <div id="form3">
+                        <table style="width:100%;height:100%;">
+                            <tr>
+                                <td style="width:100%;" valign="top">
+                                    <div style="width:220px;float:left;">
+                                        <ul id="YQ_STCD" class="mini-tree" style="width:200px;height:600px;padding:5px;"
+                                            showtreeicon="true" textfield="STNM" idfield="id" parentfield="pid" resultastree="false"
+                                            showcheckbox="true" checkrecursive="true" expandonload="true"
+                                            onbeforenodecheck="onBeforeNodeCheck" allowselect="false" enablehottrack="false"></ul>
+                                    </div>
+                                    <div style="width:calc(100% - 220px);float:left;">
+                                        <div class="mini-toolbar" style="padding-top: 3px; line-height:35px;">
+
+                                            <a id="searchbtn" class="mini-button" onclick="btnYQSearch()">查询</a>
+
+                                            <div class="bootstrap-switch " style="float:right">
+                                                <div class="bootstrap-switch-container">
+                                                    <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit3')" id="switch3"><i class="fa fa-line-chart"></i></span>
+                                                    <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit4')" id="switch4"><i class="fa fa-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;height:480px; ">
+                                            <tr id="fit3" class="fit">
+                                                <td>
+                                                    <div id="ChartYQ" style="width:98%;height:100%; text-align: center">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr id="fit4" class="fit">
+                                                <td>
+                                                    <div id="gridYQ" class="mini-datagrid" style="width:98%;height: 480px;" allowAlternating="true" showSummaryRow="true" showpager="false"
+                                                         idField="STCD" allowResize="false" showemptytext="true" ondrawcell="onYQdrawcell" onDrawSummaryCell="onYQDrawSummaryCell" emptytext="暂无数据" alwaysshowemptytext="true">
+                                                        <div property="columns">
+                                                            <div field="TIME" width="150" align="center" headerAlign="center" allowSort="false">时间</div>
+                                                            <div field="STNM" width="120" align="center" headerAlign="center" allowSort="true">站点</div>
+                                                            <!--<div field="DRP" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">雨量(mm)</div>-->
+                                                            <div field="UPZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">上游水位(m)</div>
+                                                            <div field="DWZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="min">下游水位(m)</div>
+                                                        </div>
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="wz-step">
+
+                    <div id="form4">
+                        <div style="width:14%;height:530px;float:left;text-align:center;" id="btnTQCity">
+
+                            <div id="TQCITY" class="mini-radiobuttonlist" repeatitems="1" repeatlayout="table" onvaluechanged="TQCITYCLick"
+                                 textfield="FZNAME" valuefield="FZNAME">
+                            </div>
+                        </div>
+                        <div id="wrapper" style="width:84%;height:500px;float:left;">
+                            <div id="picSlideWrap" class="clearfix">
+                                <div class="imgnav" id="imgnav">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="wz-step">
+                    <div id="form5" style="width:95%;margin:0 auto;">
+                        <div class="mini-toolbar" style="padding-top: 3px; line-height:35px;">
+
+                            <a id="searchbtn" class="mini-button" onclick="SearchFile()">查询</a>
+                            <a id="searchbtn" class="mini-button" onclick="AddFile()">新增</a>
+
+                        </div>
+                        <div id="XGWJ_grid" class="mini-datagrid" style="width: 100%;margin-top:1px;height: 450px;" allowalternating="true" multiSelect="true" ondrawcell="onXGWJdrawcell"
+                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                            <div property="columns">
+                                <div type="checkcolumn"></div>
+                                <div type="indexcolumn" headeralign="center" align="center">序号</div>
+                                <div field="WD_NUM" headeralign="center" align="center" allowsort="true">
+                                    期号
+                                </div>
+                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                    文件名称
+                                </div>
+                                <div field="WD_TYPE" headeralign="center" align="center" allowsort="true">
+                                    文件类型
+                                </div>
+                                <div field="WD_SIZE" headeralign="center" align="center" allowsort="true">
+                                    文件大小(kb)
+                                </div>
+                                <div field="WD_KZNAME" headeralign="center" align="center" allowsort="true">
+                                    下载
+                                </div>
+                                <div field="WD_TIME" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+                                    时间
+                                </div>
+                                <div name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                                    基本操作
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="wz-step">
+                    <div id="form6">
+                        <table style="width:100%;height:100%;">
+                            <tr>
+                                <td style="width:50%;" valign="top">
+                                    <div style="width:98%; overflow:auto;height:450px;">
+                                        <input type="file" name="txt_file" id="txt_file" multiple class="file-loading" style="height:450px;" />
+                                    </div>
+                                    <!--<div title="图片信息" class="mini-panel" style="width:98%; overflow:auto;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);">
+                                <input type="file" name="txt_file" id="txt_file" multiple class="file-loading" style="height:450px;" />
+                        </div>-->
+                                </td>
+                                <td style="width:50%;" valign="top">
+                                    <div class="mini-toolbar" style="padding-top: 3px; line-height:35px;">
+                                        <a id="searchbtn" class="mini-button" onclick="PicSearch()">查询</a>
+                                    </div>
+                                    <div id="MTLIST_grid" class="mini-datagrid" style="width: 95%;margin-top:1px;height: 450px;" allowalternating="true" multiSelect="true"
+                                         borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                        <div property="columns">
+                                            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+
+                                            <div field="MT_NAME" headeralign="center" align="center" allowsort="true">
+                                                图片名称
+                                            </div>
+                                            <div field="MT_TYPE" headeralign="center" align="center" allowsort="true">
+                                                类型
+                                            </div>
+                                            <div field="MT_TIME" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+                                                时间
+                                            </div>
+                                            <div name="action" width="50" headeralign="center" align="center" renderer="onMTLISTActionRenderer" cellstyle="padding:0;">
+                                                基本操作
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <div class="wz-navigator"></div>
+        </div>
+    </div>
+    <!-- End Wizzy -->
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="dist/js/jquery.wizzy.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/Common/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/Common/bootstrap-fileinput/js/fileinput_locale_zh.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/Common/Scripts/viewer.min.js"></script>
+
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("gridSQYQ");
+        var gridYQ = mini.get("gridYQ");
+        var comboTF = mini.get("comboTF");
+        var myData = [];
+        $(function () {
+            loadTFList();
+            $(".wizzy").wizzy();
+            var now = new Date();
+            mini.get("ZT_STIME").setValue(addDayDate(now.format("yyyy-MM-dd"), -3));
+            mini.get("ZT_ETIME").setValue(now.format("yyyy-MM-dd"));
+            mini.get("RC_NAME").setValue(now.format("yyyy年MM月dd日专题纪要"));
+            mini.get("RC_OWEN").setValue(GetCookie("LOGINNAME"));
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTI_TYPESel", { "FLAG": "3" }, "ZT_TYPE");//所属分类
+            GetJosns("ST_STBPRP_BPTZ", {}, "STCD");
+            var _PID = GetQueryString("PID");
+            if (_PID == null) {
+                _PID = GetTableID();
+            }
+            $.data(myData, "HidID", _PID);
+            $.data(myData, "HidTYPE", "专题照片");
+            var oFileInput = new FileInput();
+            oFileInput.Init("txt_file", "/GongWen/Upload.aspx?option=add&PID=" + $.data(myData, "HidID") + "&TYPE=" + $.data(myData, "HidTYPE"));
+        })
+        var dataResult;
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "ZT_TYPE") {//所属分类
+                var _ZT_TYPE = mini.get("ZT_TYPE");
+                _ZT_TYPE.setData(ResultData.data);
+                _ZT_TYPE.select(0);
+            }
+            else if (typeID == "ZT_DEPARTMENT") {
+                var _ZT_DEPARTMENT = mini.get("ZT_DEPARTMENT");
+                _ZT_DEPARTMENT.setData(ResultData.data);
+                _ZT_DEPARTMENT.select(0);
+            }
+            else if (typeID == "SQSel") {
+                dataResult = ResultData;
+                JsonLineChart(ResultData.data);
+                //grid.setData(ResultData.data);
+                //fillData(0, grid.getPageSize(), dataResult, grid);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "STCD") {
+                var tree2 = mini.get("SQQ_STCD");
+                var _YQ_STCD = mini.get("YQ_STCD");
+                var tempData = [];
+                tempData = ResultData.data.filter(function (e) {
+                    return e.TYPE == "1";
+                });
+                tree2.loadList(tempData);
+                tree2.checkAllNodes();
+
+                tempData = ResultData.data.filter(function (e) {
+                    return e.TYPE == "2";
+                })
+                _YQ_STCD.loadList(tempData);
+                _YQ_STCD.checkAllNodes();
+            }
+            else if (typeID == "XGWJSel") {
+                mini.get("XGWJ_grid").setData(ResultData.data);
+                mini.get("XGWJ_grid").selectAll(true);
+            }
+            else if (typeID == "MTLIST_Sel") {
+                mini.get("MTLIST_grid").setData(ResultData.data);
+            }
+            else if (typeID == "MT_LISTDel") {
+                PicSearch();
+            }
+            else if (typeID == "TQ_Sel") {
+                var strMsg = '', strMsg2 = '';
+                if (ResultData.data.length > 0) {
+                    strMsg += '<div id="img">';
+                    strMsg2 += ' <div id="cbtn">';
+                    strMsg2 += '  <i class="picSildeLeft"><img src="images/picSlideLeft.gif"></i>';
+                    strMsg2 += '<i class="picSildeRight"><img src="images/picSlideRight.gif"></i>';
+                    strMsg2 += '<div id="cSlideUl">';
+                    strMsg2 += ' <ul>';
+                    for (num = 0; num < ResultData.data.length; num++) {
+                        var tempPic = HttpUrl + new Date(convertToDate(ResultData.data[num].TBA_GETDATE)).format("yyyyMMdd") + "/" + ResultData.data[num].TBA_FILENAME;
+                        if (num == 0) {
+                            strMsg += '<img data-original="' + tempPic + '" src="' + tempPic + '"  style="display: inline;">';
+                            strMsg2 += '<li class="hov"><img src="' + HttpUrl + new Date(convertToDate(ResultData.data[num].TBA_GETDATE)).format("yyyyMMdd") + '/' + ResultData.data[num].TBA_FILENAME + '"><tt>' + (num + 1) + '/' + ResultData.data.length + '</tt></li>';
+                        } else {
+                            strMsg += '<img data-original="' + tempPic + '" src="' + tempPic + '"  >';
+                            strMsg2 += '<li><img src="' + HttpUrl + new Date(convertToDate(ResultData.data[num].TBA_GETDATE)).format("yyyyMMdd") + '/' + ResultData.data[num].TBA_FILENAME + '"><tt>' + (num + 1) + '/' + ResultData.data.length + '</tt></li>';
+                        }
+                    }
+                    strMsg += '<div id="front" title="上一张"><a href="javaScript:void(0)" class="pngFix"></a></div>';
+                    strMsg += '<div id="next" title="下一张" > <a href="javaScript:void(0)" class="pngFix" style="display: none;"></a></div>';
+                    strMsg += ' </div> ';
+
+                    strMsg2 += ' </ul>';
+                    strMsg2 += '</div>';
+                    strMsg2 += '  </div>';
+
+                }
+                $("#imgnav").html(strMsg + strMsg2);
+                $('#img').viewer({
+                    url: "data-original",
+                });
+                PicTQ();
+            }
+            else if (typeID == "AddData") {
+                if ($.data(myData, "AddData") == undefined) {
+                    if (ResultData.total > 0) {
+                        //保存特征值信息
+                        var strWhere = { ZT_ID: ResultData.data[0].ID };
+                        GetJosns("SWZZ_FLOODTIDEDATA_SaveZhuantiTZ", strWhere, "SWZZ_FLOODTIDEDATA_SaveZhuantiTZ");
+                        //有云图、雷达图的还需要归档
+                        //var stime = mini.get("ZT_STIME").getFormValue();
+                        // var etime = mini.get("ZT_ETIME").getFormValue();
+                        //var _TQCITY = $.data(myData, "HidTQCity");
+                        // strWhere = { STIME: stime, ETIME: etime, ZT_ID: $.data(myData, "HidID"), TBA_INFOTYPE: _TQCITY};
+                        //GetJosns("DATA_SaveZhuantiQX", strWhere, "DATA_SaveZhuantiQX");
+                        mini.alert("专题发布成功！");
+                        //window.location.href = "/ZhuanTi/DATA_ZHUANTI.html";
+                    } else {
+                        mini.alert(ResultData.Message);
+                    }
+                    $.data(myData, "AddData", "1")
+                    mini.unmask(document.body);
+                }
+            }
+            else if (typeID == "YQSel") {
+                JsonYQLineChart(ResultData.data);
+            }
+            else if (typeID == "DATA_WD_LISTTABLEDel") {
+                search();
+            }
+            else if (typeID == "TQCITY") {
+                if (ResultData.data.length > 0) {
+                    var strMsg = '';
+                    var tempMsg = '';
+                    for (num = 0; num < ResultData.data.length; num++) {
+                        strMsg += ' <div style="line-height:50px;">';
+                        tempMsg += ResultData.data[num].FZNAME + ',';
+                        if (num == 0) {
+                            $.data(myData, "Hidtext", ResultData.data[num].FZNAME);
+                            strMsg += '<a class="mini-button mini-button-info" checked="true" checkOnClick="true" groupName="search" oncheckedchanged="onCheckedChanged"> ' + ResultData.data[num].FZNAME + '</a>';
+                        } else {
+                            strMsg += '<a class="mini-button mini-button-info" checked="false" checkOnClick="true" groupName="search" oncheckedchanged="onCheckedChanged"> ' + ResultData.data[num].FZNAME + '</a>';
+                        }
+                        strMsg += '</div>';
+                    }
+                    if (tempMsg.length > 0) {
+                        tempMsg = tempMsg.substring(0, tempMsg.length - 1);
+                    }
+                    $.data(myData, "HidTQCity", tempMsg);
+                    $("#btnTQCity").html(strMsg);
+                    mini.parse();
+                }
+                //var _TQCITY = mini.get("TQCITY");
+                //_TQCITY.setData(ResultData.data);
+                //_TQCITY.select(0);
+                //TQsearch();
+            }
+            else if (typeID == "TFSel") {
+                var data = ResultData.data;
+                var dataResult=[];
+                for (var num = 0; num < data.length; num++) {
+                    dataResult.push({ id: data[num].ZJ_TFBH, text: data[num].ZJ_TFBH + data[num].ZJ_TFM});
+                }
+                comboTF.setData(dataResult);
+            }
+        }
+        function RblOnCLick(e) {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            setTimeout(function () {
+                btnSearch();
+            }, 100);
+        }
+        function btnSearch() {
+            var _ZT_STIME = mini.get("ZT_STIME").getFormValue();
+            var _ZT_ETIME = mini.get("ZT_ETIME").getFormValue();
+            var AggSTCD = mini.get("SQQ_STCD").getValue();
+            var _SQ_STCD = AggSTCD;
+            _tempDAY = mini.get("rbl").getValue();
+            GetJosns("DT_SQDUOZHANLISTSel", { "STIME": _ZT_STIME + " 00:00:00", "ETIME": _ZT_ETIME + " 23:59:59", "STCD": _SQ_STCD, "DAY": _tempDAY }, "SQSel");
+        }
+
+        function onCloseClick(e) {
+            var obj = e.sender;
+            obj.setText("");
+            obj.setValue("");
+        }
+        function onYQDrawSummaryCell(e) {
+            var value = e.value,
+                field = e.field;
+            if (field == "DRP") {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大雨量: " + Number(value).toFixed(2) + "mm</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大雨量: 无</span>";
+
+            }
+        }
+        function onYQdrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (field == "DRP") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(1);
+                }
+            } if (field == "MAX_DRP") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(1);
+                }
+            } if (field == "MIN_DRP") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(1);
+                }
+            }
+        }
+        function onDrawSummaryCell(e) {
+            var value = e.value,
+                field = e.field;
+            if (field.lastIndexOf("DRP") > -1) {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大雨量: " + Number(value).toFixed(2) + "m³/s</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大雨量: 无</span>";
+
+            }
+            if (field.lastIndexOf("UPZ") > -1) {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大: " + Number(value).toFixed(2) + "m</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大: 无</span>";
+            }
+
+            if (field == "DWZ") {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最小下游水位: " + Number(value).toFixed(2) + "m</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最小下游水位: 无</span>";
+            }
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (field == "DRP") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(1);
+                }
+            }
+            if (e.field.lastIndexOf("UPZ") > -1) {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            }
+            if (field == "DWZ") {
+                if (value != "") {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            }
+        }
+
+
+        function tfvaluechanged(e){
+			var text=mini.get("comboTF").getText().replaceAll(e.value,"");
+			var name=e.value+"号台风“"+text+"”";
+			mini.get("RC_NAME").setValue(name);
+		}
+
+        //选择
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            //$(".fit").css("display", "none");
+            //$("#" + objFit).css("display", "block");
+            $(".fit").hide();
+            $("#" + objFit).show();
+            if (objFit == "fit1" || objFit == "fit2") {
+                btnSearch();
+            } else {
+                btnYQSearch();
+            }
+        }
+
+        function JsonYQLineChart(data) {
+
+            var aggData = $.data(myData, "DT_YQLISTSelAggSTCD").split(',');
+            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
+            var xData = "";
+            var ColoumnsName = '"TM":"时间"';
+            var strJson = sortObjectArray(data, ['TM'], 'asc');
+            var aggTM = unique(strJson, "TM");
+            if (aggData.length > 0) {
+                console.error(aggData);
+                for (num = 0; num < aggData.length; num++) {
+                    var tempAgg = strJson.filter(function (e) {
+                        return e.STCD == aggData[num];
+                    })
+                    if (tempAgg.length > 0) {
+                        strNote += ',{"name": "' + tempAgg[0].STNM + '","codename": "' + aggData[num] + 'DRP","tableV":"1","isShow":true,"width":"30%"}';
+
+                        ColoumnsName += ',"' + aggData[num] + 'DRP": "' + tempAgg[0].STNM + '"';
+                        //strNote += ',{"name": "' + tempAgg[0].STNM + '下游水位","codename": "' + aggData[num] + 'DWZ","tableV":"1","isShow":true,"width":"30%"}';
+                        //strNote += ',{"name": "' + tempAgg[0].STNM + '雨量","codename": "' + aggData[num] + 'DRP","tableV":"1","isShow":true,"width":"30%"}';
+                    }
+                }
+                if (aggTM.length > 0) {
+                    for (numTM = 0; numTM < aggTM.length; numTM++) {
+                        xData += '{"TM":"' + new Date(aggTM[numTM].TM).format("yyyy-MM-dd") + '"';
+
+                        for (num = 0; num < aggData.length; num++) {
+                            var JsonAgg = strJson.filter(function (e) {
+                                return e.STCD == aggData[num] && e.TM == aggTM[numTM].TM;
+                            })
+                            if (JsonAgg.length > 0) {
+                                for (numJson = 0; numJson < JsonAgg.length; numJson++) {
+                                    var _drp = JsonAgg[numJson].STCD + "DRP";
+                                    var NumUPZ = null, NumDWZ = null, NumDRP = null;
+                                    //if (JsonAgg[numJson].UPZ != undefined) {
+                                    //    NumUPZ = Number(JsonAgg[numJson].UPZ).toFixed(2);
+                                    //} if (JsonAgg[numJson].DWZ != undefined) {
+                                    //    NumDWZ = Number(JsonAgg[numJson].DWZ).toFixed(2);
+                                    //}
+                                    if (JsonAgg[numJson].DRP != undefined) {
+                                        NumDRP = Number(JsonAgg[numJson].DRP).toFixed(1);
+                                    }
+                                    //xData += ',"' + _upz + '": ' + NumUPZ + ', "' + _dwz + '":  ' + NumDWZ + ', "' + _drp + '": ' + NumDRP + '';
+                                    xData += ',"' + _drp + '": ' + NumDRP;
+                                }
+                            }
+                        }
+                        xData += '},';
+                    }
+                }
+            }
+            strNote = strNote + ']';
+            if (xData.length > 0) {
+                xData = '[' + xData.substring(0, xData.length - 1) + ']';
+            }
+            if (xData != "") {
+                var LineColor = ['#FF0000', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"];
+
+
+                chartYL("ChartYQ", eval('(' + xData + ')'), eval('(' + strNote + ')'), LineColor, "雨量");
+
+                var ColoumnsName = { "indexcolumn": "序号", "STNM": "站名", "DRP": "累计降雨量(mm)", "MAX_DRP": "最大降雨量(mm)", "MAXTM": "最大降雨时间", "MIN_DRP": "最小降雨量(mm)", "MINTM": "最小降雨时间" };
+                SetSummaryColumns(ColoumnsName, gridYQ);
+                gridYQ.setData(data);
+                //grid.frozenColumns(0, 0);
+            }
+        }
+        function JsonLineChart(data) {
+            //var xData = [];
+            var xData = "";
+            var min = 100; var max = 0;
+            var minTM = "", maxTM = "";
+            var aggData = mini.get("SQQ_STCD").getValue().split(',');
+            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
+            var xData = "";
+            var ColoumnsName = '"TM":"时间"';
+            var strJson = sortObjectArray(data, ['TIME'], 'asc');
+            var aggTM = unique(strJson, "TIME");
+            //console.error(aggTM);
+            if (aggData.length > 0) {
+                for (num = 0; num < aggData.length; num++) {
+                    var tempAgg = strJson.filter(function (e) {
+                        return e.ZSTCD == aggData[num];
+                    })
+                    if (tempAgg.length > 0) {
+                        strNote += ',{"name": "' + tempAgg[0].STNM + '","codename": "' + aggData[num] + 'UPZ","tableV":"1","isShow":true,"width":"30%"}';
+
+                        ColoumnsName += ',"' + aggData[num] + 'UPZ": "' + tempAgg[0].STNM + '"';
+                        //strNote += ',{"name": "' + tempAgg[0].STNM + '下游水位","codename": "' + aggData[num] + 'DWZ","tableV":"1","isShow":true,"width":"30%"}';
+                        //strNote += ',{"name": "' + tempAgg[0].STNM + '雨量","codename": "' + aggData[num] + 'DRP","tableV":"1","isShow":true,"width":"30%"}';
+                    }
+                }
+                if (aggTM.length > 0) {
+                    for (numTM = 0; numTM < aggTM.length; numTM++) {
+                        xData += '{"TM":"' + new Date(aggTM[numTM].TIME).format("MM-dd HH:mm") + '"';
+
+                        for (num = 0; num < aggData.length; num++) {
+                            var JsonAgg = strJson.filter(function (e) {
+                                return e.ZSTCD == aggData[num] && e.TIME == aggTM[numTM].TIME;
+                            })
+                            if (JsonAgg.length > 0) {
+                                for (numJson = 0; numJson < JsonAgg.length; numJson++) {
+                                    var _upz = JsonAgg[numJson].ZSTCD + "UPZ";
+                                    var _dwz = JsonAgg[numJson].ZSTCD + "DWZ";
+                                    var _drp = JsonAgg[numJson].ZSTCD + "DRP";
+                                    var NumUPZ = null, NumDWZ = null, NumDRP = null;
+                                    if (JsonAgg[numJson].UPZ != undefined) {
+                                        NumUPZ = Number(JsonAgg[numJson].UPZ).toFixed(2);
+                                    } if (JsonAgg[numJson].DWZ != undefined) {
+                                        NumDWZ = Number(JsonAgg[numJson].DWZ).toFixed(2);
+                                    } if (JsonAgg[numJson].DRP != undefined) {
+                                        NumDRP = Number(JsonAgg[numJson].DRP).toFixed(1);
+                                    }
+                                    //xData += ',"' + _upz + '": ' + NumUPZ + ', "' + _dwz + '":  ' + NumDWZ + ', "' + _drp + '": ' + NumDRP + '';
+                                    xData += ',"' + _upz + '": ' + NumUPZ;
+                                }
+                            }
+                        }
+                        xData += '},';
+                    }
+                }
+            }
+            strNote = strNote + ']';
+            if (xData.length > 0) {
+                xData = '[' + xData.substring(0, xData.length - 1) + ']';
+            }
+            else {
+                xData = '[]';
+            }
+            var LineColor = ['#3AB8FF', '#011FF3', '#90ed7d', '#f7a35c', '#BF3EFF', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1', '#CAFF70', '#D2691E', '#A9A9A9', '#CDC673', '#CD8C95'];
+
+            chartJYL("ChartSQYQ", eval('(' + xData + ')'), eval('(' + strNote + ')'), LineColor, "降雨量");
+
+            var resultData = eval('(' + xData + ')');
+            var AggColoumns = eval('({ ' + ColoumnsName + ' })');
+            SetSummaryColumns(AggColoumns, grid);
+            grid.setData(resultData);
+            grid.frozenColumns(0, 0);
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        //grid.on("beforeload", function (e) {
+        //    e.cancel = true;
+        //    var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+        //    fillData(pageIndex, pageSize, dataResult, grid);
+        //});
+        //雨情
+        function btnYQSearch() {
+            var _ZT_STIME = mini.get("ZT_STIME").getFormValue();
+            var _ZT_ETIME = mini.get("ZT_ETIME").getFormValue();
+            var treeSTCD = mini.get("YQ_STCD"); 
+            var AggSTCD = "";
+            if (treeSTCD.data.length > 0) {
+                for (num = 0; num < treeSTCD.data.length; num++) {
+                    var strParam = treeSTCD.data[num];
+                    console.warn(strParam["checked"]);
+                    if (strParam["checked"] == true) {
+                        if (AggSTCD == "") {
+                            AggSTCD += strParam["STCD"];
+                        } else {
+                            AggSTCD += ","+strParam["STCD"];
+                        }
+                    }
+
+                }
+            }
+            $.data(myData, "DT_YQLISTSelAggSTCD", AggSTCD);
+            var _SQ_STCD = AggSTCD;
+            GetJosns("DT_YQLISTSel", { "STIME": _ZT_STIME + " 00:00:00", "ETIME": _ZT_ETIME + " 23:59:59", "STCD": _SQ_STCD, DAYHOUR:"HOUR" }, "YQSel");
+        }
+        var FileInput = function () {
+            var oFile = new Object();
+            //初始化fileinput控件（第一次初始化）
+            oFile.Init = function (ctrlName, uploadUrl) {
+                var control = $('#' + ctrlName);
+
+                //初始化上传控件的样式
+                control.fileinput({
+                    language: 'zh', //设置语言
+                    uploadUrl: uploadUrl, //上传的地址
+                    // allowedFileExtensions: ['jpg', 'gif', 'png'],//接收的文件后缀
+                    showClose: false,
+                    showUpload: true, //是否显示上传按钮
+                    showRemove: true, //是否显示删除按钮
+                    showCaption: false,//是否显示标题
+                    showUploadedThumbs: false,
+                    browseClass: "btn btn-primary", //按钮样式
+                    textEncoding: "UTF-8",
+                    dropZoneEnabled: true,//是否显示拖拽区域
+                    //minImageWidth: 50, //图片的最小宽度
+                    //minImageHeight: 50,//图片的最小高度
+                    //maxImageWidth: 1000,//图片的最大宽度
+                    //maxImageHeight: 1000,//图片的最大高度
+                    maxFileSize: 0,//单位为kb，如果为0表示不限制文件大小
+                    //minFileCount: 0,
+                    maxFileCount: 100,
+                    enctype: 'multipart/form-data',
+                    validateInitialCount: true,
+                    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+
+                    msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                });
+
+                var FileNum = 0;
+                $("#txt_file").on("filebatchselected", function (event, files) {
+                    FileNum = files.length;
+                });
+
+
+                //导入文件上传完成之后的事件
+                $("#txt_file").on("fileuploaded", function (event, data, previewId, index) {
+
+                    //if (data.data.length > 0) {
+                    //    for (num = 0; num < data.data.length; num++) {
+                    //        FileResult.push({ "MT_NAME": data.data[num].FILENAME, "TM": data.data[num].TM, });
+                    //    }
+                    //}
+                    if (index == (FileNum - 1)) {
+                        PicSearch();
+                    }
+
+
+                    //1.初始化表格
+                    //var oTable = new TableInit();
+                    //oTable.Init(data);
+                    //$("#div_startimport").show();
+                });
+
+            }
+            return oFile;
+        };
+        var FileResult = [];
+        function PicSearch() {
+            GetJosns("DATA_MT_LISTSel", { "MT_TYPE": $.data(myData, "HidTYPE"), "MT_XUHAO": $.data(myData, "HidID") }, "MTLIST_Sel");
+        }
+        function onMTLISTActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '';
+            s += '<img style="cursor:pointer;" onclick="DelMTLIST(\'' + record.MT_ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除专题照片资料" />&nbsp;';
+            return s;
+        }
+        //删除
+        function DelMTLIST(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { MT_ID: objID };
+                        GetJosns("DATA_MT_LISTDel", strWhere, "MT_LISTDel");
+                    }
+                }
+            );
+        }
+        function PicTQ() {
+            var index = 0;
+            var length = $("#img img").length;
+            var i = 1;
+
+            //关键函数：通过控制i ，来显示图片
+            function showImg(i) {
+                $("#img img")
+                    .eq(i).stop(true, true).fadeIn(800)
+                    .siblings("img").hide();
+                $("#cbtn li")
+                    .eq(i).addClass("hov")
+                    .siblings().removeClass("hov");
+            }
+
+            function slideNext() {
+                if (index >= 0 && index < length - 1) {
+                    ++index;
+                    showImg(index);
+                } else {
+                    if (confirm("已经是最后一张,点击确定重新浏览！")) {
+                        showImg(0);
+                        index = 0;
+                        aniPx = (length - 5) * 142 + 'px'; //所有图片数 - 可见图片数 * 每张的距离 = 最后一张滚动到第一张的距离
+                        $("#cSlideUl ul").animate({ "left": "+=" + aniPx }, 200);
+                        i = 1;
+                    }
+                    return false;
+                }
+                if (i < 0 || i > length - 5) { return false; }
+                $("#cSlideUl ul").animate({ "left": "-=142px" }, 200)
+                i++;
+            }
+
+            function slideFront() {
+                if (index >= 1) {
+                    --index;
+                    showImg(index);
+                }
+                if (i < 2 || i > length + 5) { return false; }
+                $("#cSlideUl ul").animate({ "left": "+=142px" }, 200)
+                i--;
+            }
+            $("#img img").eq(0).show();
+            $("#cbtn li").eq(0).addClass("hov");
+            $("#cbtn tt").each(function (e) {
+                var str = (e + 1) + "/" + length;
+                $(this).html(str)
+            })
+
+            $(".picSildeRight,#next").click(function () {
+                slideNext();
+            })
+            $(".picSildeLeft,#front").click(function () {
+                slideFront();
+            })
+            $("#cbtn li").click(function () {
+                index = $("#cbtn li").index(this);
+                showImg(index);
+            });
+            $("#next,#front").hover(function () {
+                $(this).children("a").fadeIn();
+            }, function () {
+                $(this).children("a").fadeOut();
+            })
+        }
+        function GetGrid(strJson, typeID) {
+            var strMsg = "";
+            for (var item in strJson) {
+                //console.log(typeID + "@@@@@@@@" + item + "=====" + JSON.stringify(strJson[item]))
+                if (strJson[item][typeID] != undefined) {
+                    strMsg += strJson[item][typeID] + ",";
+                }
+            }
+            if (strMsg.length > 0) {
+                strMsg = strMsg.substring(0, strMsg.length - 1);
+            }
+            return strMsg;
+        }
+        function SavaData() {
+            if ($.data(myData, "AddData") == undefined) {
+                mini.confirm("确定发布专题吗？", "确定？",
+                    function (action) {
+                        if (action == "ok") {
+                            mini.mask({
+                                el: document.body,
+                                cls: 'mini-mask-loading',
+                                html: '加载中...'
+                            });
+                            setTimeout(function () {
+                                var _STCD = mini.get("SQQ_STCD").getValue();
+                                var GQDDZL_Row = mini.get("XGWJ_grid").getSelecteds();
+                                var currentRow = GetGrid(GQDDZL_Row, "WD_ID");
+                                var _DDWJ = currentRow;
+                                var _FAYA = new Date(mini.get("ZT_STIME").getFormValue()).getFullYear();
+                                var _TQ = $.data(myData, "HidTQCity");//"华东雷达拼图,全国雷达拼图"; 
+                                var strTitle = mini.get("RC_NAME").getValue();
+                                strTitle = strTitle.replaceAll("\"", "“");
+                                var strWhere = {
+                                    "TITLE": strTitle,
+                                    "OWEN": mini.get("RC_OWEN").getValue(),
+                                    "CREATE_TM": new Date().format("yyyy-MM-dd HH:mm:ss"),
+                                    "NOTE": mini.get("RC_CONTENT").getValue(),
+                                    "TITLE2": mini.get("RC_TITLE2").getValue(),
+                                    "ZONGSHU": mini.get("RC_ZONGSHU").getValue(),
+                                    "TYPE": mini.get("ZT_TYPE").getValue(),
+                                    "STM": mini.get("ZT_STIME").getFormValue(),//起编日期
+                                    "ETM": mini.get("ZT_ETIME").getFormValue(),//停编日期
+                                    "SHENHE": mini.get("ZT_SHENHE").getFormValue(),//登陆时间
+                                    "FXKHJB": mini.get("YQ_STCD").getValue(),//雨情站点
+                                    "STCD": _STCD,//水情站点
+                                    "GCDD": mini.get("YQ_STCD").getValue(),
+                                    "DDWJ": _DDWJ,//附件编号
+                                    "STATUS": comboTF.getValue(),//关联台风编号
+                                    "FAYA": _FAYA,//年份
+                                    "MTLISTID": $.data(myData, "HidID"),
+                                    "TQ": _TQ,
+                                    "SHIJIAN": mini.get("SHIJIAN").getValue(),
+                                    "BUMEN": mini.get("BUMEN").getValue(),
+                                    "FD_TM": mini.get("ZT_STIME").getFormValue()
+                                }
+                                GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTIAdd", strWhere, "AddData");
+                            }, 100);
+
+                            
+
+                        }
+                    })
+            } else {
+                mini.alert("该专题已发布");
+            }
+        }
+
+        function ZT_TYPEonCLick(e) {
+            if (e.value == "台风") {
+                $("#gl_tfbh").show();
+            } else {
+                $("#gl_tfbh").hide();
+            }
+        }
+        function onBeforeNodeCheck(e) {
+            var tree = e.sender;
+            var node = e.node;
+            if (tree.hasChildren(node)) {
+                //e.cancel = true;
+            }
+        }
+        function onBeforeNodeCheckSQ(e) {
+            var tree = e.sender;
+            var node = e.node;
+            if (tree.hasChildren(node)) {
+                //e.cancel = true;
+            }
+        }
+        function onTMRenderer(e) {
+            var value = e.value;
+            if (value) {
+                return mini.formatDate(convertToDate(value), 'yyyy-MM-dd HH:mm:ss');
+            }
+            else {
+                return "";
+            }
+        }
+        function onXGWJdrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if (field == "WD_KZNAME") {
+                var s = "";
+                if (value != "") {
+                    s = "<span onclick=\"Recorder_Down('" + row.WD_NAME + row.WD_KZNAME + "','','" + row.WD_FILE + "')\" style=\"cursor:pointer;\">" + GetImage(value) + "</span>";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "WD_NUM") {
+                var s = "";
+                if (row.WD_YEAR != undefined) {
+                    s = row.WD_YEAR + "年" + row.WD_NUM + "号";
+                }
+                e.cellHtml = s;
+            }
+        }
+
+        function AddFile() {
+            addData('WD_TYPE@ZTXGWJ,WD_XUHAO@' + $.data(myData, "HidID") + ",TM@" + mini.get("ZT_ETIME").getFormValue(), '/GongWen/DATA_WD_LISTTABLE_Edit.html', '专题相关文件', "80%", "65%", "true");
+        }
+        function SearchFile() {
+            var _ZT_STIME = mini.get("ZT_STIME").getFormValue();
+            var _ZT_ETIME = mini.get("ZT_ETIME").getFormValue();
+            var _strID = $.data(myData, "HidID");
+            var strWhere = {
+                "STIME": _ZT_STIME + " 00:00:00",
+                "ETIME": _ZT_ETIME + " 23:59:59",
+                "WD_TYPES": "GCDDZL,FXKHJB,DHTZD,DDWJ,FAYA,ZTXGWJ",
+                "WD_XUHAO": _strID
+            }
+            GetJosns("DATA_WD_LISTTABLESel", strWhere, "XGWJSel");
+        }
+        function search() {
+            SearchFile();
+        }
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '';//'<img style="cursor:pointer;" onclick="lookData(\'WD_ID@' + record.WD_ID + '\',\'/GongWen/DATA_WD_LISTTABLE_View.html\',\'查看' + $.data(myData, "WD_TYPE")+'\',\'50%\',\'50%\',\'true\')" src="/Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+            //s += '<img style="cursor:pointer;" onclick="editData(\'WD_ID@' + record.WD_ID + '\', \'/GongWen/DATA_WD_LISTTABLE_Edit.html\', \'编辑' + $.data(myData, "WD_TYPE")+'\', \'50%\',\'90%\', \'true\')" src="/Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+            s += '<img style="cursor:pointer;" onclick="DelFile(\'' + record.WD_ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除' + $.data(myData, "WD_TYPE") + '" />&nbsp;';
+            return s;
+        }
+        function DelFile(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { WD_ID: objID };
+                        GetJosns("DATA_WD_LISTTABLEDel", strWhere, "DATA_WD_LISTTABLEDel");
+                    }
+                }
+            );
+        }
+         
+
+        function TQsearch() {
+            var _ZT_STIME = mini.get("ZT_STIME").getFormValue();
+            var _ZT_ETIME = mini.get("ZT_ETIME").getFormValue();
+            var _TQCITY = $.data(myData, "Hidtext"); 
+            var strWhere = {
+                "STIME": _ZT_STIME + " 00:00:00",
+                "ETIME": _ZT_ETIME + " 23:59:59",
+                "TBA_INFOTYPE": "华东雷达拼图"
+            } 
+            GetJosns("DATA_TBA_WEACONTENTSel", strWhere, "TQ_Sel");
+        }
+         
+
+        function onCheckedChanged(e) {
+            var btn = e.sender;
+            var checked = btn.getChecked();
+            var text = btn.getText();
+            if (checked) {
+                $.data(myData, "Hidtext", text);
+                TQsearch(); 
+            }
+        }
+
+        function chartJYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var max_Name = "";
+            if (max_min_Name != "降雨量") {
+                max_Name = "雨量（mm）";
+            } else {
+                max_Name="111"
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                        //chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合
+                    }
+                    else {
+                        if (value[value1.codename] != undefined) {
+                            chartValue.push(value[value1.codename]);
+                        }
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '2%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '10%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }, axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '水位(m)',
+                        boundaryGap: false,
+                        scale: true, //是否自动计算最大最小值。
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        }
+                    },
+                    {
+                        name: max_Name,
+                        type: 'value',
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。 
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        },
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            //chartValue.push(changeTwoDecimal(m[i][j], 2)); //循环价值
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+
+                        if (max_min_Name != "" & max_min_Name == chartName[j]) {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                barWidth: '10%',                                data: chartValue,
+                                yAxisIndex: 1,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                        //chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '2%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        //  splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        min: 0,
+                        max: function (value) {
+
+                            return Number((value.max - (value.max % 5)) / 5 + 1).toFixed(0) * 5;
+
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: '10%',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'top'
+                                    }
+                                },
+                                smooth: true 
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+    <!--新加方法-->
+    <script>
+        function loadTFList() {
+            var strWhere = {};
+            GetJosns("TYPHOON_ZJ_TFSel", strWhere, "TFSel");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,511 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <link href="../../arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="../../arcgis_js_api/myJs/parentIndex.js"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+	<script src="../../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <script src="../../arcgis_js_api/myJs/bj.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/mapIndex.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/CommonTool.js" type="text/javascript"></script>
+
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+
+    <link href="../../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/Progress/indexProgress.js"></script>
+
+    <link href="../../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
+
+    <script src="../../Common/Scripts/modelHelperApi.js"></script>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 20px;
+        }
+
+            .colorL p {
+                width: 55px;
+                margin: 0px auto;
+                margin-top: -4px;
+            }
+
+        .colorSpan {
+            display: inline-block;
+            width: 20px;
+            height: 30px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute"></div>
+    <div class="flex" style="width: 355px; height: 822px; overflow: hidden;background:white;position:absolute;background:white;right: 3px;top: 10px;padding: 10px;
+    border-radius: 5px;">
+        <div class="right box" style="height: 45px;">
+            <div class="demo1" style="float: left;width:100%;">
+                <div class="inline">
+                    <div style="width: 100%; height: 35px; float: left;">
+                        方案选择：
+                        <input id="STCD" name="STCD" class="mini-combobox" style="width: 180px;"
+                               textfield="dd_NAME" valuefield="dd_ID" allowinput="true" onvaluechanged="onSTCDChanged" />
+                        <!--<a class="mini-button" onclick="OpenHref()" style="width:60px;">报表</a>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            <span id="spanTitle">
+                <!--预报水位<span class="dwCss">(单位:m)</span>&nbsp;&nbsp;&nbsp;-->
+            </span>
+            <img title="导出表格" src="../../arcgis_js_api/myJs/images/excel.png" onclick="exp('市级河道断面预报流量')" style="position: relative;
+                top: 5px; right: 15px; float: right; cursor: pointer;" />
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 99%; height: 100%; margin: auto;"
+             showpager="false" idfield="STCD" allowresize="false" allowalternating="true" showemptytext="true"
+             emptytext="暂无数据" alwaysshowemptytext="true"
+             sortMode="client" onselectionchanged="onSelectionChanged">
+            
+        </div>
+    </div>
+    <!--时间轴开始-->
+    <div class="box1" id="PreeBox" style="position:absolute;width:-webkit-calc(100% - 445px); 
+width:-moz-calc(100% - 445px); 
+width:calc(100% - 445px);z-index:1; right:365px; bottom:2px;display: none;">
+        <div id="progressTime_control" onclick="progressTimeControl(this)" title="开始" style="background-image: url(&quot;../../Common/Scripts/Progress/img/play.png&quot;);"></div>
+        <div class="progressTime" id="progressTime" style="z-index: 9; width:95%; ">
+            <div>
+                <p id="startTime" style=" float:left;margin-left:33px;opacity: 0;display: none;">2018/11/14 0:00:00</p>
+                <p id="endTime" style=" float:right;margin-right:33px;opacity: 0;display: none;">2018/11/17 0:00:00</p>
+            </div>
+            <div class="time_slot"></div>
+            <div id="progressTime_concent">
+                <div id="scrollBarBox">
+                    <div id="scrollBar">
+                        <div id="scroll_Track" style="width: 128.472px;"></div>
+                        <div id="scroll_Thumb" style="margin-left: 128.472px;">周日  30 - 13:00</div>
+                    </div>
+                </div>
+                <div class="timecode" style="display: none; left: 135px;">23:00</div>
+                <div style="width:90%; margin-left: auto;margin-right: auto;">
+                    <div style="width:300px;float:right;margin-right:-110px;margin-top:-8px">
+                        <p id="TimeSpeed" style="float:left;margin-right:40px;display:none">×1</p>
+                        <p style="float:right" id="scrollBarTxt"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--时间轴结束-->
+    <div id="SSTTL" style="background:#ffffff;position:absolute;right:365px;top:200px;height: 395px;
+    border: 1px solid #cecbcb;
+    width: 75px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;display:block;">
+        <div class="colorL">
+            <p><span class="colorSpan" style="background-color:#EF0004"></span><span class="colorSpanValue">300</span></p>
+            <p><span class="colorSpan" style="background-color:#EF0088"></span><span class="colorSpanValue">200</span></p>
+            <p><span class="colorSpan" style="background-color:#000087"></span><span class="colorSpanValue">150</span></p>
+            <p><span class="colorSpan" style="background-color:#0000D0"></span><span class="colorSpanValue">100</span></p>
+            <p><span class="colorSpan" style="background-color:#2424FF"></span><span class="colorSpanValue">80.0</span></p>
+            <p><span class="colorSpan" style="background-color:#6363FF"></span><span class="colorSpanValue">60.0</span></p>
+            <p><span class="colorSpan" style="background-color:#9797FF"></span><span class="colorSpanValue">40.0</span></p>
+            <p><span class="colorSpan" style="background-color:#0098C6"></span><span class="colorSpanValue">30.0</span></p>
+            <p><span class="colorSpan" style="background-color:#00B8EF"></span><span class="colorSpanValue">20.0</span></p>
+            <p><span class="colorSpan" style="background-color:#2FCFFF"></span><span class="colorSpanValue">10.0</span></p>
+            <p><span class="colorSpan" style="background-color:#82E2FF"></span><span class="colorSpanValue">5.0</span></p>
+            <p><span class="colorSpan" style="background-color:#C1F1FF"></span><span class="colorSpanValue">0.0</span></p>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var SQnormalGraphicLayer;
+        var layer_hw;
+        var countyLayer1;
+        var grid = mini.get("grid1");
+        var myData = [];
+        var mydt = [];
+        var resultData = [];
+        var typeName = GetQueryString("typeName");
+        var breakGraphicLayer;
+        $(function () {
+            var title = "";
+            if (typeName == 1) {
+                typeName = "水位";
+                title = '预报水位<span class="dwCss">(单位:m)</span>&nbsp;&nbsp;&nbsp;';
+            } else if (typeName == 2) {
+                typeName = "流量";
+                title = '预报流量<span class="dwCss">(单位:m³/s)</span>&nbsp;&nbsp;&nbsp;';
+            }
+            $("#spanTitle").html(title);
+            createGrid();
+            setTimeout(function () {
+                setDtLayer("img");
+                loadLayer();
+                $("#PreeBox").css("display", "block");
+            }, 1000);
+        });
+
+        function onSelectionChanged(e) {
+            var grid = e.sender;
+            var record = grid.getSelected();
+            if (record) {
+                //console.error(record);
+                var DNUM = record.DMNUM;
+                var ID = record.ID;
+                var graphic = {};
+
+                for (var s = 0; s < layer_hw.graphics.length; s++) {
+                    var gra = layer_hw.graphics[s];
+                    var hd_id = gra.attributes.ID;
+                    var dm = gra.attributes["DMNUM"];
+                    //console.error(hd_id + ":::" + dm + ":::::" + ID + ":::::" + DNUM);
+                    if (hd_id == ID && dm == DNUM) {
+                        graphic = gra;
+                    }
+                }
+                var lgtd;
+                var lttd;
+                if (graphic != {} && graphic != null && graphic != undefined) {
+                    lgtd = graphic.geometry.rings[0][0][0];
+                    lttd = graphic.geometry.rings[0][0][1];
+                }
+                dyCenter(lgtd, lttd);
+                map.setZoom(12);
+                require(["esri/geometry/Point",
+                    "esri/graphic",
+                    "myJs/MapText",
+                    "esri/symbols/PictureMarkerSymbol",
+                    "esri/symbols/SimpleFillSymbol",
+                    "esri/symbols/SimpleLineSymbol",
+                    "esri/Color",
+                    "esri/InfoTemplate",
+                    "esri/dijit/InfoWindow",
+                    "esri/layers/GraphicsLayer",
+                    "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/domReady!"
+                ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol) {
+                    breakGraphicLayer.clear();
+                    //var symbol;
+                    //symbol = new esri.symbol.SimpleFillSymbol("solid", new esri.symbol.SimpleLineSymbol("solid", new dojo.Color([255, 0, 0]), 2), new dojo.Color([255, 0, 0, 1])
+                    //);
+                    //设置显示样式
+                    //graphic.setSymbol(symbol);
+                    //breakGraphicLayer.add(graphic);
+
+                    var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                        new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                            new Color([240, 211, 121]), 2), new Color([240, 211, 121, 1])
+                    );
+                    var g3 = new Graphic(graphic.geometry, fs);
+                    breakGraphicLayer.add(g3);
+                    setTimeout(function () {
+                        breakGraphicLayer.clear();
+                    }, 5000);
+                });
+            }
+        }
+
+        function createGrid() {
+            grid.set({
+                columns: [
+                    { type: "indexcolumn", width:40},
+                    { field: "HDNAME", width: 80, headerAlign: "center",align:"center", header: "河道名称",},
+                    { field: "DMNUM", width: 80, headerAlign: "center", align: "center",  header: "断面", },
+                    { field: "ZVALUE", width: 80, headerAlign: "center", align: "center",  allowSort: true, header: typeName},
+                ]
+            });
+        }
+        function onSTCDChanged(e) {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date(convertToDate(nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            YBClick(time, etime);
+        }
+        function SetMapData(time) {
+            showJCTips(time);
+            SetSDE(time);
+        }
+        function YBClick(objSTM, objETM) {
+            _DayNum = 24;
+            ScrollBar.value = 0;
+            SetProgressTime(null, objSTM, objETM);
+            progressTimeStop();
+        }
+        //调用接口没返回结果，不再调用，完成才让调用
+        var isSetSDE = true;
+        var isComp = 0;
+        function SetSDE(time) {
+            time=new Date(time).format("yyyy/MM/dd HH:mm:ss")
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            s_where = { "SolutionID": nodes.dd_ID, "strPathName": "黄浦江水系预报模型三期", "typeName": typeName, "strTM": time,JIBIE:"A" };
+            if (isSetSDE) {
+                isSetSDE = false;
+                modeGetResultAllModelByTime(time, nodes.dd_FOR);
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                mini.get("STCD").setData(data.data);
+                mini.get("STCD").select(0);
+                var _stcd = mini.get("STCD");
+                var nodes = _stcd.getSelected();
+                var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+                var _stcd = mini.get("STCD");
+                var nodes = _stcd.getSelected();
+                var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+                var etime = new Date(convertToDate(nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+                YBClick(time, etime);
+            }
+            else if (typeID == "GetResultAllModelByTime") {
+                isSetSDE = true;
+                $.data(myData, "AllModelByTimeData", data.results);
+                //画颜色
+                queryComplete();
+            }
+        }
+        function gridLoad(data) {
+            grid.setData(data);
+        }
+        function loadLayer() {
+            //var url = swzzModerRiverUrl;
+            //layer_hw = new esri.layers.FeatureLayer(url + "/0", {
+            //    //注意这里的mode一定要指定MODE_SNAPSHOT，否则每次放大或缩小或者是平移都会执行FeatureLayer的update-end操作
+            //    mode:esri.layers.FeatureLayer.MODE_SNAPSHOT,
+            //    //输出所有属性
+            //    outFields: ["*"],
+            //    id:"swzzModerRiver"
+            //});
+            ////添加图层
+            //map.addLayer(layer_hw);
+            //layer_hw.setDefinitionExpression("等级=1");
+
+            layer_hw = CreateLayer("swzzModerRiver");
+
+            countyLayer1 = new esri.layers.GraphicsLayer();
+            map.addLayer(countyLayer1);
+
+            breakGraphicLayer = CreateLayer("Map_Layer18");
+
+
+            countyLayer1.on("click", function (e) {
+                var graphic = e.graphic;
+                var attributes = graphic.attributes;
+                trans(attributes);
+            });
+
+            SQnormalGraphicLayer = CreateLayer("TF_SQLayer4");
+
+
+            app.post("SWZZ_MODE_DD_SOLUTION/findResult", { "DD_STATUS": "1" }, function (res) {
+                JosnSel(res, "Sel");
+            });
+        //    layer_hw.on("load", function () {
+        //        //var div = document.getElementById("map_zoom_slider").style;
+        //        //div.visibility = "collapse";
+        //        //alert(layer_hw.graphics.length);
+        //    });
+        //    layer_hw.on("update-end", function () {
+        //        //alert(layer_hw.graphics.length)
+        ////加载完成只执行一次
+        //        if (isComp == 0) {
+        //            GetJosns("MODE_DD_SOLUTIONSel", { "DD_STATUS": "1" }, "Sel");
+        //            isComp++;
+        //        }
+        //    });
+        }
+        //查询结果换颜色
+        function queryComplete() {
+            if ($.data(myData, "jsonfeatures") == undefined || $.data(myData, "jsonfeatures") == null || $.data(myData, "jsonfeatures") == "") {
+                $.get(
+                    "../../Common/SHSWZZModeRiver2000.json",//json路径
+                    function (data, status) {
+                        if (status === "success") {
+                            var features = data.features;
+                            $.data(myData, "jsonfeatures", features);
+                            queryCompleteDraw();
+                        }
+                    },
+                    "json"
+                );
+            } else {
+                queryCompleteDraw();
+            }
+        }
+        
+        function queryCompleteDraw() {
+                //countyLayer1.clear();
+                var colors = ["#C1F1FF", "#82E2FF", "#2FCFFF", "#00B8EF", "#0098C6", "#9797FF", "#6363FF", "#2424FF", "#0000D0", "#0000D0", "#000087", "#EF0088", "#EF0004"];
+                var colors2 = ["#C1F1FF", "#82E2FF", "#2FCFFF", "#00B8EF", "#0098C6", "#9797FF", "#6363FF", "#2424FF", "#0000D0", "#0000D0", "#000087", "#EF0088", "#EF0004"];
+
+                //if (layer_hw != null) {
+                //    layer_hw.clear();
+                //}
+                require(["esri/geometry/Point",
+                    "esri/graphic",
+                    "myJs/MapText",
+                    "esri/symbols/PictureMarkerSymbol",
+                    "esri/symbols/SimpleFillSymbol",
+                    "esri/symbols/SimpleLineSymbol",
+                    "esri/Color",
+                    "esri/InfoTemplate",
+                    "esri/dijit/InfoWindow",
+                    "esri/layers/GraphicsLayer",
+                    "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol",
+                    "dojo/_base/lang",
+                    "esri/geometry/Polygon",
+                    "dojo/domReady!"
+                ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                    InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, lang, Polygon) {
+                        var features = $.data(myData, "jsonfeatures");
+                        var result = $.data(myData, "AllModelByTimeData");
+                        var dataGrid = [];
+                        features.forEach(function (feature) {
+                            var allrings = feature.geometry.coordinates;
+                            var polygon = new Polygon(allrings);
+                            var properties = feature.properties;
+                            var hd_id = properties.ID;
+                            var dm = properties["起始断面序"];
+                            var arr = result[hd_id].sections;
+                            var gridItem = {
+                                HDNAME: properties['名称'],
+                                DMNUM: dm,
+                            };
+                            if (arr.length > 0) {
+                                var ZVALUE = Number(arr[dm].Qin.toFixed(1));
+                                gridItem.ZVALUE = ZVALUE;
+                                arr[dm].HDNAME = properties['名称'];
+                                gridItem.HDNAME = properties['名称'];
+                                arr[dm].ID = properties['ID'];
+                                gridItem.ID = properties['ID'];
+                                arr[dm].DMNUM = arr[dm].index;
+                                gridItem.DMNUM = arr[dm].index;
+                                var color = getRiverSZColor("流量", ZVALUE);
+                                console.error("水位", ZVALUE, color);
+                                var colorStr = colors[color];
+                                var fillColorStr = colors2[color];
+                                var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                    new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID,
+                                        new Color(colorStr), 2), new Color(fillColorStr)
+                                );
+                                var g3 = new Graphic(polygon, fs);
+                                g3.attributes = arr[dm];
+                                countyLayer1.add(g3);
+                                layer_hw.add(g3);
+                            }
+                            dataGrid.push(gridItem);
+                        }, this);
+
+                        gridLoad(dataGrid);
+                    });
+            }
+            function getRiverSZColor(str, sw) {
+                sw = Math.abs(sw);
+                var valueStr1 = "0,2,2.2,2.4,2.6,2.8,3.0,3.2,3.4,3.6,3.8,4,100000";
+                var valueStr2 = "1,2,3,4,5,6";
+                var valueStr3 = "0.0,2.0,4.0,4.8,5.6,6.4,7.2,8.0,8.8,9.6";
+                var valueStr4 = "0.0,3.0,5.0,7.0,9.0,10.5,13.0,14.5,16.0,17.5";
+                var valueStr5 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+                var valueStr6 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+                var valueStr7 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+                var valueStr8 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+                var valueStr9 = "0.0,5.0,10.0,20.0,30.0,40.0,60.0,80,100,150,200,300,100000";
+                var valueStr10 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+
+                var strValue = valueStr1;
+                switch (str) {
+                    case "水位": strValue = valueStr1; break;//0.3-4
+                    case "BOD5": strValue = valueStr2; break;//0-1
+                    case "溶解氧": strValue = valueStr3; break;//0-0.3
+                    case "COD": strValue = valueStr4; break;//0.001-0.04
+                    case "总磷": strValue = valueStr5; break;//0.01
+                    case "总氮": strValue = valueStr6; break;//0.01-2
+                    case "叶绿素": strValue = valueStr7; break;//0-1.5
+                    case "氨氮": strValue = valueStr8; break;//0-0.1
+                    case "流量": strValue = valueStr9; break;//0-0.1
+                    case "突发污染物浓度": strValue = valueStr10; break;//0-0.1
+                }
+
+                var strArr = strValue.split(',');
+                var color = 0;
+                var iscolor = true;
+                for (var i = 0; i < strArr.length; i++) {
+                    var a1 = Math.abs(parseFloat(strArr[i]));
+                    console.error('a1',a1);
+                    if (sw < a1) {
+                        color = i;
+                        iscolor = false;
+                        break;
+                    }
+                }
+                if (iscolor) {
+                    color = 10;
+                }
+                //color--;
+                return color;
+            }
+        function showJCTips(tm) {
+            var strMsg = "当前调度时间：" + new Date(tm).format("yyyy-MM-dd HH:mm");
+            var x = "center";
+            var y = "top";
+            var state = "info"
+            var strMsg = "<b style='font-size:16px;'>" + strMsg + "</b>"
+            mini.showTips({
+                content: strMsg,
+                state: state,
+                x: x,
+                y: y,
+                timeout: null
+            });
+        }
+
+        function trans(feat) {
+            var typeName = "流量";
+            var strPathName = "黄浦江水系预报模型三期";
+            var hd_name = feat.HDNAME;
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+        var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date(convertToDate(nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            var url = "../../DanZhan/YBHWLine.html?stcd=" + feat.ID + "&stnm=" + hd_name
+                + "&PLAN_N=" + nodes.dd_ID + "&typeName=" + typeName + "&dm_id=" + feat.DMNUM
+                + "&strPathName=" + strPathName + "&stime=" + time + "&etime=" + etime + "&DATA_TYPE=" + typeName+"&taskID="+nodes.dd_FOR;
+            //查看计算成果
+            openChart(url, hd_name, hd_name);
+        }
+        function exp(name) {
+            var data = grid.data;
+                ExportExcel(data, grid, name);
+        }
+    </script>
+</body>
+</html>

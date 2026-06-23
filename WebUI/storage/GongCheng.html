@@ -1,0 +1,616 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+
+    <!-- 新版模型接口调用js文件 -->
+    <script src="/Common/Scripts/modelHelperApi.js?ver=1.0.1"></script>
+    <script src="/Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
+
+    <link href="/Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="/Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <title></title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .topMenus_skin {
+            padding-top: 6px;
+            position: absolute;
+            width: 23%;
+            z-index: 999;
+            border: solid 1px #3291f9;
+        }
+
+            .topMenus_skin span {
+                background-color: #FFFFFF;
+                color: #0079F5;
+                display: block;
+                height: 25px;
+                line-height: 25px;
+                padding-left: 6px;
+                text-align: center;
+                text-decoration: none;
+            }
+
+                .topMenus_skin span:hover {
+                    /*background-color: #f1f8ff;*/
+                    background-color: #3291F9;
+                    color: white;
+                }
+
+
+        #onlytab {
+            width: 640px !important;
+            height: 40px;
+            margin: auto;
+        }
+
+        .onlytab li {
+            padding: 0px 6px 0px 6px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width: 100%;">
+        <div style="width: 100%;height:80px;margin: 0px auto;text-align: center;">
+            <div class="pointsRule">
+                <ul id="list">
+                    <li style="z-index:5;" id="one" onclick="ClickFirst()"><a><span>1.依据时间设定</span><i></i></a></li>
+                    <li style="z-index:4" id="two" onclick="ClickSecond()"><a><em class="before"></em><span>2.预报降雨输入</span><i></i></a></li>
+                    <li style="z-index:3" id="three" onclick="ClickThird()"><a><em class="before"></em><span>3.边界条件输入</span><i></i></a></li>
+                    <li style="z-index:2" id="four" onclick="ClickFourth()"><a><em class="before"></em><span>4.工程调度</span><i></i></a></li>
+                    <li style="z-index:1" id="five" onclick="ClickFifth()"><a><em class="before"></em><span>5.预测结果</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div style="height:calc(100% - 160px);width:96%;margin:0px auto;">
+        <div class="mini-fit">
+            <div class="mini-toolbar">
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-left: 50px;width:500px;">
+                    <tr>
+                        <td id="gcUL"></td>
+                    </tr>
+                    <tr>
+                        <td id="gcLXUL"></td>
+                    </tr>
+                    <tr>
+                        <td id="gcTYPEUL"></td>
+                    </tr>
+                    <tr style="display:none">
+                        <td id="sjUL" style="width:240px;"></td>
+                    </tr>
+                    <tr style="display:none;">
+                        <td><div id="wenxinTip" style="font-size:14px;"></div></td>
+                    </tr>
+                </table>
+
+                <div style="position: absolute; right: 10px;margin-top: -30px;">
+                    <a class="mini-button" onclick="editGongCheng()" style="background: rgb(58, 179, 8);">片区调度预案设定</a>
+                </div>
+            </div>
+            <div id="gridGC" class="mini-datagrid" style="width: 100%; height:calc(100% - 190px);" ondrawcell="ondrawcell" oncellbeginedit="OnCellBeginEdit"
+                 allowalternating="true" allowcellselect="true" allowcelledit="true" showpager="false" showemptytext="true"
+                 emptytext="暂无数据" alwaysshowemptytext="true" showFilterRow="true">
+            </div>
+        </div>
+        <ul id="headerMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen1" onitemclick="onItemClick">
+            <li name="jiangyu">批量处理</li>
+        </ul>
+    </div>
+    <div style="height:50px;line-height:50px;">
+        <div style="text-align: center; ">
+            <a class="mini-button" onclick="up_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">上一步</a>
+            <a class="mini-button" onclick="startJisuan()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#3AB308;">启动模型计算</a>
+        </div>
+    </div>
+    <style type="text/css">
+        .mini-tab-active {
+            background: #3291f9;
+            border-color: #3291f9;
+            color: #fff;
+        }
+    </style>
+    <script type="text/javascript">
+        mini.parse();
+        var tabs = mini.get("JiangYuTabs");
+        var myData = [];
+        var grid = mini.get("gridGC");
+        var localDD_ID = localStorage.getItem("DD_ID");
+        if (localDD_ID == null || localDD_ID == "") {
+            localDD_ID = "0";
+        }
+        $(function () {
+            var stime = GetQueryString("stime");
+            var etime = GetQueryString("etime");
+            $.data(myData, "stime", stime);
+            $.data(myData, "etime", etime);
+            var dd_evalue = GetQueryString("DD_EVALUE");
+            $.data(myData, "DD_EVALUE", dd_evalue);
+            OnLoad();
+            GridColum();
+
+            GetJosns("MODE_ES_SLTONGJISel", { "TYPE": "2", "PID": "11836313e8a414f5" }, "SLJISel");
+
+            GetJosns("MODE_ES_SLTONGJISel", { "TYPE": "2", "PID": "d31bf0965ec84005" }, "LXJISel");
+
+            GetJosns("MODE_ES_SLTONGJISel", { "TYPE": "2", "PID": "dc67c5ee0e321cd0" }, "TYPEJISel");
+
+            //调度方案列表
+            GetJosns("MODE_ES_MODELFANGANSel", {}, "MODE_ES_MODELFANGANSel");
+
+            //模型获取控制调度对象列表
+            modelGetScheduleObjList();
+        });
+        function GridColum() {
+            GetJosns("FH_JosnHtml_GongCheng", {}, "GridColum");
+        }
+        top["win"] = window;
+        function onLoadData() {
+            var s_where = { 
+                "stime": $.data(myData, "stime"), 
+                "etime": $.data(myData, "etime"), 
+                "msgType": "3",
+                "solutionid":localDD_ID
+            };
+            GetJosns("FH_GetBind", s_where, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "gridGCData", dataResult);
+                gc_choose();
+            }
+            else if (typeID == "GridColum") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "gridGCColumns", dataResult);
+                onLoadData();
+            }
+            else if (typeID == "UpdataMethod") {
+                ShowMsg(data.data);
+            }
+            else if (typeID == "update_batch") {
+                ShowMsg(data.data);
+                onLoadData();
+            }
+            else if (typeID == "SLJISel") {
+                var strJson = data.data;
+                for (var num = 0; num < strJson.length; num++) {
+                    strJson[num].SORTNUM = 19;
+                    if(strJson[num].ID =="1ce41ea68b9355e7")//嘉宝北片
+                    {
+                        strJson[num].SORTNUM = 1;
+                    }
+                    if (strJson[num].ID == "dc122ef184a4fa27") {
+                        strJson[num].SORTNUM = 20;
+                    }
+                    if (strJson[num].ID == "5d17cd9c5105f041") {
+                        strJson[num].SORTNUM = 19;
+                    }
+                }
+                strJson = sortObjectArray(strJson, ["SORTNUM"], "asc");
+                var arr = strJson;
+                var strParaMsg = "";
+                var strParaNum = "";
+                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">水利片区：</span><ul class="onlytab" id="onlytab" style="width:900px !important;">';
+                html += '<li id="gcULAll" name="" class="onlyli start" onclick="OnClickTitle(this.id,\'gcUL\',\'gcULAll\',\'全部\')">全部</li>';
+                for (var num = 0; num < arr.length; num++) {
+                    var tempParaID = arr[num].ID;
+                    var cls = "onlyli";
+                    if (num == 0) {
+                        str_stcds = arr[num].STCD;
+                        str_type = arr[num].TITLE;
+                        cls = "onlyli onlyliHover";
+                    }
+                    if (num == arr.length - 1) {
+                        cls = "onlyli end";
+                    }
+                    var title = arr[num].TITLE;
+                    html += '<li id="' + tempParaID + '" name="' + arr[num].STCD + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcUL\',\'' + arr[num].ID + '\',\'' + title + '\')">' + title + '</li>';
+
+                    var paraTee = strJson.filter(function (e) {
+                        return e.PID == arr[num].ID;
+                    })
+                    if (paraTee.length > 0) {
+                        strParaNum += tempParaID + ",";
+                        var paraNum = 25 * num;
+                        if (num == 1) {
+                            paraNum = 29;
+                        } else if (num == 3) {
+                            paraNum = 73;
+                        }
+                        //alert(paraNum);
+
+                        strParaMsg += "<div id=\"treeDiv" + num + "\" class=\"topMenus_skin " + tempParaID + "\" style=\" left: " + paraNum + "%;top:33px;display: none;width:80px\"> ";
+
+                        for (var paraII = 0; paraII < paraTee.length; paraII++) {
+                            strParaMsg += "<span id=\"SpanTree" + num + paraII + "\" href=\"#\"  name=\"" + paraTee[paraII].STCD + "\" style='cursor:pointer;' onclick=\"OnClickTitle(this.id,'" + tempParaID + "','" + paraTee[paraII].ID + "','" + paraTee[paraII].TITLE + "')\">" + paraTee[paraII].TITLE + "</span>";
+                        }
+                        strParaMsg += "</div>";
+                    }
+
+                }
+                html += '</ul>';
+                $("#gcUL").html(html + strParaMsg);
+
+                var tempSTOP = strParaNum.split(',');
+                if (tempSTOP.length > 0) {
+                    for (numSTOP = 0; numSTOP < tempSTOP.length; numSTOP++) {
+                        var _STOPID = tempSTOP[numSTOP];
+                        if (_STOPID != "") {
+                            if (_STOPID == "201911150026") {
+                                $('#201911150026').hover(function () {
+                                    $('.201911150026').css("left", "calc(2% + 413px)");
+                                    $('.201911150026').stop(true, true).fadeIn(200);
+                                }, function () {
+                                    $('.201911150026').stop(true, true).delay(2000).fadeOut(200);
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            else if (typeID == "LXJISel") {
+                var arr = data.data;
+                var html = "";
+                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">' +
+                    '工程级别：</span><ul class="onlytab" id="onlytab" style="width:850px !important;">';
+                html += '<li id="gcLXULAll" name="" class="onlyli start onlyliHover" onclick="OnClickTitle(this.id,\'gcLXUL\',\'gcLXULAll\',\'全部\')">全部</li>';
+                for (var num = 0; num < arr.length; num++) {
+                    var tempParaID = arr[num].ID;
+                    var cls = "onlyli";
+                    if (num == 0) {
+                        // cls += " onlyliHover ";
+                        // str_stcdsLevel = arr[num].STCD;
+                    }
+                    if (num == arr.length - 1) {
+                        cls += " end";
+                    }
+                    var title = arr[num].TITLE;
+                    html += '<li id="' + tempParaID + '" name="' + arr[num].STCD + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcLXUL\',\'' + arr[num].ID + '\',\'' + title + '\')">' + title + '</li>';
+
+                }
+                html += '</ul>';
+                $("#gcLXUL").html(html);
+            }
+            else if (typeID == "TYPEJISel") {
+                var arr = data.data;
+                var html = "";
+                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">' +
+                    '工程类型：</span><ul class="onlytab" id="onlytab" style="width:850px !important;">';
+                html += '<li id="gcTYPEULAll" name="" class="onlyli start onlyliHover" onclick="OnClickTitle(this.id,\'gcTYPEUL\',\'gcLXULAll\',\'全部\')">全部</li>';
+
+                for (var num = 0; num < arr.length; num++) {
+                    var tempParaID = arr[num].ID;
+                    var cls = "onlyli";
+                    if (num == 0) {
+                        cls += "";
+                    }
+                    if (num == arr.length - 1) {
+                        cls += " end";
+                    }
+                    var title = arr[num].TITLE;
+                    html += '<li id="' + tempParaID + '" name="' + arr[num].STCD + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcTYPEUL\',\'' + arr[num].ID + '\',\'' + title + '\')">' + title + '</li>';
+
+                }
+                html += '</ul>';
+                $("#gcTYPEUL").html(html);
+            }
+            else if (typeID == "MODE_ES_MODELFANGANSel") {
+                getZhibiaoHtml(data.data);
+            }
+            else if (typeID == "UPADATA_MODEGCZHANDATA") {
+                onLoadData();
+                mini.unmask(document.body);
+            }
+            else if(typeID=="DATASel"){
+                $.data(myData,"bjModelData",data.data);
+                //设置预报调度任务
+                modelSetTask();
+            }
+            else if(typeID=="GetScheduleObjList"){
+                console.error(typeID,data);
+                $.data(myData,"bjModelZhan",data.data);
+            }
+            else if(typeID=="SetTask"){//设置任务
+                var info=data.info;
+                if(info.success){
+                    SetCookie('taskID', data.taskID, 1);
+                    mini.unmask(document.body);
+                    //加上进度条
+                    var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;" id="progressTitle">模型预见期计算...</div>';
+                    miniMsg += '<div class="progress">';
+                    miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                    miniMsg += '<div class="progress-value">已完成：0%</div>';
+                    miniMsg += '</div>';
+
+                    //取消计算
+                    miniMsg += '<div style="margin:25px auto;width:160px;"><a id="A4" style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div>';
+
+                    miniMsg += '</div>';
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loadingnew',
+                        html: miniMsg
+                    });
+                    setTimeout("modelGetTaskStatus()", 2000);
+                }
+            }
+            else if(typeID=="GetTaskStatus"){
+                var info=data.info;
+                if (!info.success) {
+                    $("#progressTitle").html(info.msg);
+                    if (info.modelTime != undefined) {
+                        var stime = $.data(myData, "stime");
+                        var etime = $.data(myData, "etime");
+                        var totalhour = GetDateDiff(stime, etime, 'hour');
+                        var gooverhour=GetDateDiff(stime,info.modelTime, 'hour');//计算了多少时间
+                        var Process=((gooverhour/totalhour)*100).toFixed(0);
+                        if (Number(Process) >= 0) {
+                            $("#progress").css("width", Number(Process).toFixed(0) + "%");
+                            $(".progress-value").html(Number(Process).toFixed(0) + "%");
+                        }
+                    }
+                    if (!timeout) {//说明取消计算了
+                        setTimeout("modelGetTaskStatus()", 1500);
+                    }
+                }else{
+                    //模型计算完成，取模型计算的结果
+                    console.error(typeID,info);
+                    SetCookie("five", "1", 1);
+                    //保存方案，根据调度预案进入不同成果展示界面
+                    var url = "Jisuan.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime");
+                    Next_Click(url);
+                }
+            }
+        }
+        //鼠标移动上去的提示信息。
+        var str = "";
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if (field != "TM") {
+                if (isNaN(value)) {
+                } else {
+                    //$("#ZD" + field).css("display","none");
+                }
+            }
+        }
+
+        function OnCellBeginEdit(e) {
+            var record = e.record, field = e.field;
+            var value = e.value;
+            if (field != "TM") {
+                if (isNaN(value)) {
+                    e.cancel = true;    //是规则调度时，不允许单个单元格改成流量调度
+                }
+            }
+        }
+
+        var str_stcds = "";//水利分区
+        var str_stcdsType = "";//工程类型
+        var str_stcdsLevel = "";//工程级别
+        var str_choose = "";
+        var str_type = "";
+        function OnClickTitle(SpanID, objID, objFax, objHNNM) {
+            str_type = objHNNM;
+            var only = $("#" + objID + " .onlyli").removeClass("onlyliHover");
+            $("#" + SpanID).addClass("onlyliHover");
+            $.data(myData, "TREEID", objFax);
+            $("#gcUL li span").css({ "backgroundColor": "#FFFFFF", "color": "#0079F5" });
+            //if (SpanID != objID) {
+            //    $("#" + SpanID).css({ "backgroundColor": "#3291F9", "color": "#FFFFFF" });
+            //}
+            var stcds = $("#" + SpanID).attr("name");
+            if (objID == "gcUL") {
+                str_stcds = stcds;
+            }
+            if (objID == "gcLXUL") {
+                str_stcdsLevel = stcds;
+            }
+            if (objID == "gcTYPEUL") {
+                str_stcdsType = stcds;
+            }
+            gc_choose();
+        }
+        function OnClickTitleFA(SpanID, objID, objFax, objHNNM) {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var only = $("#onlytabFA .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            //切换方案时，需要改数据库
+            GetJosns("UPADATA_MODEGCZHANDATA", { FA_ID: objID }, "UPADATA_MODEGCZHANDATA");
+        }
+        function getZhibiaoHtml(arr) {
+            var htmlSJ = '<span style="float:left;line-height: 33px; font-size:14px !important;">调度方案：</span><ul class="onlytab" id="onlytabFA">';
+            for (var num = 0; num < arr.length; num++) {
+                var tempParaID = arr[num].ID;
+                var cls = "onlyli";
+                if (num == 0) {
+                    cls += " start ";
+                }
+                if (GetCookie("FA_ID") != null && GetCookie("FA_ID") != "") {
+                    if (tempParaID == GetCookie("FA_ID")) {
+                        cls += " onlyliHover";
+                    }
+                } else {
+                    if (num == 0) {
+                        cls += " onlyliHover ";
+                    }
+                }
+                if (num == arr.length - 1) {
+                    cls += " end";
+                }
+                var title = arr[num].FA_NAME;
+                htmlSJ += '<li id="' + tempParaID + '" name="' + arr[num].STCD + '" class="' + cls + '" onclick="OnClickTitleFA(this.id,this.id,\'' + arr[num].ID + '\',\'' + title + '\')">' + title + '</li>';
+
+            }
+            htmlSJ += '</ul >';
+            $("#sjUL").html(htmlSJ);
+        }
+        function gc_choose() {
+            //获取表格表头
+            var dataResult = $.data(myData, "gridGCData");
+            var dataResultColumns = $.data(myData, "gridGCColumns").columns;
+            var Columns = dataResultColumns;
+            if (str_stcds != "") {
+                Columns = Columns.filter(function (item) {
+                    return str_stcds.indexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
+                });
+            }
+            if (str_stcdsType != "") {
+                Columns = Columns.filter(function (item) {
+                    return str_stcdsType.indexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
+                });
+            }
+            if (str_stcdsLevel != "" && str_stcdsLevel != undefined) {
+                Columns = Columns.filter(function (item) {
+                    return str_stcdsLevel.indexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
+                });
+            }
+
+            dataResultColumns.columns = Columns;
+            grid.set(dataResultColumns);
+            grid.setData(dataResult);
+            mini.unmask(document.body);
+        }
+        function getLL(objID) {
+            $("#onlytabLL .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            //alert(objID);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据提取中，请稍等...'
+            });
+            var s_where = {
+                "ETIME": $.data(myData, "stime"), 
+                "SOLUTIONID": localDD_ID, 
+                "TYPE": objID, 
+                "ZHANID": str_choose
+            };
+            GetJosns("updateGCSSLL", s_where, "update_batch");
+        }
+        var GCDATATYPE = "SCLL";
+        var t = null;
+        var timeout = false;
+        //模型取消计算
+        function cancelModel() {
+            mini.unmask(document.body);
+            timeout = true;
+            window.clearTimeout(t);
+        }
+        function onValueChangedGC(e) {
+            $("#faList").html();
+            var selected = grid.getSelected();
+            if (selected) {
+                var s_where = {
+                    "ZhanData": e.value,
+                    "ZhanTime": new Date(selected.TM).format("yyyy-MM-dd HH:mm:ss"),
+                    "ZhanID": selected.STCD,
+                    "dd_id":localDD_ID,
+                }
+                GetJosns("FH_UpdataMethod", s_where, "UpdataMethod");
+            }
+        }
+
+        //修改工程调度方案
+        function editGongCheng() {
+            var param = "stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "stime");
+            //lookData('', '/DD_MX/GongChengEdit.html?' + param, '片区调度预案设定', '1300', '80%', 'true');
+            lookData('', '/DD_MX/GongChengEditByArea.html?' + param, '片区调度预案设定', '1300', '80%', 'true');
+        }
+    </script>
+    <script type="text/javascript">
+        function OnLoad() {
+            var current1 = GetCookie("one");
+            var current2 = GetCookie("two");
+            var current3 = GetCookie("three");
+            var current4 = GetCookie("four");
+            var current5 = GetCookie("five");
+            //console.error(current1 + ":::" + current2 + ":::" + current3 + ":::" + current4);
+
+            if (current1 != null && current1 != "") {
+                $("#one").removeClass("gray");
+                $("#one").addClass("green");
+                $("#one").find('i').eq(0).removeClass("gray");
+                $("#one").find('i').eq(0).addClass("green");
+            } else {
+                $("#one").removeClass("orange");
+                $("#one").addClass("gray");
+                $("#one").find('i').eq(0).removeClass("orange");
+                $("#one").find('i').eq(0).addClass("gray");
+            }
+            if (current2 != null && current2 != "") {
+                $("#two").removeClass("gray");
+                $("#two").addClass("green");
+                $("#two").find('i').eq(0).removeClass("gray");
+                $("#two").find('i').eq(0).addClass("green");
+            } else {
+                $("#two").removeClass("green");
+                $("#two").addClass("gray");
+                $("#two").find('i').eq(0).removeClass("green");
+                $("#two").find('i').eq(0).addClass("gray");
+            }
+
+            if (current3 != null && current3 != "") {
+                $("#three").removeClass("gray");
+                $("#three").addClass("green");
+                $("#three").find('i').eq(0).removeClass("gray");
+                $("#three").find('i').eq(0).addClass("green");
+            } else {
+                $("#three").removeClass("green");
+                $("#three").addClass("gray");
+                $("#three").find('i').eq(0).removeClass("green");
+                $("#three").find('i').eq(0).addClass("gray");
+            }
+            if (current4 != null && current4 != "") {
+                $("#four").removeClass("gray");
+                $("#four").addClass("orange");
+                $("#four").find('i').eq(0).removeClass("gray");
+                $("#four").find('i').eq(0).addClass("orange");
+            } else {
+                $("#four").removeClass("green");
+                $("#four").addClass("gray");
+                $("#four").find('i').eq(0).removeClass("green");
+                $("#four").find('i').eq(0).addClass("gray");
+            }
+            if (current5 != null && current5 != "") {
+                $("#five").removeClass("gray");
+                $("#five").addClass("green");
+                $("#five").find('i').eq(0).removeClass("gray");
+                $("#five").find('i').eq(0).addClass("green");
+            } else {
+                $("#five").removeClass("green");
+                $("#five").addClass("gray");
+                $("#five").find('i').eq(0).removeClass("green");
+                $("#five").find('i').eq(0).addClass("gray");
+            }
+        }
+
+        function up_click() {
+            url = "shuiwei.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime");
+            Next_Click(url);
+        }
+        function next_click() {
+            var url = "gongcheng.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime");
+            Next_Click(url);
+        }
+    </script>
+</body>
+</html>

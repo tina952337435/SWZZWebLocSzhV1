@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+        上海市水情预报调度一体化平台（一期）
+    </title>
+    <script src="Common/Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>
+    <script src="Common/boot.js" type="text/javascript"></script>
+    <link href="Common/frame2/res/tabs.css" rel="stylesheet" type="text/css" />
+    <link href="Common/frame2/res/frame.css" rel="stylesheet" type="text/css" />
+    <link href="Common/frame2/res/index.css" rel="stylesheet" type="text/css" />
+    <script src="Common/Scripts/common.js"></script>
+    <script src="Common/JSMy.js" type="text/javascript"></script>
+    <link href="Common/CSS/PublicCss.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        /*.menu > li {
+            width: 100px;
+        }*/
+
+        .navbar {
+            FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0, startColorStr=#b8c4cb, endColorStr=red);
+            /*background: -ms-linear-gradient(top, #fff, #0000ff);*/
+            /*background: -moz-linear-gradient(top,#b8c4cb,#f6f6f8);
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%,from(#b8c4cb), to(#f6f6f8));
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#0000ff));
+            background: -webkit-linear-gradient(top, #044CB3, #0a6af3);
+            background: -o-linear-gradient(top, #fff, #0000ff);*/
+            background: #017DE4 !important;
+        }
+
+        .river-info-wrap[data-v-92667d80] {
+            position: absolute;
+            left: 555px;
+        }
+
+        .river[data-v-f7ab826c],
+        .river[data-v-f7ab826c] .el-cascader {
+            overflow: hidden !important;
+            border-radius: 50% !important;
+        }
+
+        .river[data-v-f7ab826c] {
+            width: 80px;
+            text-align: center;
+            display: -webkit-box;
+            display: -ms-flexbox;
+            display: flex;
+            -webkit-box-orient: horizontal;
+            -webkit-box-direction: normal;
+            -ms-flex-direction: row;
+            flex-direction: row;
+            -webkit-box-pack: center;
+            -ms-flex-pack: center;
+            justify-content: center;
+            -webkit-box-align: center;
+            -ms-flex-align: center;
+            align-items: center;
+            color: #afcff5;
+            cursor: pointer;
+        }
+
+        .text-18 {
+            font-size: 18px !important;
+        }
+
+        .river[data-v-f7ab826c],
+        .river[data-v-f7ab826c] .el-cascader {
+            overflow: hidden !important;
+            border-radius: 50% !important;
+        }
+
+        .el-cascader {
+            display: inline-block;
+            position: relative;
+            font-size: 14px;
+            line-height: 40px;
+        }
+
+        .el-cascader .el-input {
+            cursor: pointer;
+        }
+
+        .el-input {
+            position: relative;
+            font-size: 14px;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .river[data-v-f7ab826c] .el-cascader .el-input__inner {
+            padding: 0 10px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #5399fe;
+        }
+
+        .el-cascader .el-input .el-input__inner {
+            text-overflow: ellipsis;
+        }
+
+        .el-input--suffix .el-input__inner {
+            padding-right: 30px;
+        }
+
+        .el-input__inner {
+            -webkit-appearance: none;
+            background-color: #FFF;
+            background-image: none;
+            border-radius: 4px;
+            border: 1px solid #DDD;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #666;
+            display: inline-block;
+            font-size: inherit;
+            height: 40px;
+            line-height: 40px;
+            outline: 0;
+            padding: 0 15px;
+            -webkit-transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+            transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+            width: 100%;
+        }
+
+        .river[data-v-f7ab826c] .el-cascader .el-input__inner {
+            padding: 0 10px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #5399fe;
+        }
+
+        .el-cascader:not(.is-disabled):hover .el-input__inner {
+            cursor: pointer;
+            border-color: #CCC;
+        }
+
+        .el-cascader .el-input .el-input__inner {
+            text-overflow: ellipsis;
+        }
+
+        .el-input--suffix .el-input__inner {
+            padding-right: 30px;
+        }
+
+        .el-input__inner:hover {
+            border-color: #CCC;
+        }
+
+        .el-input__inner {
+            -webkit-appearance: none;
+            background-color: #FFF;
+            background-image: none;
+            border-radius: 4px;
+            border: 1px solid #DDD;
+            border-top-color: rgb(221, 221, 221);
+            border-right-color: rgb(221, 221, 221);
+            border-bottom-color: rgb(221, 221, 221);
+            border-left-color: rgb(221, 221, 221);
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+            color: #666;
+            display: inline-block;
+            font-size: inherit;
+            height: 40px;
+            line-height: 40px;
+            outline: 0;
+            padding: 0 15px;
+            -webkit-transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+            transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+            width: 100%;
+        }
+
+
+        .menu-icon,
+        .menu-title {
+            color: #f8f9f9;
+            font-size: 20px;
+        }
+
+        .menu {
+            /*margin-top: 7.5px;*/
+            margin-right: 150px;
+            height: 52px;
+            margin-left: 410px;
+            z-index: 99;
+        }
+
+        .menu li {
+            list-style-type: none;
+            text-align: center;
+            padding: 0px 5px;
+            float: left;
+            margin-left: 5px;
+            height: 38px;
+            /*transform: skew(-15deg);*/
+        }
+
+        .menu .activeLi {
+            /*border-radius: 4px !important;
+                border-top-left-radius: 3px;
+                border-top-right-radius: 3px;
+                border-top: 3px;
+                background: #0088ff;
+                font-weight: bold;*/
+        }
+
+        .menu li i {
+            font-size: 16px;
+        }
+
+        .onpen {
+            transform: translate3d(0, -15px, 0);
+            background: -webkit-linear-gradient(top, #52C8F7 0.00%, #38C0F6 32.86%, #0AA0DB 68.93%, #098ABD 100.00%);
+        }
+
+        .menu>li>a .menu-icon {
+            display: block;
+            font-size: 21px;
+            line-height: 23px;
+            width: 100%;
+            margin: 0;
+            padding-top: 8px;
+        }
+
+        .menu-text {
+            color: #0FEEFC;
+            font-size: 13px;
+        }
+
+        .mini-tabs-headers {
+            /*display: none;*/
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="navbar-header">
+            <div id="divLogo" style="position:absolute;height:65px;width:440px;top:4px;left:8px;background-repeat:no-repeat;background-position: 0px 5px;z-index:0;">
+            </div>
+        </div>
+        <div class="nav navbar-nav top-menu">
+            <div id="mainMenu"></div>
+        </div>
+        <ul class="nav navbar-nav navbar-right" id="navbar-right">
+            <li class="dropdown">
+                <a class="dropdown-toggle userinfo" hover="openUserinfo()" id="openUserinfo">
+                    <img class="user-img" src="Common/frame2/res/images/user.jpg" /><span id="userinfo">个人资料</span><i
+                        class="fa fa-angle-down"></i>
+                </a>
+                <ul class="dropdown-menu pull-right" id="divXTQH">
+                    <!--<li>
+                        <a href="#" onclick="toSystemManager()"> <i class="fa fa-question-circle-o"></i>系统模块管理</a>
+                    </li>
+                     <li class="divider"></li>
+                    <li>
+                        <a href="login.html"><i class="fa fa-key "></i>注销</a>
+                    </li>-->
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+
+    <div class="container">
+        <div id="mainTabs" class="mini-tabs" activeIndex="0" style="height:100%;" plain="false" buttons="#tabsButtons"
+            arrowPosition="side" showHeader="false">
+
+        </div>
+        <div id="tabsButtons" style="display:none;">
+            <!--<a class="tabsBtn" onclick="OneTab()"><i class="fa fa-home"></i></a>-->
+            <a class="tabsBtn" onclick="loadTab()"><i class="fa fa-refresh"></i></a>
+            <a class="tabsBtn" onclick="RemoveTab()"><i class="fa fa-remove"></i></a>
+            <a class="tabsBtn" onclick="AllTab()"><i class="fa fa-arrows-alt"></i></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        function OneTab() {
+            var tabs = mini.get("mainTabs");
+            var tab = tabs.getTab("index");
+            tabs.activeTab(tab);
+        }
+        function loadTab() {
+            var tabsPsonRole = mini.get("mainTabs");
+            tabsPsonRole.loadTab(tabsPsonRole.getActiveTab().url, tabsPsonRole.getActiveTab());
+        }
+
+        function RemoveTab() {
+            var tabs = mini.get("mainTabs");
+            var tab = tabs.getActiveTab();
+            if (tab) {
+                tabs.removeTab(tab);
+            }
+        }
+        function AllTab() {
+            var tabsPsonRole = mini.get("mainTabs");
+            var win = mini.open({
+                width: "100%", height: "100%", showCloseButton: true, url: tabsPsonRole.getActiveTab().url, showModal: true, onload: function () {       //弹出页面加载完成
+                    var iframe = this.getIFrameEl();
+                    //调用弹出页面方法进行初始化
+                    //iframe.contentWindow.SetData(data);
+
+                }
+            });
+            win.max();
+        }
+        function OnPwd() {
+            var agg = { id: "2015103100005", iconCls: "mini-tab-icon mini-iconfont MenuIcoColor menu-icon fa fa fa-warning", text: "修改密码", url: "/Collect/test.html" };
+            activeTab(agg);
+        }
+        function OnHref(objURL) {
+            window.open(objURL);
+        }
+        function OpenTab(_iconCls, _text, _url) {
+            var agg = { id: GetTableID(), iconCls: "mini-tab-icon mini-iconfont MenuIcoColor menu-icon fa " + _iconCls, text: _text, url: _url };
+            activeTab(agg);
+        }
+        function activeTab(item) {
+            if (item.url.lastIndexOf('http') > -1) {
+                window.open(item.url);
+            } else {
+                var tabs = mini.get("mainTabs");
+                var tab = tabs.getTab(item.id);
+                if (!tab) {
+                    tab = { name: item.id, title: item.text, url: item.url, iconCls: item.iconCls, showCloseButton: true };
+                    tab = tabs.addTab(tab);
+                }
+                tabs.activeTab(tab);
+            }
+        }
+        var menu;
+        var strMenu = GetQueryString("Menu");
+        if (strMenu == null) {
+            strMenu = "NO07";
+        }
+        var indexWidth = GetQueryString('indexWidth');
+        if (indexWidth == null) {
+            indexWidth = 410;
+        }
+        $(function () {
+            $('#divLogo').css('width', indexWidth + 'px');
+            $('.menu').css('margin-left', indexWidth + 'px');
+            $("#mainMenu ul").css('margin-left', indexWidth + 'px');
+
+            $(document).attr("title", systematicName);
+            var _userinfo = GetCookie("LOGINNAME");
+
+            GetObj("userinfo").innerHTML = _userinfo;
+
+            //$('#openUserinfo').hover(function () {
+            //    $('#divXTQH').stop(true, true).fadeIn(200);
+            //}, function () {
+            //    $('#divXTQH').stop(true, true).delay(500).fadeOut(200);
+            //});
+
+
+            var postParam = { "strExp": "NO12", "pattem": strMenu, "pid": GetCookie("GROUPID") };
+            //GetJosns("QX_MAINSel", postParam, "QX_MAINSel");
+			app.post("SWZZ_DATA_qx_main/findResult",postParam,(data)=>{
+				var result = data;
+				app.post("SWZZ_DATA_qx_enable/findResult",{},(data)=>{
+					var mokuaiList = data.data.filter(m=>m.qx_ID == GetCookie("GROUPID")).map(m=>m.qx_MOKUAI);
+					result.data = result.data.filter(m=>mokuaiList.contains(m.qx_ID));
+					JosnSel(result,"QX_MAINSel");
+				})
+			})
+
+            postParam = { "strExp": "NO12", "QX_PARENT": "-1", "pid": GetCookie("GROUPID") };
+            //GetJosns("QX_MAINNEWSel", postParam, "QX_MAIN");
+			app.post("SWZZ_DATA_qx_main/findResult",{},(data)=>{
+				var dataResule = data;
+				var dataTwo = dataResule.data.filter((m)=>{
+					return m.qx_SYS == "NO12" && m.qx_PARENT == "-1";
+				});
+				app.post("SWZZ_DATA_qx_enable/findResult",{},(data)=>{
+					var mokuaiList = data.data.filter(m=>m.qx_ID == GetCookie("GROUPID")).map(m=>m.qx_MOKUAI);
+					dataResule.data = dataTwo.filter(m=>mokuaiList.contains(m.qx_ID));
+					JosnSel(dataResule,"QX_MAIN");
+				})
+			})
+        });
+        function JosnSel(data, typeID) {
+			console.log(data);
+			//console.log(GetCookie("GROUPID"));
+            if (typeID == "QX_MAINSel") {
+                var MenuData = [];
+                if (data.data.length > 0) {
+                    var tempLogo = data.data.filter(function (res) {
+                        return res.qx_PARENT == "-1" && res.qx_SYS == "NO12" && res.qx_MENU.indexOf(strMenu) > -1;
+                    });
+                    if (tempLogo.length > 0) {
+                        $(document).attr("title", tempLogo[0]["qx_NAME"]);
+                        var strIco = tempLogo[0]["qx_ICON"];
+                        if (strIco.lastIndexOf(".") > -1) {
+                            $("#divLogo").css("background-image", "url('Common/images/" + strIco + "')");
+                        } else {
+                            $("#divLogo").css("background-image", "url('Common/images/logoDD.png')");
+                        }
+                    } else {
+                        $("#divLogo").css("background-image", "url('Common/images/logoDD.png')");
+                    }
+                    var str = data.data.filter(function (res) {
+                        return res.qx_PARENT != "-1" && res.qx_PARENT == tempLogo[0].qx_ID && res.qx_SYS == "NO12" && res.qx_MENU.indexOf(strMenu) > -1;
+                    });
+					str.sort((a,b)=>{
+						return a.qx_ORDERID - b.qx_ORDERID;
+					})
+					//console.log(str);
+                    var strMsg = '';
+                    strMsg = ' <ul class="menu" style="margin-left:' + indexWidth + 'px;">';
+                    if (str.length > 0) {
+                        for (num = 0; num < str.length; num++) {
+                            var cls = "";
+                            if (strMenu == "NO07") {
+                                if (num == 2) {
+                                    cls = "activeLi";
+                                    $.data(myData, "QX_URL", str[num].qx_URL);
+                                    $.data(myData, "id", str[num].qx_ID);
+                                    $.data(myData, "iconCls", str[num].qx_ICON);
+                                    $.data(myData, "text", str[num].qx_NAME);
+                                }
+                            } else {
+                                if (num == 0) {
+                                    cls = "activeLi";
+                                    $.data(myData, "QX_URL", str[num].qx_URL);
+                                    $.data(myData, "id", str[num].qx_ID);
+                                    $.data(myData, "iconCls", str[num].qx_ICON);
+                                    $.data(myData, "text", str[num].qx_NAME);
+                                }
+                            }
+
+
+                            strMsg += '<li style="cursor:pointer;" id="menuLi' + num + '" class="' + cls + '" onclick="OnClickTitle(\'' + str[num].qx_ICON + '\',\'' + str[num].qx_NAME + '\',\'' + str[num].qx_URL + '\',\'menuLi' + num + '\',\'' + str[num].qx_ID + '\')">';
+                            strMsg += '    <span class="menuSpan">';
+                            strMsg += '  <i class="menu-icon fa ' + str[num].qx_ICON + '"></i><span class="menutext">' + str[num].qx_NAME + '</span>';
+                            strMsg += '         </span>';
+                            strMsg += '     </li>';
+                        }
+                    }
+                    strMsg += '     </ul>';
+					//console.log(strMsg)
+                    $("#mainMenu").html(strMsg);
+                    $(".menu>li").mouseover(function () {
+                        $(this).addClass("menuHour");
+                    });
+                    $(".menu>li").mouseout(function () {
+                        $(this).removeClass("menuHour");
+                    });
+                    $(".dropdown-toggle").click(function (event) {
+                        $(this).parent().addClass("open");
+                        return false;
+                    });
+
+                    $(document).click(function (event) {
+                        $(".dropdown").removeClass("open");
+                    });
+                    FirstTab();
+                }
+            }
+            else if (typeID == "QX_MAIN") {
+                var strWhere = "";
+                if (data.data.length > 0) {
+                    for (num = 0; num < data.data.length; num++) {
+                        if (data.data[num].qx_MENU.lastIndexOf(strMenu) > -1) {
+
+                        } else {
+                            if (data.data[num].qx_URL != undefined) {
+                                var strICON = data.data[num].qx_ICON;
+                                if (strICON != undefined) {
+                                    strICON = data.data[num].qx_ICON;
+                                    if (strICON == "暂定图片") {
+                                        strICON = "fa-desktop";
+                                    }
+                                }
+                                strWhere += ' <li>';
+                                strWhere += '  <a href="' + data.data[num].qx_URL + '" target="_blank"><i class="fa ' + strICON + ' "></i>' + data.data[num].qx_NAME + '</a>';
+                                strWhere += '</li>';
+                            }
+
+                        }
+                    }
+                }
+                strWhere += ' <li class="divider"></li>';
+                strWhere += ' <li>';
+                strWhere += '  <a href="###" onclick="logout()"><i class="fa fa-key "></i>注销</a>';
+                strWhere += '</li>';
+                $("#divXTQH").html(strWhere);
+
+            }
+        }
+        function FirstTab() {
+            var item = { id: $.data(myData, "id"), iconCls: "mini-tab-icon mini-iconfont fa fa " + $.data(myData, "iconCls"), text: $.data(myData, "text"), url: $.data(myData, "QX_URL") };
+            //var item = { id: "201809140010", iconCls: "mini-tab-icon mini-iconfont fa fa-desktop", text: "总体分析", url: "/TJFX/tzSpecial.html" };
+            var tabs = mini.get("mainTabs");
+
+            tab = { name: item.id, title: item.text, url: item.url, iconCls: item.iconCls, showCloseButton: false };
+            tab = tabs.addTab(tab);
+            tabs.activeTab(tab);
+        }
+        function toSystemManager() {
+            window.open("TYIndex.html");
+        }
+        function OnClickTitle(_iconCls, _text, _url, objID, QX_ID) {
+            var only = $(".menu li").removeClass("activeLi");
+            $("#" + objID).addClass("activeLi");
+            addTab(_iconCls, _text, _url, QX_ID);
+        }
+        function addTab(_iconCls, _text, _url, QX_ID) {
+            var tabs = mini.get("mainTabs");
+            var tab = tabs.getTab(QX_ID);
+            if (tab && tab.url.indexOf('http') > -1) {
+                window.open(tab.url);
+            } else if (tab && _url == tab.url) {
+                tabs.activeTab(tab);
+                tabs.reloadTab(tab);
+            }
+            else {
+                var item = { id: QX_ID, iconCls: "mini-tab-icon mini-iconfont MenuIcoColor menu-icon fa " + _iconCls, text: _text, url: _url };
+                tab = { name: item.id, title: item.text, url: item.url, iconCls: item.iconCls, showCloseButton: true };
+                tab = tabs.addTab(tab);
+                //tab.ondestroy = onTabDestroy;
+                tabs.activeTab(tab);
+            }
+        }
+
+        function logout(){          
+            // 2. 清除本地存储（防止有持久化的登录状态）
+            localStorage.clear();
+            localStorage.setItem("loginFalse", false);
+            localStorage.setItem("logoutTime", Date.now().toString());            
+            localStorage.removeItem("forceLogout");
+            window.location.href = window.location.origin;
+        }
+    </script>
+</body>
+
+</html>

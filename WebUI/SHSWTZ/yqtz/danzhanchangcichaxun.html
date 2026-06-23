@@ -1,0 +1,448 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>单站场次查询</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="/arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/myJs/mapIndex.js?ver=1.0.10" type="text/javascript"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .yq-tl {
+            position: absolute;
+            background: #ffffff;
+            /*border: 2px solid #016ae0;*/
+            border-radius: 5px;
+            bottom: 10px;
+            right: 10px;
+            height: auto !important;
+            margin-left: 20px;
+            padding: 0px 0px 3px 0px !important;
+            z-index: 99;
+            box-shadow: 0px 0px 10px #878788;
+        }
+        .tuli .tuliColor {
+            display: block;
+            /*background: #A7F387;*/
+            width: 20px;
+            height: 10px;
+            float: left;
+            line-height: 17px;
+            margin-left: 5px;
+        }
+        .tuli .tuliText {
+            float: left;
+            display: block;
+            margin-top: -7px;
+            padding-left: 5px;
+        }
+        .tuli .graphical {
+            color: black;
+            height: 25px;
+            line-height: 25px;
+        }
+        .rightTable {
+            position:absolute;
+            right:10px;
+            top:10px;
+        }
+        .rightTable .table-fill {
+            background: white;
+            border-radius: 3px;
+            border-collapse: collapse;
+            height: 250px;
+            margin: auto;
+            max-width: 600px;
+            padding: 5px;
+            width: 100%;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            animation: float 5s infinite;
+        }
+        .rightTable .table-fill th {
+            color: #fff;
+            background: #0656C9;
+            border-bottom: 4px solid #0656C9;
+            border-right: 1px solid #0656C9;
+            font-weight: 100;
+            padding: 5px;
+            text-align: left;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+            vertical-align: middle;
+        }
+        .rightTable .table-fill tr{
+            height:35px;
+        }
+        .rightTable .table-fill tr:first-child {
+            border-top: none;
+        }
+
+        .rightTable .table-fill tr:last-child {
+            border-bottom: none;
+        }
+
+        .rightTable .table-fill tr:nth-child(odd) td {
+            background: #EBEBEB;
+        }
+
+
+        .rightTable .table-fill tr:last-child td:first-child {
+            border-bottom-left-radius: 3px;
+        }
+
+        .rightTable .table-fill tr:last-child td:last-child {
+            border-bottom-right-radius: 3px;
+        }
+
+        .rightTable .table-fill td {
+            background: #FFFFFF;
+            padding:0px;
+            text-align: left;
+            vertical-align: middle;
+            /*font-weight: 300;*/
+            /*font-size: 18px;*/
+            /*text-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);*/
+            /*border-right: 1px solid #C1C3D1;*/
+        }
+
+        .rightTable .table-fill td:last-child {
+            border-right: 0px;
+        }
+
+        .rightTable .table-fill th.text-left {
+            text-align: left;
+        }
+
+        .rightTable .table-fill th.text-center {
+            text-align: center;
+        }
+
+        .rightTable .table-fill th.text-right {
+            text-align: right;
+        }
+
+        .rightTable .table-fill td.text-left {
+            text-align: left;
+        }
+
+        .rightTable .table-fill td.text-center {
+            text-align: center;
+        }
+
+        .rightTable .table-fill td.text-right {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute">
+    </div>
+    <!--表格-->
+    <div class="rightTable">
+        
+    </div>
+
+    <div class="tuli yq-tl" style="">
+        <div style="background: #0656C9;border-radius: 5px 5px 0px 0px;text-align:center;color: white;height:25px;line-height:25px;">
+            雨情图例(mm)
+        </div>
+        <div style="height: 80px;color: white;padding:10px;">
+            <div class="graphical">
+                <span class="tuliColor" style="background: #A7F387;"></span>
+                <span class="tuliText">0-10</span>
+            </div>
+            <div class="graphical">
+                <span class="tuliColor" style="background:#39BC39;"></span>
+                <span class="tuliText">10-25</span>
+            </div>
+            <div class="graphical">
+                <span class="tuliColor" style="background:#62B7FE;"></span>
+                <span class="tuliText">25-50</span>
+            </div>
+
+            <div class="graphical">
+                <span class="tuliColor" style="background:#0004F6;"></span>
+                <span class="tuliText">50-100</span>
+            </div>
+            <div class="graphical">
+                <span class="tuliColor" style="background:#F801FA;"></span>
+                <span class="tuliText">100-200</span>
+            </div>
+            <div class="graphical">
+                <span class="tuliColor" style="background:#800140;"></span>
+                <span class="tuliText">&gt;200</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        $(function () {
+        });
+        var stime = "", etime = "";
+        function SetData(data) {
+            stime = data.STIME;
+            etime = data.ETIME;
+            searchStation();
+            //search();
+        }
+        function searchStation() {
+            var strWhere = { STIME: stime, ETIME: etime };
+            GetJosns("CHANGCISTATIONRAINFALL", strWhere, "Sel");
+        }
+        function search() {
+            var strWhere = { STIME: stime, ETIME: etime };
+            GetJosns("CHANGCIRAINFALLTZ", strWhere, "SelImg");
+        }
+        function Calculatearea(url) {
+            var strWhere = { IMGURL: url }
+            GetJosns("CalculateRainstormcoveredarea", strWhere, "SelArea");
+        }
+        var countyLayer1;
+        function JosnSel(data, typeID) {
+            if (typeID == "SelImg") {
+                map.setZoom(8);
+                var picUrl = data.data;
+                var strImg = ClientIP + "UploadDoc/Rainfall/" + picUrl;
+                var Points = {
+                    xmin: "120.815295",
+                    ymin: "30.665293",
+                    xmax: "122.012805",
+                    ymax: "31.511996"
+                };
+                Calculatearea(picUrl);
+                MapRainfall(Points, true, picUrl);
+            } else if (typeID == "SelArea") {
+                loadHtml(data.data);
+            } else if (typeID == "Sel") {
+                map.setZoom(8);
+                countyLayer1 = CreateLayer("Area_Layer1");
+                countyLayer1.on("click", function (e) {
+                    var graphic = e.graphic;
+                    var attributes = graphic.attributes;
+                    var title = attributes.STNM;
+                    console.error(graphic);
+                    lookData("STCD@" + attributes.STCD + ",TM@" + stime + ",ETM@" + etime +  "","/SHSWTZ/yqtz/baoyuchaxundanzhan.html","" + attributes.STNM + "暴雨过程","60%",565,"true")
+                });
+                $.data(myData, "resultData", data.data);
+                MapRainfallStation();
+                addMarker(data.data);
+
+
+            }
+        }
+        function loadHtml(data) {
+            var strHtml = '<table class="table-fill">';
+            strHtml += '<thead>';
+            strHtml += '<tr>';
+            strHtml += '<th class="text-center">序号</th>';
+            strHtml += '<th class="text-center">雨量范围(mm)</th>';
+            strHtml += '<th class="text-center">面积(平方公里)</th>';
+            strHtml += '</tr>';
+            strHtml += '</thead >';
+            strHtml += '<tbody class="table-hover">';
+            data.forEach(function (currentValue, index, arr) {
+                strHtml += '<tr>';
+                strHtml += '<td class="text-center" >' +(index+1)+'</td >';
+                strHtml += '<td class="text-center">' + currentValue.JIBIE + '</td>';
+                strHtml += '<td class="text-center">' + Number(currentValue.AREA).toFixed(1) + '</td>';
+                strHtml += '</tr >';
+                console.error(currentValue);
+            });
+            strHtml += '</tbody>';
+            strHtml += '</ul>';
+            $(".rightTable").html(strHtml);
+        }
+        function addMarker(data) {
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, Font) {
+                //_destroy();
+                for (var num = 0; num < data.length; num++) {
+                    var DRP = data[num].DRP;
+                    var item = { STNM: data[num].STNM, "LGTD": data[num].LGTD, "LTTD": data[num].LTTD, DRP: DRP };
+
+                    var textStr = data[num].STNM + ":" + Number(DRP).toFixed(1);
+                    var point = new Point({ "x": data[num].LGTD, "y": data[num].LTTD, "spatialReference": { "wkid": 4326 } });
+                    var font = new Font("13px", Font.STYLE_NORMAL, Font.VARIANT_NORMAL,
+                        null);
+                    var textSymbol = new TextSymbol(
+                        textStr,
+                        font,
+                        new Color("black")
+                    );
+                    var labelPointGraphic = new Graphic(point, textSymbol);
+                    labelPointGraphic.attributes=data[num];
+                    countyLayer1.add(labelPointGraphic);
+                }
+            });
+        }
+        function MapRainfall(obj, flag, picUrl) {
+            require([
+                "esri/layers/MapImage",
+            ], function (MapImage) {
+                if (flag == true) {
+                    if (strImageLayer != undefined) {
+                        myMapImageLayer.removeImage(strImageLayer);
+                    }
+                    var strImg = ClientIP + "UploadDoc/Rainfall/" + picUrl;
+                    strImageLayer = new MapImage({
+                        'extent': {
+                            'xmin': obj.xmin,
+                            'ymin': obj.ymin,
+                            'xmax': obj.xmax,
+                            'ymax': obj.ymax,
+                            'spatialReference': {
+                                'wkid': 4326
+                            }
+                        },
+                        'href': strImg
+                    });
+                    myMapImageLayer.addImage(strImageLayer);
+                    myMapImageLayer.setOpacity(1);
+                    myMapImageLayer.setVisibility(true);
+                } else {
+                    myMapImageLayer.setVisibility(false);
+                }
+            }
+            );
+        }
+
+        var _globallevel = 5;
+        //泰森多边形
+        function MapRainfallStation() {
+            var VALUE_OBJ = addTuli();
+            var result = $.data(myData, "resultData");
+            //countyLayer1.clear();
+            //_destroy();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/_base/lang",
+                "esri/geometry/Polygon",
+                "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, lang, Polygon) {
+                    $.get(
+                        "/Common/代表站泰森多边形.json",//json路径
+                        lang.hitch(this, function (data, status) {
+                            if (status === "success") {
+                                var features = data.features;
+                                features.forEach(function (feature) {
+                                    var allrings = feature.geometry.coordinates;
+                                    var polygon = new Polygon(allrings);
+                                    var gra = feature.properties;
+                                    var mc = gra.STNM;
+                                    var stcd = gra.STCD;
+                                    var arr = result.filter(function (item) {
+                                        return item.STCD == stcd;
+                                    });
+                                    var colorStr = "";
+                                    var DRP = 0;
+                                    if (arr.length > 0) {
+                                        DRP = arr[0].DRP;
+                                        if (arr[0].LGTD != undefined || arr[0].LTTD != undefined) {
+                                            var center = [];
+                                            center = [arr[0].LGTD, arr[0].LTTD];
+                                            var cls = "";
+                                            var textStr = "";//arr[0].NAME + ":" +
+                                            textStr = arr[0].STNM + '\n' + parseFloat(arr[0].DRP).toFixed(1);
+                                            var point = new Point({
+                                                "x": center[0],
+                                                "y": center[1],
+                                                "spatialReference": {
+                                                    "wkid": 4326
+                                                }
+                                            });
+                                            //cls += " slText ";
+                                            var _align = "bottom";
+                                            if (textStr == "") {
+                                                textStr = "—";
+                                            }
+                                            //var label = new MapText(map, point, arr[0], textStr, _globallevel, _align, cls, 13);
+                                            //labels.push(label);
+                                        }
+                                    }
+                                    colorStr = getAreaColor(DRP, "", VALUE_OBJ);
+                                    if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                        var fillColorStr = getAreaColor(DRP, "fill", VALUE_OBJ);
+                                        var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                                new Color(colorStr), 2), new Color(fillColorStr)
+                                        );
+                                        var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                            new dojo.Color(colorStr), 1),
+                                            new dojo.Color(fillColorStr));
+                                        var g3 = new Graphic(polygon, lineSymbol);
+                                        g3.attributes = arr[0];
+                                        countyLayer1.add(g3);
+                                    }
+                                }, this);
+                            }
+                        }),
+                        "json"
+                    );
+                });
+        }
+
+        function getAreaColor(zValue, type, VALUE_OBJ) {
+            var color = "#ffffff";
+            var colorTM = [255, 255, 255, 0.8];
+            var colorStr = '#A7F387,#39BC39,#62B7FE,#0004F6,#F801FA,#800140';
+            var colors = colorStr.split(',');
+            var colorsTM = [
+                [167, 243, 135, 0.8],
+                [57, 188, 57, 0.8],
+                [98, 183, 254, 0.8],
+                [0, 4, 246, 0.8],
+                [248, 1, 250, 0.8],
+                [128, 1, 64, 0.8]
+            ];
+            var valueArr = VALUE_OBJ.split("#");
+            for (var num = 0; num < valueArr.length; num++) {
+                var item = valueArr[num].split(',');
+                if (zValue >Number(item[0]) && zValue <=Number(item[1])) {
+                    color = colors[num];
+                    colorTM = colorsTM[num];
+                }
+            }
+            if (type == "fill") {
+                return colorTM;
+            } else {
+                return color;
+            }
+        }
+        function addTuli() {
+            var VALUE_OBJ = "0,10#10,25#25,50#50,100#100,200#200,1000000";
+            return VALUE_OBJ;
+        }
+    </script>
+</body>
+</html>

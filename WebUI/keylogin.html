@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta content="" charset="UTF-8" />
+    <meta name=renderer content=webkit>
+    <meta http-equiv="X-UA-Compatible" content="IE=9,IE=10,IE=11" />
+    <title>上海市水文预报调度一体化平台（一期）</title>
+
+    <script src="Common/jquery-3.5.1.js"></script>
+    <script src="Common/JSMy.js"></script>
+</head>
+<body>
+    <script>
+        var keyID = GetQueryString("key");
+        var uname = GetQueryString("uname");
+        onload = function () {
+            isOK();
+        }
+        function isOK() {
+            if (keyID != null) {
+                var postParam = { KEYID: keyID };
+                GetJosns("DATA_QX_KEYSel", postParam, "Login");
+            } else {
+                alert("缺少key，请重新登录！");
+                window.location.href = 'login.html';
+            }
+        }
+        function JosnSel(resultdata, typeID) {
+            if (typeID == "Login") {
+                if (resultdata.total > 0) {
+                    SetCookie("LOGINNAME", uname, 3);
+                    SetCookie("username", uname, 3);
+                    SetCookie("pwd", keyID, 3);
+                    SetCookie("GROUPID", resultdata.data[0].GROUPID, 3);
+                    var _qx_url = "index.html?rid=" + Math.random();
+                    var strWhere = { "MENU_ID": "0", "MENU_NAME": "上海市水文预报调度一体化平台（一期）", "TM": new Date().format("yyyy/MM/dd HH:mm:ss"), "QX_LOGIN": GetCookie("LOGINNAME"), "QX_URL": _qx_url, "TEL":"" };
+                    GetJosns("DATA_MENU_LOGAdd", strWhere, "DATA_MENU_LOGAdd");
+                } else {
+                    alert("key不存在，请重新登录！");
+                    window.location.href = 'login.html';
+                }
+            }
+            else if (typeID == "DATA_MENU_LOGAdd") {
+                window.location.href = "index.html?rid=" + Math.random();
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,810 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <!--CSS RESET-->
+    <link href="dist/css/normalize.css" rel="stylesheet" type="text/css" />
+    <!--可无视-->
+    <link href="dist/css/main.css" rel="stylesheet" type="text/css" />
+    <link href="dist/css/jquery.wizzy.css" rel="stylesheet" type="text/css" />
+    <!--<script src="js/jquery-1.11.0.min.js" type="text/javascript"></script>-->
+    <link href="/Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/bootstrap-fileinput/css/fileinput.css" rel="stylesheet" type="text/css" />
+    <link href="Css/css.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/viewer.min.css" rel="stylesheet" />
+
+    <style type="text/css">
+        .wz-step {
+            height: 530px !important;
+        }
+
+        #gridSQYQ > .mini-panel-body .mini-grid-rows {
+            height: 350px !important;
+        }
+
+        .panel .mini-panel-viewport {
+            height: 220px !important;
+        }
+
+        .file-input {
+            width: 98%;
+        }
+        .mini-button {
+        color:white !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Start Wizzy -->
+    <div class="wz-wrapper wizzy">
+        <div class="wz-inner">
+            <div class="wz-header">
+                <nav>
+                    <a href="#">基本信息</a>
+                    <a href="#">水雨情</a>
+                    <a href="#">相关文件</a>
+                    <a href="#">照片资料</a>
+                    <a href="#">气象情况</a>
+                </nav>
+            </div>
+            <div class="wz-body">
+                <div class="wz-step mini-fit">
+                    <div id="form1">
+                        <table style="width:100%;height:100%;">
+                            <tr>
+                                <td style="width:50%;" valign="top">
+                                    <div title="基础信息" class="mini-panel" style="width:100%;">
+                                        <table cellspacing='0' cellpadding='0' border='0' class="GridView" id='GridView1' style=' background-color: White; width: 100%; border-collapse: collapse;'>
+                                            <tr>
+                                                <td align="right" class="lie1">专题名称：</td>
+                                                <td align="left" class="lie2" colspan="3">
+                                                    <input id="RC_NAME" name="RC_NAME" class="mini-textbox Span90" required="true" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">专题创建人：</td>
+                                                <td align="left" class="lie2"><input id="RC_OWEN" name="RC_OWEN" class="mini-textbox Span90" required="true" /></td>
+                                                <td align="right" class="lie1">
+                                                    专题状态：
+                                                </td>
+                                                <td align="left" class="lie2">
+                                                    <select id="RC_ZHUANGTAI" name="RC_ZHUANGTAI" class="mini-combobox">
+                                                        <option value="激活">激活</option>
+                                                        <option value="封档">封档</option>
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">创建时间：</td>
+                                                <td align="left" class="lie2"><input id="RC_TIME" name="RC_TIME" class="mini-datepicker" /></td>
+                                                <td align="right" class="lie1">封挡时间：</td>
+                                                <td align="left"><input id="RC_CTIME" name="RC_CTIME" class="mini-datepicker" /></td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">专题特征说明：</td>
+                                                <td colspan="7" align="left">
+                                                    <input id="RC_CONTENT" name="RC_CONTENT" class="mini-textarea" style="width:90%; height:340px;" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                                <td style="width:50%;" valign="top">
+                                    <!--buttons="collapse"-->
+                                    <div title="附件信息" class="mini-panel" style="width:100%;">
+                                        <table cellspacing='0' cellpadding='0' border='0' class="GridView" id='GridView1' style=' background-color: White; width: 100%; border-collapse: collapse;'>
+                                            <tr>
+                                                <td align="right" class="lie1">专题副标题：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_NAME" class="mini-textbox Span90" name="ZT_NAME" required="true" />
+                                                </td>
+                                                <td align="right" class="lie1">所属分类：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_TYPE" name="ZT_TYPE" class="mini-combobox Span90" textField="FZNAME" valueField="FZNAME" allowInput="true" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">重点关注地点：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_QUYU" class="mini-textbox Span90" name="ZT_QUYU" required="true" />
+                                                </td>
+                                                <td align="right" class="lie1">专题发布部门：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_DEPARTMENT" name="ZT_DEPARTMENT" class="mini-combobox Span90" textField="FZNAME" valueField="FZNAME" allowInput="true" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">专题关注事件：</td>
+                                                <td align="left" class="lie2" colspan="3">
+                                                    <input id="ZT_SHIJIAN" name="ZT_SHIJIAN" class="mini-textbox Span90" />
+                                                </td>
+
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">开始时间：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_STIME" name="ZT_STIME" class="mini-datepicker" required="true" />
+                                                </td>
+                                                <td align="right" class="lie1">结束时间：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_ETIME" name="ZT_ETIME" class="mini-datepicker" required="true" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">专题审核人：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_PSH" class="mini-textbox Span90" name="ZT_PSH" />
+                                                </td>
+                                                <td align="right" class="lie1">专题批准人：</td>
+                                                <td align="left" class="lie2">
+                                                    <input id="ZT_PPZ" class="mini-textbox Span90" name="ZT_PPZ" />
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td align="right" class="lie1">专题综述：</td>
+                                                <td colspan="3" align="left">
+                                                    <input id="ZT_NOTE" name="ZT_NOTE" class="mini-textarea Span90" style="height:250px;" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="wz-step">
+                    <div id="form2">
+                        <table style="width:100%;height:100%;">
+                            <tr>
+                                <td style="width:100%;" valign="top">
+                                    <div title="水情信息" class="mini-panel" style="width:100%;">
+                                        <div class="mini-toolbar" style="padding-top: 3px;height:35px;line-height:35px;">
+                                            站点：<input id="SQ_STCD" class="mini-treeselect" multiSelect="true" style="width:200px"
+                                                      textField="STNM" valueField="STCD" parentField="pid" checkRecursive="true"
+                                                      showFolderCheckBox="false" expandOnLoad="true" showClose="true" oncloseclick="onCloseClick"
+                                                      popupWidth="200" />
+                                            <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+
+                                            <div class="bootstrap-switch " style="float:right">
+                                                <div class="bootstrap-switch-container">
+                                                    <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
+                                                    <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i class="fa fa-table"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;height:450px; ">
+                                            <tr id="fit1" class="fit">
+                                                <td>
+                                                    <div id="ChartSQYQ" style="width:98%;height:100%; text-align: center">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr id="fit2" class="fit">
+                                                <td>
+                                                    <div id="gridSQYQ" class="mini-datagrid" style="width:98%;height: 450px;" allowAlternating="true" showSummaryRow="true" showpager="false"
+                                                         idField="STCD" allowResize="false" ondrawcell="ondrawcell" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                                        <div property="columns">
+                                                            <div field="TM" width="150" align="center" headerAlign="center" allowSort="false">时间</div>
+                                                            <div field="DRP" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">雨量(mm)</div>
+                                                            <div field="UPZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">上游水位(m)</div>
+                                                            <div field="DWZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="min">下游水位(m)</div>
+                                                        </div>
+                                                    </div>
+
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="wz-step">
+                    <div id="form3">
+                        <table style="width:100%;table-layout:fixed;">
+                            <tr>
+                                <td style="width:33%;height:260px;" valign="top">
+                                    <div id="p1" class="mini-panel panel" title="工程调度" style="width:98%;height:260px;">
+                                        <!-- buttons="collapse"-->
+                                        <div id="GQDDZL_grid" class="mini-datagrid" style="width: 99%;margin-top:1px;height: 220px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="checkcolumn"></div>
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                                    文件名称
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width:33%;height:260px;" valign="top">
+                                    <div id="p2" class="mini-panel panel" title="防汛抗旱简报" style="width:98%;height:260px;">
+                                        <div id="FXKHJB_grid" class="mini-datagrid" style="width: 99%;margin-top:1px;height: 220px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="checkcolumn"></div>
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                                    文件名称
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="width:33%;height:260px;" valign="top">
+                                    <div title="内部传真电报" class="mini-panel panel" style="width:98%;height:260px;">
+                                        <div id="NBCZDB_grid" class="mini-datagrid" style="width: 99%;margin-top:1px;height: 220px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="checkcolumn"></div>
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                                    文件名称
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td valign="top" style="height:260px;">
+                                    <div title="电话通知单" class="mini-panel panel" style="width:98%;height:260px;">
+                                        <div id="DHTZD_grid" class="mini-datagrid" style="width: 99%;margin-top:1px;height: 220px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="checkcolumn"></div>
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                                    文件名称
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td valign="top">
+                                    <div title="调度文件" class="mini-panel panel" style="width:98%;height: 260px;">
+                                        <div id="DDWJ_grid" class="mini-datagrid" style="width: 99%;margin-top:1px;height: 220px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="checkcolumn"></div>
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                                    文件名称
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td valign="top">
+                                    <div title="方案预案" class="mini-panel panel" style="width:98%;height: 260px;">
+                                        <div id="FAYA_grid" class="mini-datagrid" style="width: 99%;margin-top:1px;height: 220px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="checkcolumn"></div>
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                                <div field="WD_NAME" headeralign="center" align="center" allowsort="true">
+                                                    文件名称
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="wz-step">
+
+                    <div id="form4">
+                        <table style="width:100%;height:100%;">
+                            <tr>
+                                <td style="width:50%;" valign="top">
+                                    <div title="图片信息" class="mini-panel" style="width:98%;">
+                                        <input type="file" name="txt_file" id="txt_file" multiple class="file-loading" style="width:450px;"/>
+                                    </div>
+                                </td>
+                                <td style="width:50%;" valign="top">
+                                    <div title="图片列表" class="mini-panel" style="width:98%;">
+                                        <div id="MTLIST_grid" class="mini-datagrid" style="width: 98%;margin-top:1px;height: 450px;" allowalternating="true" multiSelect="true"
+                                             borderstyle="border-right:0;" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                                            <div property="columns">
+                                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+
+                                                <div field="MT_NAME" headeralign="center" align="center" allowsort="true">
+                                                    图片名称
+                                                </div>
+                                                <div field="MT_TYPE" headeralign="center" align="center" allowsort="true">
+                                                    类型
+                                                </div>
+                                                <div field="MT_TIME" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+                                                    时间
+                                                </div>
+                                                <div name="action" width="50" headeralign="center" align="center" renderer="onMTLISTActionRenderer" cellstyle="padding:0;">
+                                                    基本操作
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="wz-step">
+
+                    <div id="wrapper">
+                        <div id="picSlideWrap" class="clearfix"> 
+                            <div class="imgnav" id="imgnav">
+                             
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="wz-navigator"></div>
+        </div>
+    </div>
+    <!-- End Wizzy -->
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="/ZhuanTi/dist/js/jquery.wizzy.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/Common/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/Common/bootstrap-fileinput/js/fileinput_locale_zh.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/Common/Scripts/viewer.min.js"></script>
+
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("gridSQYQ");
+        var myData = [];
+        $(function () {
+            $(".wizzy").wizzy();
+            var now = new Date();
+            mini.get("RC_TIME").setValue(now.format("yyyy-MM-dd"));
+            mini.get("RC_CTIME").setValue(now.format("yyyy-MM-dd"));
+            mini.get("ZT_STIME").setValue(addDayDate(now, -7));
+            mini.get("ZT_ETIME").setValue(now.format("yyyy-MM-dd"));
+            mini.get("RC_OWEN").setValue(GetCookie("LOGINNAME"));
+            GetJosns("DATA_FZ_TYPESel", { "FLAG": "3" }, "ZT_TYPE");//所属分类
+            GetJosns("DATA_FZ_TYPESel", { "FLAG": "4" }, "ZT_DEPARTMENT");//专题发布部门
+            GetJosns("WATER_ST_STBPRP_BSel", {}, "STCD");
+            var _PID = GetQueryString("PID");
+            if (_PID == null) {
+                _PID = GetTableID();
+            } 
+            $.data(myData, "HidID", _PID);
+            $.data(myData, "HidTYPE", "专题照片");
+            var oFileInput = new FileInput();
+            oFileInput.Init("txt_file", "/GongWen/Upload.aspx?option=add&PID=" + $.data(myData, "HidID") + "&TYPE=" + $.data(myData, "HidTYPE"));
+        })
+        var dataResult;
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "ZT_TYPE") {//所属分类
+                var _ZT_TYPE = mini.get("ZT_TYPE");
+                _ZT_TYPE.setData(ResultData.data);
+                _ZT_TYPE.select(0);
+            } else if (typeID == "ZT_DEPARTMENT") {
+                var _ZT_DEPARTMENT = mini.get("ZT_DEPARTMENT");
+                _ZT_DEPARTMENT.setData(ResultData.data);
+                _ZT_DEPARTMENT.select(0);
+            } else if (typeID == "SQSel") {
+                dataResult = ResultData;
+                JsonLineChart(ResultData.data);
+                grid.setData(ResultData.data);
+                //fillData(0, grid.getPageSize(), dataResult, grid);
+            } else if (typeID == "STCD") {
+                var tree2 = mini.get("SQ_STCD");
+                var tempData = [];
+                var type = "";
+                if (ResultData.data.length > 0) {
+                    tempData.push({ id: "ZDZ", STNM: "重点站", STCD: "" });
+                    tempData.push({ id: "TH", STNM: "太湖流域", STCD: "" });
+                    tempData.push({ id: "CQ", STNM: "城区", STCD: "" });
+                    var objSTCD = sortObjectArray(ResultData.data, ['STCD'], 'asc');
+                    for (num = 0; num < objSTCD.length; num++) {
+                        if (objSTCD[num].ZD == "1") {
+                            tempData.push({ id: objSTCD[num].STCD, STNM: objSTCD[num].STNM, STCD: objSTCD[num].STCD, pid: "ZDZ" });
+                        } else {
+                            if (objSTCD[num].BSNM == "太湖流域") {
+                                tempData.push({ id: objSTCD[num].STCD, STNM: objSTCD[num].STNM, STCD: objSTCD[num].STCD, pid: "TH" });
+                            } else if (objSTCD[num].BSNM == "城区") {
+                                tempData.push({ id: objSTCD[num].STCD, STNM: objSTCD[num].STNM, STCD: objSTCD[num].STCD, pid: "CQ" });
+                            }
+                        }
+                    }
+                }
+                tree2.loadList(tempData, "id", "pid");
+                tree2.setValue("2101,2103,2104,2113,2208,2210,2211,2302,2303,2304,2306,1001,2102,2105,2106,2209,2212,2307, 2438");
+            } else if (typeID == "GQDDZL_Sel") {
+                mini.get("GQDDZL_grid").setData(ResultData.data);
+                mini.get("GQDDZL_grid").selectAll(true);
+            } else if (typeID == "FXKHJB_Sel") {
+                mini.get("FXKHJB_grid").setData(ResultData.data);
+                mini.get("FXKHJB_grid").selectAll(true);
+            } else if (typeID == "NBCZDB_Sel") {
+                mini.get("NBCZDB_grid").setData(ResultData.data);
+                mini.get("NBCZDB_grid").selectAll(true);
+            } else if (typeID == "DHTZD_Sel") {
+                mini.get("DHTZD_grid").setData(ResultData.data);
+                mini.get("DHTZD_grid").selectAll(true);
+            } else if (typeID == "DDWJ_Sel") {
+                mini.get("DDWJ_grid").setData(ResultData.data);
+                mini.get("DDWJ_grid").selectAll(true);
+            } else if (typeID == "FAYA_Sel") {
+                mini.get("FAYA_grid").setData(ResultData.data);
+                mini.get("FAYA_grid").selectAll(true);
+            } else if (typeID == "MTLIST_Sel") {
+                mini.get("MTLIST_grid").setData(ResultData.data);
+            } else if (typeID == "MT_LISTDel") {
+                PicSearch();
+            } else if (typeID == "TQ_Sel") {
+                var strMsg = '', strMsg2 = '';
+                if (ResultData.data.length > 0) {
+                    strMsg += '<div id="img">';
+                    strMsg2 += ' <div id="cbtn">';
+                    strMsg2 += '  <i class="picSildeLeft"><img src="images/picSlideLeft.gif"></i>';
+                    strMsg2 += '<i class="picSildeRight"><img src="images/picSlideRight.gif"></i>';
+                    strMsg2 += '<div id="cSlideUl">';
+                    strMsg2 += ' <ul>';
+                    for (num = 0; num < ResultData.data.length; num++) {
+                        var tempPic = "/UploadDoc/" + new Date(convertToDate(ResultData.data[num].TBA_GETDATE)).format("yyyyMMdd") + "/" + ResultData.data[num].TBA_FILENAME;
+                        if (num == 0) {
+                            strMsg += '<img data-original="' + tempPic + '" src="' + tempPic + '"  style="display: inline;">';
+                            strMsg2 += '<li class="hov"><img src="/UploadDoc/' + new Date(convertToDate(ResultData.data[num].TBA_GETDATE)).format("yyyyMMdd") + '/' + ResultData.data[num].TBA_FILENAME + '"><tt>' + (num + 1) + '/' + ResultData.data.length + '</tt></li>';
+                        } else {
+                            strMsg += '<img data-original="' + tempPic + '" src="' + tempPic + '"  >';
+                            strMsg2 += '<li><img src="/UploadDoc/' + new Date(convertToDate(ResultData.data[num].TBA_GETDATE)).format("yyyyMMdd") + '/' + ResultData.data[num].TBA_FILENAME + '"><tt>' + (num + 1) + '/' + ResultData.data.length + '</tt></li>';
+                        }
+                    }
+                    strMsg += '<div id="front" title="上一张"><a href="javaScript:void(0)" class="pngFix"></a></div>';
+                    strMsg += '<div id="next" title="下一张" > <a href="javaScript:void(0)" class="pngFix" style="display: none;"></a></div>';
+                    strMsg += ' </div> ';
+
+                    strMsg2 += ' </ul>';
+                    strMsg2 += '</div>';
+                    strMsg2 += '  </div>';
+
+                }
+                $("#imgnav").html(strMsg + strMsg2);
+                $('#img').viewer({
+                    url: "data-original",
+                });
+                PicTQ();
+            } else if (typeID == "AddData") {
+                if ($.data(myData, "AddData") == undefined) {
+                    mini.alert(ResultData.Message);
+                    $.data(myData, "AddData", "1")
+                }
+            }
+        }
+        function btnSearch() {
+            var _ZT_STIME = mini.get("ZT_STIME").getFormValue();
+            var _ZT_ETIME = mini.get("ZT_ETIME").getFormValue();
+            var AggSTCD = mini.get("SQ_STCD").getValue().split(',');
+            var _SQ_STCD = "";
+            if (AggSTCD.length > 0) {
+                for (num = 0; num < AggSTCD.length; num++) {
+                    if (num == 0) {
+                        _SQ_STCD += AggSTCD[num] + "',";
+                    } else if (num == AggSTCD.length - 1) {
+                        _SQ_STCD += "'" + AggSTCD[num];
+                    } else {
+                        _SQ_STCD += "'" + AggSTCD[num] + "',";
+                    }
+
+                }
+            }
+            GetJosns("SQYQSel", { "STIME": _ZT_STIME + " 00:00:00", "ETIME": _ZT_ETIME + " 23:59:59", "STCD": _SQ_STCD, "HOUR": "H" }, "SQSel");
+        }
+        function onCloseClick(e) {
+            var obj = e.sender;
+            obj.setText("");
+            obj.setValue("");
+        }
+
+        function onDrawSummaryCell(e) {
+            var value = e.value;
+            if (e.field == "DRP") {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大雨量: " + Number(value).toFixed(2) + "m³/s</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大雨量: 无</span>";
+
+            }
+
+            if (e.field == "UPZ") {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大上游水位: " + Number(value).toFixed(2) + "m</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大上游水位: 无</span>";
+            }
+
+            if (e.field == "DWZ") {
+                value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最小下游水位: " + Number(value).toFixed(2) + "m</span>" :
+                    e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最小下游水位: 无</span>";
+            }
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (field == "DRP") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(1);
+                }
+            }
+            if (field == "UPZ") {
+                if (value != "") {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            }
+            if (field == "DWZ") {
+                if (value != "") {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            }
+        }
+
+        //选择
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            //$(".fit").css("display", "none");
+            //$("#" + objFit).css("display", "block");
+            $(".fit").hide();
+            $("#" + objFit).show();
+        }
+
+        function JsonLineChart(data) {
+            var xData = [];
+            var min = 100; var max = 0;
+            var minTM = "", maxTM = "";
+            for (var i = 0, len = data.length; i < len; i++) {
+
+                var tm;
+                if (tm == "") {
+                    tm = data[i].TM;
+                } else {
+                    tm = mini.formatDate(new Date(data[i].TM.replaceAll("-", "/")), 'MM-dd HH:mm')
+                }
+
+                xData.push({ "TM": tm, "UPZ": data[i].UPZ, "DWZ": data[i].DWZ, "DRP": Number(data[i].DRP).toFixed(1) });
+            }
+
+            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
+            strNote += ',{"name": "上游水位","codename": "UPZ","tableV":"1","isShow":true,"width":"30%"}';
+            strNote += ',{"name": "下游水位","codename": "DWZ","tableV":"1","isShow":true,"width":"30%"}';
+            strNote += ',{"name": "雨量","codename": "DRP","tableV":"1","isShow":true,"width":"30%"}]';
+            var LineColor = ['#0000FF', '#00FF00', '#FF0000'];
+            chartSWYL("ChartSQYQ", xData, eval('(' + strNote + ')'), LineColor, "雨量");
+
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        //grid.on("beforeload", function (e) {
+        //    e.cancel = true;
+        //    var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+        //    fillData(pageIndex, pageSize, dataResult, grid);
+        //});
+
+        var FileInput = function () {
+            var oFile = new Object();
+            //初始化fileinput控件（第一次初始化）
+            oFile.Init = function (ctrlName, uploadUrl) {
+                var control = $('#' + ctrlName);
+
+                //初始化上传控件的样式
+                control.fileinput({
+                    language: 'zh', //设置语言
+                    uploadUrl: uploadUrl, //上传的地址
+                    // allowedFileExtensions: ['jpg', 'gif', 'png'],//接收的文件后缀
+                    showClose: false,
+                    showUpload: true, //是否显示上传按钮
+                    showRemove: true, //是否显示删除按钮
+                    showCaption: false,//是否显示标题
+                    showUploadedThumbs: false,
+                    browseClass: "btn btn-primary", //按钮样式
+                    textEncoding: "UTF-8",
+                    dropZoneEnabled: true,//是否显示拖拽区域
+                    //minImageWidth: 50, //图片的最小宽度
+                    //minImageHeight: 50,//图片的最小高度
+                    //maxImageWidth: 1000,//图片的最大宽度
+                    //maxImageHeight: 1000,//图片的最大高度
+                    maxFileSize: 0,//单位为kb，如果为0表示不限制文件大小
+                    //minFileCount: 0,
+                    maxFileCount: 100,
+                    enctype: 'multipart/form-data',
+                    validateInitialCount: true,
+                    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+
+                    msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                });
+
+                var FileNum = 0;
+                $("#txt_file").on("filebatchselected", function (event, files) {
+                    FileNum = files.length;
+                });
+
+             
+                //导入文件上传完成之后的事件
+                $("#txt_file").on("fileuploaded", function (event, data, previewId, index) { 
+
+                    //if (data.data.length > 0) {
+                    //    for (num = 0; num < data.data.length; num++) {
+                    //        FileResult.push({ "MT_NAME": data.data[num].FILENAME, "TM": data.data[num].TM, });
+                    //    }
+                    //} 
+                    if (index == (FileNum-1)) {
+                        PicSearch();
+                    } 
+                     
+                   
+                    //1.初始化表格
+                    //var oTable = new TableInit();
+                    //oTable.Init(data);
+                    //$("#div_startimport").show();
+                });
+
+            }
+            return oFile;
+        };
+        var FileResult = [];
+        function PicSearch() { 
+            GetJosns("DATA_MT_LISTSel", { "MT_TYPE": $.data(myData, "HidTYPE"), "MT_XUHAO": $.data(myData, "HidID") }, "MTLIST_Sel");
+        }
+        function onMTLISTActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '';
+            s += '<img style="cursor:pointer;" onclick="DelMTLIST(\'' + record.MT_ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除专题照片资料" />&nbsp;';
+            return s;
+        }
+        //删除
+        function DelMTLIST(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { MT_ID: objID };
+                        GetJosns("DATA_MT_LISTDel", strWhere, "MT_LISTDel");
+                    }
+                }
+            );
+        }
+
+
+        function PicTQ() {
+            var index = 0;
+            var length = $("#img img").length;
+            var i = 1;
+
+            //关键函数：通过控制i ，来显示图片
+            function showImg(i) {
+                $("#img img")
+                    .eq(i).stop(true, true).fadeIn(800)
+                    .siblings("img").hide();
+                $("#cbtn li")
+                    .eq(i).addClass("hov")
+                    .siblings().removeClass("hov");
+            }
+
+            function slideNext() {
+                if (index >= 0 && index < length - 1) {
+                    ++index;
+                    showImg(index);
+                } else {
+                    if (confirm("已经是最后一张,点击确定重新浏览！")) {
+                        showImg(0);
+                        index = 0;
+                        aniPx = (length - 5) * 142 + 'px'; //所有图片数 - 可见图片数 * 每张的距离 = 最后一张滚动到第一张的距离
+                        $("#cSlideUl ul").animate({ "left": "+=" + aniPx }, 200);
+                        i = 1;
+                    }
+                    return false;
+                }
+                if (i < 0 || i > length - 5) { return false; }
+                $("#cSlideUl ul").animate({ "left": "-=142px" }, 200)
+                i++;
+            }
+
+            function slideFront() {
+                if (index >= 1) {
+                    --index;
+                    showImg(index);
+                }
+                if (i < 2 || i > length + 5) { return false; }
+                $("#cSlideUl ul").animate({ "left": "+=142px" }, 200)
+                i--;
+            }
+            $("#img img").eq(0).show();
+            $("#cbtn li").eq(0).addClass("hov");
+            $("#cbtn tt").each(function (e) {
+                var str = (e + 1) + "/" + length;
+                $(this).html(str)
+            })
+
+            $(".picSildeRight,#next").click(function () {
+                slideNext();
+            })
+            $(".picSildeLeft,#front").click(function () {
+                slideFront();
+            })
+            $("#cbtn li").click(function () {
+                index = $("#cbtn li").index(this);
+                showImg(index);
+            });
+            $("#next,#front").hover(function () {
+                $(this).children("a").fadeIn();
+            }, function () {
+                $(this).children("a").fadeOut();
+            })
+        }
+        function GetGrid(strJson, typeID) {
+            var strMsg = "";
+            for (var item in strJson) {
+                //console.log(typeID + "@@@@@@@@" + item + "=====" + JSON.stringify(strJson[item]))
+                if (strJson[item][typeID] != undefined) { 
+                    strMsg += strJson[item][typeID] + ",";
+                }
+            }
+            if (strMsg.length > 0) {
+                strMsg = strMsg.substring(0, strMsg.length - 1);
+            }
+            return strMsg;
+        }
+        function SavaData() { 
+            if ($.data(myData, "AddData") == undefined) {
+                var _STCD = mini.get("SQ_STCD").getValue();
+                var GQDDZL_Row = mini.get("GQDDZL_grid").getSelecteds();
+                var currentRow = GetGrid(GQDDZL_Row, "WD_ID");
+
+                var _GCDD = currentRow;
+                var _FXKHJB = GetGrid(mini.get("FXKHJB_grid").getSelecteds(), "WD_ID");
+                var _NBCZDB = GetGrid(mini.get("NBCZDB_grid").getSelecteds(), "WD_ID");
+                var _DHTZD = GetGrid(mini.get("DHTZD_grid").getSelecteds(), "WD_ID");
+                var _DDWJ = GetGrid(mini.get("DDWJ_grid").getSelecteds(), "WD_ID");
+                var _FAYA = GetGrid(mini.get("FAYA_grid").getSelecteds(), "WD_ID");
+                var _TQ = "华东雷达拼图,全国雷达拼图,风云二号,彩色圆盘图";
+                var strWhere = {
+                    "TITLE": mini.get("RC_NAME").getValue(),
+                    "OWEN": mini.get("RC_OWEN").getValue(),
+                    "STATUS": mini.get("RC_ZHUANGTAI").getValue(),
+                    "CREATE_TM": mini.get("RC_TIME").getFormValue(),
+                    "FD_TM": mini.get("RC_CTIME").getFormValue(),
+                    "NOTE": mini.get("RC_CONTENT").getValue(),
+                    "TITLE2": mini.get("ZT_NAME").getValue(),
+                    "TYPE": mini.get("ZT_TYPE").getValue(),
+                    "ADDRESS": mini.get("ZT_QUYU").getValue(),
+                    "BUMEN": mini.get("ZT_DEPARTMENT").getValue(),
+                    "SHIJIAN": mini.get("ZT_SHIJIAN").getValue(),
+                    "STM": mini.get("ZT_STIME").getFormValue(),
+                    "ETM": mini.get("ZT_ETIME").getFormValue(),
+                    "SHENHE": mini.get("ZT_PSH").getValue(),
+                    "PIZHUN": mini.get("ZT_PPZ").getValue(),
+                    "ZONGSHU": mini.get("ZT_NOTE").getValue(),
+                    "STCD": _STCD,
+                    "GCDD": _GCDD,
+                    "FXKHJB": _FXKHJB,
+                    "NBCZDB": _NBCZDB,
+                    "DHTZD": _DHTZD,
+                    "DDWJ": _DDWJ,
+                    "FAYA": _FAYA,
+                    "MTLISTID": $.data(myData, "HidID"),
+                    "TQ": _TQ
+                }
+                alert(JSON.stringify(strWhere));
+                GetJosns("DATA_ZHUANTIAdd", strWhere, "AddData");
+            } else {
+                mini.alert("该专题已发布"); 
+            }
+        }
+    </script>
+</body>
+</html>

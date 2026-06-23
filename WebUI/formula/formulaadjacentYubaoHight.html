@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>经验公式预报</title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../Common/boot.js?ver=1.0.2" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            width: 100% !important;
+            width: 120px !important;
+            position: absolute;
+            left: 190px;
+            top: 0px;
+        }
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width: 100px !important;
+            height: 30px;
+            font: 14px/30px "arial";
+            text-align: center;
+        }
+
+        .mini-toolbar {
+            border: 0px;
+        }
+
+        .mini-messagebox {
+            width: 300px !important;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <div class="mini-toolbar" style="line-height:30px;">
+        <!-- &nbsp;&nbsp;开始时间： -->
+        <input id="STIME" class="mini-datepicker" style="width:120px;display:none;" showtime="true" format="yyyy-MM-dd HH"
+            onvaluechanged="onvaluechanged" />
+        <!-- &nbsp;&nbsp;结束时间： -->
+        <input id="ETIME" class="mini-datepicker" style="width:120px;display:none;" showtime="true" format="yyyy-MM-dd HH"
+            onvaluechanged="onvaluechanged" />
+        <span style="display:none;">&nbsp;&nbsp;站点选择：</span> 
+        <input id="STCD" class="mini-combobox" style="width:150px;display:none;" textField="STNM" valueField="STCD"
+            allowInput="true" />
+        &nbsp;&nbsp;<a class="mini-button" onclick="BreakLayerLoad()" style="display:none;">查询</a>
+        &nbsp;&nbsp;<button type="button" class="btn btn-info" onclick="openSource()" style="float:right;">查看源数据</button>
+
+        <div id="formulaDiv" style="float:right;margin-right:10px;margin-top: 10px;color: red;font-size: 15px;">
+
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 45px);height: -moz-calc(100% - 45px);height: calc(100% - 45px);"
+        allowalternating="true" borderstyle="border-right:0;" showpager="false" showemptytext="true" emptytext="暂无数据"
+        alwaysshowemptytext="true">
+
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var resultData = [];
+        var grid = mini.get("grid1");
+        var stcdArr = [
+                { STCD: "63401750", STNM: "吴淞口—绿华山", GSTCD: "20060", GSTNM: "绿华山" },
+                { STCD: "63401750-HY007415", STNM: "吴淞口—大戢山", GSTCD: "90390", GSTNM: "大戢山" },
+                
+                { STCD: "63401750-HS020033", STNM: "吴淞口—中浚", GSTCD: "20033", GSTNM: "中浚" },
+                { STCD: "63401750-SW63404572", STNM: "吴淞口—三甲港", GSTCD: "SW63404572", GSTNM: "三甲港" },
+                { STCD: "63405800-HS020060", STNM: "芦潮港—绿华山", GSTCD: "20060", GSTNM: "绿华山" },
+                { STCD: "63405800", STNM: "芦潮港—大戢山", GSTCD: "90390", GSTNM: "大戢山" },
+                
+                { STCD: "63401500", STNM: "黄浦公园—中浚", GSTCD: "20033", GSTNM: "中浚" },
+            ];
+        window.onload = function () {
+            var curtm = new Date();//new Date("2024-06-13 05:00:00");//
+            var etime = curtm.format('yyyy-MM-dd HH:mm:ss');
+            var stime = new Date(curtm.addDate('h', -24)).format('yyyy-MM-dd HH:mm:ss');
+            mini.get('ETIME').setValue(etime);
+            mini.get('STIME').setValue(stime);
+            getHHGHT();
+        };
+        function setGridColumns() {
+            createGrid = [
+                { type: "indexcolumn",header: "序号", headerAlign: "center", align: "center" },
+                {
+                    field: "GSTNM", headerAlign: "center", align: "center", header: "参考站", columns: [
+                        { field: "GSTNM", headerAlign: "center", align: "center", header: "站名" },
+                        { field: "TDZ", headerAlign: "center", align: "center", header: "潮高",decimalPlaces:"2",dataType:"float" },
+                        { field: "TDZTM", headerAlign: "center", align: "center", header: "潮时" },
+                        { field: "TDZZS", headerAlign: "center", align: "center", header: "增水" },
+                    ]
+                },
+                {
+                    field: "STNM", headerAlign: "center", align: "center", header: "预报站", columns: [
+                        {field: "STNM", headerAlign: "center", align: "center", header: "站名"},
+                        { field: "ZSVALUE", headerAlign: "center", align: "center", header: "增水" },
+                    ]
+                },
+                { field: "formula", headerAlign: "center", align: "center", header: "增水关系式" },
+            ];
+            grid.set({
+                columns: createGrid
+            });
+        }
+        function getFORMULA() {
+            var strWhere = {
+                kwtxt: "相邻"
+            };
+            //GetJosns("DATA_ST_FORMULA_BSel", strWhere, "SelF");//按照站点查询公式
+			app.post("SWZZ_DATA_st_formula_b/findResult",strWhere,(data)=>{
+				JosnSel(data,"SelF")
+			})
+        }
+        //获取天文潮最近的高潮
+        function getHHGHT() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            var stime = mini.get("STIME").getFormValue() + ":00:00";
+            var etime = mini.get("ETIME").getFormValue() + ":59:59";
+            var gstcd ="";//查询关联站的实测潮位、天文潮、增水等数据
+            for(var num=0;num<stcdArr.length;num++){
+                gstcd+=stcdArr[num].GSTCD+",";
+            }
+            gstcd=gstcd.substring(0,gstcd.length-1);
+            $.data(myData,"gstcdStr",gstcd);
+            var strWhere = {
+                startdate: stime,
+                enddate: etime,
+                stcd: gstcd,//关联站的海事潮位数据
+                kwtxt: "高"
+            };
+            //GetJosns("SWZZ_FLOODTIDEDATA_ST_TIDEHHL_RSel", strWhere, "SelH");
+			app.post("SWZZ_FLOOD_ST_TIDEHHL_R/findResult",strWhere,(data)=>{
+				var filterData = data.data.filter(m=>{
+					return gstcd.indexOf(m.stcd) > -1;
+				});
+				data.total = filterData.length;
+				data.data = filterData;
+				JosnSel(data,"SelH")
+			})
+        }
+        function BreakLayerLoad() {
+            setGridColumns();
+            var stime = mini.get("STIME").getFormValue() + ":00:00";
+            var etime = mini.get("ETIME").getFormValue() + ":59:59";
+            var gstcd =$.data(myData,"gstcdStr"); //查询关联站的实测潮位、天文潮、增水等数据
+            var strWhere = {
+                startdate: stime,
+                enddate: etime,
+                stcd: gstcd,//关联站的海事潮位数据
+                pattem:'ISTYPE'
+            };
+            //GetJosns("WATER_ST_TIDE_RHTIDE", strWhere, "Sel");
+			app.post("SWZZ_FLOOD_ST_TIDE_R/WATER_ST_TIDE_RHTIDEHS",strWhere,(data)=>{
+				JosnSel(data,"Sel")
+			})
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SelH") {
+                if (data.total > 0) {
+                    $.data(myData, "hdata", data.data);
+                    getFORMULA();
+                }
+                else {
+                    mini.alert("无天文潮数据！");
+                }
+            }
+            else if (typeID == "SelF") {
+                $.data(myData, "fdata", data.data);
+                BreakLayerLoad();
+            }
+            else if (typeID == "Sel") {
+                if (data.total > 0) {
+                    $.data(myData, "tidedata", data.data);
+                    getCWHIGHT();
+                }
+                else {
+                    mini.alert("无实测潮位数据！");
+                }
+            }
+        }
+        //寻找最近的最高潮位
+        function getCWHIGHT() {
+            var dataResult = [];
+            var hdata = $.data(myData, "hdata");
+            for (var num = 0; num < stcdArr.length; num++) {
+                var hdataTemp=hdata.filter(function(res){
+                    return res.stcd==stcdArr[num].GSTCD;
+                });
+                if(hdataTemp.length==0){return;}
+                var htdz = hdataTemp[hdataTemp.length-1].tdz;//天文潮最近一次高潮位
+                var htm = new Date(hdataTemp[hdataTemp.length-1].tm).format('yyyy-MM-dd HH:mm:ss');
+                var shtm = new Date(AddHourDate(htm, -3));
+                var ehtm = new Date(AddHourDate(htm, 3));
+                // console.error('htm',htm,'shtm',shtm.format("yyyy-MM-dd HH:mm:ss"),'ehtm',ehtm.format("yyyy-MM-dd HH:mm:ss"),'GSTCD',stcdArr[num].GSTCD,stcdArr[num].STNM);
+                var gstnm = stcdArr[num].GSTNM;
+                var stnm = stcdArr[num].STNM;
+
+                var fdata = $.data(myData, "fdata");
+                var stcds = stcdArr[num].STCD.split('—');
+                var stnms = stcdArr[num].STNM.split('—');
+                fdata = fdata.filter(function (res) {
+                    return res.stcd == stcds[0] && res.gstcd == stcdArr[num].GSTCD;
+                });
+                var item = fdata[0];
+                var formula = getFormula(item);
+                var itemObj = {
+                        STCD: stcds[0],
+                        GSTCD: stcdArr[num].GSTCD,
+                        STNM: stnms[0],
+                        GSTNM: stcdArr[num].GSTNM,
+                        formula: formula
+                }
+                var tidedata = $.data(myData, "tidedata");
+                var tidedataTemp= tidedata.filter(function (res) {
+                    return res.stcd==stcdArr[num].GSTCD;
+                });
+                tidedataTemp=sortObjectArray(tidedataTemp, ['tm'], 'asc');
+                // console.error(stnm,JSON.stringify(tidedataTemp));
+                var tideHList=[];
+                tidedataTemp.map(item=>{
+                    tideHList.push([item.tm,item.tdz]);
+                    // console.error(item.tdz);
+                })
+                if(tideHList.length==0){
+                    continue;
+                }
+                // 使用示例
+                var result = computeHL(tideHList);
+                result=result.filter(function (res) {
+                    return res.isHL=="H";
+                });
+                console.error(stnm,result);
+                if(result.length>0){
+                    var htm=result[result.length-1].tm;
+                    tidedataTemp = tidedataTemp.filter(function (res) {
+                        return new Date(res.tm).getTime() == new Date(htm).getTime();//找到站点前一潮高潮位
+                    });
+                }
+                else{
+                    tidedataTemp = tidedataTemp.filter(function (res) {
+                        //console.error(stcdArr[num].GSTCD,shtm.format("yyyy-MM-dd HH:mm:ss"),ehtm.format("yyyy-MM-dd HH:mm:ss"),convertToDate(res.TM).format("yyyy-MM-dd HH:mm:ss"));
+                        return new Date(res.tm).getTime() >= shtm.getTime() && new Date(res.tm).getTime() < ehtm.getTime() && res.stcd == stcdArr[num].GSTCD;//找到站点前一潮高潮位
+                    });
+                    tidedataTemp = sortObjectArray(tidedataTemp, ['tdz'], 'desc');
+                }
+                
+                //console.error(tidedataTemp.length);
+                var tdzMax=0,htdzmax=0,tdzMaxTM="-",tdzZS=0,zsValue=0;
+                if (tidedataTemp.length > 0) {
+                    //console.error('tidedataTemp',tidedata,tidedataTemp);
+                    tdzMax = Number(tidedataTemp[0].tdz);//站点前一潮高潮位
+                    htdzmax = Number(tidedataTemp[0].htdz);
+                    tdzMaxTM = new Date(tidedataTemp[0].tm).format('yyyy-MM-dd HH:mm:ss');//站点前一潮高潮位对应的时间
+                    // console.error('tidedataTemp', tidedataTemp[0], tdzMaxTM,stcdArr[num].STNM);
+                    tdzZS = tdzMax - htdzmax;
+                    zsValue = getZSValue(item, tdzZS);
+                    tdzZS=tdzZS.toFixed(2);
+                    zsValue=zsValue.toFixed(2);
+                } else {
+                    tdzMax = "-";
+                    tdzMaxTM = "-";
+                    tdzZS = "-";
+                    zsValue = "-";
+                }
+                try {
+                    itemObj.TDZ= tdzMax;
+                    itemObj.TDZTM=tdzMaxTM;
+                    itemObj.TDZZS= tdzZS;
+                    itemObj. ZSVALUE=zsValue;
+                } catch (error) {
+                    console.error(error);
+                }
+                dataResult.push(itemObj);
+            }
+            grid.setData(dataResult);
+
+            mini.unmask(document.body);
+        }
+        //根据风速风向计算增水
+        function getZSValue(item, WindSpeed) {
+            // console.error('WindSpeed',WindSpeed);
+            var yValue = 0;
+            if(item.windsquarexs!=undefined){
+                yValue= (WindSpeed*WindSpeed) * item.windsquarexs;
+            }
+            yValue = yValue + WindSpeed * item.windxs;
+            if (item.constant > 0) {
+                yValue = yValue + item.constant;
+            }
+            else {
+                yValue = yValue - Math.abs(item.constant);
+            }
+            return yValue;
+        }
+        function getFormula(item) {
+            var formula = "y=";
+            if(item.windsquarexs!=undefined){
+                formula +=Number(item.windsquarexs).toFixed(4) + "x²";
+
+                if (item.windxs != undefined) {
+                    if (item.windxs > 0) {
+                        formula += ' + ';
+                    } else {
+                        formula += ' - ';
+                    }
+
+                    formula+=Math.abs(item.windxs).toFixed(4) + "x";
+                }
+            }else{
+                formula +=Number(item.windxs).toFixed(4) + "x";
+            }
+            if (item.constant != undefined) {
+                if (item.constant > 0) {
+                    formula += ' + ';
+                } else {
+                    formula += ' - ';
+                }
+                formula += Math.abs(item.constant).toFixed(4);
+            }
+            return formula;
+        }
+        function onvaluechanged(e) {
+            BreakLayerLoad();
+        }
+        function openSource() {
+            window.location.href = "../SHSWTZ/sqtz/haishitidedata.html";
+        }   
+
+        function findRecentTides(tideDataText) {
+    const now = new Date();
+    const tidedata = JSON.parse(tideDataText);
+    
+    // 预处理数据：添加时间差和类型标记
+    const processedData = tidedata.map(item => {
+        const isHigh = parseFloat(item.ztdz) > 0;
+        const isLow = parseFloat(item.ztdz) < 0;
+        return {
+            ...item,
+            timeDiff: Math.abs(new Date(item.tm) - now),
+            type: isHigh ? 'high' : isLow ? 'low' : 'normal'
+        };
+    });
+
+    // 找出所有高潮位记录并按时间差排序
+    const highTides = processedData
+        .filter(item => item.type === 'high')
+        .sort((a, b) => a.timeDiff - b.timeDiff);
+
+    // 找出所有低潮位记录并按时间差排序
+    const lowTides = processedData
+        .filter(item => item.type === 'low')
+        .sort((a, b) => a.timeDiff - b.timeDiff);
+
+    // 获取最近的高潮和低潮记录
+    const recentHigh = highTides;
+    const recentLow = lowTides;
+
+    return {
+        highTide: recentHigh ? {
+            time: recentHigh.tm,
+            height: recentHigh.tdz,
+            station: recentHigh.stcd
+        } : null,
+        lowTide: recentLow ? {
+            time: recentLow.tm,
+            height: recentLow.tdz,
+            station: recentLow.stcd
+        } : null
+    };
+}
+
+
+ function computeHL(tideHList) {
+            const gdcList = [];
+            let vvalid = false;
+            var v0 = parseFloat(tideHList[0][1]);
+            var v1 = parseFloat(tideHList[1][1]);
+            var v2 = parseFloat(tideHList[2][1]);
+
+            // 3小时15分 - 3小时30分
+            for (let index = 39; index < tideHList.length - 3 - 39; index++) {
+                const v3 = parseFloat(tideHList[index][1]);
+                const v4 = parseFloat(tideHList[index + 1][1]);
+                const v5 = parseFloat(tideHList[index + 2][1]);
+                const v6 = parseFloat(tideHList[index + 3][1]);
+                let hlstr = "";
+
+                if (v3 !== v5) {
+                    vvalid = false;
+                    if (v3 >= v0 && v3 >= v1 && v3 >= v2 && v3 >= v4 && v3 >= v5 && v3 >= v6) {
+                        if (v3 >= parseFloat(tideHList[index - 6][1]) && v3 >= parseFloat(tideHList[index - 12][1]) &&
+                            v3 >= parseFloat(tideHList[index - 18][1]) && v3 >= parseFloat(tideHList[index - 24][1]) &&
+                            v3 >= parseFloat(tideHList[index - 30][1]) && v3 >= parseFloat(tideHList[index - 36][1]) &&
+                            v3 >= parseFloat(tideHList[index + 6][1]) && v3 >= parseFloat(tideHList[index + 12][1]) &&
+                            v3 >= parseFloat(tideHList[index + 18][1]) && v3 >= parseFloat(tideHList[index + 24][1]) &&
+                            v3 >= parseFloat(tideHList[index + 30][1]) && v3 >= parseFloat(tideHList[index + 36][1])) {
+                            vvalid = true;
+                            hlstr = "H";
+                        }
+                    } else if (v3 <= v0 && v3 <= v1 && v3 <= v2 && v3 <= v4 && v3 <= v5 && v3 <= v6) {
+                        if (v3 <= parseFloat(tideHList[index - 6][1]) && v3 <= parseFloat(tideHList[index - 12][1]) &&
+                            v3 <= parseFloat(tideHList[index - 18][1]) && v3 <= parseFloat(tideHList[index - 24][1]) &&
+                            v3 <= parseFloat(tideHList[index - 30][1]) && v3 <= parseFloat(tideHList[index - 36][1]) &&
+                            v3 <= parseFloat(tideHList[index + 6][1]) && v3 <= parseFloat(tideHList[index + 12][1]) &&
+                            v3 <= parseFloat(tideHList[index + 18][1]) && v3 <= parseFloat(tideHList[index + 24][1]) &&
+                            v3 <= parseFloat(tideHList[index + 30][1]) && v3 <= parseFloat(tideHList[index + 36][1])) {
+                            vvalid = true;
+                            hlstr = "L";
+                        }
+                    }
+
+                    if (vvalid) {
+                        const map = {
+                            tm: tideHList[index][0],
+                            tdz: tideHList[index][1],
+                            isHL: hlstr
+                        };
+                        gdcList.push(map);
+                        index = (index - 1) + 180 / 5;
+                    }
+
+                    v0 = v1;
+                    v1 = v2;
+                    v2 = v3;
+                }
+            }
+            return gdcList;
+        }
+ </script>
+</body>
+
+</html>

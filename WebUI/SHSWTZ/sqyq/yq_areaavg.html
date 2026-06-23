@@ -1,0 +1,149 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js?v=1" type="text/javascript"></script>
+    <link href="/Common/CSS/bootstrap.css" rel="stylesheet" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /*overflow-y: hidden;*/
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .mini-toolbar {
+            border: 0px !important;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style="height: 50px;">
+        <div class="searchContext" style="line-height:35px;">
+            <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+            <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                <input id="SYear" class="form-control" value="请选择年份" readonly>
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+            <span style="float:left;">—</span>
+            <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                <input id="EYear" class="form-control" value="请选择年份" readonly>
+                <div class="input-group-addon">
+                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                </div>
+            </div>
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()" style="">查询</a>
+            <button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="display:none;">导出报表</button>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height:100%; margin-top:1px;height:auto;" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true"
+         emptytext="暂无数据" alwaysshowemptytext="true" showpager="false" ondrawcell="ondrawcell">
+    </div>
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        var myData = [];
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {                $("#expButton").show();            }
+            var _year = new Date().format("yyyy");
+            GetObj("SYear").value = 1991;
+            GetObj("EYear").value = 2020;
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1949",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+            //默认加载数据
+            search();
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var Startime = GetObj("SYear").value + "-01-01 00:00:00";
+            var Endtime = GetObj("EYear").value + "-12-31 23:59:59";
+            var columns = [
+                { field: "STNM", headerAlign: "center", align: "center", header: "分区" },
+                { field: "YAVG", headerAlign: "center", align: "center", header: "年", decimalPlaces: 1, dataType: "float" },
+            ];
+            for (var month = 1; month <= 12; month++) {
+                columns.push({ field: "MONTH" + month, headerAlign: "center", align: "center", header: month + "月", decimalPlaces: 1, dataType: "float" });
+                columns.push({ field: "RAINDAY" + month, headerAlign: "center", align: "center", header: month+"月均雨日" },);
+            }
+            grid.set({
+                columns: columns
+            });
+            var strWhere = {
+                "STIME": Startime, "ETIME": Endtime,
+            };
+            GetJosns("YQ_AREAAVGSEL", strWhere, "Sel");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = data.data;
+                var arr = groupBy(dataResult, 'STCD');
+                var dt = [];
+                for (var num = 0; num < arr.length; num++) {
+                    var obj = {};
+                    obj.STCD = arr[num][0].STCD;
+                    obj.STNM = arr[num][0].STNM;
+                    var years = 0;
+                    for (var index = 0; index < arr[num].length; index++) {
+                        var item = arr[num][index];
+                        obj["MONTH" + item.MONTH] = item.AVG;
+                        obj["RAINDAY" + item.MONTH] = Number(item.RAINDAY).toFixed(1);
+                        years += Number(item.AVG);
+                    }
+                    years = years.toFixed(1);
+                    //var AVG = (years / 12).toFixed(1);
+                    obj.YAVG = years;
+                    dt.push(obj);
+                }
+                //console.error(dt);
+                grid.setData(dt);
+                mini.unmask(document.body);
+            }
+        }
+        function ondrawcell(e) {
+
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = "分区月年雨量均值统计（" + GetObj("SYear").value + "-" + GetObj("EYear").value + "）";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+</body>
+</html>

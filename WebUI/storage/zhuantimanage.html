@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>经验公式预报</title>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="/Common/boot.js?ver=1.0.2" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <div class="mini-toolbar">
+        &nbsp; &nbsp;
+        开始日期： &nbsp;<input id="STIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+        结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+        关键字：&nbsp;<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" onenter="onKeyEnter" />
+        &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+        &nbsp;&nbsp;
+        <a class="mini-button" id="addbtn" onclick="window.parent.addTab('专题发布', '/SHSWTZ/zttz/ZhuanTiFaBuV2.html','专题发布')"
+            plain="false">增加</a>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 45px);height: -moz-calc(100% - 45px);height: calc(100% - 45px);" allowalternating="true" borderstyle="border-right:0;"
+        showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+            <div field="ZTNAME" width="150" align="center" headeralign="center">
+                专题名称
+            </div>
+            <div field="WUPZ" width="100" align="center" headeralign="center" decimalPlaces="2" dataType="float">
+                吴淞口最高潮位(m)
+            </div>
+            <div field="DRP" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                最大站降雨量(mm)
+            </div>
+            <div field="STNM" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                最大降雨站
+            </div>
+            <div field="ARAEDRP" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                嘉宝北片面雨量(mm)
+            </div>
+            <div field="SHIDRP" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                全市面雨量(mm)
+            </div>
+            <div field="STARTS" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                初始槽蓄量(百万m³)
+            </div>
+            <div field="MAXS" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                最高槽蓄量(百万m³)
+            </div>
+            <div name="action" width="40" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var grid = mini.get('grid1');
+        var dataResult = [
+            {"ID":"2023091901", "ZTNAME": "大潮汛(第6号台风“烟花”)", "WUPZ": "5.55", "DRP": "325.0", "STNM": "南翔", "SHIDRP": "286.1", "ARAEDRP": "223.8", "STARTS": "114.34", "MAXS": "164.31", },
+            {"ID":"2023091902", "ZTNAME": "中潮汛(第12号台风“梅花”)", "WUPZ": "5.53", "DRP": "157.0", "STNM": "新槎浦闸", "SHIDRP": "-", "ARAEDRP": "117.9", "STARTS": "132.97", "MAXS": "140.07", },
+            {"ID":"2023091903", "ZTNAME": "小潮汛(第9号台风“利奇马”)", "WUPZ": "3.90", "DRP": "267.5", "STNM": "新槎浦闸", "SHIDRP": "167.0", "ARAEDRP": "182.4", "STARTS": "123.37", "MAXS": "167.49", },
+        ];
+        
+        $(function () {
+            var tm = new Date();
+            mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            mini.get("ETIME").setValue(tm.format("yyyy-MM-dd"));
+            grid.setData(dataResult);
+        })
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s ='';
+            s += '<img style="cursor:pointer;" onclick="LookView(\'' + record.ID + '\',\'' + record.ZTNAME + '\')" src="/Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+            s += '<img style="cursor:pointer;" onclick="editData(\'ID@' + record.ID + '\', \'/SHSWTZ/zttz/DATA_ZHUANTI_Edit.html\', \'编辑专题\', \'70%\',\'80%\', \'true\')" src="/Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+            s += '<img style="cursor:pointer;" onclick="del(\'' + record.ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除专题管理" />&nbsp;';
+            return s;
+        }
+        function LookView(objID, objTitle) {
+            var url = "storagezt/"+objID+".html?name=" + objTitle;
+            window.location.href=url;
+        }
+    </script>
+</body>
+
+</html>

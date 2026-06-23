@@ -1,0 +1,457 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../script/parentIndex.js" type="text/javascript"></script>
+    <style type="text/css">
+        .label {
+            height: 30px;
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div id="dataLoad" class="load">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img src="../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="flex" style="width: 100%; height:100%;">
+        <div class="chosebiao" style="width:100%;height: 32px;background-color: white;">
+            <ul class="tabXQ" style="width: 100%;height: 30px;border-bottom: 1px solid #DBDBDB;border-top: 1px solid #DBDBDB;">
+                <li class="liactive">过程线</li>
+                <li>表格</li>
+                <!--<li>基础资料</li>-->
+                <li>视频监控</li>
+                <li>远程控制</li>
+            </ul>
+        </div>
+        <div id="selectDiv" style="width:700px; height:50px;padding:10px;">
+            <p style="height: 30px;float:left;">
+                <span class="label">开始时间：</span>
+                <input id="start" value="2017-01-01 12" class="mini-datepicker" style="width:144px;" format="yyyy-MM-dd HH:mm" showtime="true" />
+            </p>
+            <p style="height: 30px;float:left;margin-left: 9px;">
+                <span class="label">结束时间：</span>
+                <input id="end" value="2017-11-01 12" class="mini-datepicker" style="width:144px;" format="yyyy-MM-dd HH:mm" showtime="true" />
+            </p>
+            <p style="height: 30px;margin-left:20px;width:220px;float:left;" class="daochu">
+                <!--<a class="mini-button" iconcls="icon-search" onclick="btnSearch()">查询</a>
+                 <a class="mini-button" iconcls="icon-search" onclick="doExport()" >导出</a>-->
+                <a onclick="btnSearch()" style="margin-left: -12px;">查询</a>
+                <a onclick="doExport()" title="导出表格" style="margin-left: 14px;">导出</a>
+            </p>
+        </div>
+        <div class="choselei" style="width:100%; height: -webkit-calc(100% - 82px);height: -moz-calc(100% - 82px);height: calc(100% - 82px); ">
+            <div style="width:100%; height:100%">
+                <div id="main" style="width:100%;height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px);text-align:center"></div>
+
+                <table style="margin: 0 auto;width: 53%;">
+                    <tr>
+                        <td style="color: #000;" align="right">
+                            最高上游：
+                        </td>
+                        <td style="color: #000;" align="left">
+                            <span id="upz"></span>，<span id="upTime"></span>
+                        </td>
+                        <!--<td style="color: #000;" align="center">
+                            发生时间：
+                        </td>
+                        <td style="color: #000;" align="center">
+                            <span id="upTime"></span>&nbsp;&nbsp;
+                        </td>-->
+                        <td style="color: #000;" align="right">
+                            最低下游：
+                        </td>
+                        <td style="color: #000;" align="left">
+                            <span id="dpz"></span>，<span id="downTime"></span>
+                        </td>
+                        <!-- <td style="color: #000;" align="center">
+                             发生时间：
+                         </td>
+                         <td style="color: #000;" align="center">
+                             <span id="downTime"></span>&nbsp;&nbsp;
+                         </td>-->
+
+                    </tr>
+                    <tr>
+                        <td style="color: #000;" align="right">
+                            最大流量：
+                        </td>
+                        <td style="color: #000;" align="left">
+                            <span id="maxFlow"></span>，<span id="maxFlowTime"></span>
+                        </td>
+                        <!-- <td style="color: #000;" align="center">
+                             发生时间：
+                         </td>
+                         <td style="color: #000;" align="center">
+                             <span id="maxFlowTime"></span>&nbsp;&nbsp;
+                         </td>-->
+                        <td style="color: #000;" align="right">
+                            最小流量：
+                        </td>
+                        <td style="color: #000;" align="left">
+                            <span id="minFlow"></span>， <span id="minFlowTime"></span>
+                        </td>
+                        <!--<td style="color: #000;" align="center">
+                            发生时间：
+                        </td>
+                        <td style="color: #000;" align="center">
+                            <span id="minFlowTime"></span>&nbsp;&nbsp;
+                        </td>-->
+                    </tr>
+                </table>
+            </div>
+            <div class="activeTab" style="width:100%;height:100%;">
+                <div id="grid1" class="mini-datagrid" style="width:100%;height:100%;" allowAlternating="true" showSummaryRow="true"
+                     idField="STCD" allowResize="false" showPager="false" ondrawsummarycell="onDrawSummaryCell" ondrawcell="ondrawcell">
+                    <div property="columns">
+                        <div field="TM" width="150" align="center" headerAlign="center" allowSort="false">时间</div>
+                        <div field="Q" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">流量(m³/s)</div>
+                        <div field="UPZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="max">上游水位(m)</div>
+                        <div field="DWZ" width="120" align="center" headerAlign="center" allowSort="true" summaryType="min">下游水位(m)</div>
+                    </div>
+                </div>
+                <div id="dataShow" style="position:absolute;top:50%;left:50%; font-size:28px; font-weight:bold; display:none">暂无数据</div>
+            </div>
+
+            <!--<div class="activeTab" style="width:100%;height: -webkit-calc(100% + 50px);height: -moz-calc(100% + 50px);height: calc(100% + 50px);">
+                <iframe src="../../Data/EmgomeerView.htm?TYPE=&STCD=" frameborder="0" style="width:100%; height:100%"></iframe>
+            </div>-->
+            <div class="activeTab" style="width:100%;height:100%;height: -webkit-calc(100% + 50px);height: -moz-calc(100% + 50px);height: calc(100% + 50px);">
+                
+                <img src="../../Common/images/hedao.gif" />
+            </div>
+            <div class="activeTab" style="width:100%;height:100%;">
+                <iframe src="ShiPin/shipin.html" frameborder="0" style="width:100%;height: -webkit-calc(100% + 50px);height: -moz-calc(100% + 50px);height: calc(100% + 50px);"></iframe>
+            </div>
+        </div>
+    </div>
+</body> 
+<script src="../../Common/Scripts/tab.js" type="text/javascript"></script>
+ 
+<script type="text/javascript">
+    mini.parse();
+    var grid = mini.get("grid1");
+    var stcd = GetQueryString("stcd");
+    var stnm = GetQueryString("stnm"); 
+    var tm = GetQueryString("tm");
+     
+    var stime = GetQueryString("stime");
+    var etime = GetQueryString("etime");
+
+    $(function () { 
+        if (tm == null) {
+            tm = new Date();
+        } else {
+            tm = new Date(tm);
+        }
+        if (stime == null) {
+            stime = addDayDate(tm, -6) + " " + tm.format("HH:mm")
+        } else {
+            stime = new Date(stime.replaceAll("-", "/")).format("yyyy-MM-dd HH:mm:ss")
+        }
+        if (etime == null) {
+            etime = addDayDate(tm, -6) + " " + tm.format("HH:mm")
+        } else {
+            etime = new Date(etime.replaceAll("-", "/")).format("yyyy-MM-dd HH:mm:ss")
+        } 
+        if (new Date(stime) > new Date(tm.format("yyyy-MM-dd HH:mm:ss").replaceAll("-", "/"))) {
+            stime = addDayDate(stime, -1) + " 08:00:00"
+        }
+        mini.get("start").setValue(stime);
+        mini.get("end").setValue(etime);
+        BreakLayerLoad();
+    })
+    var strTitle = "";
+    var upzData2 = [];
+    var dwzData2 = [];
+    //使用
+    function setChart(data) { 
+
+        var xData = []; 
+        var min = 100; var max = 0;
+        var minTM = "", maxTM = "";
+        for (var i = 0, len = data.length; i < len; i++) {
+
+            var tm;
+            if (tm == "") {
+                tm = data[i].TM;
+            } else {
+                tm = mini.formatDate(new Date(data[i].TM.replaceAll("-", "/")), 'MM-dd HH:mm')
+            }
+
+            xData.push({ "TM": tm, "UPZ": data[i].UPZ, "DWZ": data[i].DWZ, "Q": Number(data[i].Q).toFixed(2)});
+           
+        }
+
+        var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
+        strNote += ',{"name": "上游水位","codename": "UPZ","tableV":"1","isShow":true,"width":"30%"}';
+        strNote += ',{"name": "下游水位","codename": "DWZ","tableV":"1","isShow":true,"width":"30%"}';
+        strNote += ',{"name": "流量","codename": "Q","tableV":"1","isShow":true,"width":"30%"}]';
+        var LineColor = ['#0000FF', '#00FF00', '#FF0000']; 
+        chartLL("main", xData, eval('(' + strNote + ')'), LineColor, "流量");
+
+
+    }
+
+
+
+
+
+    var maxUp = 0;
+    var minDown = 1000;
+
+    var maxFlow = -100;
+    var minFlow = 100;
+
+    var upTime = "";
+    var downTime = "";
+    var maxFlowTime = "";
+    var minFlowTime = "";
+    function upAndDown(data) {
+        for (var i = 0, len = data.length; i < len; i++) {
+            var upz = Number(data[i].UPZ).toFixed(2);
+            var tm;
+            if (tm == "") {
+                tm = data[i].TM;
+            } else {
+                tm = mini.formatDate(new Date(data[i].TM), 'MM-dd HH:mm')
+            }
+            var q = Number(data[i].Q).toFixed(2);
+            if (maxUp < upz) {
+                maxUp = upz;
+                upTime = tm;
+            }
+            if (minDown > upz) {
+                minDown = upz;
+                downTime = tm;
+            }
+
+            if (maxFlow < q) {
+                maxFlow = q;
+                maxFlowTime = tm;
+            }
+            if (minFlow > q) {
+                minFlow = q;
+                minFlowTime = tm;
+            }
+        }
+
+        if (maxUp == "") {
+            maxUp = "无";
+        } else {
+            maxUp += "m";
+        }
+        if (upTime == "") {
+            upTime = "无";
+        }
+        if (minDown == "") {
+            minDown = "无";
+        } else {
+            minDown += "m";
+        }
+        if (downTime == "") {
+            downTime = "无";
+        }
+
+
+
+        if (maxFlow == "") {
+            maxFlow = "无";
+        } else {
+            maxFlow = maxFlow  + "m³/s"
+        }
+        if (maxFlowTime == "") {
+            maxFlowTime = "无";
+        }
+        if (minFlow == "") {
+            minFlow = "无";
+        } else {
+            minFlow = minFlow  + "m³/s"
+        }
+        if (minFlowTime == "") {
+            minFlowTime = "无";
+        }
+
+        $("#upz").html(maxUp);
+        $("#dpz").html(minDown);
+        $("#upTime").html(upTime);
+        $("#downTime").html(downTime);
+
+
+        $("#maxFlow").html(maxFlow);
+        $("#minFlow").html(minFlow);
+        $("#maxFlowTime").html(maxFlowTime);
+        $("#minFlowTime").html(minFlowTime);
+    }
+
+    function noData() {
+        $("#upz").html("无");
+        $("#dpz").html("无");
+        $("#upTime").html("无");
+        $("#downTime").html("无");
+
+        $("#maxFlow").html("无");
+        $("#minFlow").html("无");
+        $("#maxFlowTime").html("无");
+        $("#minFlowTime").html("无");
+    }
+
+
+    function onrenderer(e) {
+        return parseInt(e.value).toFixed(1)
+    }
+
+    var resultData;
+    grid.on("beforeload", function (e) {
+        e.cancel = true;
+        var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+        //fillData(pageIndex,pageSize,resultData);
+    });
+    function ondrawcell(e) {
+        var row = e.row,
+            column = e.column,
+            field = e.field,
+            Value = e.value;
+        rowIndex = e.rowIndex;
+        if (field == "Q") {
+            if (Value != "") {
+                e.cellHtml = Number(Value).toFixed(2);
+            }
+        }
+    }
+    function tableBind(data) {
+        var dataResult = data.data;
+        //fillData(0, grid.getPageSize(), dataResult);
+        grid.setData(dataResult);
+    }
+    // 分页填充细节处理
+    function fillData(pageIndex, pageSize, dataResult) {
+        var data = dataResult;
+        var totalCount = dataResult.length;
+        var arr = [];
+        var start = pageIndex * pageSize, end = start + pageSize;
+        for (var i = start, l = end; i < l; i++) {
+            var record = data[i];
+            if (!record) continue;
+            arr.push(record);
+        }
+
+        grid.setTotalCount(totalCount);
+        grid.setPageIndex(pageIndex);
+        grid.setPageSize(pageSize);
+
+        grid.setData(arr);
+
+    }
+    function BreakLayerLoad() {
+        var startDate = mini.get("start").getFormValue();
+        var endDate = mini.get("end").getFormValue();
+        var d1 = new Date(startDate.replaceAll("-", "/"));
+        var d2 = new Date(endDate.replaceAll("-", "/"));
+        if (parseInt(d2 - d1) < 0) {
+            mini.alert("开始时间不大于结束时间！");
+            return;
+        }
+        if (parseInt(d2 - d1) / 1000 / 60 / 60 / 24 > 90) {
+            mini.alert("时间不能大于三个月！");
+            return;
+        }
+        $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
+
+        GetJosns("DT_GQXXDZSel", { "STCD": stcd, "STIME": d1.format("yyyy-MM-dd HH:mm:ss"), "ETIME": d2.format("yyyy-MM-dd HH:mm:ss") }, "Sel");
+    }
+
+    function JosnSel(data, typeID) {
+        if (typeID == "Sel") {
+            if (data.total > 0) {
+                resultData = eval(data);
+                setChart(resultData.data);
+                upAndDown(resultData.data);
+                tableBind(resultData);
+                $('#dataShow').hide();
+            } else {
+                tableBind([]);
+                $("#main").html("<h1 style=\"text-align:center;margin-top:18%;\">暂无数据</h1>"); 
+                $('#dataShow').show();
+                noData();
+            }
+            $("#dataLoad").hide();
+        }
+    }
+     
+    function btnSearch() {
+        BreakLayerLoad();
+    }
+    function onTabChange(index) {
+        if (index > 1) {
+            showtitle(false);
+        }
+        else {
+            showtitle(true);
+        }
+    }
+    function showtitle(isShow) {
+        if (isShow) {
+            $("#selectDiv").css("display", "flex");
+            $("#labelDiv").css("display", "table-cell");
+        }
+        else {
+            $("#selectDiv").css("display", "none");
+            $("#labelDiv").css("display", "none");
+        }
+    }
+
+    function doExport() {
+        ExportExcel(strTitle);
+    }
+
+
+
+    function onDrawSummaryCell(e) {
+        var value = e.value;
+        if (e.field == "Q") {
+            value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大流量: " + Number(value).toFixed(2) + "m³/s</span>" :
+                e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大流量: 无</span>";
+
+        }
+
+        if (e.field == "UPZ") {
+            value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大上游水位: " + Number(value).toFixed(2) + "m</span>" :
+                e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最大上游水位: 无</span>";
+        }
+
+        if (e.field == "DWZ") {
+            value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最小下游水位: " + Number(value).toFixed(2) + "m</span>" :
+                e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">最小下游水位: 无</span>";
+        }
+    }
+</script>
+</html>

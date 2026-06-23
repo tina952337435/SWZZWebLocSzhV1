@@ -1,0 +1,110 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>天文潮站点关系</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            &nbsp;&nbsp;&nbsp;关键字：<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" onenter="onKeyEnter" />
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            <!--&nbsp;&nbsp; <a class="mini-button" id="addbtn" onclick="AddBtn()" plain="false">增加</a>-->
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"  showpager="false"
+         showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"  ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+            <div field="zhanname" headeralign="center" align="center">
+                潮位站
+            </div>
+            <div header="插值站A" headeralign="center" align="center">
+                <div property="columns" headeralign="center" align="center">
+                    <div field="zhannamea" width="100" headeralign="center" align="center">站名</div>
+                    <div field="xsa" width="100" headeralign="center" align="center">系数</div>
+                </div>
+            </div>
+            <div header="插值站B" headeralign="center" align="center">
+                <div property="columns">
+                    <div field="zhannameb" width="100" headeralign="center" align="center">站名</div>
+                    <div field="xsb" width="100"  headeralign="center" align="center">系数</div>
+                </div>
+            </div>
+            <div header="插值站C" headeralign="center" align="center">
+                <div property="columns" headeralign="center" align="center">
+                    <div field="zhannamec" width="100" headeralign="center" align="center">站名</div>
+                    <div field="xsc" width="100"  headeralign="center" align="center">系数</div>
+                </div>
+            </div>
+            <div field="action" name="action" width="50" headeralign="center" align="center">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        $(function () {
+            search();
+        });
+        function search() {
+            var strWhere = { "kwtxt": mini.get("key").getValue()};
+            //GetJosns("MODE_ST_ASTRONOMICALTIDE_BNAMESel", strWhere, "Sel");
+			app.post("SWZZ_MODE_st_AstronomicalTide_B/findResult",strWhere,(data)=>{
+				JosnSel(data,"Sel")
+			})
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                grid.setData(data.data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field == "action") {
+                var s = '<img style="cursor:pointer;" onclick="del(\'' + record.zhanid + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除站点" />&nbsp;';
+                e.cellHtml= s;
+            }
+        }
+
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "stcd": objID };
+                        //GetJosns("MODE_ST_ASTRONOMICALTIDE_BDel", strWhere, "Del");
+						app.post("SWZZ_MODE_st_AstronomicalTide_B/remove",strWhere,(data)=>{
+							JosnSel(data,"Del")
+						})
+                    }
+                }
+            );
+        }
+    </script>
+</body>
+</html>

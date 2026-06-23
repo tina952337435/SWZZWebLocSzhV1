@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>模型计算成果</title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 14px;
+            /*background: #52B2EF;
+            background: url(../Common/images/mws-body-bg.png);*/
+            background-color: #f5f5f5;
+        }
+
+        .mini-panel-border {
+            /*border: 0px !important;*/
+            border-top: 0px !important;
+            /*border-right: 0px !important;*/
+        }
+
+        .yb_left {
+            float: left;
+            width: 71.5%;
+            /*border: 1px solid #d3d3d3;*/
+            /*background: #ffffff;*/
+        }
+
+        .tqyb_right {
+            float: right;
+            width: 28%;
+            /*background: #CFE4FF;*/
+        }
+
+        .menu {
+            float: none !important;
+            margin-right: 0px !important;
+            z-index: 999;
+            background: none;
+            width: 98%;
+            margin: 15px auto !important;
+            font-weight: normal !important;
+        }
+
+            .menu > li {
+                width: 100px;
+                position: relative;
+                float: left;
+                list-style-type: none;
+                border: 1px solid #e8e8e8;
+                margin-left: 30px;
+                cursor: pointer;
+                height: 37px;
+                color: #fff;
+                cursor: pointer;
+                background: #3c82f6;
+                text-align: center;
+                line-height: 37px;
+                -webkit-border-radius: 6px;
+                border-radius: 6px;
+            }
+
+        .menu-text {
+            font-weight: normal !important;
+            margin-left: 4px;
+        }
+
+        .menu > li > a {
+            height: 80px;
+            color: #337ab7;
+            text-align: center;
+            margin: 0;
+            display: block;
+            line-height: 35px;
+        }
+
+            .menu > li > a .menu-icon {
+                display: block;
+                font-size: 20px;
+                line-height: 23px;
+                width: 100%;
+                padding-top: 15px;
+                margin: 0;
+            }
+
+        .sysList {
+            margin-top: 25px;
+            color: gray;
+            margin-left: 0%;
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+        }
+
+            .sysList table td {
+                padding: 10px 3px 0px 3px;
+                /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+            }
+
+        #sysList table td {
+            padding: 0px 3px 0px 3px !important;
+        }
+
+        .sysList table td span {
+            line-height: 20px;
+        }
+
+        .mwsChart {
+            -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            background-color: #fff;
+            /*padding-left: 10px;
+            padding-right: 10px;*/
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <style>
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin:0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size:16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+
+    </style>
+</head>
+<body>
+    <div style="width:98.5%;margin:10px auto;">
+        <div class="yb_left">
+            <div style="width:100%;height:1040px;margin:0px auto;" class="mwsChart">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p">代表站预报水位过程线</p>
+                    <div style="float:right;margin-right:10px;margin-top: 7px;">
+                        <img src="../Common/images/shrink.png" title="站点选择" style="float:left;" onclick="showFs_clickHandler(this)" />
+                        <span style="display: block;float: left;line-height: 20px;margin-left:5px;" onclick="showFs_clickHandler(this)">站点选择</span>
+                        <div id="sysList" class="sysList" hidden="hidden" style="z-index:99;width:177px;">
+                            <ul id="tree1" class="mini-tree" style="width:100%;padding:5px;"
+                                showTreeIcon="true" textField="name" idField="stcd" value="base" expandOnNodeClick="true"
+                                resultastree="false" showCheckBox="true" checkRecursive="true"
+                                allowSelect="false" enableHotTrack="false" onnodecheck="onNodeCheck"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 100%; border-top: solid 1px #e8e8e8;background-color: #FFF;" id="chartS">
+                    <div id="chart1" style="float:left;width:33%;margin-left:0.5%;height:320px;border: solid 1px #e8e8e8;border-radius:6px; margin-top:10px;"></div>
+                    <div id="chart2" style="float:left;width:32.5%;margin-left:0.5%;height:320px;border: solid 1px #e8e8e8;border-radius:6px;margin-top:10px;"></div>
+                    <div id="chart3" style="float:left;width:32.5%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                    <div id="chart4" style="float:left;width:33%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                    <div id="chart5" style="float:left;width:32.5%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                    <div id="chart6" style="float:left;width:32.5%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                    <div id="chart7" style="float:left;width:33%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                    <div id="chart8" style="float:left;width:32.5%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                    <div id="chart9" style="float:left;width:32.5%;margin-left:0.5%;height:320px;margin-top:10px;border: solid 1px #e8e8e8;border-radius:6px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="tqyb_right">
+            <div style="width:calc(100%);height:100px;padding-left:5px;padding-right:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">历史计算成果查询</p>
+                    </div>
+                    <div id="faanCombox" style="width:100%; height: -webkit-calc(100% - 45px);height: -moz-calc(100% - 45px);height: calc(100% - 45px); margin: auto;font-size:15px;">
+                        <div style="padding: 10px 3%;">
+                            <div style="line-height:30px;">
+                                历史演算方案：<input id="DD_ID" name="DD_ID" class="mini-combobox" style="width:65%;" textField="dd_NAME" valueField="dd_ID" allowInput="true" onvaluechanged="onvaluechangedTM" />
+                            </div>
+                        </div>
+                        <div style="line-height:30px;display:none;">
+                            <span id="DD_TM"></span>
+                            <span id="DD_STANA" style="display:none;"></span>
+                            <span id="DD_ETM" style="display:none;"></span>
+                            <span id="DD_CHECKBY" style="display:none;"></span>
+                            <span id="ZU_ID" style="display:none;"></span>
+                            <span id="DD_NAME"></span>
+                            <span id="DD_NOTE" style="white-space:normal;word-wrap:break-word;word-break:break-all;"></span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div style="width:calc(100%);margin:5px auto;height:320px;padding-left:5px;padding-right:5px;padding-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p" id="JYLTitle">预报降雨量</p>
+                        <div style="float:right;margin-right: 10px;cursor:pointer;margin-top: 10px;" onclick="showAtPos()">
+                            <i class="fa fa-arrows-alt"></i>
+                        </div>
+                    </div>
+                    <div style="width:100%;height:265px;" id="JY_charts"></div>
+                </div>
+            </div>
+            <div style="width:calc(100%);margin:5px auto;height:325px;padding-left:5px;padding-right:5px;padding-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">高桥潮位</p>
+                    </div>
+                    <div id="grid2" style="width:100%; height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px); margin: auto;">
+                    </div>
+                </div>
+            </div>
+            <div style="width:calc(100%);margin:5px auto;height:280px;padding-left:5px;padding-right:5px;padding-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">吴淞口潮位</p>
+                    </div>
+                    <div id="chartHMCW" style="width:100%; height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px); margin: auto;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width:100%;height:630px;float:left;margin-top:5px;">
+            <div class="mwsChart">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p">重要代表站预报水位统计分析</p>
+                </div>
+                <div id="grid1" class="mini-datagrid" style="width:100%; height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);" borderStyle="border:0;"
+                     showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                     showHGridLines="false" ondrawcell="ondrawcell" sortmode="client">
+                    <div property="columns">
+                        <!--<div type="indexcolumn"></div>
+            <div field="HNNMBK" name="HNNMBK" headeralign="center" align="center" width="60">
+                分区
+            </div>-->
+                        <div field="stnm" headeralign="center" align="center">
+                            站点名称
+                        </div>
+                        <div field="maxz" headeralign="center" align="center" width="60">
+                            最高水位(m)
+                        </div>
+                        <div field="maxtm" headeralign="center" align="center">
+                            最高水位出现时间
+                        </div>
+                        <div field="durw" headeralign="center" align="center">
+                            超警时长(小时)
+                        </div>
+                        <div field="wrz" headeralign="center" align="center">
+                            警戒水位(m)
+                        </div>
+                        <div field="minz" headeralign="center" align="center" width="60">
+                            最低水位(m)
+                        </div>
+                        <div field="mintm" headeralign="center" align="center">
+                            最低水位出现时间
+                        </div>
+                        <!--<div field="XZDZ" headeralign="center" align="center">
+                允许最低旬均水位
+            </div>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width:100%;height:900px;float:left;margin-top:15px;">
+            <div class="mwsChart">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p">区域水量交换</p>
+                </div>
+                <iframe src="" id="gclxIframe" frameborder="0" width="100%" height="100%" scrolling="no">
+
+                </iframe>
+            </div>
+        </div>
+
+        <div style="height:15px;width:100%;float:left;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    </div>
+    <div id="win1" class="mini-window" title="窗体" style="width:1200px;height:650px;"
+         showMaxButton="false" showCollapseButton="false" showShadow="true"
+         showModal="false" allowResize="true" allowDrag="true">
+        <div id="bigJY_charts" style="width:1180px;height:600px;">
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid1 = mini.get("grid1");
+        var DD_ID;
+        var tree = mini.get("tree1");
+        var fa_arr;
+        $(function () {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            //GetJosns("MODE_DD_SOLUTIONSel", {DD_STATUS:"1"}, "MODE_DD_SOLUTIONSel");
+			app.post("SWZZ_MODE_DD_SOLUTION/findByDD_IDandDD_status",{"dd_STATUS": "1"},(data)=>{
+				JosnSel(data,"MODE_DD_SOLUTIONSel")
+			})
+            app.post("SWZZ_MODE_ES_SLTONGJI/findResult",{pattem: "134"},(data)=>{
+				JosnSel(data,"MODE_ES_ZHANDIANSel")
+			});
+        });
+
+        function onLoadData() {
+            var s_where = { solutionid: DD_ID, "startdate": $("#DD_TM").html(), "enddate": $("#DD_ETM").html(), "datatype": "0", "dayhour": "hour" };
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBindJY",s_where,(data)=>{
+				JosnSel(data,"JIANGYU")
+			})
+        }
+
+        function JsonColumnChart(strJson) {
+            var arrZhan = $.data(myData, "ES_ZHANDIAN");
+            var arr = strJson;
+            var strNote = [];
+            var item = { "name": "名称", "codename": "STNM", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "降雨量", "codename": "DRP", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+
+            var _XData = [];
+            if (arr != null && arr != undefined) {
+                for (var num = 0; num < arrZhan.length; num++) {
+                    var totalJY = 0;
+                    for (var h = 0; h < arr.length; h++) {
+                        totalJY += parseFloat(arr[h][arrZhan[num]["id"]]);
+                    }
+                    var item = {
+                        STNM: arrZhan[num]["title"], DRP: totalJY
+                    };
+                    _XData.push(item);
+                }
+                //绘制过程线颜色设置
+                var LineColor = ['#3398DB', '#FF0000', '#00FF00', '#FFA500'];
+                //绘制图形
+                chartYL("JY_charts", _XData, strNote, LineColor, "雨量");
+                chartYL("bigJY_charts", _XData, strNote, LineColor, "雨量");
+            }
+        }
+
+        function ondrawcell(e) {
+            var record = e.record;
+            if (e.field == "maxtm" || e.field == "mintm") {
+                if (e.value != undefined) {
+                    e.cellHtml = new Date(new Date(e.value)).format("MM-dd HH:mm");
+                }
+            }
+            if (e.field == "maxz" || e.field == "minz") {
+                if (e.value != null && e.value != "") {
+                    e.cellHtml = parseFloat(e.value).toFixed(2);
+                } else {
+                    e.cellHtml = "-";
+                }
+            }
+            if (e.field == "maxz") {
+                //超警、超保
+                try {
+                    var wrz = parseFloat(record.WRZ).toFixed(2);
+                    var grz = parseFloat(record.GRZ).toFixed(2);
+                    if (e.value >= wrz&&wrz>0) {
+                        e.cellStyle = "color:#FFA500;";
+                    }
+                    if (e.value >= grz&&grz>0) {
+                        e.cellStyle = "color:red;";
+                    }
+                } catch (e) {
+                }
+            }
+            if (e.field == "wrz") {
+                if (e.value != null && e.value != "") {
+                    e.cellHtml = parseFloat(e.value).toFixed(2);
+                } else {
+                    e.cellHtml = "-";
+                }
+            }
+
+            if (e.field == "durw") {
+                if (e.value == null || e.value == "" || e.value == 0) {
+                    e.cellHtml = "-";
+                } else {
+                    e.cellHtml = (e.value / 12).toFixed(1);
+                }
+            }
+            if (e.field == "stnm") {
+                var s = "<a title=\"" + e.value + "\" onclick=\"tans('" + e.value + "','" + record.stcd + "')\" style='cursor:pointer;'>" + e.value + "</a>";
+                e.cellHtml = s;
+            }
+            if (e.field == "xzdz") {
+                var s = e.value;
+                if (e.value == 0) {
+                    s = "-";
+                }
+                e.cellHtml = s;
+            }
+        }
+
+        function tans(stnm, stcd) {
+            var stime = $("#DD_TM").html();
+            var etime = $("#DD_CHECKBY").html();
+            var ZU_ID = $("#ZU_ID").html();
+            //alert(etime);
+            WindowsOpen("./DanZhan/YBSQLine.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime + "&PLAN_N=" + DD_ID + "&ZU_ID=" + ZU_ID, stnm + "水位过程线", "1100@630");
+        }
+
+
+        function Base() {
+            var strParam = { "pattem": "1,2" };
+            //GetJosns("MODE_ES_JISUANZHANSel", strParam, "MODE_ES_JISUANZHANSel");
+			app.post("SWZZ_MODE_ES_JISUANZHAN/findResult",strParam,(data)=>{
+				JosnSel(data,"MODE_ES_JISUANZHANSel")
+			})
+        }
+
+        function onLoadAllData() {
+            $("#JYLTitle").html("预报降雨量(" + $("#DD_STANA").html() +"小时)");
+
+            var url = "../page/yb/ybAreaSL.html?DD_ID="+DD_ID;
+            $("#gclxIframe").attr("src", url);
+            Base();
+
+            onLoadData();
+
+            onLoadHMCW();
+
+            onLoadHMCW2();
+        }
+
+        //吴淞口潮位
+        function onLoadHMCW() {
+            var strParam = { "pattem": "1778384914", "strExp": DD_ID };
+            //GetJosns("MODE_ES_ZHANDIANDATASel", strParam, "MODE_ES_ZHANDIANDATASel");
+			app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult",strParam,(data)=>{
+				JosnSel(data,"MODE_ES_ZHANDIANDATASel")
+			})
+        }
+        //高桥潮位
+        function onLoadHMCW2() {
+            var strParam = { "pattem": "1778384915", "strExp": DD_ID };
+            //GetJosns("MODE_ES_ZHANDIANDATASel", strParam, "MODE_ES_ZHANDIANDATASelGQ");
+			app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult",strParam,(data)=>{
+				JosnSel(data,"MODE_ES_ZHANDIANDATASelGQ")
+			})
+        }
+        var nodeschecked = [];
+        function JosnSel(data, typeID) {
+            if (typeID == "MODE_DD_SOLUTIONSel") {
+                fa_arr = data.data;
+				fa_arr.sort((a,b)=>{
+					return new Date(b.dd_TM).getTime() - new Date(a.dd_TM).getTime();
+				})
+                mini.get("DD_ID").setData(fa_arr);
+                mini.get("DD_ID").select(0);
+                DD_ID = fa_arr[0].dd_ID;
+                $("#DD_NAME").html(fa_arr[0].dd_NAME);
+                $("#DD_TM").html(new Date(new Date(fa_arr[0].dd_TM)).format("yyyy-MM-dd HH:mm:ss"));
+                $("#DD_NOTE").html(fa_arr[0].dd_NOTE);
+                $("#DD_STANA").html(fa_arr[0].dd_STANA);
+                $("#DD_CHECKBY").html(new Date(new Date(fa_arr[0].dd_CHECKBY)).format("yyyy-MM-dd HH:mm:ss"));
+                $("#ZU_ID").html(fa_arr[0].dd_MIND);
+                var etm = new Date(new Date($("#DD_TM").html()).addDate('h', parseInt(fa_arr[0].dd_STANA))).format("yyyy-MM-dd HH:mm:ss");
+                $("#DD_ETM").html(etm);
+                onLoadAllData();
+            } else if (typeID == "MODE_ES_JISUANZHANSel") {
+                var dataTemp = data.data.filter(function (item) {
+                    return "1" == item.type;
+                });
+                tree.setData(dataTemp);
+                var stcds = "";
+                var stnms = "";
+                for (var i = 0; i < dataTemp.length; i++) {
+                    if (i < 9) {
+                        nodeschecked.push(dataTemp[i]);
+                    }
+                    if (dataTemp[i].stcd != undefined && dataTemp[i].stcd != "" && dataTemp[i].stcd != null) {
+                        stcds += dataTemp[i].stcd + ",";
+                        stnms += dataTemp[i].name + ",";
+                    }
+                }
+                tree.checkNodes(nodeschecked);
+                if (stcds != "") {
+                    stcds = stcds.substring(0, stcds.length - 1);
+                }
+                if (stnms != "") {
+                    stnms = stnms.substring(0, stnms.length - 1);
+                }
+                $.data(myData, "STCDS", stcds);
+                $.data(myData, "STNMS", stnms);
+                var strParam = { "solutionid": DD_ID, "stcd": stcds, "data_TYPE": "1" };
+                //GetJosns("WJ_MODELSINGRESULT", strParam, "WJ_MODELSINGRESULT");
+				app.post("SWZZ_MODE_BDMS_PREDICT/WJ_MODELSINGRESULT",strParam,(data)=>{
+					JosnSel(data,"WJ_MODELSINGRESULT")
+				})
+
+                strParam = {
+                    "plan_n": DD_ID, "stcd": stcds, "data_TYPE": "1", "startdate": $("#DD_TM").html(),
+                    "enddate": $("#DD_ETM").html()
+                };
+                //GetJosns("MODE_BDMS_PREDICTSelMORE", strParam, "MODE_BDMS_PREDICTSelMORE");
+				app.post("SWZZ_MODE_BDMS_PREDICT/MODE_BDMS_PREDICTSelMORE",strParam,(data)=>{
+					JosnSel(data,"MODE_BDMS_PREDICTSelMORE")
+				})
+
+            }else if (typeID == "WJ_MODELSINGRESULT") {
+                grid1.setData(data.data);
+                //grid1.sortBy("HNNMBK", "asc");
+                //grid1.mergeColumns(["HNNMBK", "company"]);
+            } else if (typeID == "MODE_BDMS_PREDICTSelMORE") {
+                $.data(myData, "daibiaozhanData", data.data);
+                daibiaozhan(data.data);
+                mini.unmask(document.body);
+            } else if (typeID == "JIANGYU") {
+                var dataResult = data.data;
+				console.log(dataResult)
+                if (dataResult != [] && dataResult != null) {
+                    //绘制图形
+                    JsonColumnChart(dataResult);
+                }
+            }
+            else if (typeID == "MODE_ES_ZHANDIANSel") {
+                $.data(myData, "ES_ZHANDIAN", data.data);
+            }
+            else if (typeID == "MODE_ES_ZHANDIANDATASel") {
+                var LineColor = ["#0090FF"];
+                var strNote = [{ "name": "时间", "codename": "zhantime", "tableV": "1", "isShow": true, "width": "40%" },
+                { "name": "吴淞口潮位", "codename": "zhandata", "tableV": "1", "isShow": true, "width": "40%" }];
+                chartLL("chartHMCW", data.data, strNote, LineColor, "水位(m)");
+            } else if (typeID =="MODE_ES_ZHANDIANDATASelGQ") {
+                var LineColor = ["#8B5CFF"];
+                var strNote = [{ "name": "时间", "codename": "zhantime", "tableV": "1", "isShow": true, "width": "40%" },
+                { "name": "高桥潮位", "codename": "zhandata", "tableV": "1", "isShow": true, "width": "40%" }];
+                chartLL("grid2", data.data, strNote, LineColor, "水位(m)");
+            }
+        }
+        function onvaluechangedTM(e) {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            DD_ID = e.value;
+            var _stcd = mini.get("DD_ID");
+            var nodes = _stcd.getSelected();
+            DD_ID = nodes.dd_ID;
+            $("#DD_NAME").html(nodes.dd_NAME);
+            $("#DD_TM").html(new Date(new Date(nodes.dd_TM)).format("yyyy-MM-dd HH:mm:ss"));
+            $("#DD_NOTE").html(nodes.dd_NOTE);
+            $("#DD_STANA").html(nodes.dd_STANA);
+            $("#DD_CHECKBY").html(new Date(new Date(nodes.dd_CHECKBY)).format("yyyy-MM-dd HH:mm:ss"));
+            var etm = new Date(new Date($("#DD_TM").html()).addDate('h', parseInt(nodes.dd_STANA))).format("yyyy-MM-dd HH:mm:ss");
+            $("#DD_ETM").html(etm);
+            onLoadAllData();
+        }
+        //代表站绘图
+        function daibiaozhan(data) {
+            for (var num = 1; num < 10; num++) {
+                var myChart = echarts.init(document.getElementById("chart" + num));  //获得控件对象
+                //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+                myChart.clear();
+            }
+            var stcds = $.data(myData, "STCDS").split(",");
+            var stnms = $.data(myData, "STNMS").split(",");
+
+            var str_stcds = "";
+            var str_stnms = "";
+            for (var num = 0; num < nodeschecked.length; num++) {
+                str_stcds += nodeschecked[num].stcd + ",";
+                str_stnms += nodeschecked[num].name + ",";
+            }
+            str_stcds = str_stcds.substring(0, str_stcds.length - 1);
+            str_stnms = str_stnms.substring(0, str_stnms.length - 1);
+
+            stcds = str_stcds.split(",");
+            stnms = str_stnms.split(",");
+            var chartHtml = "";
+            //绘制过程线颜色设置
+            var LineColor = ["#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", '#FF0000', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#008B8B", "#90EE90"];
+            var _XDATA = [];
+            if (data.length > 0) {
+                //console.error(JSON.stringify(data));
+                for (var i = 0; i < stcds.length; i++) {
+                    var str = data.filter(function (item) {
+                        return stcds[i] == item.STCD;
+                    });
+                    if (str.length > 0) {
+						str.sort((a,b)=>{
+							return new Date(a.YMDHM).getTime() - new Date(b.YMDHM).getTime();
+						})
+                        //console.error(str);
+                        var jsonarray = [];
+                        if (str.length > 0) {
+                            for (var num = 0; num < str.length; num++) {
+                                jsonarray.push({ "TM": new Date(str[num].YMDHM).format("MM-dd HH:mm"), "DATA": str[num].DATA, "YJZ": $("#YJZ").html() });
+                                if (i == 0) {
+                                    var tempTM = new Date(str[num].YMDHM).format("MM-dd HH:mm");
+                                    _XDATA.push(tempTM);
+                                }
+                            }
+                        }
+                        var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"},';
+                        strNote += '{"name": "' + stnms[i] + '","codename": "DATA","tableV":"1","isShow":true,"width":"40%"},';
+                        strNote += '{"name": "警戒","codename": "WRZ","tableV":"1","isShow":true,"width":"40%"},';
+                        strNote += '{"name": "保证","codename": "GRZ","tableV":"1","isShow":true,"width":"40%"}]';
+
+                        var data1 = [];
+                        var data2 = [];
+                        var data3 = [];
+                        var data4 = [];//实测水位
+                        for (var num = 0; num < _XDATA.length; num++) {
+							if(str[num] == undefined){
+								continue;
+							}
+                            if(str[num].DATA != undefined){
+                            	data1.push(Number(str[num].DATA).toFixed(2));
+                            }else{
+                            	data1.push(Number("0").toFixed(2));
+                            }
+                            if (str[num].WRZ != undefined) {
+                                data2.push(Number(str[num].WRZ).toFixed(2));
+                            }
+                            if (str[num].GRZ != undefined) {
+                                data3.push(Number(str[num].GRZ).toFixed(2));
+                            }
+                            if (str[num].UPZ != undefined) {
+                                data4.push(Number(str[num].UPZ).toFixed(2));
+                            } else {
+                                data4.push(null);
+                            }
+                        }
+                        if (i < 9) {
+                            chartSW("chart" + (i + 1), data1, data2, data3, data4, _XDATA, null, "水位(m)", stnms[i]);
+                        }
+                    }
+                    
+                }
+            }
+        }
+
+        function showFs_clickHandler(obj) {
+            var isDisplay = $("#sysList").css("display");
+
+            if (isDisplay == "none") {
+                $("#sysList").css("display", "block");
+            } else {
+                $("#sysList").css("display", "none");
+            }
+        }
+
+        function onNodeCheck(e) {
+            var tree = e.sender;
+            var node = e.node;
+            var value = tree.getValue(true);
+            var cnodes = tree.getCheckedNodes(false);
+            nodeschecked = cnodes;
+            console.error(nodeschecked);
+            if (cnodes.length > 9) {
+                mini.alert("最多只能选择9个站点！");
+            } else {
+                daibiaozhan($.data(myData, "daibiaozhanData"));
+            }
+        }
+
+        function showAtPos() {
+            var win = mini.get("win1");
+            var x = "center";
+            var y = "middle";
+            win.showAtPos(x, y);
+        }
+
+        function GetQueryString(str) {
+            var LocString = String(window.document.location.href);
+            var rs = new RegExp("(^|)" + str + "=([^&]*)(&|$)", "gi").exec(LocString), tmp;
+            if (tmp = rs)
+                return decodeURI(tmp[2]);
+            return null;
+        }
+
+        function chartSW(ChartName, data1, data2, data3, data4, _XDATA, LineColor, max_min_Name, stnm) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var option = {
+                title: {
+                    text: stnm,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 14,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['预报', '实测', '警戒', '保证'],
+                    //show: false
+                    selected: {
+                        '警戒': false,
+                        '保证': false
+                    }
+                },
+                //toolbox: {
+                //    feature: {
+                //        saveAsImage: {}
+                //    }
+                //},
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: _XDATA
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                    }
+                ],
+                series: [
+                    {
+                        name: '预报',
+                        type: 'line',
+                        //stack: '总量',
+                        //areaStyle: {},
+                        color: "#15D69F",
+                        data: data1,
+                        symbol: 'none',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: '最大值' },
+                                { type: 'min', name: '最小值' }
+                            ]
+                        }
+                        //,
+                        //color: new echarts.graphic.LinearGradient(
+                        //    0, 0, 0, 1,
+                        //    [
+                        //        { offset: 0, color: '#8EBFFF' },
+                        //        { offset: 0.5, color: '#9FC8FD' },
+                        //        { offset: 0.8, color: '#CFE4FF' },
+                        //        { offset: 1, color: '#fff' }
+                        //    ]
+                        //)
+                    },
+                    {
+                        name: '实测',
+                        type: 'line',
+                        color: "blue",
+                        symbol: 'none',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的
+                        data: data4
+                    },
+                    {
+                        name: '警戒',
+                        type: 'line',
+                        lineStyle: {
+                            type: "dashed"
+                        },
+                        color: "#FFFF13",
+                        symbol: 'none',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的
+                        data: data2
+                    },
+                    {
+                        name: '保证',
+                        type: 'line',
+                        lineStyle: {
+                            type: "dashed"
+                        },
+                        color: "red",
+                        symbol: 'none',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的
+                        data: data3
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+
+        function ondrawcellGC(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "SL" || field == "SC") {
+                if (value == 0) {
+                    //e.cellHtml = "-";
+                }
+            }
+            if (field == "SL" || field == "YSL") {
+                if (value != 0) {
+                    e.cellHtml = Math.round(parseFloat(value) / 8.64 / 3, 1);
+                }
+            }
+            //if (field == "YSL") {
+            //太浦闸的引水量为-
+            //if (record.STNM == "太浦闸") {
+            //e.cellHtml = "-";
+            // }
+            //}
+            //if (field == "SL") {
+            //if (record.STNM == "太浦闸") {
+            //  e.cellHtml = e.cellHtml = Math.round(parseFloat(record.YSL) / 8.64 / 3, 1);
+            // }
+            // }
+        }
+
+        /* 柱状图 雨量
+             * ChartName画图控件名称
+             * dataS数据对象，数据格式json
+             * strNote数据说明，数据类型数组，数据格式
+             * json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示
+             */
+        const hexToRgba = (hex, opacity) => {
+            let rgbaColor = "";
+            let reg = /^#[\da-f]{6}$/i;
+            if (reg.test(hex)) {
+                rgbaColor = `rgba(${parseInt("0x" + hex.slice(1, 3))},${parseInt(
+                    "0x" + hex.slice(3, 5)
+                )},${parseInt("0x" + hex.slice(5, 7))},${opacity})`;
+            }
+            return rgbaColor;
+        }
+        function chartLL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(value[value1.codename]); //加入时间集合
+                        chartTM.push(new Date(convertToDate(value[value1.codename])).format("MM-dd HH:mm")); //加入时间集合
+
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var max_min = GetSort(chartValue);
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '2%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        min: max_min.min, //动态设置最大值最小值。
+                        max: max_min.max,
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(Number(m[i][j]).toFixed(2)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                type: 'line',
+                                data: chartValue,
+                                barWidth: '40%',
+                                symbol: 'none',  //这句就是去掉点的
+                                smooth: true,
+                                areaStyle: {
+                                    normal: {
+                                        color: new echarts.graphic.LinearGradient(
+                                            0,
+                                            0,
+                                            0,
+                                            1,
+                                            [{
+                                                offset: 0,
+                                                color: hexToRgba(LineColor[j-1], 0.3)
+                                            },
+                                            {
+                                                offset: 1,
+                                                color: hexToRgba(LineColor[j - 1], 0.1)
+                                            }
+                                            ],
+                                            false
+                                        ),
+                                        shadowColor: hexToRgba(LineColor[j - 1], 0.1),
+                                        shadowBlur: 10
+                                    }
+                                },
+                                //		           itemStyle: {normal: {
+                                //          	areaStyle: {type: 'default'},
+                                //				//颜色渐变设置
+                                //          	color:new echarts.graphic.LinearGradient(0,0,0,1,[{
+                                //          		offset:0,
+                                //          		color:'#050AE8'
+                                //          	},{
+                                //          		offset:1,
+                                //          		color:'#8688F4'
+                                //          	}])
+                                //          }},
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+
+                                symbol: 'none',  //这句就是去掉点的
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+
+        /* 柱状图 雨量
+* ChartName画图控件名称
+* dataS数据对象，数据格式json
+* strNote数据说明，数据类型数组，数据格式
+* json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示
+*/
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                        //chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: { show: false, type: ['line', 'bar'] },
+                        restore: { show: false },
+                        saveAsImage: { show: true }
+                    }
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: 20,
+                    top: 40,
+                    containLabel: true
+                },
+                calculable: true,
+                dataZoom: [
+                    {
+                        show: true,
+                        realtime: true,
+                        start: 0,
+                        end: 55
+                    },
+                    {
+                        type: 'inside',
+                        realtime: true,
+                        start: 0,
+                        end: 35
+                    }
+                ],
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        },
+                        axisLabel: {
+                            interval: 0,
+                            rotate: 30
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        //interval: 0,
+                        //  splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        min: 0,
+                        max: function (value) {
+                            return Number(value.max) + 50;
+                            //return Number((value.max - (value.max % 5)) / 5 + 1).toFixed(0) * 5;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        if (chartName[j] == "名称") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: '25%',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'top'
+                                    }
+                                },
+                                smooth: true
+                                //		           itemStyle: {normal: {
+                                //          	areaStyle: {type: 'default'},
+                                //				//颜色渐变设置
+                                //          	color:new echarts.graphic.LinearGradient(0,0,0,1,[{
+                                //          		offset:0,
+                                //          		color:'#050AE8'
+                                //          	},{
+                                //          		offset:1,
+                                //          		color:'#8688F4'
+                                //          	}])
+                                //          }},
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+            myChart.on('click', function (param) {
+                var name = param.name;
+                WindowsOpen("./DanZhan/YBYQBar.html?stnm=" + (name) + "&DD_ID=" + DD_ID, name, "1100@600");
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--<link rel="icon" href="/Common/images/bitbug_favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="/Common/images/bitbug_favicon.ico" type="image/x-icon" />-->
+    <title>上海市水文预报调度一体化平台（一期）</title>
+    <!--<script src="Common/Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>-->
+    <script src="Common/boot.js" type="text/javascript"></script>
+    <link href="Common/frame2/res/menu/menu.css" rel="stylesheet" type="text/css" />
+    <script src="Common/frame2/res/menu/menu.js" type="text/javascript"></script>
+    <link href="Common/frame2/res/tabs.css" rel="stylesheet" type="text/css" />
+    <link href="Common/frame2/res/frame.css" rel="stylesheet" type="text/css" />
+    <link href="Common/frame2/res/index.css" rel="stylesheet" type="text/css" />
+    <script src="Common/Scripts/common.js"></script>
+    <link href="Common/CSS/PublicCss.css" rel="stylesheet" type="text/css" />
+
+    <link href="Common/miniui/mui/icons-extra.css" rel="stylesheet" />
+    <!--<script src="SPVideo/WebDemo/Script/video.min.js"></script>
+    <script src="SPVideo/WebDemo/Script/videojs-contrib-hls.js"></script>-->
+    <style type="text/css">
+        .navbar {
+            /* background: rgb(30, 128, 215);
+            FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#b8c4cb,endColorStr=red);
+            background: -ms-linear-gradient(top, #fff, #0000ff);
+            background: -moz-linear-gradient(top,#b8c4cb,#f6f6f8);
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%,from(#b8c4cb), to(#f6f6f8));
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#0000ff));
+            background: -webkit-linear-gradient(top, #044CB3, #0a6af3);
+            background: -o-linear-gradient(top, #fff, #0000ff);
+            */
+            FILTER: progid:DXImageTransform.Microsoft.Gradient(gradientType=0,startColorStr=#b8c4cb,endColorStr=red);
+            /*background: -ms-linear-gradient(top, #fff, #0000ff);*/
+            background: -moz-linear-gradient(top,#b8c4cb,#f6f6f8);
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%,from(#b8c4cb), to(#f6f6f8));
+            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#0000ff));
+            background: -webkit-linear-gradient(top, #044CB3, #0a6af3);
+            background: -o-linear-gradient(top, #fff, #0000ff);
+        }
+
+        .mini-iconfont, .mini-icon {
+            text-align: center !important;
+        }
+
+        .menu > li {
+            width: 100px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-header">
+            <div style="position:absolute;height:78px;width:516px;top:0px;left:0px;background-image: url(/Common/images/logoDD.png);background-repeat:no-repeat;background-position: 0px 10px;">
+            </div>
+        </div>
+        <div class="nav navbar-nav top-menu">
+            <div id="mainMenu"></div>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <!--<li><input class="search-input" type="text" placeholder="搜索" /></li>
+            <li><a href="#"><i class="fa fa-user"></i></a></li>
+            <li><a href="#"><i class="fa fa-comments"></i></a></li>
+            <li><a href="#"><i class="fa fa-tasks"></i></a></li>-->
+            <li class="dropdown">
+                <a class="dropdown-toggle userinfo">
+                    <img class="user-img" src="Common/frame2/res/images/user.jpg" /><span id="userinfo" style="color:red;font-weight:600;"></span><span id="Spanuser">个人资料</span><i class="fa fa-angle-down"></i>
+                </a>
+                <ul class="dropdown-menu pull-right">
+                    <!--<li>
+                        <a href="#" onclick="javascript: window.open('TYindex.html')"> <i class="fa fa-question-circle-o"></i>系统模块管理</a>
+                    </li>-->
+                    <li class="divider"></li>
+                    <li>
+                        <a href="#" onclick="LogOut()"><i class="fa fa-key "></i>注销</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <div id="mainTabs" class="mini-tabs" activeIndex="0" style="height:100%;" plain="false" buttons="#tabsButtons" arrowPosition="side">
+        </div>
+        <div id="tabsButtons">
+            <!--<a class="tabsBtn" onclick="OneTab()"><i class="fa fa-home"></i></a>-->
+            <a class="tabsBtn" onclick="loadTab()"><i class="fa fa-refresh"></i></a>
+            <a class="tabsBtn" onclick="RemoveTab()"><i class="fa fa-remove"></i></a>
+            <a class="tabsBtn" onclick="AllTab()"><i class="fa fa-arrows-alt"></i></a>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var APPID = GetQueryString("APPID");
+        var RedirectURL = GetQueryString("RedirectURL");
+        var tabs = mini.get("mainTabs");
+        function OneTab() {
+            var tab = tabs.getTab("index");
+            tabs.activeTab(tab);
+        }
+        function loadTab() {
+            var tabsPsonRole = mini.get("mainTabs");
+            tabsPsonRole.loadTab(tabsPsonRole.getActiveTab().url, tabsPsonRole.getActiveTab());
+        }
+
+        function RemoveTab() {
+            var tab = tabs.getActiveTab();
+            if (tab) {
+                tabs.removeTab(tab);
+            }
+        }
+        function AllTab() {
+            var tabsPsonRole = mini.get("mainTabs");
+            var win = mini.open({
+                width: "100%", height: "100%", showCloseButton: true, url: tabsPsonRole.getActiveTab().url, showModal: true, onload: function () {       //弹出页面加载完成
+                    var iframe = this.getIFrameEl();
+                    //调用弹出页面方法进行初始化
+                  iframe.contentWindow.SetData(data);
+
+                }
+            });
+            win.max();
+        }
+        function OnPwd() {
+            var agg = { id: "2015103100005", iconCls: "mini-tab-icon mini-iconfont MenuIcoColor menu-icon fa fa fa-warning", text: "修改密码", url: "/Collect/test.html" };
+            activeTab(agg);
+        }
+        function OpenTab(_iconCls, _text, _url) {
+            var agg = { id: GetTableID(), iconCls: "mini-tab-icon mini-iconfont MenuIcoColor menu-icon fa " + _iconCls, text: _text, url: _url };
+            activeTab(agg);
+        }
+        function activeTab(item) {
+            if (item.url.lastIndexOf('bigData') > -1) {
+                window.open(item.url);
+            } else {
+                var tabs = mini.get("mainTabs");
+                var tab = tabs.getTab(item.id);
+                if (!tab) {
+                    tab = {
+                        name: item.id,
+                        title: item.text,
+                        url: item.url,
+                        iconCls: item.iconCls,
+                        showCloseButton: true
+                    };
+                    tab = tabs.addTab(tab);
+                }
+                tabs.activeTab(tab);
+            }
+        }
+        function FirstTab() {
+            var item = { id: "2020052810545865427", iconCls: "fa-calculator", text: "模型演算", url: "/DD_MX/Initialization.html" };
+            //var item = { id: "201904010001", iconCls: "fa-globe", text: "预报一张图", url: "map.html?menu=NO071" };
+            item = $.data(myData, "item");
+            var tabs = mini.get("mainTabs");
+            //tab = { name: item.id, title: item.text, url: item.url, iconCls: item.iconCls, showCloseButton: false };
+            tab = { name: item.QX_ID, title: item.QX_NAME, url: item.QX_URL, iconCls: item.QX_ICON, showCloseButton: false };
+            tab = tabs.addTab(tab);
+            tabs.activeTab(tab);
+        }
+        tabs.on("activechanged", function (e) {
+            try {
+                var TPZTab = $.data(myData, "iframeTabTPZ");
+                var TPZiframeTab = tabs.getTabIFrameEl(TPZTab);
+                if (TPZiframeTab) {
+                    TPZiframeTab.contentWindow.RainfallChange("1");
+                }
+            } catch (ex) { }
+            try {
+                var WTTab = $.data(myData, "iframeTabWT");
+                var WTiframeTab = tabs.getTabIFrameEl(WTTab);
+                if (WTiframeTab) {
+                    WTiframeTab.contentWindow.RainfallChange("1");
+                }
+            } catch (ex) { }
+        });
+        $(function () {
+            var _userinfo = GetCookie("LOGINNAME");
+            //console.error(_userinfo);
+            if (_userinfo != "") {
+                $("#Spanuser").html(_userinfo);
+            } else {
+                window.location.href = 'login.html';
+            }
+
+            menu = new Menu("#mainMenu", {
+                itemclick: function (item) {
+                    if (!item.children) {
+                        activeTab(item);
+                    }
+                }
+            });
+            var postParam = { "QX_SYS": "NO12", "QX_MENU": "NO07", "GROUPID": GetCookie("GROUPID") };
+            GetJosns("QX_MAINSel", postParam, "QX_MAINSel");
+        });
+        var GetIP = 0;
+        var menu;
+        function JosnSel(data, typeID) {
+            if (typeID == "QX_MAINSel") {
+                var jsonarray = data.data;
+                $.data(myData, "menuData", jsonarray);
+                var MenuData = [];
+                if (data.data.length > 0) {
+                    for (nm = 0; nm < data.data.length; nm++) {
+                        if (nm == 1) {
+                            $.data(myData, "item", data.data[nm]);
+                        }
+                        if (data.data[nm].QX_PARENT !="2020052810534083906") {
+                            MenuData.push(data.data[nm]);
+                        }
+                    }
+                }
+                var JsonData = GetMenu(MenuData, data.data[0].QX_ID);
+                if (JsonData.length > 0) {
+                    var tempURL = "";
+                    if (JsonData[0].children != undefined) {
+                        tempURL = JsonData[0].children[0].url;
+                        $.data(myData, "QX_URL", tempURL);
+                        $.data(myData, "id", JsonData[0].children[0].id);
+                        $.data(myData, "iconCls", JsonData[0].children[0].iconCls);
+                        $.data(myData, "text", JsonData[0].children[0].text);
+                    } else {
+                        tempURL = JsonData[0].url;
+                        $.data(myData, "QX_URL", tempURL);
+                        $.data(myData, "id", JsonData[0].id);
+                        $.data(myData, "iconCls", JsonData[0].iconCls);
+                        $.data(myData, "text", JsonData[0].text);
+                    }
+                }
+
+                menu.loadData(JsonData);
+
+                //dropdown
+                $(".dropdown-toggle").click(function (event) {
+                    $(this).parent().addClass("open");
+                    return false;
+                });
+
+                $(document).click(function (event) {
+
+                    $(".dropdown").removeClass("open");
+                });
+                FirstTab();
+            } 
+        }
+
+        function LogOut() {
+            var url = "login.html";
+            window.location.href = url;
+        }
+    </script>
+</body>
+</html>

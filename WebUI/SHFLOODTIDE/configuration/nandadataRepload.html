@@ -1,0 +1,471 @@
+﻿
+<!DOCTYPE html
+          PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head runat="server">
+    <title>南大数据导入</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!--<script src="../Common/Scripts/swfupload/swfupload.js" type="text/javascript"></script>-->
+
+    <link href="/Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/bootstrap-fileinput/css/fileinput.css" rel="stylesheet" type="text/css" />
+
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            font-family: "Microsoft YaHei";
+            -ms-overflow-style: scrollbar;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            min-width: 800px;
+        }
+
+        .Box {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <style type="text/css">
+        .file-preview {
+            border: 0px;
+        }
+
+        .btn-primary {
+            background-color: #3291F9;
+            border-color: #3291F9;
+        }
+
+            .btn-primary.active,
+            .btn-primary:active,
+            .btn-primary:active:hover,
+            .btn-primary.focus,
+            .btn-primary:focus,
+            .btn-primary:hover {
+                color: white;
+                background-color: #007aff;
+                border-color: #007aff;
+            }
+
+        .btn-file {
+            margin-left: 17px;
+        }
+
+        .file-drop-zone-title {
+            color: #aaa;
+            font-size: 40px;
+            padding: 25px 10px;
+        }
+
+        .file-preview-other {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
+        .kv-upload-progress {
+            display: none;
+        }
+    </style>
+    <style type="text/css">
+        .checkbox-primary input[type="checkbox"]:checked + label::before,
+        .checkbox-primary input[type="radio"]:checked + label::before {
+            background-color: #337ab7;
+            border-color: #337ab7;
+        }
+
+        .checkbox label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 17px;
+            height: 17px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #cccccc;
+            border-radius: 3px;
+            background-color: #fff;
+            -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+        }
+
+        .checkbox label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 0px;
+        }
+
+        .radio label,
+        .checkbox label {
+            min-height: 20px;
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        label {
+            display: inline-block;
+            max-width: 100%;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .checkbox input[type="checkbox"],
+        .checkbox input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .radio input[type="radio"],
+        .radio-inline input[type="radio"],
+        .checkbox input[type="checkbox"],
+        .checkbox-inline input[type="checkbox"] {
+            position: absolute;
+            margin-top: 4px \9;
+            margin-left: -20px;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin: 4px 0 0;
+            margin-top: 1px \9;
+            line-height: normal;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 0;
+        }
+
+        input,
+        button,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        .radio + .radio,
+        .checkbox + .checkbox {
+            margin-top: -5px;
+        }
+
+        .checkbox {
+            padding-left: 20px;
+        }
+
+        .radio,
+        .checkbox {
+            position: relative;
+            display: block;
+            margin-top: 10px !important;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-primary input[type="checkbox"]:checked + label::after,
+        .checkbox-primary input[type="radio"]:checked + label::after {
+            color: #fff;
+        }
+
+        .checkbox input[type="checkbox"]:checked + label::after,
+        .checkbox input[type="radio"]:checked + label::after {
+            font-family: "FontAwesome";
+            content: "\f00c";
+        }
+
+        .checkbox label::after {
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            top: 0;
+            margin-left: -20px;
+            padding-left: 3px;
+            padding-top: 1px;
+            font-size: 11px;
+            color: #555555;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            background: none;
+        }
+    </style>
+</head>
+
+<body>
+    <input id="URL" class="mini-hidden" />
+    <div style="width:100%;margin:10px 0px;">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+                <td style="width:280px;display:none;" align="right" id="zhanTD">
+                    <span style="float:left;margin-top: 3px;">&nbsp;&nbsp;站点选择：</span>  
+                    <input id="STCD" name="STCD" class="mini-combobox" style="width:200px;float:left;" textField="STNM" valueField="STCD" 
+                     allowInput="true" showNullItem="true" onvaluechanged="onDeptChanged"
+                           />
+                </td>
+                <td style="width:150px;" align="right">
+                    日雨量文件上传：
+                </td>
+                <td align="left" style="padding-left:10px;" valign="top">
+                    <div style="width:500px;position:relative;float: left;">
+                        <input type="file" name="Fdata" id="Fdata" class="file-loading" data-show-preview="false"
+                               data-show-upload="false" data-show-caption="true" accept=".txt"
+                               data-allowed-file-extensions='["txt"]' />
+                    </div>
+                    <div style="float: left; margin-left: 20px;">
+                        <button type="button" class="btn btn-primary" onclick="saveExcel()">保存</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <span style="color:red;font-size: 16px;" id="SpanPathName"></span>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="grid1" class="mini-datagrid"
+         style="width: 100%;height: -webkit-calc(100% - 60px);height: -moz-calc(100% - 60px);height: calc(100% - 60px);"
+         allowalternating="true" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" showPager="false" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" headeralign="center" align="center">序号</div>
+        </div>
+    </div>
+</body>
+
+<script src="/Common/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+<script src="/Common/bootstrap-fileinput/js/fileinput_locale_zh.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+    var _PathName = GetQueryString("PATHNAME");
+    var _FileName = GetQueryString("HNNM");
+    if (_PathName == null) {
+        _PathName = "南大数据";
+    }
+    var FileInput = function () {
+        var oFile = new Object();
+
+        //初始化fileinput控件（第一次初始化）
+        oFile.Init = function (ctrlName, uploadUrl) {
+            var control = $('#' + ctrlName);
+            //初始化上传控件的样式
+            control.fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: uploadUrl, //上传的地址
+                allowedFileExtensions: ['xlsx', 'xls'], //接收的文件后缀
+                showClose: false,
+                showUpload: false, //是否显示上传按钮
+                showRemove: false, //是否显示删除按钮
+                showCaption: false, //是否显示标题
+                showUploadedThumbs: false,
+                browseClass: "btn btn-primary", //按钮样式
+                textEncoding: "UTF-8",
+                dropZoneEnabled: true, //是否显示拖拽区域
+                //minImageWidth: 50, //图片的最小宽度
+                //minImageHeight: 50,//图片的最小高度
+                //maxImageWidth: 1000,//图片的最大宽度
+                //maxImageHeight: 1000,//图片的最大高度
+                maxFileSize: 204800, //单位为kb，如果为0表示不限制文件大小
+                //minFileCount: 0,
+                maxFileCount: 100,
+                enctype: 'multipart/form-data',
+                validateInitialCount: true,
+                previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+
+                msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                slugCallback: function (e) {
+                    //console.log(e)
+                    var fileName = SetNull(e.split(/(\\|\/)/g).pop());
+                    //console.error(fileName);
+                    return fileName;
+                },
+                uploadExtraData: function (previewId, index) { //额外参数的关键点
+                    var obj = {};
+                    obj.PATHNAME = _PathName;
+                    obj.OFILES = ctrlName;
+                    obj.PDFTOTIF = true;
+                    obj.token = "768ADC6A9E72BFEE4891F1F98650FEEE";
+                    return obj;
+                }
+            }).on('filebatchselected', function (event, data) {
+                $("#zhanTD").hide();
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '数据上报中...'
+                });
+                $(this).fileinput("upload");
+            });
+
+            var FileResult = [];
+            //导入文件上传完成之后的事件
+            $("#Fdata").on("fileuploaded", function (event, data, previewId, index) {
+                var strJson = data.response.data;
+                if (data.response.IsSuccess) {
+                    $.data(myData, "FILEData", strJson[0]);
+
+                    var item = eval(strJson[0].JSONDATA[0]["SheetData"]);
+                    //console.error(strJson[0]);
+                    $.data(myData, "SheetData", item);
+                    GetColumnData();
+                } else {
+                    mini.alert("文件数据有问题，请检查文件！");
+                }
+                
+                mini.unmask(document.body);
+            });
+        }
+        return oFile;
+    };
+    function GetColumnData() {
+        var createGrid = STGRDColumn();
+        grid.set({
+            columns: createGrid
+        });
+        var strJson = $.data(myData, "SheetData");
+        grid.setData(strJson);
+        //}
+    }
+    //获取表头---2022-01-05
+    function STGRDColumn() {
+        var createGrid = [];
+        createGrid.push({ type: "indexcolumn", headerAlign: "center", align: "center", header: "序号" });
+        createGrid.push({ field: "STNM", headerAlign: "center", align: "center", header: "站名" });
+        createGrid.push({ field: "STCD", headerAlign: "center", align: "center", header: "站码" });
+        createGrid.push({ field: "TM", headerAlign: "center", align: "center", header: "时间" });
+        createGrid.push({ field: "DRP", headerAlign: "center", align: "center", header: "日雨量(mm)" });
+        return createGrid;
+    }
+</script>
+<script type="text/javascript">
+    mini.parse();
+    var myData = [];
+    var sc_state = "0";
+    var grid = mini.get("grid1");
+    $(function () {
+        $("#zhanTD").hide();
+        var oFileInput = new FileInput();
+        oFileInput.Init("Fdata", ServerIP + "/json/reply/UOLOADEXCELFILE_NANDA");
+        loadZhanData();
+    });
+
+    function JosnSel(data, typeID) {
+        if (typeID == "Sava") {
+            if (data.total > 0) {
+                ShowMsg("数据保存成功！");
+            }
+        }
+        else if (typeID == "bSel") {
+            var dataResult = data.data;
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+        }
+        mini.unmask(document.body);
+    }
+    //鼠标移动上去的提示信息。
+    function ondrawcell(e) {
+        var row = e.row,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+        //超链接任务
+
+    }
+
+    function saveExcel() {
+        var strJson = $.data(myData, "SheetData");
+        //console.error(strJson);
+        if (strJson != null && strJson != undefined) {
+            if (strJson.length > 0) {
+                if (strJson[0].STCD == null || strJson[0].STCD == undefined || strJson[0].STCD == "") {
+                    mini.alert("根据站码没有匹配到数据站码，请选择站点！");
+                    $("#zhanTD").show();
+                    $("#STCD").get(0).focus();
+                    return;
+                }
+            }
+        }
+        mini.confirm('请确认站点是否正确？', "确定？",
+            function (action) {
+                if (action == "ok") {
+                    var strJson = grid.getData();
+                    if (strJson.length > 0) {
+                        mini.mask({
+                            el: document.body,
+                            cls: 'mini-mask-loading',
+                            html: '数据保存中...'
+                        });
+                        var strWhere = { UPDATE: false, LISTMODE: JSON.stringify(strJson) };
+                        GetJosns("SWZZ_FLOODTIDEDATA_ND_PPTN_RDAYPL", strWhere, "Sava");
+                    } else {
+                        if (mini.get("URL").getValue() == "") {
+                            showTips("请先上传日雨量文件");
+                        } else {
+                            showTips("请选择日雨量文件");
+                        }
+                    }
+                }
+            }
+        );
+    }
+
+    //==加上编辑列代码
+    function onActionRenderer(e) {
+        var grid = e.sender;
+        var record = e.record;
+        var uid = record._uid;
+        var rowIndex = e.rowIndex;
+        var s = '';
+        s += '<img style="cursor:pointer;" onclick="delRow(\'' + uid + '\',\'' + record.ZB_ID +
+            '\')" src="/Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+        return s;
+    }
+
+    function delRow(row_uid, strID) {
+        var row = grid.getRowByUID(row_uid);
+        if (row) {
+            if (confirm("确定删除此记录？")) {
+                var strJson = grid.getData().filter(function (res) {
+                    return res["ZB_ID"] != strID;
+                });
+                grid.setData(strJson);
+            }
+        }
+    }
+
+    function loadZhanData() {
+        var strWhere = {
+            //STCT: "降水"
+        };
+        GetJosns("SWZZ_SQTZ_HY_STSC_ASel", strWhere, "bSel");
+    }
+    function onDeptChanged(e) {
+        var value = e.value;
+        var strJson = $.data(myData, "SheetData");
+        var data = [];
+        for (var num = 0; num < strJson.length; num++) {
+            var item = strJson[num];
+            item.STCD = value;
+            data.push(item);
+        }
+        $.data(myData, "SheetData", data);
+        GetColumnData();
+        $("#zhanTD").hide();
+    }
+</script>
+</html>

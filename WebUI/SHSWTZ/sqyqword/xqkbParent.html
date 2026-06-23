@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>气象</title>
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="产品项目" />
+    <meta name="keywords" content="产品项目" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <script src="/Common/boot.js?ver=1.0.1" type="text/javascript"></script>
+    <link href="/Common/CSS/defualtParent.css" rel="stylesheet" />
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /*background: red;
+            border:1px red solid;*/
+        }
+    </style>
+</head>
+<body>
+    <div class="layui-layout">
+        <div class="layui-header">
+            <ul class="layuimini-header-menu">
+                <li class="layui-nav-item layui-this">
+                    <a>水情快报</a>
+                </li>
+                <li class="layui-nav-item">
+                    <a>水情简报</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="layui-content">
+            <iframe id="myIframe" src="FloodReportEdit.html?contType=水情快报" width="100%" height="100%" scrolling="yes" frameborder="0"></iframe>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $(".layuimini-header-menu li").click(function () {
+                $(".layuimini-header-menu li").removeClass("layui-this");
+                $(this).addClass("layui-this");
+                var aHtml = $(this).find("a").html();
+                var url = "";
+                if (aHtml == "水情快报") {
+                    url = "FloodReportEdit.html?contType=" + aHtml;
+                }
+                if (aHtml == "水情简报") {
+                    url = "xqkb_preview.html?contType=" + aHtml;
+                }
+                $("#myIframe").attr("src",url);
+            });
+        });
+    </script>
+</body>
+</html>

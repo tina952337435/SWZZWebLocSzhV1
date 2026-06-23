@@ -1,0 +1,378 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+        <meta charset="utf-8" />
+        <title></title>
+        <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+        <script src="../Common/boot.js" type="text/javascript"></script>
+        <script src="../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+        <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+        <link href="../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+        <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+        <style>
+            .mini-grid-summaryRow div {
+                background: none !important;
+            }
+
+            .mini-grid-summaryRow table {
+                background: none !important;
+            }
+
+            .mini-grid-summaryRow tr td {
+                text-align: center;
+                background: none !important;
+                border: none;
+            }
+
+                .mini-grid-summaryRow tr td span {
+                    color: #000 !important;
+                    line-height: 25px;
+                    font-weight: 400 !important;
+                }
+
+            .label {
+                height: 30px;
+                line-height: 30px;
+            }
+        </style>
+    </head>
+<body>
+    <!--页面载入显示-->
+    <div id="dataLoad" class="load">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img src="../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后......
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width:20%;"></td>
+                <td align="right">
+                    <div class="bootstrap-switch ">
+                        <div class="bootstrap-switch-container">
+                            <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
+                            <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i class="fa fa-table"></i></span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 36px);height: -moz-calc(100% - 36px);height: calc(100% - 36px);">
+        <div id="fit1" class="fit">
+            <div id="Chart" style="width: 98%; height:480px; text-align: center">
+            </div>
+        </div>
+        <div id="fit2" class="fit" style="height:480px;">
+            <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;" allowalternating="true" sizeList="[15,20,30,50,100]" pageSize="15" showpager="false"
+                 showsummaryrow="true" idfield="STCD" allowresize="false" ondrawcell="ondrawcell" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                 ondrawsummarycell="onDrawSummaryCell">
+                <div property="columns">
+                    <div field="ftm" width="150" align="center" headeralign="center" allowsort="false">
+                        时间
+                    </div>
+                    <div field= "drp" width="120" align="center" headeralign="center" allowsort="true"
+                         summarytype="sum">
+                        雨量(mm)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var RLSTM = GetQueryString("RLSTM");
+        var FTM = GetQueryString("FTM");
+        var NAME = GetQueryString("NAME");
+        var stcd =GetQueryString("STCD");
+        var FPDR=GetQueryString("FPDR");
+        var grid = mini.get("grid1");
+        var myData = [];
+        $(function () {
+            $("#fit2").hide();
+            BreakLayerLoad();
+        });
+
+        function BreakLayerLoad() {
+            app.post("SWZZ_QXSJ_tz_watersheddata/findResult", {stcd:stcd, startdate: RLSTM, enddate: RLSTM, kwtxt: FPDR }, (data) => {
+                JosnSel(data,"Sel");
+            });
+        }
+        var dataResult;
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                if (data.total > 0) {
+                    var stime =new Date( FTM);
+                    var etime = new Date(AddHourDate(stime.format("yyyy-MM-dd HH:mm:ss"),24));
+                    var resultData = dataResult.data.filter(function (ex) {
+                        if (FPDR == 6) {
+                            return new Date((ex.ftm)) >= stime && new Date((ex.ftm)) < etime;
+                        } else {
+                            return new Date((ex.ftm)) > stime && new Date((ex.ftm)) <= etime;
+                        }
+                    });
+                    JsonLineChart(resultData);
+                    grid.setData(resultData);
+                } else {
+                    noData();
+                }
+                $("#dataShow").hide();
+                $("#dataLoad").hide();
+            }
+        }
+        function noData() {
+        }
+        function JsonLineChart(strJson) {
+            var tempSum = 0;
+            for (num = 0; num < strJson.length; num++) {
+                var tempData = parseFloat(strJson[num].drp);
+                tempSum += tempData;
+            }
+            tempSum = tempSum.toFixed(2);
+            $.data(myData, "tempSum", tempSum);
+            var strData = "";
+            var _XData = strJson;
+            //绘制数据说明
+            var strNote = '[{"name": "时间","codename": "ftm","tableV":"1","isShow":true,"width":"40%"}';
+            strNote += ',{"name": "雨量","codename":  "drp","tableV":"1","isShow":true,"width":"30%"}]';
+            //绘制过程线颜色设置
+            var LineColor = ['#3398DB', '#0000FF', '#FFA500'];
+            //绘制图形
+            chartYL("Chart", _XData, eval('(' + strNote + ')'), LineColor, "雨量(mm)");
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+        //统计水位
+        function onDrawSummaryCell(e) {
+            var data = e.result;
+            if (e.field ==  "DRP") {
+                e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">累计降雨: " + $.data(myData, "tempSum") + "mm</span>";
+            }
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (field == "ftm") {
+                e.cellHtml = new Date((value)).format("yyyy-MM-dd HH:mm");
+            }
+        }
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            //$(".fit").css("display", "none");
+            //$("#" + objFit).css("display", "block");
+            $(".fit").hide();
+            $("#" + objFit).show();
+        }
+        /* 柱状图 雨量
+* ChartName画图控件名称
+* dataS数据对象，数据格式json
+* strNote数据说明，数据类型数组，数据格式
+* json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示
+*/
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        var tm = new Date((value[value1.codename])).format("M月d日H时")
+                        chartTM.push(tm); //加入时间集合
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    show: false,
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                toolbox: {
+                    show: false
+                },
+                //dataZoom: [
+                //    {
+                //        show: true,
+                //        realtime: true,
+                //        start: 0,
+                //        end: 35
+                //    },
+                //    {
+                //        type: 'inside',
+                //        realtime: true,
+                //        start: 0,
+                //        end: 35
+                //    }
+                //],
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: 20,
+                    top: 40,
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        },
+                        axisLabel: {
+                            //interval: 0,
+                            //rotate: 30
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        //interval: 0,
+                        //  splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        min: 0,
+                        max: function (value) {
+                            return Number(value.max) + 10;
+                            //return Number((value.max - (value.max % 5)) / 5 + 1).toFixed(0) * 5;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        if (chartName[j] == "名称") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: '20',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'top'
+                                    }
+                                },
+                                smooth: true
+                                //		           itemStyle: {normal: {
+                                //          	areaStyle: {type: 'default'},
+                                //				//颜色渐变设置
+                                //          	color:new echarts.graphic.LinearGradient(0,0,0,1,[{
+                                //          		offset:0,
+                                //          		color:'#050AE8'
+                                //          	},{
+                                //          		offset:1,
+                                //          		color:'#8688F4'
+                                //          	}])
+                                //          }},
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+
+    </script>
+</body>
+</html>

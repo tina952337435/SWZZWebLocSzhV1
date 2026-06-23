@@ -1,0 +1,549 @@
+﻿<!DOCTYPE html
+          PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head runat="server">
+    <title>站网评价文件导入 </title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/bootstrap-fileinput/css/fileinput.css" rel="stylesheet" type="text/css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            font-family: "Microsoft YaHei";
+            -ms-overflow-style: scrollbar;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            min-width: 800px;
+        }
+
+        .Box {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <style type="text/css">
+        .file-preview {
+            border: 0px;
+        }
+
+        .btn-primary {
+            background-color: #3291F9;
+            border-color: #3291F9;
+        }
+
+        .btn-primary.active,
+        .btn-primary:active,
+        .btn-primary:active:hover,
+        .btn-primary.focus,
+        .btn-primary:focus,
+        .btn-primary:hover {
+            color: white;
+            background-color: #007aff;
+            border-color: #007aff;
+        }
+
+        .btn-file {
+            margin-left: 17px;
+        }
+
+        .file-drop-zone-title {
+            color: #aaa;
+            font-size: 40px;
+            padding: 25px 10px;
+        }
+
+        .file-preview-other {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
+        .kv-upload-progress {
+            display: none;
+        }
+    </style>
+    <style type="text/css">
+        .checkbox-primary input[type="checkbox"]:checked + label::before,
+        .checkbox-primary input[type="radio"]:checked + label::before {
+            background-color: #337ab7;
+            border-color: #337ab7;
+        }
+
+        .checkbox label::before {
+            content: "";
+            display: inline-block;
+            position: absolute;
+            width: 17px;
+            height: 17px;
+            left: 0;
+            margin-left: -20px;
+            border: 1px solid #cccccc;
+            border-radius: 3px;
+            background-color: #fff;
+            -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+            -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+            transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+        }
+
+        .checkbox label {
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            padding-left: 0px;
+        }
+
+        .radio label,
+        .checkbox label {
+            min-height: 20px;
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        label {
+            display: inline-block;
+            max-width: 100%;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .checkbox input[type="checkbox"],
+        .checkbox input[type="radio"] {
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .radio input[type="radio"],
+        .radio-inline input[type="radio"],
+        .checkbox input[type="checkbox"],
+        .checkbox-inline input[type="checkbox"] {
+            position: absolute;
+            margin-top: 4px \9;
+            margin-left: -20px;
+        }
+
+        input[type="radio"],
+        input[type="checkbox"] {
+            margin: 4px 0 0;
+            margin-top: 1px \9;
+            line-height: normal;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            box-sizing: border-box;
+            padding: 0;
+        }
+
+        input,
+        button,
+        select,
+        textarea {
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+        }
+
+        .radio + .radio,
+        .checkbox + .checkbox {
+            margin-top: -5px;
+        }
+
+        .checkbox {
+            padding-left: 20px;
+        }
+
+        .radio,
+        .checkbox {
+            position: relative;
+            display: block;
+            margin-top: 10px !important;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-primary input[type="checkbox"]:checked + label::after,
+        .checkbox-primary input[type="radio"]:checked + label::after {
+            color: #fff;
+        }
+
+        .checkbox input[type="checkbox"]:checked + label::after,
+        .checkbox input[type="radio"]:checked + label::after {
+            font-family: "FontAwesome";
+            content: "\f00c";
+        }
+
+        .checkbox label::after {
+            display: inline-block;
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 0;
+            top: 0;
+            margin-left: -20px;
+            padding-left: 3px;
+            padding-top: 1px;
+            font-size: 11px;
+            color: #555555;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            background: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="grid1" class="mini-datagrid"
+         style="width: 100%;height:100%;"
+         allowalternating="true" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" showPager="false" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" headeralign="center" align="center">序号</div>
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript">
+    mini.parse();
+    var myData = [];
+    var sc_state = "0";
+    var grid = mini.get("grid1");
+    var SID = "";
+    var _PathName = "";
+    function search() {
+        var strWhere = { "SID": SID };
+        GetJosns("SWZZ_FLOODTIDEDATA_SN_TARGETDATASel", strWhere, "Sel");
+    }
+    function SetData(data) {
+        SID = data.ID;
+        search();
+    }
+    function JosnSel(text, typeID) {
+        if (typeID == "Sel") {
+            if (text.total > 0) {
+                var PATHNAME = text.data[0].PATHNAME;
+                var FILEPATH = text.data[0].FILEPATH;
+                _PathName = PATHNAME;
+                GetJosns("GETEXCELFILE", { PATHNAME: PATHNAME, FILENAME: FILEPATH }, "SelFile");
+            }
+
+        } else if (typeID == "Sava") {
+            if (text.total > 0) {
+                mini.alert("站网评价数据上报成功");
+            }
+        }
+        else if (typeID == "SelFile") {
+            console.error(text);
+
+            var item = eval(text.data[0].JSONDATA[0]["SheetData"]);
+            //console.error(strJson[0]);
+            $.data(myData, "SheetData", item);
+            GetColumnData();
+        }
+        mini.unmask(document.body);
+    }
+    function GetColumnData() {
+        var columnName = [],
+            columnValue = [];
+        var tmFiled = 0;
+        var createGrid = STGRDColumn();
+        grid.set({
+            columns: createGrid
+        });
+        //if (_PathName == "DRP") {
+        tmFiled = 4;
+        if (_PathName == "AREA") {
+            tmFiled = 3;
+        }
+        var strJson = $.data(myData, "SheetData");
+        if (strJson.length > 0) {
+            for (num = 0; num < strJson.length; num++) {
+                var tm = strJson[num][tmFiled]; //时间
+                var tmFlag = new Date(tm);
+                if (tmFlag != "Invalid Date") {
+                    columnValue.push(strJson[num]);
+                } else {
+                    columnName.push(strJson[num]);
+                }
+            }
+        }
+        var _columnFiled = getColumnFiled();
+        $.data(myData, "COLUMNFILED", _columnFiled);
+        grid.setData(columnValue);
+       
+
+
+        //}
+    }
+
+    //获取表头---2022-01-05
+    function STGRDColumn() {
+        var createGrid = [];
+        if (_PathName == "SW") {
+            createGrid.push({ field: "0", headerAlign: "center", align: "center", header: "序号" });
+            createGrid.push({ field: "1", headerAlign: "center", align: "center", header: "所属行政" });
+            createGrid.push({ field: "2", headerAlign: "center", align: "center", header: "站码" });
+            createGrid.push({ field: "3", headerAlign: "center", align: "center", header: "站名" });
+            createGrid.push({ field: "4", headerAlign: "center", align: "center", header: "日期" });
+            //有子类的
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "基础设施", columns: [
+                    { field: "5", headerAlign: "center", align: "center", header: "固定设施" },
+                    { field: "6", headerAlign: "center", align: "center", header: "设施环境" },
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "测站运维", columns: [
+                    { field: "7", headerAlign: "center", align: "center", header: "运维频次" },
+                    {
+                        headerAlign: "center", align: "center", header: "水尺引测", columns: [
+                            { field: "8", headerAlign: "center", align: "center", header: "测量次数" },
+                            { field: "9", headerAlign: "center", align: "center", header: "测量方法" },
+                        ]
+                    },
+                    {
+                        headerAlign: "center", align: "center", header: "应急保障", columns: [
+                            { field: "10", headerAlign: "center", align: "center", header: "响应时间" },
+                            { field: "11", headerAlign: "center", align: "center", header: "处理时间" },
+                        ]
+                    }
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "数据管理", columns: [
+                    { field: "12", headerAlign: "center", align: "center", header: "畅通率" },
+                    { field: "13", headerAlign: "center", align: "center", header: "完整率" },
+                    { field: "14", headerAlign: "center", align: "center", header: "日常检查" },
+                    { field: "15", headerAlign: "center", align: "center", header: "极值校验" },
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "信息服务", columns: [
+                    { field: "16", headerAlign: "center", align: "center", header: "报汛级别" },
+                    { field: "17", headerAlign: "center", align: "center", header: "站网密度" },
+                    { field: "18", headerAlign: "center", align: "center", header: "信息报送" },
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "站网管理", columns: [
+                    { field: "19", headerAlign: "center", align: "center", header: "工作制度" },
+                    {
+                        headerAlign: "center", align: "center", header: "运维人员", columns: [
+                            { field: "20", headerAlign: "center", align: "center", header: "本站人员" },
+                            { field: "21", headerAlign: "center", align: "center", header: "委托人员" },
+                        ]
+                    },
+                    { field: "22", headerAlign: "center", align: "center", header: "经费保障" },
+                    { field: "23", headerAlign: "center", align: "center", header: "运维监管" },
+                ]
+            });
+        }
+        else if (_PathName == "DRP") {
+            createGrid.push({ field: "0", headerAlign: "center", align: "center", header: "序号" });
+            createGrid.push({ field: "1", headerAlign: "center", align: "center", header: "所属行政" });
+            createGrid.push({ field: "2", headerAlign: "center", align: "center", header: "站码" });
+            createGrid.push({ field: "3", headerAlign: "center", align: "center", header: "站名" });
+            createGrid.push({ field: "4", headerAlign: "center", align: "center", header: "日期" });
+            //有子类的
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "基础设施", columns: [
+                    { field: "5", headerAlign: "center", align: "center", header: "观测场地" },
+                    { field: "6", headerAlign: "center", align: "center", header: "设备遮挡" }
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "测站运维", columns: [
+                    { field: "7", headerAlign: "center", align: "center", header: "运维频次" },
+                    { field: "8", headerAlign: "center", align: "center", header: "滴定校验" },
+                    {
+                        headerAlign: "center", align: "center", header: "应急保障", columns: [
+                            { field: "9", headerAlign: "center", align: "center", header: "响应时间" },
+                            { field: "10", headerAlign: "center", align: "center", header: "处理时间" },
+                        ]
+                    }
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "数据管理", columns: [
+                    { field: "11", headerAlign: "center", align: "center", header: "畅通率" },
+                    { field: "12", headerAlign: "center", align: "center", header: "完整率" },
+                    { field: "13", headerAlign: "center", align: "center", header: "日常检查" },
+                    { field: "14", headerAlign: "center", align: "center", header: "极值校验" },
+                ]
+            });
+
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "信息服务", columns: [
+                    { field: "15", headerAlign: "center", align: "center", header: "报汛级别" },
+                    { field: "16", headerAlign: "center", align: "center", header: "站网密度" },
+                    { field: "17", headerAlign: "center", align: "center", header: "信息报送" }
+                ]
+            });
+
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "站网管理", columns: [
+                    { field: "18", headerAlign: "center", align: "center", header: "工作制度" },
+                    {
+                        headerAlign: "center", align: "center", header: "运维人员", columns: [
+                            { field: "19", headerAlign: "center", align: "center", header: "本站人员" },
+                            { field: "20", headerAlign: "center", align: "center", header: "委托人员" },
+                        ]
+                    },
+                    { field: "21", headerAlign: "center", align: "center", header: "经费保障" },
+                    { field: "22", headerAlign: "center", align: "center", header: "运维监管" },
+                ]
+            });
+        }
+        else if (_PathName == "AREA") {
+            createGrid.push({ field: "0", headerAlign: "center", align: "center", header: "序号" });
+            createGrid.push({ field: "1", headerAlign: "center", align: "center", header: "区域编码" });
+            createGrid.push({ field: "2", headerAlign: "center", align: "center", header: "区域名称" });
+            createGrid.push({ field: "3", headerAlign: "center", align: "center", header: "日期" });
+            createGrid.push({ field: "4", headerAlign: "center", align: "center", header: "水情报送" });
+            createGrid.push({ field: "5", headerAlign: "center", align: "center", header: "经费保障" });
+            //有子类的
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "站网密度", columns: [
+                    { field: "6", headerAlign: "center", align: "center", header: "指标" },
+                    { field: "7", headerAlign: "center", align: "center", header: "数据" }
+                ]
+            });
+            createGrid.push({
+                headerAlign: "center", align: "center", header: "运维人员", columns: [
+                    { field: "8", headerAlign: "center", align: "center", header: "本站人员" },
+                    { field: "9", headerAlign: "center", align: "center", header: "委托人员" }
+                ]
+            });
+            createGrid.push({ field: "10", headerAlign: "center", align: "center", header: "监督管理" });
+        }
+        return createGrid;
+    }
+
+    function getColumnFiled() {
+        var _columnFiled = [];
+        if (_PathName == "SW") {
+            _columnFiled.push({ "field": "0", "fieldName": "序号" });
+            _columnFiled.push({ "field": "1", "fieldName": "所属行政" });
+            _columnFiled.push({ "field": "2", "fieldName": "站码" });
+            _columnFiled.push({ "field": "3", "fieldName": "站名" });
+            _columnFiled.push({ "field": "4", "fieldName": "日期" });
+            _columnFiled.push({ "field": "5", "fieldName": "固定设施" });
+            _columnFiled.push({ "field": "6", "fieldName": "设施环境" });
+            _columnFiled.push({ "field": "7", "fieldName": "运维频次" });
+            _columnFiled.push({ "field": "8", "fieldName": "测量次数" });
+            _columnFiled.push({ "field": "9", "fieldName": "测量方法" });
+            _columnFiled.push({ "field": "10", "fieldName": "响应时间" });
+            _columnFiled.push({ "field": "11", "fieldName": "处理时间" });
+            _columnFiled.push({ "field": "12", "fieldName": "畅通率" });
+            _columnFiled.push({ "field": "13", "fieldName": "完整率" });
+            _columnFiled.push({ "field": "14", "fieldName": "日常检查" });
+            _columnFiled.push({ "field": "15", "fieldName": "极值校验" });
+            _columnFiled.push({ "field": "16", "fieldName": "报汛级别" });
+            _columnFiled.push({ "field": "17", "fieldName": "站网密度" });
+            _columnFiled.push({ "field": "18", "fieldName": "信息报送" });
+            _columnFiled.push({ "field": "19", "fieldName": "工作制度" });
+            _columnFiled.push({ "field": "20", "fieldName": "本站人员" });
+            _columnFiled.push({ "field": "21", "fieldName": "委托人员" });
+            _columnFiled.push({ "field": "22", "fieldName": "经费保障" });
+            _columnFiled.push({ "field": "23", "fieldName": "运维监管" });
+        }
+        else if (_PathName == "DRP") {
+            _columnFiled.push({ "field": "0", "fieldName": "序号" });
+            _columnFiled.push({ "field": "1", "fieldName": "所属行政" });
+            _columnFiled.push({ "field": "2", "fieldName": "站码" });
+            _columnFiled.push({ "field": "3", "fieldName": "站名" });
+            _columnFiled.push({ "field": "4", "fieldName": "日期" });
+            _columnFiled.push({ "field": "5", "fieldName": "观测场地" });
+            _columnFiled.push({ "field": "6", "fieldName": "设备遮挡" });
+            _columnFiled.push({ "field": "7", "fieldName": "运维频次" });
+            _columnFiled.push({ "field": "8", "fieldName": "滴定校验" });
+            _columnFiled.push({ "field": "9", "fieldName": "响应时间" });
+            _columnFiled.push({ "field": "10", "fieldName": "处理时间" });
+            _columnFiled.push({ "field": "11", "fieldName": "畅通率" });
+            _columnFiled.push({ "field": "12", "fieldName": "完整率" });
+            _columnFiled.push({ "field": "13", "fieldName": "日常检查" });
+            _columnFiled.push({ "field": "14", "fieldName": "极值校验" });
+            _columnFiled.push({ "field": "15", "fieldName": "报汛级别" });
+            _columnFiled.push({ "field": "16", "fieldName": "站网密度" });
+            _columnFiled.push({ "field": "17", "fieldName": "信息报送" });
+            _columnFiled.push({ "field": "18", "fieldName": "工作制度" });
+            _columnFiled.push({ "field": "19", "fieldName": "本站人员" });
+            _columnFiled.push({ "field": "20", "fieldName": "委托人员" });
+            _columnFiled.push({ "field": "21", "fieldName": "经费保障" });
+            _columnFiled.push({ "field": "22", "fieldName": "运维监管" });
+        }
+        else if (_PathName == "AREA") {
+            _columnFiled.push({ "field": "0", "fieldName": "序号" });
+            _columnFiled.push({ "field": "1", "fieldName": "区域编码" });
+            _columnFiled.push({ "field": "2", "fieldName": "区域名称" });
+            _columnFiled.push({ "field": "3", "fieldName": "日期" });
+            _columnFiled.push({ "field": "4", "fieldName": "水情报送" });
+            _columnFiled.push({ "field": "5", "fieldName": "经费保障" });
+            _columnFiled.push({ "field": "6", "fieldName": "指标" });
+            _columnFiled.push({ "field": "7", "fieldName": "数据" });
+            _columnFiled.push({ "field": "8", "fieldName": "本站人员" });
+            _columnFiled.push({ "field": "9", "fieldName": "委托人员" });
+            _columnFiled.push({ "field": "10", "fieldName": "监督管理" });
+        }
+        return _columnFiled;
+    }
+
+
+    Array.prototype.MapApply = function (field, format) {
+        var val = null;
+        if (format == "max") {
+            val = Math.max.apply(Math, this.map(function (o) {
+                return o[field]
+            }));
+        } else if (format == "min") {
+            val = Math.min.apply(Math, this.map(function (o) {
+                return o[field]
+            }));
+        }
+        return val;
+    }
+    //鼠标移动上去的提示信息。
+    function ondrawcell(e) {
+        var row = e.row,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+        //超链接任务
+
+    }
+    //==加上编辑列代码
+    function onActionRenderer(e) {
+        var grid = e.sender;
+        var record = e.record;
+        var uid = record._uid;
+        var rowIndex = e.rowIndex;
+        var s = '';
+        s += '<img style="cursor:pointer;" onclick="delRow(\'' + uid + '\',\'' + record.ZB_ID +
+            '\')" src="/Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+        return s;
+    }
+    function delRow(row_uid, strID) {
+        var row = grid.getRowByUID(row_uid);
+        if (row) {
+            if (confirm("确定删除此记录？")) {
+                var strJson = grid.getData().filter(function (res) {
+                    return res["ZB_ID"] != strID;
+                });
+                grid.setData(strJson);
+            }
+        }
+    }
+
+</script>
+
+</html>

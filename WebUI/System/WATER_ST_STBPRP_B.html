@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>通讯录管理</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            &nbsp; &nbsp; 
+            关键字：&nbsp;<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" />
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            <!--&nbsp;&nbsp; <a class="mini-button" id="addbtn" onclick="addData('', '/System/WATER_ST_STBPRP_B_Edit.html', '新增通讯录管理', '40%', '55%', 'true')" plain="false">增加</a>-->
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" ondrawcell="ondrawcell" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+            <div field="STCD" headeralign="center" align="center" allowsort="true">
+                测站编码
+            </div>
+            <div field="STNM" headeralign="center" align="center" allowsort="true">
+                测站名称
+            </div>
+            <div field="RVNM" headeralign="center" align="center" allowsort="true">
+                河流名称
+            </div>
+            <div field="HNNM" headeralign="center" align="center" allowsort="true">
+                水系名称
+            </div>
+            <div field="BSNM" headeralign="center" align="center" allowsort="true">
+                流域名称
+            </div>
+            <div field="LGTD" headeralign="center" align="center" allowsort="true">
+                经度
+            </div>
+            <div field="LTTD" headeralign="center" align="center" allowsort="true">
+                纬度
+            </div>
+            <!--<div field="STTP" headeralign="center" align="center" allowsort="true">
+        站类
+    </div>
+    <div field="UPZ" headeralign="center" align="center" allowsort="true">
+        上游水位
+    </div>
+    <div field="DWZ" headeralign="center" align="center" allowsort="true">
+        下游水位
+    </div>
+    <div field="ZTM" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+        水位更新时间
+    </div> -->
+            <div name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        $(function () { 
+            //默认加载数据
+            search();
+        })
+        //鼠标移动上去的提示信息。遍历数据
+        function ondrawcell(e) {
+            var record = e.record;
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+        }
+        function onKeyEnter() {
+            //关键字
+            search();
+        }
+        var dataResult = null;
+        function search() {
+            PageFillData(0, 15);
+        }
+        function PageFillData(pageIndex, pageSize) { 
+            //查询方法
+            var strWhere = { "KEY": mini.get("key").getValue(), "PageIndex": pageIndex, "PageSize": pageSize };
+            GetJosns("WATER_ST_STBPRP_BSel", strWhere, "Sel");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                PageServerFill(grid, data);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '<img style="cursor:pointer;" onclick="lookData(\'STCD@' + record.STCD + '\',\'/System/WATER_ST_STBPRP_B_View.html\',\'查看通讯录管理\',\'40%\',\'55%\',\'true\')" src="../Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+            s += '<img style="cursor:pointer;" onclick="editData(\'STCD@' + record.STCD + '\', \'/System/WATER_ST_STBPRP_B_Edit.html\', \'编辑通讯录管理\', \'1200\',\'700\', \'true\')" src="../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+            s += '<img style="cursor:pointer;" onclick="del(\'' + record.STCD + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除通讯录管理" />&nbsp;';
+            return s;
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "STCD": objID };
+                        GetJosns("WATER_ST_STBPRP_BDel", strWhere, "Del");
+                    }
+                }
+            );
+        }
+        //--------------------------------
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function onTMRenderer(e) {
+            var value = e.value;
+            if (value) {
+                return new Date(convertToDate(value)).format('yyyy-MM-dd');
+            }
+            else {
+                return "";
+            }
+        }
+    </script>
+</body>
+</html>

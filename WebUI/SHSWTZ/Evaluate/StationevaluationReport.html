@@ -1,0 +1,789 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>站网评估统计</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        #areaList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+        .mwsChart {
+            -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            background-color: #fff;
+            /*padding-left: 10px;
+            padding-right: 10px;*/
+            width: 100%;
+            height: 100%;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 10px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-top: 0px !important;
+            margin-bottom: 0px !important;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <div class="searchContext">
+                <div class="searchTitle">&nbsp; &nbsp;站点类型：</div>
+                <ul class="ui-choose choose-type-right" id="choseMNLX">
+                    <li class="selected">
+                        <span id="SW">水位站</span>
+                    </li>
+                    <li>
+                        <span id="YL">雨量站</span>
+                    </li>
+                    <li>
+                        <span id="AREA">区域</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="SWYLINDEX">
+            <div style="width:100%;height:440px;margin-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">区域站点平均分</p>
+
+                        &nbsp;&nbsp;<a class="mini-button" onclick="ExpIndexAvg('区域站点平均分','avg')" style="float: right;margin-right: 10px;">导出报表</a><!--导出站点指标评分-->
+                    </div>
+                    <div id="chartPie" style="height:400px;width:100%;">
+                    </div>
+                </div>
+            </div>
+            <div style="width:100%;height:640px;margin-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">区域站点合格率(>80分)</p>
+
+                        &nbsp;&nbsp;<a class="mini-button" onclick="ExpIndexAvg('区域站点合格率（大于等于80分）','bili')" style="float: right;margin-right: 10px;">导出报表</a>
+                    </div>
+                    <div id="chartPieBili" style="height:600px;width:100%;">
+                    </div>
+                </div>
+            </div>
+            <div style="width:100%;height:640px;margin-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">区域站点合格个数(>80分)</p>
+                        &nbsp;&nbsp;<a class="mini-button" onclick="ExpIndexAvg('区域站点合格个数（大于等于80分）','ynum')" style="float: right;margin-right: 10px;">导出报表</a>
+
+                    </div>
+                    <div id="chartPieNum" style="height:600px;width:100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="AREAINDEX" style="display:none;">
+            <div style="width:100%;height:640px;margin-top:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">区域评估分</p>
+                    </div>
+                    <div id="chartArea" style="height:600px;width:100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var dataResult = {};
+        var myData = [];
+        var PathName = "";
+        $(function () {
+            PathName = "SW";
+            search();
+            $('#choseMNLX li').click(function () {
+                var f = this;
+                $('#choseMNLX li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var id = $(this).find("span").attr("id");
+                PathName = id;
+                if (id == "AREA") {
+                    $("#SWYLINDEX").hide();
+                    $("#AREAINDEX").show();
+                } else {
+                    $("#SWYLINDEX").show();
+                    $("#AREAINDEX").hide();
+                }
+                search();
+            });
+        });
+        function search() {
+            var strWhere = {};
+            strWhere["PATHNAME"] = PathName;
+            GetJosns("Stationnetworkevaluation", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                $.data(myData, "Alldata", data.data);
+                loadHtml();
+            }
+        }
+        //平均分统计
+        function loadHtml() {
+            var data = $.data(myData, "Alldata");
+            var _length = data.length;
+            var shScore = 0,shBili=0;
+            var dataResult = groupBy(data, "HNNM");
+            var dataX = [], dataY = [], dataM = [];
+            var dataYBili = [], dataYNum = [], totalCost = [];
+            var YBiliData=[], YNumData = [], AvgData = [];
+            for (var num = 0; num < dataResult.length; num++) {
+                dataM.push(100);
+                dataX.push(dataResult[num][0].HNNM);
+                totalCost.push(dataResult[num].length);
+                var totalScore = 0;
+                var YBili = 0;
+                for (var _index = 0; _index < dataResult[num].length; _index++) {
+                    var item = dataResult[num][_index];
+                    var score = item.SCORE;
+                    totalScore += score;
+                    shScore += score;
+                    if (score > 80) {
+                        YBili++;
+                        shBili++;
+                    }
+                }
+                dataYNum.push(YBili);
+                var avgScore = (totalScore / dataResult[num].length).toFixed(0);
+                dataY.push(Number(avgScore));
+                var bili = Number(((YBili / dataResult[num].length) * 100).toFixed(0));
+                dataYBili.push(bili);
+
+                YBiliData.push({ HNNM: dataResult[num][0].HNNM, BILI: bili });
+                YNumData.push({ HNNM: dataResult[num][0].HNNM, YNUM: YBili });
+                AvgData.push({ HNNM: dataResult[num][0].HNNM, AVG: Number(avgScore) });
+            }
+            if (PathName == "AREA") {
+                chartBar('chartArea', dataX, dataY);
+            } else {
+                var totalBili = Number(((shBili / _length) * 100).toFixed(0));
+                chartBarPie("chartPieBili", dataX, dataYBili, dataM, totalBili);
+                chartBarNum("chartPieNum", dataX, dataYNum, totalCost);
+                dataX.push("上海市");
+                var avgSHScore = Number((shScore / _length).toFixed(0));
+                dataY.push(Number(avgSHScore));
+                chartBar('chartPie', dataX, dataY);
+                AvgData.push({ HNNM: "上海市", AVG: Number(avgSHScore) });
+            }
+            $.data(myData, "biliData", YBiliData);
+            $.data(myData, "ynumData", YNumData);
+            $.data(myData, "avgData", AvgData);
+        }
+
+        //导出报表
+        function ExpIndexAvg(filename, type) {
+            var columns = [], data=[];
+            if (type == "avg") {
+                columns = [{ field: "HNNM", header: "区域名称" }, { field: "AVG", header: "站点平均分" }];
+                data = $.data(myData, "avgData");
+            } else if (type == "bili") {
+                columns = [{ field: "HNNM", header: "区域名称" }, { field: "BILI", header: "合格率" }];
+                data = $.data(myData, "biliData");
+            } else if (type == "ynum") {
+                columns = [{ field: "HNNM", header: "区域名称" }, { field: "YNUM", header: "站点合格个数" }];
+                data = $.data(myData, "ynumData");
+            }
+            ExportExcel(filename, columns,data);
+        }
+
+        function chartBar(ChartName, dataX, dataY) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.off('click');
+            myChart.clear();
+            var colorList = ['#afa3f5', '#00d488', '#3feed4', '#3bafff', '#f1bb4c', "rgba(250,250,250,0.5)"];
+            var sportsIcon = {
+                'a': '/asset/get/s/data-1559121268278-ozjd-lXoz.png',
+                'b': '/asset/get/s/data-1559121263841-UC5w7mTJ9.png',
+                'c': '/asset/get/s/data-1559121259198-sxyPSimU9.png',
+                'd': '/asset/get/s/data-1559121254241-xj5JAIBzC.png',
+                'e': '/asset/get/s/data-1559121249274-QxHDAdQGy.png',
+            };
+            option = {
+                backgroundColor: '#fff',
+                title: {
+                    //text: shTitle + GetObj("startYear").value + "至" + GetObj("endYear").value + "暴雨频次(共" + totalTF + "次)",
+                    //subtext: '历史影响台风列表',
+                    //x: '72.5%',
+                    //y: '32%',
+                    x: "50%",
+                    y: "top",
+                    textAlign: "center",
+                    textStyle: {
+                        fontSize: 24,
+                        fontWeight: 'normal',
+                        color: ['#333']
+                    },
+                    subtextStyle: {
+                        color: '#666',
+                        fontSize: 16
+                    },
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    axisPointer: {
+                        lineStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: '#FFD56E'
+                                }, {
+                                    offset: 0.5,
+                                    color: '#fff',
+                                }, {
+                                    offset: 1,
+                                    color: '#FFD56E'
+                                }],
+                                global: false
+                            }
+                        },
+                    }
+                },
+                legend: {
+                    right: 20,
+                    show: false,
+                    top: 0,
+                    itemGap: 10, // 各个item之间的间隔，单位px，默认为10，
+                    itemWidth: 30, // 图例图形宽度
+                    itemHeight: 10, // 图例图形高度
+                    textStyle: {
+                        //color: 'red',
+                        fontWeight: 'normal',
+                        fontSize: 14
+                    },
+                },
+                grid: {
+                    top: '5%',
+                    left: '3%',
+                    right: '1%',
+                    bottom: '8%',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: dataX,
+                        axisTick: {
+                            show: false // 是否显示坐标轴轴线
+                        },
+                        axisLabel: {
+                            color: '#282828'
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                        boundaryGap: true,
+                        axisLine: { //坐标轴轴线相关设置。
+                            show: true,
+                            inside: false,
+                            lineStyle: {
+                                color: '#000'
+                            }
+                        }
+                    },
+                ],
+                yAxis: [{
+                    type: 'value',
+                    max: function (e) {
+                        return 100;
+                    },
+                    min: 0,
+                    splitNumber: 4,
+                    splitLine: { show: true },
+                    axisLabel: { //坐标轴刻度标签的相关设置。
+                        show: true,
+                        textStyle: {
+                            color: '#737373',
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(131,101,101,0.2)',
+                            type: 'dashed',
+                        }
+                    },
+                    show: true,
+                }],
+                series: [
+                    {
+                        type: 'bar',
+                        barMaxWidth: 25,
+                        zlevel: 10,
+                        // barGap: '100%',
+                        data: dataY,
+                        itemStyle: {
+                            normal: {
+                                color:
+                                    function (e) {
+                                        if (e.name == "上海市") {
+                                            return new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                                offset: 0,
+                                                color: '#8bd46e'
+                                            }, {
+                                                offset: 1,
+                                                    color: '#09bcb7'
+                                            }]);
+                                        } else {
+                                            return new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                                offset: 0,
+                                                color: '#2D8DED'
+                                            }, {
+                                                offset: 1,
+                                                color: '#5ED8FB'
+                                            }]);
+                                        }
+                                    },
+                                barBorderRadius: [30, 30, 0, 0],
+                            }
+                        },
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'top',
+                                formatter: function (params) {
+                                    return params.value;
+                                },
+                                textStyle: {
+                                    color: '#2D8DED', //color of value
+                                    fontSize: 14
+                                }
+                            }
+                        },
+
+                    }
+                ]
+            };
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var year = param.name;
+                loadChangci(year);
+            }
+        }
+
+        //总体合格率
+        function chartBarPie(ChartName, dataX, dataY, dataM, totalBili) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.off('click');
+            myChart.clear();
+            option = {
+                backgroundColor: '#fff',
+                title: [
+                    {
+                        text: totalBili+'%',
+                    textStyle: {
+                        color: '#22ac38',
+                        fontSize: 35
+                    },
+                    itemGap: 20,
+                    left: '22.5%',
+                    top: '40%'
+                },
+                    {
+                    text: '总合格率',
+                    textStyle: {
+                        color: '#444444',
+                        fontSize: 25,
+                        fontWeight: 'normal'
+                    },
+                    itemGap: 20,
+                    left: '22%',
+                    top: '50%'
+                }],
+                grid: [{
+                    top: '10%',
+                    width: '50%',
+                    left: '45%',
+                    containLabel: true
+                }],
+                angleAxis: {
+                    polarIndex: 0,
+                    min: 0,
+                    max: 100,
+                    show: false,
+                    boundaryGap: ['40%', '40%'],
+                    startAngle: 90,
+                },
+                radiusAxis: {
+                    type: 'category',
+                    show: true,
+                    axisLabel: {
+                        show: false,
+                    },
+                    axisLine: {
+                        show: false,
+
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                },
+                polar: [{
+                    center: ['25%', '50%'], //中心点位置
+                    radius: '80%' //图形大小
+                }],
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'none'
+                    },
+                    formatter: function (params) {
+                        return params[0].name + '<br/>' +
+                            "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:rgba(36,207,233,0.9)'></span>" +
+                            params[0].seriesName + ' : ' + params[0].value + '%<br/>'
+                    }
+                },
+                xAxis: {
+                    show: false,
+                    type: 'value'
+                },
+                yAxis: [{
+                    type: 'category',
+                    inverse: true,
+                    axisLabel: {
+                        show: false,
+                        textStyle: {
+                            color: '#444444'
+                        },
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: false
+                    },
+                    axisLine: {
+                        show: false
+                    },
+                    data: dataX,
+                }, {
+                    type: 'category',
+                    inverse: true,
+                    axisTick: 'none',
+                    axisLine: 'none',
+                    show: true,
+                    axisLabel: {
+                        textStyle: {
+                            color: '#444444',
+                            fontSize: '12'
+                        },
+                        formatter: function (value) {
+                            return value + "%";
+                        },
+                        },
+                        data: dataY, //[50.5, 50, 50, 50]
+                }],
+                series: [
+                    {
+                        name: '合格率',
+                        type: 'bar',
+                        zlevel: 1,
+                        silent: false,
+                        label: {
+                            normal: {
+                                color: '#444444',
+                                show: true,
+                                position: [0, '-18px'],
+                                textStyle: {
+                                    fontSize: 14
+                                },
+                                formatter: function (a, b) {
+                                    return a.name
+                                }
+                            }
+                        },
+                        itemStyle: {
+                            normal: {
+                                barBorderRadius: 30,
+                                color: '#14d88e',
+                            },
+                        },
+                        barWidth: 15,
+                        data: dataY,//[50.5, 50, 50, 50],
+                    },
+                    {
+                        name: '背景',
+                        type: 'bar',
+                        barWidth: 15,
+                        barGap: '-100%',
+                        data: dataM,//[100, 100, 100, 100],
+                        itemStyle: {
+                            normal: {
+                                color: '#f3f3f7',
+                                barBorderRadius: 30,
+                            }
+                        },
+                    },
+                    {
+                        type: 'bar',
+                        z: 10,
+                        name: "完成度",
+                        //radius: ['46%', '34%'],
+                        center: ['25%', '50%'], //中心点位置
+                        data: [totalBili],
+                        showBackground: false,
+                        backgroundStyle: {
+                            borderWidth: 10,
+                            width: 10
+                        },
+                        coordinateSystem: 'polar',
+                        roundCap: true,
+                        barWidth: 15, //大的占比环
+                        itemStyle: {
+                            normal: {
+                                opacity: 1,
+                                color: "#14d88e"
+                            }
+                        },
+                    },
+                    {
+                        type: 'pie',
+                        name: '内层细圆环',
+                        radius: ['46%', '34%'],
+                        center: ['25%', '50%'], //中心点位置
+                        startAngle: 90,
+                        hoverAnimation: false,
+                        clockWise: true,
+                        silent: true,
+                        itemStyle: {
+                            normal: {
+                                color: '#f3f3f7',
+                                shadowBlur: 0,
+                                shadowColor: '#66666a',
+                            }
+                        },
+                        tooltip: {
+                            show: false,
+                        },
+                        label: {
+                            show: false
+                        },
+                        data: [100]
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+
+        //合格个数
+        function chartBarNum(ChartName, dataX, dataYNum, totalCost) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.off('click');
+            myChart.clear();
+            var myColor = ['#21BF57', '#56D0E3', '#1089E7', '#F8B448', '#F57474',];
+            var data = {
+                grade: dataX,
+                cost: dataYNum,
+                totalCost: totalCost
+            };
+            option = {
+                backgroundColor: '#ffffff',
+                title: {
+                    top: '2%',
+                    left: 'center',
+                    text: '',
+                    textStyle: {
+                        align: 'center',
+                        color: '#171B1F',
+                        fontSize: 18
+                    }
+                },
+                grid: {
+                    top: 20,
+                    left: 50,
+                    right: 50,
+                    bottom: 20,
+                    containLabel: true,
+                },
+                xAxis: {
+                    show: false,
+                },
+                yAxis: {
+                    type: 'category',
+                    axisLabel: {
+                        margin: 30,
+                        show: true,
+                        color: '#171B1F',
+                        fontSize: 14
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    axisLine: {
+                        show: false,
+                    },
+                    inverse: true,
+                    data: data.grade
+                },
+                series: [{
+                    type: 'bar',
+                    barGap: '-65%',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'right',
+                            color: '#171B1F',
+                            fontSize: 14,
+                            formatter:
+                                function (param) {
+                                    return "站点总数："+data.totalCost[param.dataIndex];
+                                },
+                        }
+                    },
+                    barWidth: '30%',
+                    itemStyle: {
+                        normal: {
+                            borderColor: '#4DCEF8',
+                            borderWidth: 2,
+                            barBorderRadius: 15,
+                            color: 'rgba(102, 102, 102,0)'
+                        },
+                    },
+                    z: 1,
+                    data: data.totalCost,
+                    // data: da
+                }, {
+                    type: 'bar',
+                    barGap: '-85%',
+                    barWidth: '21%',
+                    itemStyle: {
+                        normal: {
+                            show: true,
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                {
+                                    offset: 0,
+                                    color: '#6390F0',
+                                },
+                                {
+                                    offset: 1,
+                                    color: '#25EBE9',
+                                },
+                            ]),
+                            barBorderRadius: 50,
+                            borderWidth: 0,
+                            borderColor: '#333',
+                        },
+                    },
+                    max: 1,
+                    label: {
+                        normal: {
+                            show: true,
+                            color: '#ffffff',
+                            position: 'inside',
+                            fontSize: 14,
+                            formatter: '{c}'
+                        }
+                    },
+                    labelLine: {
+                        show: true,
+                    },
+                    z: 2,
+                    data: data.cost,
+                }]
+            }
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

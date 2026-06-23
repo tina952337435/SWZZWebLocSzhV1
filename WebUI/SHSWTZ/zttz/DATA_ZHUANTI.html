@@ -1,0 +1,171 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>专题管理</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            &nbsp; &nbsp;
+            开始日期： &nbsp;<input id="STIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+            关键字：&nbsp;<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" onenter="onKeyEnter" />
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            &nbsp;&nbsp; 
+            <a class="mini-button" id="addbtn" onclick="window.parent.addTab('专题发布', '/SHSWTZ/zttz/ZhuanTiFaBuV2.html','专题发布')" plain="false">增加</a>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+
+            <div field="FAYA" width="40" headeralign="center" align="center" allowsort="true">
+                年份
+            </div>
+
+            <div field="TITLE" headeralign="center" align="center" allowsort="true">
+                专题名称
+            </div>
+            <div field="ADDRESS" width="80"  headeralign="center" align="center" allowsort="true">
+                登陆地点
+            </div>
+            <div field="OWEN" width="40" headeralign="center" align="center" allowsort="true">
+                专题创建人
+            </div>
+            <!--<div field="CREATE_TM" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+        创建时间
+    </div>
+
+            <div field="TYPE" headeralign="center" align="center" allowsort="true">
+                所属分类
+            </div>-->
+
+            <div header="影响上海时间" headeralign="center" align="center">
+                <div property="columns">
+                    <div field="STM" width="40" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+                        开始
+                    </div>
+                    <div field="ETM" width="40" headeralign="center" align="center" allowsort="true" renderer="onTMRenderer">
+                        结束
+                    </div>
+                </div>
+            </div>
+            
+
+            <div name="action" width="40" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        $(function () {
+            var tm = new Date();
+            mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            mini.get("ETIME").setValue(tm.format("yyyy-MM-dd"));
+            //默认加载数据
+            search();
+        })
+        function onKeyEnter() {
+            //关键字
+            search();
+        }
+        var dataResult = null;
+        function search() {
+            PageFillData(0, 15);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            var Startime = mini.get("STIME").getFormValue();
+            var Endtime = mini.get("ETIME").getFormValue();
+            if (Startime > Endtime) {
+                mini.alert("请确认起止日期次序是否正确（终止日期至少是起始日期的次日）！");
+                return false;
+            }
+            //查询方法
+            var strWhere = { 
+                "STIME": Startime, 
+                "ETIME": Endtime, 
+                "KEY": mini.get("key").getValue(), 
+                "PageIndex": pageIndex, 
+                "PageSize": pageSize,
+                "DDWJ":"提供2023"
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTISel", strWhere, "Sel");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                PageServerFill(grid, data);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '<img style="cursor:pointer;" onclick="LookView(\'' + record.ID + '\',\'' + record.TITLE + '\',\'' + record.TYPE + '\')" src="/Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+            s += '<img style="cursor:pointer;" onclick="editData(\'ID@' + record.ID +'\', \'/SHSWTZ/zttz/DATA_ZHUANTI_Edit.html\', \'编辑专题\', \'70%\',\'80%\', \'true\')" src="/Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+            s += '<img style="cursor:pointer;" onclick="del(\'' + record.ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除专题管理" />&nbsp;';
+            return s;
+        }
+        function LookView(objID, objTitle, objType) {
+            var url = "/ZhuanTi/DATA_ZHUANTI_index.html?ID=" + objID;
+            if (objType == "台风") {
+                url = "/SHSWTZ/zttz/TFZTindexV2.html?ZT_ID=" + objID;
+            }
+            window.open(url);
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "ID": objID };
+                        GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTIDel", strWhere, "Del");
+                    }
+                }
+            );
+        }
+        //--------------------------------
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function onTMRenderer(e) {
+            var value = e.value;
+            if (value) {
+                return mini.formatDate(convertToDate(value), 'yyyy-MM-dd');
+            }
+            else {
+                return "";
+            }
+        }
+    </script>
+</body>
+</html>

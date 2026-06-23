@@ -1,0 +1,332 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>潮位流量关系</title>
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <script type="text/javascript" src="/Common/boot.js"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: white;
+        }
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            /*padding-top: 2px;
+            padding-bottom: 5px;*/
+            width: 100% !important;
+            width: 480px !important;
+            /*position: absolute;
+            left: 190px;
+            top: 0px;*/
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 100px !important;
+                height: 30px;
+                font: 14px/30px "arial";
+                text-align: center;
+            }
+        .mini-toolbar{
+            /*height:45px;*/
+        }
+        .mwsChart {
+            width: 100%;
+            height: -webkit-calc(100% - 55px);
+            height: -moz-calc(100% - 55px);
+            height: calc(100% - 55px);
+        }
+        .mini-button {
+            background:none !important;
+            color:black;
+        }
+        #choseMNLX  li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .searchTitle{
+            width:92px;
+            float:left;
+        }
+    </style>
+
+</head>
+<body class="contentbody">
+    <div class="mini-fit">
+        <div style="width:100%;">
+            <div class="mini-toolbar" style="margin-top: 0px;height: 110px;">
+                <div class="searchTitle" style="height:25px;line-height:55px;margin-left:14px;width: 78px;">分类规则：</div>
+                <ul class="ui-choose choose-type-right" id="choseMNLX">
+                    <li class="selected">
+                        <span>全部</span>
+                    </li>
+                    <li>
+                        <span>黄浦江干流</span>
+                    </li>
+                    <li>
+                        <span>黄浦江上游</span>
+                    </li>
+                    <li>
+                        <span>长江口、杭州湾</span>
+                    </li>
+                </ul>
+                <!-- <ul class="onlytab" id="onlytab2" style="">
+                    <li id="TitleLi08" onclick="OnClickTitle2(this.id,'08')" class="onlyli start onlyliHover" style="width:60px !important;">全部</li>
+                    <li id="TitleLi20" onclick="OnClickTitle2(this.id,'20')" class="onlyli" style="width: 100px !important;">黄浦江干流</li>
+                    <li id="TitleLi20" onclick="OnClickTitle2(this.id,'20')" class="onlyli" style="width: 100px !important;">黄浦江上游</li>
+                    <li id="TitleLi20" onclick="OnClickTitle2(this.id,'20')" class="onlyli end" style="width: 120px !important;">长江口、杭州湾</li>
+                </ul> -->
+                <br>
+                &nbsp; &nbsp;
+                <p style="margin-left:15px;width:72px;height:20px;line-height:0px;">开始日期：</p> &nbsp;&nbsp;<input id="STIME" class="mini-datepicker" style="width:115px;margin-left:85px;margin-top:-90px;"
+                                   format="yyyy-MM-dd" />&nbsp;&nbsp;
+               <p style="width: 72px;margin-left: 230px;margin-top: -62px;">结束日期：</p>&nbsp;&nbsp;<input id="ETIME" class="mini-datepicker" style="width:115px;margin-left:300px;margin-top:-66px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+                <a class="mini-button" style="margin-top: -66px;">表格</a>
+            </div>
+        </div>
+        <div class="mwsChart">
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        $(function () {
+            var tm = new Date();
+            // 显示当日的日期为开始日期
+            mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            // 显示当日的日期为结束日期
+            mini.get("ETIME").setValue(tm.format("yyyy-MM-dd"));
+            search();
+        });
+        var stcds = "1460481,1460381,1460281,1460581,2060881,1831983,1730483,2060181,1430383,1330183,1360481,1170181";
+        function search() {
+            var strParam = {
+                "PLAN_N": "2021072523090954751", "STCD": stcds , "DATA_TYPE": "1",STIME:"2021-07-25 20:00:00",ETIME: "2021-07-27 20:00:00"
+            };
+            GetJosns("MODE_BDMS_PREDICTSelMORE", strParam, "daibiaozhan");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "daibiaozhan") {
+                loadChartHtml(data.data);
+            }
+        }
+        function loadChartHtml(data) {
+            var stnmArr = ["吴淞", "黄浦公园", "吴泾", "米市渡", "夏字圩", "河祝", "芦潮港", "金山嘴", "高桥", "堡镇"];
+            var strHtml = '';
+            $(".mwsChart").html();
+            var stcdsArr = stcds.split(',');
+            stnmArr.forEach(function (item, index) {
+                var ChartName = "chart" + (index + 1);
+                strHtml = '<div id="' + ChartName + '" style="float:left;width:32.5%;margin-left:0.5%;height:320px;border: solid 1px #e8e8e8;border-radius:6px; margin-top:10px;"></div>';
+                $(".mwsChart").append(strHtml);
+
+                var str = data.filter(function (item) {
+                    return stcdsArr[index] == item.STCD;
+                });
+                var _XDATA = [];
+                var data1 = [];//潮位
+                var data2 = [];//流量
+                for (var num = 0; num < str.length; num++) {
+                    var tempTM = convertToDate(str[num].YMDHM).format("MM-dd HH:mm");
+                    _XDATA.push(tempTM);
+                    data1.push(str[num].DATA.toFixed(2));
+                    var ll = Number(str[num].DATA) + 30;
+                    data2.push(ll);
+                }
+                chartSW(ChartName, data1, data2, _XDATA, null, "水位(m)", item);
+            });
+        }
+        function chartSW(ChartName, data1, data2,_XDATA, LineColor, max_min_Name, stnm) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var option = {
+                title: {
+                    text: stnm,
+                    left:"left",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 16,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['潮位', '流量'],
+                    x: 'right',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    padding: [10, 50, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                },
+                //toolbox: {
+                //    feature: {
+                //        saveAsImage: {}
+                //    }
+                //},
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: _XDATA
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                    },
+                    {
+                        name: "流量(m³/s)",
+                        type: 'value',
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        },
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: [
+                    {
+                        name: '潮位',
+                        type: 'line',
+                        //stack: '总量',
+                        //areaStyle: {},
+                        color:'blue' ,//"#5CB7FF",
+                        data: data1,
+                        symbol: 'none',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的
+                        //markPoint: {
+                        //    data: [
+                        //        { type: 'max', name: '最大值' },
+                        //        { type: 'min', name: '最小值' }
+                        //    ]
+                        //}
+                    },
+                    {
+                        name: '流量',
+                        type: 'line',
+                        yAxisIndex: 1,
+                        color: "#1CC800",
+                        smooth: true,  //这句就是让曲线变平滑的
+                        barWidth:'15px',
+                        data: data2
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

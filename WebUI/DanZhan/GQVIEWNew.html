@@ -1,0 +1,920 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js"></script>
+    <style type="text/css">
+        body {
+            overflow:hidden;
+        }
+        .gcJk {
+            background: url(../Common/images/map/jk/hpic6.png) repeat-x;
+            width: 100%;
+        }
+
+            .gcJk ul {
+                -webkit-padding-start: 0px;
+            }
+
+                .gcJk ul li {
+                    float: left;
+                    list-style-type: none;
+                    background: url(../Common/images/map/jk/spic5.png) repeat-y center top;
+                    height: 200px;
+                }
+
+        .div1 {
+            padding-top: 90px;
+            text-align: center;
+            /*margin-left: -5px;*/
+        }
+
+        .div2 {
+            padding-top: 90px;
+            text-align: center;
+            /*margin-left: -8px;*/
+        }
+
+        .divFont {
+            height: 20px;
+            margin-left: 15px;
+            bottom: 10px;
+            margin-top: -50px;
+            color: #ED6E16;
+            font-size: 20px;
+        }
+
+        .JKtable tr td {
+            line-height: 30px;
+        }
+
+        .YCdiv {
+            width: 100%;
+            color: white;
+            margin-top: 50px;
+            /*margin-left: -20px;*/
+            text-align: center;
+        }
+
+        .YCTable {
+            width: 100%;
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .SpanColor {
+            color: #05C3C9;
+        }
+    </style>
+    <style type="text/css">
+        /*.onlytab {
+            width: 90%;
+            height: 40px;
+            margin: auto;
+        }*/
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width: 45%;
+            height: 30px;
+            font: 14px/30px "arial";
+            text-align: center;
+        }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+    </style>
+    <style type="text/css">
+
+        .wave-wrapper {
+            width: 100%;
+            height: 80px;
+            position: relative;
+        }
+
+        .wave {
+            width: 100%;
+            height: 60px;
+            /*position: absolute;*/
+        }
+
+        .wave1 {
+            bottom: 20px;
+            background: url('../Common/images/flow.gif');
+            background-position: 0 -0px;
+            opacity: 0.4;
+            /*animation: moveLeft 7s linear infinite;*/
+        }
+
+        .wave2 {
+            bottom: 10px;
+            background: url('../Common/images/flow.gif');
+            background-position: 0 -0px;
+            opacity: 0.6;
+            /*animation: moveRight 10s linear infinite;*/
+        }
+
+        .wave3 {
+            bottom: 0;
+            background: url('../Common/images/flow.gif');
+            background-position: 0 -0px;
+            opacity: 1;
+            /*animation: moveLeft 15s linear infinite;*/
+        }
+
+
+        @keyframes moveLeft {
+            0% {
+                background-position-x: 0;
+            }
+
+            100% {
+                background-position-x: 1920px;
+            }
+        }
+
+        @keyframes moveRight {
+            0% {
+                background-position-x: 0;
+            }
+
+            100% {
+                background-position-x: -1920px;
+            }
+        }
+        .table1 {
+            margin: 5px auto;
+        }
+        .table1 tr td:nth-child(even) {
+            height: 35px;
+        }
+            .table1 tr td:nth-child(2n+1) {
+                height: 35px;
+            }
+    </style>
+</head>
+<body style="background:url(../Common/images/map/jk/pic0.png)">
+    <div style="width:318px;float:left;border-right:#9CA0A6 2px solid;height:500px;    padding-right: 5px;display:none;">
+        <div style="width:100%;display:none" id="GQDivView1">
+            <div style="color: white;text-align: center;font-size: 20px;position: absolute;top: 10px;left: 140px;color:#FCFF04;">
+                剖面图
+            </div>
+            <div style="background:url(../Common/images/11111.png) no-repeat;height:200px;">
+                &nbsp;
+            </div>
+            <div id="DivFixed" class="wave wave3" style="position:fixed; width:310px;height:5px; bottom: calc(100% - 190px);z-index:-1;position:absolute; color: red;text-align: center;font-size: 26px;border-top:dashed 1px #83e7e5;">
+                &nbsp;
+            </div>
+            <div id="DivWRZ" style="position:fixed;width:310px;height:5px; bottom: calc(100% - 190px);z-index:-1;position:absolute; color: red;text-align: right;font-size: 20px;border-top:dashed 1px red;padding-right: 25px;">
+                &nbsp;
+            </div>
+            <div id="DivLEFT" style="position:fixed;width:38px;height:5px; bottom:calc(100% - 190px);z-index:-1;position:absolute; color: red;text-align: right;font-size: 20px;border-top:solid 2px red;">
+                &nbsp;
+            </div>
+            <div id="DivRIGHT" style="position:fixed;width:38px;height:5px; bottom:calc(100% - 190px);left:280px;z-index:-1;position:absolute; color: red;text-align: left;font-size: 20px;border-top:solid 2px red;">
+                &nbsp;
+            </div>
+        </div>
+        <div style="width:100%;display:none" id="GQDivView2">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;height:200px;">
+                <tr>
+                    <td style="color:#FCFF04;font-size:20px;text-align:center;" colspan="3">
+                        工程内外水位示意图
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <div style="
+        border-right: 19px solid #9e9d9e;
+    border-left: 19px solid #9e9d9e;
+    border-bottom: 0px solid #9e9d9e;
+    border-top: 0px;
+    width: 10%;
+    text-align: center;
+    margin: 0 auto;
+    height: 8px; ">
+                            &nbsp;
+                        </div>
+                    </td>
+                </tr>
+                <tr id="div1">
+                    <td valign="bottom" style="width:150px" align="center">
+                        <!--opacity: 0.7;border-top: 2px solid #fcff04;-->
+                        <div id="divSW1" class="wave wave3" style="width:100%;height:1px;color:white;filter:alpha(Opacity=80);-moz-opacity:0.5;text-align:left;">
+                            <span id="spanSW1" style="color:white;">—</span>
+                            &nbsp;
+                        </div>
+                    </td>
+                    <td style="width:10px;" align="center">
+                        <div id="divSW2" style="width:100%;height:200px;background-color:rgb(158, 157, 158);color:white;">
+                            <span id="spanSW2" style="color:white;" class="none">—</span>
+                            &nbsp;
+                        </div>
+                    </td>
+                    <td valign="bottom" style="width:150px" align="center">
+                        <div id="divSW3" class="wave wave3" style="width:100%;height:1px;color:white;filter:alpha(Opacity=80);-moz-opacity:0.5;text-align:right;">
+                            <span id="spanSW3" style="color:white;">—</span>
+                            &nbsp;
+                        </div>
+                    </td>
+                </tr>
+            </table>
+            <div id="divGq" style="position:fixed;    width: 152px;left: 171px; height: 72px;bottom: calc(100% - 204px);z-index: 0;position: absolute;color: red; text-align: left;font-size: 14px;font-weight: bold;display:none;">
+                <div style="width:100%;" id="divFont">
+
+                </div>
+                <div style="border-top:dashed 1px red;width:100%;">
+                    &nbsp;
+                </div>
+
+            </div>
+        </div>
+        <div style="width:100%;display:none" id="GQDivView3">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;height:200px;">
+                <tr>
+                    <td style="color:#FCFF04;font-size:20px;text-align:center;" >
+                        工程内外水位示意图
+                    </td>
+                </tr> 
+                <tr  style="background:url(../Common/images/GQ1.png); height: 230px; background-size:100% 100%;">
+                    <td style="background:url(../Common/images/GQ2.png) repeat-x;  animation: moveLeft 35s linear infinite;    ">
+                        <span style="position:relative;left:10px;top: -76px;color:yellow" id="yly_WH">
+                            内河水位：—
+                        </span>
+                        <span style="position:relative;left: -23px;
+    top: 48px;color:yellow" id="yly_KD">
+                            开度：—
+                        </span>
+                        <span style="position:relative;    left: 0px;
+    top: -40px;color:yellow" id="yly_NH">
+                            外江潮位：—
+                        </span>
+                        <span style="position:relative;left: -4px;
+    top: -14px;color:yellow;display:none" id="yly_LS">
+                            流速：—
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1' style=' background-color: #1A466A; width: 100%; border-collapse: collapse;text-align:center;color:white;'>
+
+            <tr>
+                <td colspan="2">
+                    工程信息
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    采集时间
+                </td>
+                <td id="TM">
+                    —
+                </td>
+            </tr>
+            <tr>
+                <td id="tdUPZ">
+                    水位(m)
+                </td>
+                <td class="View" id="UPZ">
+                    —
+                </td>
+
+            </tr>
+            <tr id="TRDWZ" style="display:none;">
+                <td>
+                    外江潮位(m)
+                </td>
+                <td class="View" id="DWZ">
+                    —
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    开机台数
+                </td>
+                <td class="View" id="TS">
+                    —
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    闸门启闭
+                </td>
+                <td class="View" id="KB">
+                    —
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <div style="width: calc(100%);float:left;    margin-left: 20px;">
+        <div style="width:100%;text-align:center;font-size:20px;line-height:50px;color:#FCFF04;">
+            <span id="divTITLE">&nbsp;</span>运行图
+        </div>
+        <div style="width:100%; margin:0 auto;display:none;" id="divOnlyTab">
+            <ul class="onlytab">
+                <li id="TitleLi0" onclick="OnClickTitle(this.id,'OMCNUM')" class="onlyli start onlyliHover">泵站</li>
+                <li id="TitleLi2" onclick="OnClickTitle(this.id,'GTOPNUM')" class="onlyli end">闸站</li>
+            </ul>
+        </div>
+        
+
+        <div class="gcJk" id="GCJK">
+            <ul>
+                <li>
+                    <div class="div1">
+                        <img src="../Common/images/map/jk/pic3.png" width="10" height="16" alt="">
+                    </div>
+                    <div class="div2">
+                        <img src="../Common/images/map/jk/Beng.gif" width="30" height="30" alt="">
+                    </div>
+                    <div class="divFont">
+                        1#
+                    </div>
+                    <div class="YCdiv">
+                        <img src="../Common/images/map/jk/pic1.png" width="41" height="12" alt="">
+                        <div style="color:#3FF848;margin-top:10px;">
+                            正常
+                        </div>
+                    </div>
+                    <div class="YCTable">
+                        <table cellpadding="0" cellspacing="0" border="0" width="100%" class="JKtable">
+                            <tr>
+                                <td>
+                                    1#电流：<span class="SpanColor">111A</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    1#电流：<span class="SpanColor">111A</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    1#电流：<span class="SpanColor">111A</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </li>
+            </ul>
+            <div style="clear:both;"></div>
+        </div>
+    </div>
+  <script type="text/javascript">
+      mini.parse();
+
+      var myData = [];
+
+      var _stcd = GetQueryString("stcd");
+      var _stnm = GetQueryString("STNM");
+      var _stime = GetQueryString("STIME");
+      var _etime = GetQueryString("ETIME");
+      $.data(myData, "STCD", _stcd);
+      $.data(myData, "STNM", _stnm);
+      $.data(myData, "STIME", _stime);
+      $.data(myData, "ETIME", _etime);
+      $(function () {
+          $("#divOnlyTab").css("display", "none");
+          search();
+      });
+      function search() {
+          mini.mask({
+              el: document.body,
+              cls: 'mini-mask-loading',
+              html: '加载中...'
+          });
+          setTimeout(function () {
+              var stcdNew = _stcd;
+              var strWhere={
+                "stcd": stcdNew,
+                "pid": "2023060214563122171-1"
+              };
+              app.post("/SWZZ_RTSQ_ST_GATE_RNEW/queryList", strWhere, (data) => {
+                  JosnSel(data, "Sel")
+              });
+          }, 100);
+      }
+      function OnClickTitle(objID,  objHNNM) {
+          var only = $(".onlyli").removeClass("onlyliHover");
+          $("#" + objID).addClass("onlyliHover"); 
+              $.data(myData, "TYPE", objHNNM);
+          
+          setTimeout('search()', 1000);
+      }
+      function JosnSel(ResultData, typeID) {
+          if (typeID == "Sel") {
+              var strMsg = '';
+              
+              if (ResultData.total > 0) {
+
+                var o =ResultData.data[0];
+                FromSetinnerHTML(o, "View");
+                  var tempTM = "—";
+                  if (o.tm != undefined) {
+                      tempTM = new Date(o.tm).format("yyyy-MM-dd HH:mm:ss");
+                  }
+                  $("#TM").html(tempTM);
+
+                  if ("".lastIndexOf(_stcd) > -1) {
+                      $("#GQDivView3").css("display", "block");
+                  } else {
+                      $("#GQDivView1").css("display", "none");
+                      $("#GQDivView2").css("display", "block");
+                  }
+                  var tempMAXZ = 25;
+                  var tempNUM = 7;
+                  var chaUPZ = 2.5;
+                //   var o = ResultData.data.filter(function (item) {
+                //       return item.stcd == _stcd;
+                //   })[0];
+                  
+                  if (o.UPZ != undefined) {
+                      $("#divSW4").html(o.UPZ);
+                      $("#spanSW1").html("内河水位：" + Number(o.UPZ).toFixed(2));
+                      $("#spanSW1").attr("title", "内河水位：" + Number(o.UPZ).toFixed(2));
+                      $("#divSW1").attr("title", "内河水位：" + Number(o.UPZ).toFixed(2));
+                      var tempH = (chaUPZ+o.UPZ) * tempMAXZ;
+                      if (o.UPZ == 0) {
+                          tempH = tempMAXZ;
+                      }
+                      $("#divSW1").css("height", tempH + "px");
+                  }
+                  else {
+                      var tempH = 1 * tempMAXZ;
+                      $("#divSW1").css("height", tempH + "px");
+                  }
+                 
+                  var upz = ResultData.data[0].UPZ;
+                  if (upz != undefined) {
+                      var height = (upz / 5) * 1.75 * 100;
+                      $("#DivFixed").css("height", height);
+                      $("#DivFixed").html(upz);
+                  }
+                  if (ResultData.data[0].WRZ != undefined) {
+                      height = (Number(ResultData.data[0].WRZ) / 5) * 1.75 * 100;
+                      $("#DivWRZ").css("height", height);
+                      $("#DivWRZ").html("" + ResultData.data[0].WRZ + "m");
+                  }
+
+                  $("#divTITLE").html(ResultData.data[0].stnm);
+                  var tempMAXZ = 24;
+                  if (o.WRZ != undefined) {
+                      tempH = (o.WRZ * tempMAXZ);
+                      $("#divGq").css("height", (tempH) + "px");
+                      $("#divFont").html("" + Number(o.WRZ).toFixed(2));
+                  }
+
+                  //GTOPNUM闸
+                  var GTOPNUM =o.grq;
+                  //OMCNUM 泵
+                  var OMCNUM = o.flpq;
+                  var NumZS = 0;
+                  if (GTOPNUM > 0 && OMCNUM > 0) {
+                      //$("#divOnlyTab").css("display", "block");
+                      if ($.data(myData, "TYPE") == null) {
+                          $.data(myData, "TYPE", "OMCNUM");
+                          NumZS = OMCNUM;
+                      }
+                  }
+                  else if (OMCNUM > 0) {
+                      //$("#divOnlyTab").css("display", "none");
+                      if ($.data(myData, "TYPE") == null) {
+                          $.data(myData, "TYPE", "OMCNUM");
+                          NumZS = OMCNUM;
+                      }
+                  }
+                  else if (GTOPNUM > 0) {
+                      $("#divOnlyTab").css("display", "none");
+                      if ($.data(myData, "TYPE") == null) {
+                          $.data(myData, "TYPE", "GTOPNUM");
+                          NumZS = GTOPNUM;
+                      }
+                  }
+                  var NumTS = 0;
+                  var NumKB = 0;
+                  var strJson = ResultData.data[0].gateList;
+
+                  var liWidth = 100 / (OMCNUM + GTOPNUM);
+                  //alert((OMCNUM + NumZS) + "====" + OMCNUM + "!@@@@@@" + GTOPNUM)
+                  strMsg = ' <ul>';
+                  //if ($.data(myData, "TYPE") == "OMCNUM") {
+                      //泵站
+                      var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+                      for (num = 0; num < OMCNUM; num++) {
+                          var temp1 = strJson.filter(function (e) {
+                              return e.exkey == (num + 1) && Number(e.gtq) > 0 && convertToDate(e.tm) >= tempTM && (e.eqptp == "泵站状态");
+                          });
+                          var FLAG = false;
+                          var tempXX = "<span style='color:red;'>关泵</span>";
+                          if (temp1.length > 0) {
+                              NumTS++;
+                              tempXX = "<span style='color:#4CE242;'>开泵</span>";
+                              FLAG = true;
+                          }
+                          var p1 = strJson.filter(function (e) {
+                              return e.exkey == (num + 1) && Number(e.gtq) > 0 && convertToDate(e.tm) >= tempTM && (e.eqptp == "泵站流量" || e.eqptp=="泵站电流");
+                          });
+
+                          strMsg += '<li style="width:' + liWidth + '%">';
+                          strMsg += '   <div class="div1">';
+                          if (FLAG == true) {
+                              strMsg += ' <img src="../Common/images/map/jk/pic3.png" width="10" height="16" alt="" > ';
+                          } else {
+                              strMsg += ' <img src="../Common/images/map/jk/pic31.png" width="10" height="16" alt="" > ';
+                          }
+                          strMsg += ' </div > ';
+                          strMsg += '  <div class="div2">';
+                          if (FLAG == true) {
+                              strMsg += ' <img src="../Common/images/map/jk/Beng.gif" width="30" height="30" alt="">';
+                          } else {
+                              strMsg += ' <img src="../Common/images/map/jk/img3.png" width="30" height="30" alt="">';
+                          }
+                          strMsg += '  </div>';
+                          //strMsg += '  <div class="divFont">';
+                          //strMsg += (num + 1)+'#';
+                          //strMsg += '  </div>';
+                          //strMsg += ' <div class="YCdiv">';
+                          //strMsg += '    <img src="../Common/images/map/jk/pic1.png" width="41" height="12" alt="">';
+                          //strMsg += '   <div style="color:#3FF848;margin-top:10px;">';
+                          //strMsg += '       ' + tempXX;
+                          //strMsg += '    </div>';
+                          //strMsg += '  </div>';
+                          strMsg += ' <div class="YCTable">';
+                          strMsg += '   <table cellpadding="0" cellspacing="0" border="0" width="100%" class="JKtable">';
+                          strMsg += '      <tr>';
+                          strMsg += '          <td align="right" style="width:50%">';
+                          strMsg += '编号：';
+                          strMsg += '          </td>';
+                          strMsg += '          <td align="left"  style="width:50%">';
+                          strMsg += (num + 1) + "#泵";
+                          strMsg += '          </td>';
+                          strMsg += '     </tr>';
+                          strMsg += '      <tr>';
+                          strMsg += '          <td align="right">';
+                          strMsg += '状态：';
+                          strMsg += '          </td>';
+                          strMsg += '          <td align="left">';
+                          strMsg += tempXX;
+                          strMsg += '          </td>';
+                          strMsg += '     </tr>';
+                          var temp1 = p1.filter(function (e) {
+                              return e.eqptp == "泵站电流";
+                          })
+                          //if (temp1.length > 0) {
+                          //    strMsg += '      <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '电流：';
+                          //    strMsg += '          </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    if (temp1[0].gtq != undefined) {
+                          //        strMsg += '<span class="SpanColor">' + Number(temp1[0].gtq).toFixed(1) + 'A</span>';
+                          //    } else {
+                          //        strMsg += '<span class="SpanColor">—</span>';
+                          //    }
+                              
+                          //    strMsg += '          </td>';
+                          //    strMsg += '     </tr>';
+                          //} else {
+                          //    strMsg += '      <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '电流：';
+                          //    strMsg += '          </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '—';
+                          //    strMsg += '          </td>';
+                          //    strMsg += '     </tr>';
+                          //}
+                          //var temp2 = p1.filter(function (e) {
+                          //    return e.eqptp == "泵站流量";
+                          //})
+                          //if (temp2.length > 0) {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '流量：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    if (temp2[0].gtq != undefined) {
+                          //        strMsg += '<span class="SpanColor">' + Number(temp2[0].gtq).toFixed(1) + 'm³/s</span>';
+                          //    } else {
+                          //        strMsg += '<span class="SpanColor">—</span>';
+                          //    }
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //} else {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '流量：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '—';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //}
+
+                          //var temp3 = ResultData.data[0].SFQ;
+                          //if (temp3 != undefined) {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '设计：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '<span class="SpanColor">' + Number(temp3).toFixed(1) + 'm³/s</span>';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //} else {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '设计：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '—';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //}
+                          strMsg += ' </table>';
+                          strMsg += '  </div>';
+                          strMsg += ' </li>  ';
+
+
+                      }
+                  //}
+                  //else { 
+                  if (GTOPNUM > 0) {
+                      var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+
+                      for (num = 0; num < GTOPNUM; num++) {
+                          var p1 = strJson.filter(function (e) {
+                              return e.exkey == (num + 1) && Number(e.gtq) > 0.02 && new Date(convertToDate(e.tm)) >= tempTM && (e.eqptp == "闸坝开度");
+                          });
+                          var FLAG = false;
+                          var tempGTQ = 4.50;
+                          if (p1.length > 0) {
+                              tempGTQ = Number(p1[0].gtq).toFixed(2);
+                          }
+                          var tempXX = "<span style='color:red;'>关闸</span>";
+                          if (tempGTQ == 4.5) {
+                              tempXX = "<span style='color:red;'>关闸</span>";
+                              //FLAG = true;
+                              //NumKB++; 
+                          } else if (tempGTQ == 0) {
+                              tempXX = "<span style='color:#4CE242;'>开闸</span>";
+                              FLAG = true;
+                              NumKB++;
+                          } else { 
+                              tempXX = "<span style='color:#4CE242;'>开闸</span>";
+                              FLAG = true;
+                              NumKB++; 
+                          }
+                           
+                          //var liWidth = 100 / GTOPNUM;
+                          strMsg += '<li style="width:' + liWidth + '%">';
+                          strMsg += '   <div class="div1">';
+                          if (FLAG == true) {
+                              strMsg += ' <img src="../Common/images/map/jk/pic3.png" width="10" height="16" alt="" > ';
+                          } else {
+                              strMsg += ' <img src="../Common/images/map/jk/pic31.png" width="10" height="16" alt="" > ';
+                          }
+                          strMsg += ' </div > ';
+                          strMsg += '  <div class="div2">';
+                          if (FLAG == true) {
+                              strMsg += ' <img src="../arcgis_js_api/myJs/images/sz/icon_gate_run.gif" width="30" height="30" alt="">';
+                          } else {
+                              strMsg += ' <img src="../arcgis_js_api/myJs/images/sz/icon_gate.gif" width="30" height="30" alt="">';
+                          }
+                          strMsg += '  </div>';
+                          //strMsg += '  <div class="divFont">';
+                          //strMsg += (num + 1)+'#';
+                          //strMsg += '  </div>';
+                          //strMsg += ' <div class="YCdiv">';
+                          //strMsg += '    <img src="../Common/images/map/jk/pic1.png" width="41" height="12" alt="">';
+                          //strMsg += '   <div style="color:#3FF848;margin-top:10px;">';
+                          //strMsg += '       ' + tempXX;
+                          //strMsg += '    </div>';
+                          //strMsg += '  </div>';
+                          strMsg += ' <div class="YCTable">';
+                          strMsg += '   <table cellpadding="0" cellspacing="0" border="0" width="100%" class="JKtable">';
+                          strMsg += '      <tr>';
+                          strMsg += '          <td align="right" style="width:50%">';
+                          strMsg += '编号：';
+                          strMsg += '          </td>';
+                          strMsg += '          <td align="left"  style="width:50%">';
+                          strMsg += (num + 1) + "#闸";
+                          strMsg += '          </td>';
+                          strMsg += '     </tr>';
+                          strMsg += '      <tr>';
+                          strMsg += '          <td align="right">';
+                          strMsg += '状态：';
+                          strMsg += '          </td>';
+                          strMsg += '          <td align="left">';
+                          strMsg += tempXX;
+                          strMsg += '          </td>';
+                          strMsg += '     </tr>';
+                          var temp1 = p1.filter(function (e) {
+                              return e.eqptp == "闸坝开度";
+                          })
+                          if (temp1.length > 0) {
+                              strMsg += '      <tr>';
+                              strMsg += '          <td align="right">';
+                              strMsg += '开度：';
+                              strMsg += '          </td>';
+                              strMsg += '          <td align="left">';
+                              
+                              if (temp1[0].gtq != undefined) {
+                                  strMsg += '<span class="SpanColor">' + Number(temp1[0].gtq).toFixed(2) + 'm</span>';
+                              } else {
+                                  strMsg += '<span class="SpanColor">—</span>';
+                              }
+                              strMsg += '          </td>';
+                              strMsg += '     </tr>';
+                              if (temp1[0].gtq != undefined) {
+                                  $("#yly_KD").html("开度：" + Number(temp1[0].gtq).toFixed(2) + "m");
+                              } else {
+                                  $("#yly_KD").html("开度：—");
+                              }
+                          } else {
+                              strMsg += '      <tr>';
+                              strMsg += '          <td align="right">';
+                              strMsg += '开度：';
+                              strMsg += '          </td>';
+                              strMsg += '          <td align="left">';
+                              strMsg += '—';
+                              strMsg += '          </td>';
+                              strMsg += '     </tr>';
+                          }
+
+                          //var temp2 = p1.filter(function (e) {
+                          //    return e.eqptp == "泵站电流";
+                          //})
+                          //if (temp2.length > 0) {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '流量：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '<span class="SpanColor">' + Number(temp2[0].gtq).toFixed(1) + 'm³/s</span>';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //} else {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '流量：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '—';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //} 
+                          //var temp3 = strJson.filter(function (e) {
+                          //    return e.eqptp == "闸坝流量" && e.EQPNO == (num + 1);
+                          //}); 
+                          //if (temp3.length) {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '流量：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    if (temp3[0].gtq != undefined) {
+                          //        strMsg += '<span class="SpanColor">' + Number(temp3[0].gtq).toFixed(1) + 'm³/s</span>';
+                          //    } else {
+                          //        strMsg += '<span class="SpanColor">—</span>';
+                          //    }
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //    if (temp3[0].gtq != undefined) {
+                          //        $("#yly_LS").html("流量：" + Number(temp3[0].gtq).toFixed(2) + "m³/s");
+                          //    } else {
+                          //        $("#yly_LS").html("流量：—");
+                          //    }
+
+                          //} else {
+                          //    strMsg += '    <tr>';
+                          //    strMsg += '          <td align="right">';
+                          //    strMsg += '流量：';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '          <td align="left">';
+                          //    strMsg += '—';
+                          //    strMsg += '       </td>';
+                          //    strMsg += '    </tr>';
+                          //}
+                          strMsg += ' </table>';
+                          strMsg += '  </div>';
+                          strMsg += ' </li>  ';
+
+                      }
+                  }
+                  // }
+                  strMsg += ' </ul>';
+
+                  strMsg += '<div style="clear:both;"></div>';
+
+              }
+              $("#GCJK").html(strMsg);
+              $("#TS").html(NumTS + "/" + OMCNUM);
+              $("#KB").html(NumKB + "/" + GTOPNUM);
+              mini.unmask(document.body);
+          }
+          else if (typeID == "WATER_ST_STBPRP_B_STCDSel") {
+              if (ResultData.total > 0) {
+                  var o = ResultData.data[0];
+                  console.error(o);
+                  var tempMAXZ = 24;
+                  if ("".lastIndexOf(o.STCD) > -1) {
+                      $("#GQDivView3").css("display", "block");
+                  } else {
+                      $("#GQDivView1").css("display", "none");
+                      $("#GQDivView2").css("display", "block");
+                  }
+                  if (o.UPZ != undefined) {
+                      $("#divSW4").html(o.UPZ);
+                      $("#spanSW1").html("内河水位：" + Number(o.UPZ).toFixed(2));
+                      $("#spanSW1").attr("title", "内河水位：" + Number(o.UPZ).toFixed(2));
+                      $("#divSW1").attr("title", "内河水位：" + Number(o.UPZ).toFixed(2));
+                      var tempH = o.UPZ * tempMAXZ;
+                      if (o.UPZ == 0) {
+                          tempH = tempMAXZ;
+                      }
+                      $("#divSW1").css("height", tempH + "px");
+
+                  }
+                  else {
+                      if (o.DWZ != undefined) {
+                          var tempH = o.DWZ * tempMAXZ;
+                          if (o.DWZ == 0) {
+                              tempH = tempMAXZ;
+                          }
+                          $("#divSW1").css("height", tempH + "px");
+                      }
+                      else {
+                          var tempH = 1 * tempMAXZ;
+                          $("#divSW1").css("height", tempH + "px");
+                      }
+                  }
+                  //$("#spanSW2").html(tempMAXZ);
+                  $("#spanSW2").attr("title", "水位线：" + Number(tempMAXZ).toFixed(2));
+                  //$("#divSW2").attr("title", "水位线：5" + Number(tempMAXZ).toFixed(2));
+                  $("#divSW2").attr("title", "水位线：7");
+                  var tempHeihgt = (7 * tempMAXZ);
+                  $("#divSW2").css("boder-top", "5px solid red");
+                  $("#divSW2").css("height", tempHeihgt);
+                  if (o.DWZ != undefined) {
+                      $("#spanSW3").html("外江潮位：" + Number(o.DWZ).toFixed(2));
+                      var tempH = (o.DWZ * tempMAXZ);
+                      if (o.DWZ == 0) {
+                          tempH = tempMAXZ;
+                      }
+                      $("#spanSW3").attr("title", "外江潮位：" + Number(o.DWZ).toFixed(2));
+                      $("#divSW3").attr("title", "外江潮位：" + Number(o.DWZ).toFixed(2));
+                      $("#divSW3").css("height", tempH + "px");
+                  } else {
+                      if (o.UPZ != undefined) {
+                          var tempH = (o.UPZ * tempMAXZ);
+                          if (o.UPZ == 0) {
+                              tempH = tempMAXZ;
+                          }
+                          $("#divSW3").css("height", tempH + "px");
+                      } else {
+                          var tempH = 1 * tempMAXZ;
+                          $("#divSW3").css("height", tempH + "px");
+                      }
+                    
+                  }
+                  if (o.WRZ != undefined) {
+                      tempH = (o.WRZ * tempMAXZ);
+                      $("#divGq").css("height", (tempH) + "px");
+                      $("#divFont").html("控制：" + Number(o.WRZ).toFixed(2));
+                  }
+                  //var tempTM = "—";
+                  //if (o.ZTM != undefined) {
+                  //    tempTM = new Date(convertToDate(o.ZTM)).format("yyyy-MM-dd HH:mm:ss");
+                  //}
+                  //$("#TM").html(tempTM);
+              }
+          }
+      }
+  </script>
+</body>
+</html>

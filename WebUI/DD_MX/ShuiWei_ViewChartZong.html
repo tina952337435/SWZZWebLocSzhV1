@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="JY_charts" style="height:100%;width:90%;margin:0px auto;background:white;">
+
+    </div>
+
+    <script>
+        mini.parse();
+        var stnm = GetQueryString("stnm");
+        var stcd = GetQueryString("stcd");
+        var stime = GetQueryString("time");
+        var etime = GetQueryString("etime");
+        var SOLUTIONID=GetQueryString("SOLUTIONID");
+        window.onload = function () {
+            BreakLayerLoad();
+        }
+        function BreakLayerLoad() {
+            var strWhere = {
+                pattem: stcd,
+                strExp: SOLUTIONID
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult", strWhere, function(res){
+                JosnSel(res,"Sel");
+            });
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var resultData = data.data;
+                //绘制过程线颜色设置
+                var LineColor = ["#0000FF", "#00FF00", "#FF0101"];
+                var strNote = [
+                    { "name": "时间", "codename": "zhantime", "tableV": "1", "isShow": true, "width": "30%" },
+                    //{ "name": "风暴潮", "codename": "TDZ", "tableV": "1", "isShow": true, "width": "30%" },
+                    { "name": "潮位", "codename": "zhandata", "tableV": "1", "isShow": true, "width": "30%" },
+                    //{ "name": "总潮位", "codename": "TOTALZ", "tableV": "1", "isShow": true, "width": "30%" }
+                ];
+                //绘制图形
+                chartLL("JY_charts", resultData, strNote, LineColor, "潮位(m)");
+            }
+        }
+        
+        function chartLL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(value[value1.codename]); //加入时间集合
+                        chartTM.push(new Date((value[value1.codename])).format("MM-dd HH:mm")); //加入时间集合
+
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var max_min = GetSort(chartValue);
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    show: false,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: 20,
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        //boundaryGap: false,
+                        splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        //min: max_min.min, //动态设置最大值最小值。
+                        //max: max_min.max,
+                        //axisLabel: {
+                        //    formatter: function (v) {
+                        //        return v.toFixed(1);
+                        //    }
+                        //}
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                type: 'line',
+                                data: chartValue,
+                                barWidth: '40%',
+                                symbol: 'none',  //这句就是去掉点的
+                                smooth: true,
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+
+                                symbol: 'none',  //这句就是去掉点的
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

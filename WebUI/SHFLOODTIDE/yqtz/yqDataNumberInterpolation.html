@@ -1,0 +1,475 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>代表站场次雨量插补</title>
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            /*background: white;*/
+        }
+
+        .box {
+            padding: 0px 0px;
+            width: 100%;
+            overflow-y: hidden;
+            height: 100%;
+        }
+
+        .yb_left {
+            float: left;
+            width: 600px;
+            /*border: 1px solid #d3d3d3;*/
+            background: #ffffff;
+            /*margin-top: 5px;*/
+            height: 400px;
+        }
+
+        .tqyb_right {
+            float: right;
+            width: calc(100% - 610px);
+            height: 400px;
+            background: #ffffff;
+        }
+
+        .table {
+            width: 96%;
+            margin: 0px auto;
+            max-width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .table-bordered {
+            /*border: 1px solid #EBEBEB;*/
+        }
+
+        thead {
+            display: table-header-group;
+            vertical-align: middle;
+            border-color: inherit;
+        }
+
+        .table td {
+            line-height: 1.42857;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+            vertical-align: top;
+            border: 1px solid #e7e7e7;
+            /*background-color: #F5F5F6;*/
+        }
+
+        .table-bordered tr th, .table-bordered tr td, .table-bordered tbody tr td {
+            border: 0px;
+            height: 40px;
+        }
+
+        .c-index {
+            display: inline-block;
+            padding: 1px 0;
+            color: #fff;
+            width: 20px;
+            line-height: 100%;
+            font-size: 14px;
+            text-align: center;
+            background-color: #8eb9f5;
+            margin-right:5px;
+        }
+
+        ul.ui-choose > li {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="yb_left">
+            <div style="text-align:left; width:100%;line-height: 35px; background-color: #FFF;padding-left: 10px; color: black;font-size:16px;width:calc(100% - 10px);margin:0px auto;">
+                &nbsp;<span style="width: 5px;height: 17px;margin-top: 9px;background-color: #0C52C4;vertical-align: top;display: inline-block;">&nbsp;</span>
+                场次雨量插补设置
+            </div>
+            <div style="border-top: solid 1px #e8e8e8;height: calc(100% - 35px);width:calc(100% - 10px);margin:0px auto;font-size:16px;">
+                <table class="form-table" border="0" cellpadding="1" cellspacing="2">
+                    <tr height="50">
+                        <td width="30"></td>
+                        <td>
+                            <span style="float:left;">起算时间：</span>
+                            <label id="TIME"><!--1978-01-01 00:00:00--></label>
+                        </td>
+                    </tr>
+                    <tr height="50">
+                        <td width="150"></td>
+                        <td>
+                            插补时长：
+                            <ul class="ui-choose choose-type-right" id="choseMNLX">
+                                <li class="selected">
+                                    <span id="span1">一年</span>
+                                </li>
+                                <li>
+                                    <span id="span2">两年</span>
+                                </li>
+                                <li>
+                                    <span id="span3">三年</span>
+                                </li>
+                                <li>
+                                    <span id="span4">四年</span>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            <span style="vertical-align: 50px;">插补公式：</span>
+                            <img src="/Common/images/距离插补权重.png" />
+                        </td>
+                    </tr>
+                    <tr height="50">
+                        <td colspan="2" align="center">
+                            <a id="searchbtn" class="mini-button" onclick="startInterpolation()">开始插补</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tqyb_right">
+            <div style="text-align:left; width:100%;line-height: 35px; background-color: #FFF;padding-left: 10px; color: black;font-size:16px;width:calc(100% - 10px);margin:0px auto;">
+                &nbsp;<span style="width: 5px;height: 17px;margin-top: 9px;background-color: #0C52C4;vertical-align: top;display: inline-block;">&nbsp;</span>
+                场次暴雨总量插补流程图
+            </div>
+            <div style="border-top: solid 1px #e8e8e8;height: calc(100% - 35px);width:calc(100% - 10px);margin:0px auto;" id="GraphContent">
+                <img src="/Common/images/雨量数据插补流程图.png" style="height:100%;" />
+            </div>
+        </div>
+        <div style="clear:both"></div>
+        <div style="width:100%;height: calc(100% - 420px);background:#FFFFFF;padding:5px 0px;margin:0px auto;margin-top:10px;  ">
+            <div style="text-align:left; width:100%;line-height: 35px; background-color: #FFF;padding-left: 10px; color: black;font-size:16px;width:calc(100% - 10px);margin:0px auto;">
+                &nbsp;<span style="width: 5px;height: 17px;margin-top: 9px;background-color: #0C52C4;vertical-align: top;display: inline-block;">&nbsp;</span>
+                雨量代表站清单
+            </div>
+            <div style="height: calc(100% - 35px);width:calc(100% - 10px);margin:0px auto;background-color: #FFF;border-top: solid 1px #e8e8e8;">
+                <div id="checklist" style="height:100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        $(function () {
+            newestTm();
+            //查询预报站点
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_STBPRP_BSel", { STTP: "PP" }, "Sel");
+
+            chartGraph("GraphContent");
+
+            $('#choseMNLX li').click(function () {
+                var f = this;
+                $('#choseMNLX li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var index = Number($(this).find("span").attr("id").replaceAll("span", ""));
+                var STIME = $("#TIME").html();
+                var ETIME = new Date(new Date(STIME).addDate('y', index)).format("yyyy-MM-dd HH:mm:ss");
+                $.data(myData, "STIME", STIME);
+                $.data(myData, "ETIME", ETIME);
+            });
+        });
+        function newestTm() {
+            //查看最新插补时间
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_RAININNEWEST_RSel", { TYPE: "NUMBER" }, "TMSel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "TMSel") {
+                var TM = "1978-01-01 00:00:00";
+                if (data.total > 0) {
+                    TM = convertToDate(data.data[0].TM).format("yyyy-MM-dd HH:mm:ss");
+                }
+                $("#TIME").html(TM);
+                var STIME = $("#TIME").html();
+                var year = Number($('#choseMNLX .selected').find("span").attr("id").replaceAll("span", ""));
+                var ETIME = new Date(new Date(STIME).addDate('y', year)).format("yyyy-MM-dd HH:mm:ss");
+                $.data(myData, "STIME", STIME);
+                $.data(myData, "ETIME", ETIME);
+            }
+            else if (typeID == "Sel") {
+                onZhanLoad(data);
+            }
+            else if (typeID == "InterAdd") {
+                newestTm();
+                mini.unmask(document.body);
+            }
+        }
+        function onZhanLoad(data) {
+            var Person_list = " <table class=\"table table-bordered table-striped\">";
+            Person_list += "<tr bgcolor=#FFFFFF>";
+            var count = 0;
+            for (var num = 0; num < data.data.length; num++) {
+                var STCD = data.data[num].STCD;
+                var STNM = data.data[num].STNM;
+                count++;
+                var checked = "";
+                //if (data.data[num].ISXZ == "1") {
+                checked = "checked=\"checked\""
+                // }
+
+                var html = '<span class="c-index  c-index-hot1 c-gap-icon-right-small">' + (num + 1) + '</span>';
+
+                if (count < 10) {
+                    Person_list += "<td>";
+                    //Person_list += " <input id=\"Employ_" + num + "\" " + checked + " type=checkbox name=employee_id value=\"" + STCD + "\">" + STNM + "";
+                    Person_list += html + STNM;
+                    Person_list += "</td>";
+                }
+                else {
+                    count = 1;
+
+                    Person_list += "</tr><tr bgcolor=#FFFFFF>";
+                    Person_list += "<td>";
+                    //Person_list += " <input id=\"Employ_" + num + "\" " + checked + "  type=checkbox name=employee_id value=\"" + STCD + "\">" + STNM + "";
+                    Person_list += html + STNM;
+                    Person_list += "</td>";
+                }
+            }
+            Person_list += "</tr> ";
+            Person_list += " </table>";
+            //alert(Person_list);
+            $("#checklist").html(Person_list)
+        }
+        function startInterpolation() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据插补中，请稍等...'
+            });
+            var STIME = $.data(myData, "STIME");
+            var ETIME = $.data(myData, "ETIME");
+            var strWhere = { STIME: STIME, ETIME: ETIME };
+            GetJosns("RainfallNumberDataInterpolation", strWhere, "InterAdd");
+            //GetJosns("RainfallNumberDataInterpolationAssemble", strWhere, "InterAdd");
+        }
+    </script>
+    <script>
+        function chartGraph(ChartName) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.clear();
+            option = {
+                xAxis: {
+                    show: false,
+                    type: "value"
+                },
+                yAxis: {
+                    show: false,
+                    type: "value"
+                },
+                tooltip: {
+                    show:false,
+                    formatter: "{b}"
+                },
+                series: [{
+                    type: "graph",
+                    //layout: "none",
+                    edgeSymbol: ['none', 'arrow'], // 线两边的标记
+                    symbolOffset: [0, 0],
+                    edgeSymbolSize: [0, 8], // 标记大小
+                    edgeLabel: {
+                        show: false,
+                        normal: 
+                        {
+                            show: true,
+                            position: "middle",
+                            textStyle: {
+                                fontSize: 12
+                            },
+                            formatter: "{c}",
+                            rich: {
+                                a: {
+                                    color: 'red',
+                                    lineHeight: 10
+                                },
+                                b: {
+                                    color: 'red',
+                                    lineHeight: 10
+                                },
+                                c: {
+                                    color: 'red',
+                                    lineHeight: 10
+                                },
+                                d: {
+                                    color: 'red',
+                                    lineHeight: 10
+                                },
+                                x: {
+                                    color: 'red',
+                                    lineHeight: 10
+                                },
+                            }
+                        }
+                    },
+                    zoom: 0.9,
+                    focusNodeAdjacency: false, // 指定的节点以及其所有邻接节点高亮
+                    roam: false, // 是否可拖拽
+                    lineStyle: {
+                        normal: {
+                            width: 1,
+                            shadowColor: 'none',
+                            color: '#000000',
+                        },
+                    },
+                    symbolSize: [100, 60],
+                    symbol: "roundRect",
+                    label: {
+                        show: true,
+                        formatter: function (params) {
+                            let c = params.data.username || "";
+                            let b = params.data.name;
+                            var str = "";
+                            str = "{p|" + c + "}";
+                            //if (c === "") {
+                            //    str = "{p|" + b + "}";
+                            //} else {
+                            //    if (b == undefined) {
+                            //        str = "{p|" + c + "}";
+                            //    } else {
+                            //        str = "{n|" + c + "}\n{p|" + b + "}";
+                            //    }
+                            //}
+                            return str;
+                        },
+                        rich: {
+                            p: {
+                                fontSize: 14,
+                                color: "#000000",
+                                align: "center"
+                            }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: "#ffffff",//"#1890FF",
+                            borderColor: "#1890FF",
+                            borderWidth: 2,
+                            //shadowColor: "rgba(225,225,225,0.4)",
+                            //shadowBlur: 10,
+                            //shadowOffsetX: 10,
+                            //shadowOffsetY: 10
+                        }
+                    },
+                    data: [{
+                        import: true,
+                        level: "first",
+                        username: "场次暴雨总量",
+                        name: "1",
+                        symbolSize: [120, 30],
+                        itemStyle: {
+                            normal: {
+                                //color: "#1890FF"
+                            }
+                        },
+                        x: 0,
+                        y: 0
+                    },
+                    {
+                        import: false,
+                        level: "third",
+                        username: "不插补\n直接参与统计",
+                        name: "2",
+                        x: 300,
+                        y: 0
+                    },
+                    {
+                        import: false,
+                        level: "three",
+                        username: "选择距离最近\n的3个站点",
+                        name: "3",
+                        x: 0,
+                        y: 100,
+                        label: {
+                            normal: {
+                                fontWeight:900
+                            }
+                        },
+                    },
+                    {
+                        import: false,
+                        level: "four",
+                        symbolSize: [160,80],
+                        username: "找另外有暴雨资料的\n距离最近1站代替",
+                        name: "4",
+                        x: -300,
+                        y: 100
+                        },
+                        {
+                            import: false,
+                            level: "five",
+                            symbolSize: [150, 70],
+                            username: "3站反距离权重插补",//\nP=((P1*(1/d1)+P2*(1/d2)+P3*(1/d3))/(1/d1+1/d2+1/d3)
+                            name: "5",
+                            x: 300,
+                            y: 100
+                        },
+                        {
+                            import: false,
+                            level: "six",
+                            username: "1站直接代替",
+                            name: "6",
+                            x: -160,
+                            y: 200
+                        },
+                        {
+                            import: false,
+                            level: "seven",
+                            symbolSize: [150, 70],
+                            username: "2站反距离权重插补",
+                            name: "7",
+                            x: 160,
+                            y: 200
+                        },
+                    ],
+                    links: [
+                        {
+                            source: "1",
+                            value: "有数据",
+                            target: "2"
+                        },
+                        {
+                            source: "1",
+                            value: "无数据",
+                            target: "3"
+                        },
+                        {
+                            source: "3",
+                            value: "3站暴雨场次\n总量均无量",
+                            target: "4"
+                        },
+                        {
+                            source: "3",
+                            value: "3站暴雨场次总量全量",//"逐时过程有\n但中间有跨小时合并",
+                            target: "5"
+                        },
+                        {
+                            source: "3",
+                            value: "只有1站暴雨场次总量",//"逐时过程有\n但中间有跨小时合并",
+                            target: "6"
+                        },
+                        {
+                            source: "3",
+                            value: "只有2站暴雨场次总量",//"逐时过程有\n但中间有跨小时合并",
+                            target: "7"
+                        },
+                    ]
+                }]
+            };
+            myChart.resize();
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

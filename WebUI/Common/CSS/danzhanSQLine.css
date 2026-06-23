@@ -1,0 +1,134 @@
+html, body {
+    color: #fff;
+}
+.mini-toolbar {
+    border: none;
+    background: transparent;
+}
+.mini-radiobuttonlist-td label{
+    color:#fff;
+}
+.bootstrap-switch-handle-off {
+    background: url(/Common/images/menuTop.png) no-repeat center;
+    background-size: 100% 100%;
+    color: #fff;
+}
+.bootstrap-switch-handle-on {
+    background: url(/Common/images/menuTopSelected.png) no-repeat center;
+    background-size: 100% 100%;
+}
+.mini-buttonedit-border {
+    border: 1px solid rgba(44,58,65,0.60);
+    background:none;
+}
+.mini-buttonedit-button, .mini-buttonedit-close{
+    border:0px;
+}
+.mini-buttonedit-button-pressed, .mini-buttonedit-popup .mini-buttonedit-trigger {
+    background: none;
+    border: 0px;
+}
+.mini-buttonedit-input {
+    color: #fff;
+}
+.mini-grid-headerCell, .mini-grid-topRightCell, .mini-grid-columnproxy {
+    background: transparent;
+    border:none;
+}
+.mini-panel-border {
+    border: 0px !important;
+}
+
+
+
+.mini-buttonedit-button-hover,
+.mini-buttonedit-hover .mini-buttonedit-trigger {
+    border: 0px solid #ababab;
+    padding: 0;
+    background: none !important;
+}
+.mini-grid-viewport {
+    background: none !important;
+}
+html body .mini-grid-row-hover, .mini-grid-row-alt {
+    background: none !important;
+    color: #fff !important;
+}
+html body .mini-grid-row-selected {
+    background: none !important;
+    color: #fff !important;
+}
+.mini-grid .mini-grid-bottomCell {
+    background: none !important;
+}
+.mini-grid-headerCell-nowrap {
+    background: none !important;
+    color: #fff !important;
+    background: rgba(33,58,68,0.5) !important;
+    color: #00A3FF !important;
+}
+.mini-grid-summaryRow tr td {
+    background: none !important;
+}
+.mini-grid-summaryRow {
+    background: none !important;
+}
+
+
+.mini-radiobuttonlist-item .mini-list-icon {
+}
+.mini-grid-summaryRow div {
+    background: none !important;
+}
+
+.mini-grid-summaryRow table {
+    background: none !important;
+}
+
+.mini-grid-summaryRow tr td {
+    text-align: center;
+    background: none !important;
+    border: none;
+}
+
+.mini-grid-summaryRow tr td span {
+    color: #fff !important;
+    line-height: 25px;
+    font-weight: 400 !important;
+}
+
+.label {
+    height: 30px;
+    line-height: 30px;
+}
+
+/*时间框*/
+.mini-popup {
+    background: black;
+    border: 1px solid #035C8F;
+}
+.mini-calendar .mini-calendar-selected, .mini-calendar-menu-selected, a:hover.mini-calendar-menu-month, a:hover.mini-calendar-menu-year {
+    color: #fff !important;
+    background: #00A3FF;
+}
+.mini-calendar-date{
+    border:0px !important;
+}
+.mini-calendar-header {
+    background: rgba(33,58,68,0.5) !important;
+}
+.mini-calendar-title, .mini-calendar-menu-year, .mini-calendar-menu-month {
+    color: #fff;
+}
+.mini-calendar-footer {
+    background: none !important;
+}
+
+.mini-radiobuttonlist-item .mini-list-icon {
+    background: url(/Common/images/radiono.png) no-repeat 0 0;
+    background-size: 100% 100%;
+}
+.mini-checkboxlist-item-selected .mini-list-icon, .mini-radiobuttonlist-item-selected .mini-list-icon {
+    background: url(/Common/images/radiochecked.png) no-repeat 0 0;
+    background-size: 100% 100%;
+}

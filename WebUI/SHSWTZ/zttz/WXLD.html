@@ -1,0 +1,301 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>降雨预报</title>
+    <script src="../../CommonScripts/echarts.js" type="text/javascript"></script>
+    <script src="../../Commonboot.js" type="text/javascript"></script>
+    <script src="../../CommonScripts/ChartJs.js" type="text/javascript"></script>
+    <link href="../../Commonres/fonts/font-awesome-4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <style>
+        html, body {
+            width:100%;
+            height:100%;
+            margin:0px;
+            padding:0px;
+        }
+        .mini-grid-viewport, mini-panel-viewport {
+            background: #040d4f !important;
+        }
+        .mini-panel-border {
+            border-color: #040d4f !important;
+            background: #040d4f !important;
+            border:0px !important;
+        }
+        .mini-panel-header-inner{
+            background: #040d4f !important;
+        }
+        .mini-panel-body {
+            background: #040d4f !important;
+        }
+        .mini-panel-header{
+            border:0px;
+        }
+        .mini-grid-headerCell-inner {
+            background: #040d4f !important;
+            color:#ffffff;
+        }
+        .mini-grid-bottomCell{
+            border:0px;
+        }
+        .mini-grid-cell {
+            background: #040d4f !important;
+            color: #ffffff;
+            /*border-color: #040d4f !important;*/
+            border: 0px !important;
+        }
+        .mini-grid-row td {
+            background: #040d4f !important;
+        }
+        .mini-grid-table td {
+            background: #040d4f !important;
+        }
+        html body .mini-grid-row-selected .mini-grid-cell {
+            background: #0719a0 !important;
+            border: 0px;
+        }
+            html body .mini-grid-row-selected {
+            background: #0719a0 !important;
+        }
+        html body .mini-grid-row-hover {
+            background: #0719a0 !important;
+        }
+        .bottomMenu {
+            float: left;
+            border: 1px solid #00f1ff;
+            border-radius: 5px;
+            line-height: 18px;
+            width: 75px;
+            margin-left: 15px;
+            padding: 2px 9px;
+            margin-top: 3px;
+            cursor: pointer;
+        }
+            .bottomMenu span {
+                vertical-align: 4px;
+                margin-left: 3px;
+            }
+            .bottomMenu i {
+                font-size: 24px;
+            }
+        .botomMenuHour {
+            line-height: 20px;
+            margin-left: 15px;
+            vertical-align: 3px;
+            background: #00f1ff;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="" style="height:96%;width:100%">
+        <div id="CloudImg" style="float:left; height:100%;width:calc(100% - 220px);">
+        <img style="height:100%;width:100%" src="../../Common/images/NOHDLD.png">
+        </div>
+        <div style="width:220px; height: 100%;float:right;">
+            <div style="background: #0719a0;color:white;height:40px;margin-top:5px;display:none;">
+                <div class="bottomMenu" id="bottomMenu1" title="风云二号" onclick="btnSearch(this.id, this.title)">
+                    <!--<i class="fa fa-play-circle-o" aria-hidden="true"></i>-->
+                    <!--<i class="fa fa-stop-circle-o" aria-hidden="true" style="font-size:26px;"></i>-->
+                    <span>云&nbsp;&nbsp;图</span>
+                </div>
+                <div class="bottomMenu" id="bottomMenu2" title="常州雷达"  onclick="btnSearch(this.id, this.title)">
+                    <span>雷&nbsp;&nbsp;达</span>
+                </div>
+            </div>
+            <div id="gridWX" class="left mini-datagrid" style="width:100%; height: calc(100% - 90px);"
+                 showpager="false" allowalternating="true" idfield="tba_FILENAME" allowresize="false"
+                 onselectionchanged="onWXRowClick" sortmode="client" ondrawcell="ondrawcell">
+                <div property="columns">
+                    <div type="indexcolumn" align="center" headeralign="center">序号</div>
+                    <div field="tba_DESDATE" width="120" align="center" renderer="onTMRenderer" headeralign="center" allowsort="true">
+                        发布时间
+                    </div>
+                </div>
+            </div>
+            <div style="background: #0719a0;color:white;height:40px;margin-top:5px;">
+                <div class="bottomMenu" onclick="play(this)">
+                    <i class="fa fa-play-circle-o" aria-hidden="true"></i>
+                    <!--<i class="fa fa-stop-circle-o" aria-hidden="true" style="font-size:26px;"></i>-->
+                    <span>播放</span>
+                </div>
+                <div class="bottomMenu" onclick="play(this)">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                    <span>刷新</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var grid = mini.get("gridWX");
+        var A_PathName = "";
+        A_PathName = GetQueryString("PathName");
+        var WD_XUHAO = GetQueryString("WD_XUHAO");
+        var STIME = GetQueryString("STIME");
+        var ETIME = GetQueryString("ETIME");
+        if (A_PathName == null || A_PathName == "") {
+            A_PathName = "风云二号";
+        }
+        $(function () {
+            btnSearch("bottomMenu1", A_PathName);
+        });
+        function btnSearch(objID,objTitle) {
+            $(".bottomMenu").removeClass("botomMenuHour")
+            $("#" + objID).addClass("botomMenuHour")
+            A_PathName = objTitle;
+            search();
+        }
+        function search() {
+            if (WD_XUHAO != null && WD_XUHAO != "" && WD_XUHAO != undefined) {
+                search();
+            }
+            else {
+                BreakLayerLoad();
+            }
+        }
+        var hour = 1000;
+        //查询附件图
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var strWhere = {
+                "startdate": STIME,
+                "enddate": ETIME,
+                pattem: "华东雷达拼图"
+            };
+            app.post("SWZZ_QXSJ_tba_weacontent/findResult", strWhere, (data) => {
+                JosnSel(data, "WDSel")
+            });
+        }
+        function BreakLayerLoad() {
+            var now = new Date();
+            var stime = STIME;
+            var etime = ETIME;
+            //if (hour == "48") {
+            //    stime = new Date(addDayDate(now.format("yyyy-MM-dd HH:mm:ss"), -2)).format("yyyy-MM-dd ") + now.format("HH:mm:ss");
+            //    etime = now.format("yyyy-MM-dd HH:mm:ss");
+            //} else if (hour == "24") {
+            //    stime = new Date(addDayDate(now.format("yyyy-MM-dd HH:mm:ss"), -1)).format("yyyy-MM-dd ") + now.format("HH:mm:ss");
+            //    etime = now.format("yyyy-MM-dd HH:mm:ss");
+            //} else {
+            //    stime = new Date(now.getTime() - 12 * 60 * 60 * 1000).format("yyyy-MM-dd HH:mm:ss")//now.format("yyyy-MM-dd") + " " + (now.getHours() - 12) < 0 ? "00:" : (now.getHours() - 12) + ":00:00";
+            //    etime = now.format("yyyy-MM-dd HH:mm:ss");
+            //}
+            GetQXJosns("WATER_TBA_WEACONTENTNEWSel", { "STIME": stime, "ETIME": etime, "TBA_INFOTYPE": A_PathName }, "Sel");
+        }
+        var resultData = [];
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "Sel") {
+                if (ResultData.total > 0) {
+                    resultData = eval(ResultData.data);
+                    getInfo();
+                    selectRow(0);
+                    var tm = new Date((resultData[0].tba_DESDATE)).format("yyyyMMdd");
+                    var URL = QXIP + "UploadDoc/" + tm + "/" + resultData[0].tba_FILENAME;
+                    $("#CloudImg img").attr("src", URL);
+                } else {
+                    resultData = [];
+                    tableBind(resultData);
+                }
+                mini.unmask(document.body);
+            }
+            else if (typeID == "WDSel") {
+                if (ResultData.total > 1) {
+                    resultData = ResultData.data;
+                    for (var num = 0; num < resultData.length; num++) {
+                        resultData[num].tba_DESDATE = resultData[num].tba_DESDATE;
+                        resultData[num].tba_FILENAME = resultData[num].tba_FILENAME;
+                    }
+                    getInfo();
+                    selectRow(0);
+                    var tm = new Date((resultData[0].tba_DESDATE)).format("yyyyMMdd");
+                    var URL = ClientIP + "/UploadDoc/" + tm + "/" + resultData[0].tba_FILENAME;
+                    $("#CloudImg img").attr("src", URL);
+                    mini.unmask(document.body);
+                } else {
+                    //alert("3");
+                    //BreakLayerLoad();
+                    mini.unmask(document.body);
+                }
+            }
+        }
+        function tableBind(data) {
+            var dataResult = data;
+            grid.setData(dataResult);
+        }
+        function getInfo() {
+            tableBind(resultData);
+        }
+        function selectRow(index) {
+            var row = grid.getRow(index);
+            grid.select(row, true);
+        }
+
+        function onWXRowClick(e) {
+            var grid = e.sender;
+            var record = grid.getSelected();
+            $("#gridWX").attr("data-idx", grid.indexOf(record));
+            if (record) {
+                var tm = new Date((record.tba_DESDATE)).format("yyyyMMdd");
+                var URL = PicUrl + "UploadDoc/" + tm + "/" + record.tba_FILENAME;
+                $("#CloudImg img").attr("src", URL);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "tba_DESDATE") {
+                e.cellHtml = mini.formatDate((value), 'yyyy-MM-dd HH:mm');
+            }
+        }
+        var hour = 1000;
+        function play(obj) {
+            var html = $(obj).find("span").html();
+            if (html == "刷新") {
+                stopCount();
+                search();
+            } else {
+                if (html == "暂停") {
+                    stopCount();
+                    $(obj).find("i").removeClass('fa fa-stop-circle-o');
+                    $(obj).find("i").addClass('fa fa-play-circle-o');
+                    $(obj).find("span").html("播放");
+                }
+                else {
+                    startCount(hour);
+                    $(obj).find("i").removeClass('fa fa-play-circle-o');
+                    $(obj).find("i").addClass('fa fa-stop-circle-o');
+                    $(obj).find("span").html("暂停");
+                }
+            }
+            
+        }
+        var t;
+        function startCount(hour) {
+            t = setInterval("TimeShowYT()", hour);
+        }
+        function TimeShowYT() {
+            var row = grid.getSelected();
+            var index = grid.indexOf(row);
+            var total = grid.data.length;
+            index = index + total - 1;
+            index = index % total;
+            selectRow(index);
+        }
+        function selectRow(index) {
+            var row = grid.getRow(index);
+            grid.select(row, true);
+        }
+        function stopCount() {
+            if (t) {
+                clearInterval(t);
+            }
+        }
+    </script>
+</body>
+</html>

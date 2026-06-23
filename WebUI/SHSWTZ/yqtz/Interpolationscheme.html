@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>降雨量插补方案</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar">
+        &nbsp;&nbsp;&nbsp;关键字：<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" onenter="onKeyEnter" />
+        &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+        <a class="mini-button" onclick="Exp()" id="expButton" style="margin-left:10px;display:none;">导出报表</a>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+         showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+        <div property="columns">
+            <!-- allowsort="true" 表格中列名数据排序 注在上面的div中要添加sortmode="client" -->
+            <div type="indexcolumn" headeralign="center" align="center" width="40"> 序号</div>
+            <div width="100" field="STNM" headeralign="center" align="center" allowsort="true">
+                站名
+            </div>
+            <div width="120" field="QUEDATE" headeralign="center" align="center" allowsort="true">
+                所缺降水量资料年份
+            </div>
+            <div width="120" field="ZHAIQUEDATE" headeralign="center" align="center" allowsort="true">
+                摘录表所缺年份
+            </div>
+            <div width="150" field="FANGAN" headeralign="center" align="left" allowsort="true">
+                插补方案
+            </div>
+            <div width="180" field="NOTE" headeralign="center" align="left" allowsort="true">
+                备注
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {                $("#expButton").show();            }
+            search();
+        });
+        function search() {
+            var strWhere = {
+                KEY: mini.get("key").getValue()
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_INTERPOLATIONSCHEME_BSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = mini.decode(data.data);
+                grid.setData(dataResult);
+            }
+        }
+        function ondrawcell(e) {
+
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = "降水量插补方案";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+</body>
+</html>

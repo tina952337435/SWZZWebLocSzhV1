@@ -1,0 +1,863 @@
+﻿
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <!--STATUS OK-->
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>行政分区频次图</title>
+    <link href="/arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        .mini-grid-row-alt {
+            background: #ffffff !important;
+        }
+
+        .btn {
+            margin-top: 3px;
+            width: 70px;
+            text-indent: 0px;
+            font-size: 14px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            float: right;
+            margin-right: 10px;
+        }
+
+        .onlytab {
+            width: 90% !important;
+            height: 40px;
+            margin: auto;
+        }
+
+        .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 50% !important;
+                height: 30px;
+                font: 14px/30px "arial";
+                text-align: center;
+            }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+
+        .left-nav li.subitem {
+            background-position: 164px center;
+        }
+
+        .mini-radiobuttonlist-item .mini-list-icon {
+            vertical-align: 0px;
+        }
+    </style>
+    <link href="/arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="/arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+
+    <!--年份选择框样式-->
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+</head>
+<body style="font-size:14px;font-family:arial;">
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden; margin: auto">
+        <div style="width: 98%; height:190px;" class="right box">
+            <div class="demo1" style="width: 100%; float: left;">
+                <div class="inline" style="height: 55px;">
+                    <ul class="ui-choose choose-type-right" id="choseType" style="margin-bottom:5px;">
+                        <li class="selected" style="width: 90px;">
+                            <span name="行政分区">行政分区</span>
+                        </li>
+                        <li style="width: 90px;">
+                            <span name="水利片区">水利片区</span>
+                        </li>
+                        <li style="width: 90px;">
+                            <span name="代表站">代表站</span>
+                        </li>
+                    </ul>
+                    <div style="height: 40px;">
+                        <span style="float:left;margin-top: 6px;">开始年份：</span>
+                        <div class="input-group" style="width:120px;float:left;margin-right:4px;">
+                            <input id="startYear" class="form-control" value="请选择年份" readonly=readonly />
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="height: 40px;">
+                        <span style="float:left;margin-top: 6px;">结束年份：</span>
+                        <div class="input-group" style="width:120px;float:left;">
+                            <input id="endYear" class="form-control" value="请选择年份" readonly=readonly />
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <a class="mini-button" style="margin-left: 1px;position: absolute;top: 48px;left: 210px;" onclick="btnSearch()">
+                        统计
+                    </a>
+                    <button type="button" class="btn btn-success" onclick="Exp()" id="expButton"
+                            style="position: absolute;top: 46px;left: 265px;height: 30px;padding: 0px 12px; width: 55px;display:none;">
+                        导出
+                    </button>
+
+                    <span id="rbl" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical" style="float:left;display:none;"
+                          textField="text" valueField="id" value="50" data="[{'id':'50','text':'50mm以上'},{'id':'100','text':'100mm以上'}]"></span>
+                    <ul class="ui-choose choose-type-right" id="choseGrade">
+                        <li class="selected" style="width: 70px;">
+                            <span name="全部">全部</span>
+                        </li>
+                        <li style="width: 70px;">
+                            <span name="暴雨">暴雨</span>
+                        </li>
+                        <li style="width: 80px;">
+                            <span name="大暴雨">大暴雨</span>
+                        </li>
+                        <li style="width: 90px;">
+                            <span name="特大暴雨">特大暴雨</span>
+                        </li>
+                    </ul>
+                    <span id="rblNum" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical" style="padding-left: 20px;
+    margin-top: 10px;" textField="text" valueField="id" value="totalnum" data="[{'id':'totalnum','text':'总场次'},{'id':'avgnum','text':'年平均场次'}]">
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            <span id="typeSpan">行政分区</span>暴雨场次统计
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 98%; height: 100%; margin: auto; "
+             showpager="false" allowalternating="true" idfield="TBA_FILENAME" allowresize="false"
+             onselectionchanged="onRowClick" ondrawcell="ondrawcell">
+        </div>
+    </div>
+    <div id="dataShow" style="position:absolute;top:50%;left:50%;margin-left:-55px; font-size:28px; font-weight:bold; display:none">暂无数据</div>
+    <!--页面载入显示-->
+    <div id="dataLoad">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img alt="" src="/arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!--年份选择框样式-->
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script type="text/javascript">
+        function ShowPage() {
+            //openTL("jyybtl");
+        }
+        ShowPage();
+        var A_PathName = "";
+        mini.parse();
+        var myData = [];
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        var labels = new Array();
+        var layer_hw;
+        var countyLayer1;
+        var map = window.parent.map;//获取地图对象
+        var _globallevel = 5;
+        var numberField = "BYNUMBER";
+        var rbl = mini.get("rbl");
+        rbl.on("valuechanged", function (e) {
+            BreakLayerLoad();
+        });
+        var rblNum = mini.get('rblNum');
+        rblNum.on("valuechanged", function (e) {
+            numberField = "BYNUMBER";
+            if (e.value == "avgnum") {
+                numberField = "AVGBYNUMBER";
+            }
+            setGridColumns();
+            bindTable();
+        });
+        $(function () {
+            setGridColumns();
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = 1978;
+            GetObj("endYear").value = _year - 2;
+            $.data(myData, "TYPE", "行政分区");
+
+            $(window.parent.document).find("#SSTTL_TZ").show();
+            countyLayer1 = CreateLayer("Area_Layer1");
+            countyLayer1.on("click", function (e) {
+                var graphic = e.graphic;
+                var attributes = graphic.attributes;
+                var title = attributes.NAME;
+                trans(title);
+            });
+            BreakLayerLoad();
+
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+
+            $('#choseGrade li').click(function () {
+                var f = this;
+                $('#choseGrade li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var grade = $(this).find("span").attr("name");
+                if (grade == "全部") {
+                    grade = null;
+                }
+                $.data(myData, "GRADE", grade);
+                BreakLayerLoad();
+            });
+            $('#choseType li').click(function () {
+                var f = this;
+                $('#choseType li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var type = $(this).find("span").attr("name");
+                $.data(myData, "TYPE", type);
+                $("#typeSpan").html(type);
+                BreakLayerLoad();
+            });
+        });
+        function setGridColumns() {
+            var columns = [];
+            var item = { field: "STNM", header: "分区名称", width: 120, align: 'center', headerAlign: 'center' };
+            columns.push(item);
+            item = { field: numberField, header: "场次", width: 120, align: 'center', headerAlign: 'center' };
+            if (numberField == "AVGBYNUMBER") {
+                //item.decimalPlaces = 1;
+                //item.dataType = "float";
+                item.header = "年平均场次";
+            }
+            columns.push(item);
+            grid.set({ columns: columns});
+        }
+        function BreakLayerLoad() {
+            $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
+            var STIME = GetObj('startYear').value+"-01-01 00:00:00";
+            var ETIME = GetObj('endYear').value + "-12-31 23:59:59";
+            var strWhere = { "STIME": STIME, ETIME: ETIME, DRPVALUE: rbl.getValue(), GRADE: $.data(myData, "GRADE")};
+            GetJosns("FREQUENCYDIAGRAM_TOTAL", strWhere, "Sel");
+        }
+        function bindTable() {
+            getInfo();
+            //labels = new Array();
+            var type = $.data(myData, "TYPE");
+            if (type == "行政分区") {
+                MapRainfallArea();
+            }
+            else if (type == "水利片区") {
+                MapRainfallAreaSLP();
+            }
+            else {
+                MapRainfallStation();
+            }
+        }
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+        });
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (field == "STNM") {
+                if (value.indexOf("最多") > -1 || value.indexOf("最少") > -1) {
+                    e.rowStyle = "color:red;";
+                }
+            }
+        }
+        function getInfo() {
+            tableBind();
+        }
+        function tableBind() {
+            var rblNumValue = rblNum.getValue();
+            var dataResult = $.data(myData, "resultData");
+            dataResult = dataResult.filter(function (e) {
+                return e.STNM != "中心城" && e.STNM != "长兴岛片" && e.STNM != "横沙岛片";
+            });
+            var max = Math.max.apply(Math, dataResult.map(function (o) { return o[numberField] }));
+            var min = Math.min.apply(Math, dataResult.map(function (o) { return o[numberField] }));
+            var dataTemp = dataResult.filter(function (e) {
+                return e[numberField] == max;
+            });
+            if (dataTemp.length > 0) {
+                max += "(" + dataTemp[0].STNM + ")";
+            }
+            dataTemp = dataResult.filter(function (e) {
+                return e[numberField] == min;
+            });
+            if (dataTemp.length > 0) {
+                min += "("+dataTemp[0].STNM+")";
+            }
+            dataResult.unshift({ STNM: "场次最少", BYNUMBER: min, AVGBYNUMBER: min });
+            dataResult.unshift({ STNM: "场次最多", BYNUMBER: max, AVGBYNUMBER: max });
+            grid.setData(dataResult);
+        }
+        // 分页填充细节处理
+        function fillData(pageIndex, pageSize, dataResult) {
+            var data = dataResult;
+            var totalCount = dataResult.length;
+            var arr = [];
+            var start = pageIndex * pageSize, end = start + pageSize;
+            for (var i = start, l = end; i < l; i++) {
+                var record = data[i];
+                if (!record) continue;
+                arr.push(record);
+            }
+
+            grid.setTotalCount(totalCount);
+            grid.setPageIndex(pageIndex);
+            grid.setPageSize(pageSize);
+            grid.setData(arr);
+        }
+        function onRowClick(e) {
+            var grid = e.sender;
+            var record = grid.getSelected();
+            if (record) {
+                var ctm = "";
+            }
+        }
+        function tlCount() {
+
+        }
+        function tlChecked() {
+            getInfo();
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var dataResult = data.data.filter(function (item) {
+                        return item.TYPE == $.data(myData, "TYPE");
+                    });
+                    $.data(myData, "resultData", dataResult);
+                    bindTable();
+                    $('#dataShow').hide();
+                } else {
+                    $.data(myData, "resultData", []);
+                    getInfo();
+                    $('#dataShow').show();
+                }
+                $("#dataLoad").hide();
+            }
+        }
+        function onDrawDate(e) {
+            var date = e.date;
+            var solutionArr = $.data(myData, "solutionArr");
+            var tempResult = solutionArr.filter(function (ex) {
+                return new Date(date).format("yyyy/MM/dd") == new Date(convertToDate(ex.TM)).format("yyyy/MM/dd");
+            });
+            if (tempResult.length > 0) {
+                e.dateStyle = "background:#A8D9B6;"
+            } else {
+                //e.allowSelect = false;
+            }
+        }
+        function selectRow(index) {
+            var row = grid.getRow(index);
+            grid.select(row, true);
+        }
+        function btnSearch() {
+            BreakLayerLoad();
+        }
+        function trans(title) {
+            var TM = mini.get("STIME").getFormValue() + " " + mini.get("HOUR").getValue() + ":00:00";
+            var TM = $.data(myData, "TM");
+            var url = "/DanZhan/JYYBLineXH.html?RLSTM=" + TM + "&FTM=" + TM + "&NAME=" + title;
+            //查看计算成果
+            openChart(url, title, title);
+        }
+
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var type = $.data(myData, "TYPE");
+            var name = GetObj("startYear").value + "年至" + GetObj("endYear").value + "年" + type+"暴雨场次统计";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+    <script src="/arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script>
+        function MapRainfallArea() {
+            var result = $.data(myData, "resultData");
+            var VALUE_OBJ = addTuli();
+            countyLayer1.clear();
+            _destroy();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font", "dojo/_base/lang",
+                "esri/geometry/Polygon", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, Font, lang, Polygon) {
+                _destroy();
+                $.get(
+                    "/Common/上海市行政分区.json",//json路径
+                    lang.hitch(this, function (data, status) {
+                        if (status === "success") {
+                            var features = data.features;
+                            var textStrArr = [];
+                            features.forEach(function (feature) {
+                                var allrings = feature.geometry.coordinates;
+                                var polygon = new Polygon(allrings);
+                                var gra = feature.properties;
+                                var mc = gra.NAME;
+                                var stcd = gra.STCD;
+                                var arr = result.filter(function (item) {
+                                    return item.STNM == mc;
+                                });
+                                if (arr.length > 0) {
+                                    var BYNUMBER = arr[0][numberField];
+                                    var center = [];
+                                    center = [arr[0].LGTD, arr[0].LTTD];
+                                    var cls = "";
+                                    var textStr = "";//arr[0].NAME + ":" +
+                                    textStr = arr[0].STNM + '\n' + BYNUMBER;
+                                    var point = new Point({
+                                        "x": center[0],
+                                        "y": center[1],
+                                        "spatialReference": {
+                                            "wkid": 4326
+                                        }
+                                    });
+                                    //cls += " slText ";
+                                    var _align = "bottom";
+                                    if (textStr == "") {
+                                        textStr = "—";
+                                    }
+                                    if (textStrArr.indexOf(arr[0].STNM) == -1) {
+                                        var label = new MapText(map, point, arr[0], textStr, _globallevel, _align, cls, 13);
+                                        labels.push(label);
+                                        textStrArr.push(arr[0].STNM);
+                                    }
+                                    var colorStr = getAreaColor(BYNUMBER, "", VALUE_OBJ);
+                                    if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                        var fillColorStr = getAreaColor(BYNUMBER, "fill", VALUE_OBJ);
+                                        var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                            new dojo.Color(colorStr), 1),
+                                            new dojo.Color(fillColorStr));
+                                        var g3 = new Graphic(polygon, lineSymbol);
+                                        g3.attributes = arr[0];
+                                        countyLayer1.add(g3);
+                                    }
+                                }
+
+                            }, this);
+                            console.error(textStrArr);
+                        }
+                    }),
+                    "json"
+                );
+            });
+        }
+        function MapRainfallAreaSLP() {
+            var result = $.data(myData, "resultData");
+            result = result.filter(function (e) {
+                return e[numberField] > 0
+            });
+            _destroy();
+            //console.error(result);
+            var VALUE_OBJ = addTuli();
+            countyLayer1.clear();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/_base/lang",
+                "esri/geometry/Polygon", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, lang, Polygon) {
+ 
+                    $.get(
+                        "/Common/上海市水利片区.json",//json路径
+                        lang.hitch(this, function (data, status) {
+                            if (status === "success") {
+                                var features = data.features;
+                                var textStrArr = [];
+                                features.forEach(function (feature) {
+                                    var allrings = feature.geometry.coordinates;
+                                    var polygon = new Polygon(allrings);
+                                    var gra = feature.properties;
+                                    var mc = gra.NAME;
+                                    if (mc == "中心城") {
+                                        mc = "蕴南片";
+                                    }
+                                    if (mc == "长兴岛片" || mc == "横沙岛片") {
+                                        mc = "崇明片";
+                                    }
+                                    var stcd = gra.STCD;
+                                    var arr = result.filter(function (item) {
+                                        return item.STNM == mc;
+                                    });
+                                    if (arr.length > 0) {
+                                        var BYNUMBER = arr[0][numberField];
+                                        var center = [];
+                                        center = [arr[0].LGTD, arr[0].LTTD];
+                                        var cls = "";
+                                        var textStr = "";//arr[0].NAME + ":" +
+                                        textStr = arr[0].STNM + '\n' + BYNUMBER;
+                                        var point = new Point({
+                                            "x": center[0],
+                                            "y": center[1],
+                                            "spatialReference": {
+                                                "wkid": 4326
+                                            }
+                                        });
+                                        //cls += " slText ";
+                                        var _align = "bottom";
+                                        if (textStr == "") {
+                                            textStr = "—";
+                                        }
+                                        if (textStrArr.indexOf(arr[0].STNM) == -1) {
+                                            var label = new MapText(map, point, arr[0], textStr, _globallevel, _align, cls, 13);
+                                            labels.push(label);
+                                            textStrArr.push(arr[0].STNM);
+                                        }
+                                        var colorStr = getAreaColor(BYNUMBER, "", VALUE_OBJ);
+                                        if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                            var fillColorStr = getAreaColor(BYNUMBER, "fill", VALUE_OBJ);
+                                            var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                                new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                                    new Color(colorStr), 2), new Color(fillColorStr)
+                                            );
+                                            var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                                new dojo.Color(colorStr), 1),
+                                                new dojo.Color(fillColorStr));
+                                            var g3 = new Graphic(polygon, lineSymbol);
+                                            g3.attributes = arr[0];
+                                            countyLayer1.add(g3);
+                                        }
+                                    }
+
+                                }, this);
+                            }
+                        }),
+                        "json"
+                    );
+                });
+        }
+        function MapRainfallStation() {
+            var VALUE_OBJ = addTuli();
+            var result = $.data(myData, "resultData");
+            _destroy();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/_base/lang",
+                "esri/geometry/Polygon",
+                "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, lang, Polygon) {
+                    $.get(
+                        "/Common/代表站泰森多边形.json",//json路径
+                        lang.hitch(this, function (data, status) {
+                            if (status === "success") {
+                                countyLayer1.clear();
+                                var features = data.features;
+                                features.forEach(function (feature) {
+                                    var allrings = feature.geometry.coordinates;
+                                    var polygon = new Polygon(allrings);
+                                    var gra = feature.properties;
+                                    var mc = gra.STNM;
+                                    var stcd = gra.STCD;
+                                    var arr = result.filter(function (item) {
+                                        return item.STCD == stcd;
+                                    });
+                                    var colorStr = "";
+                                    var DRP = 0;
+                                    if (arr.length > 0) {
+                                        DRP = arr[0][numberField];
+                                        if (arr[0].LGTD != undefined || arr[0].LTTD != undefined) {
+                                            var center = [];
+                                            center = [arr[0].LGTD, arr[0].LTTD];
+                                            var cls = "";
+                                            var textStr = "";//arr[0].NAME + ":" +
+                                            textStr = arr[0].STNM + '\n' + parseFloat(arr[0][numberField]).toFixed(1);
+                                            var point = new Point({
+                                                "x": center[0],
+                                                "y": center[1],
+                                                "spatialReference": {
+                                                    "wkid": 4326
+                                                }
+                                            });
+                                            if (textStr == "") {
+                                                textStr = "—";
+                                            }
+                                        }
+                                    }
+                                    var colorStr = getAreaColor(DRP, "", VALUE_OBJ);
+                                    if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                        var fillColorStr = getAreaColor(DRP, "fill", VALUE_OBJ);
+                                        var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                            new dojo.Color(colorStr), 1),
+                                            new dojo.Color(fillColorStr));
+                                        var g3 = new Graphic(polygon, lineSymbol);
+                                        g3.attributes = arr[0];
+                                        countyLayer1.add(g3);
+                                    }
+                                }, this);
+                                addMarker(result);
+                            }
+                        }),
+                        "json"
+                    );
+                });
+        }
+        function addMarker(data) {
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, Font) {
+                var maxNum = 0, minNum = 1000000000;
+                for (var num = 0; num < data.length; num++) {
+                    var NUM = data[num][numberField];
+                    var item = { STNM: data[num].STNM, "LGTD": data[num].LGTD, "LTTD": data[num].LTTD, NUM: NUM };
+
+                    var textStr = data[num].STNM + ":" + NUM;
+                    var point = new Point({ "x": data[num].LGTD, "y": data[num].LTTD, "spatialReference": { "wkid": 4326 } });
+                    var font = new Font("12px", Font.STYLE_NORMAL, Font.VARIANT_NORMAL,
+                        null);
+                    var textSymbol = new TextSymbol(
+                        textStr,
+                        font,
+                        new Color("black")
+                    );
+                    var labelPointGraphic = new Graphic(point, textSymbol);
+                    countyLayer1.add(labelPointGraphic);
+                }
+            });
+        }
+
+        function getAreaColor(zValue, type, VALUE_OBJ) {
+            var color = "#ffffff";
+            var colorTM = [255, 255, 255, 0];
+            var colors = ["#99FF99", "#ACF57A", "#C1EB5D", "#D4E03E", "#E9D620", "#FCCD03"];
+            var colorsTM = [
+                [153, 255, 153, 0.6],
+                [172, 245, 122, 0.6],
+                [193, 235, 93, 0.6],
+                [212, 224, 62, 0.6],
+                [233, 214, 32, 0.6],
+                [252, 205, 3, 0.6]
+            ];
+            var valueArr = VALUE_OBJ.split("#");
+            for (var num = 0; num < valueArr.length; num++) {
+                var item = valueArr[num].split(',');
+                if (zValue >= Number(item[0]) && zValue < Number(item[1])) {
+                    color = colors[num];
+                    colorTM = colorsTM[num];
+                }
+            }
+
+            //if (zValue >= 205 && zValue <= 215) {
+            //    color = colors[0];
+            //    colorTM = colorsTM[0];
+            //}
+            //else if (zValue > 215 && zValue <= 225) {
+            //    color = colors[1];
+            //    colorTM = colorsTM[1];
+            //}
+            //else if (zValue > 225 && zValue <= 235) {
+            //    color = colors[2];
+            //    colorTM = colorsTM[2];
+            //}
+            //else if (zValue > 235 && zValue <= 245) {
+            //    color = colors[3];
+            //    colorTM = colorsTM[3];
+            //}
+            //else if (zValue > 245 && zValue <= 255) {
+            //    color = colors[4];
+            //    colorTM = colorsTM[4];
+            //}
+            //else if (zValue > 255) {
+            //    color = colors[5];
+            //    colorTM = colorsTM[5];
+            //}
+            if (type == "fill") {
+                return colorTM;
+            } else {
+                return color;
+            }
+        }
+        function getJWD(name) {
+            var center = [];
+            switch (name) {
+                case "嘉宝北片":
+                    center = [121.307411, 31.373422];
+                    break;
+                case "蕴南片":
+                    center = [121.472206, 31.296518];
+                    break;
+                case "中心片":
+                    center = [121.446114, 31.217554];
+                    break;
+                case "中心城":
+                    center = [121.446114, 31.217554];
+                    break;
+                case "淀北片":
+                    center = [121.379509, 31.183908];
+                    break;
+                case "青松片":
+                    center = [121.202355, 31.113184];
+                    break;
+                case "淀南片":
+                    center = [121.402855, 31.054819];
+                    break;
+                case "浦东片":
+                    center = [121.698799, 31.034906];
+                    break;
+                case "太北片":
+                    center = [120.972328, 31.047266];
+                    break;
+                case "太南片":
+                    center = [121.059532, 30.989588];
+                    break;
+                case "浦南西片":
+                    center = [121.080818, 30.894831];
+                    break;
+                case "浦南东":
+                    center = [121.282005, 30.838526];
+                    break;
+                case "商榻片":
+                    center = [120.903173, 31.117128];
+                    break;
+                default:
+
+            }
+            return center;
+        }
+        function addTuli() {
+            var result = $.data(myData, "resultData");
+            var maxNum = 0, minNum = 1000000000;
+            for (var num = 0; num < result.length; num++) {
+                var NUM = Number(result[num][numberField]);
+                if (NUM > maxNum) {
+                    maxNum = NUM;
+                }
+                if (NUM < minNum) {
+                    minNum = NUM;
+                }
+            }
+            maxNum = maxNum + 10;
+            if (minNum > 10) {
+                minNum = minNum - 10;
+            } else {
+                minNum = 1;
+            }
+            var numCha = maxNum - minNum;
+            var interNum = Math.floor(numCha / 6);
+            var COLOR_OBJ = "#99FF99,#ACF57A,#C1EB5D,#D4E03E,#E9D620,#FCCD03";
+            var COLOR_ARR = COLOR_OBJ.split(',');
+            var tuliHtml = "";
+            for (var num = 5; num >= 0; num--) {
+                var min = (minNum + interNum * (num));
+                var max = (minNum + (num + 1) * interNum);
+                tuliHtml += '<p><span class="colorSpan" style="background-color:' + COLOR_ARR[num] + '"></span><span class="colorSpanValue">' + min + '</span></p>';
+            }
+            var VALUE_OBJ = "";
+            for (var num = 0; num < 6; num++) {
+                var min = (minNum + interNum * (num));
+                var max = (minNum + (num + 1) * interNum);
+                VALUE_OBJ += min + "," + max + "#";
+            }
+            if (VALUE_OBJ != "") {
+                VALUE_OBJ = VALUE_OBJ.substring(0, VALUE_OBJ.length - 1);
+            }
+            $(window.parent.document).find("#SSTTL_TZ .colorL").html(tuliHtml);
+            $(window.parent.document).find("#SSTTL_TZ").show();
+            return VALUE_OBJ;
+        }
+    </script>
+</body>
+</html>

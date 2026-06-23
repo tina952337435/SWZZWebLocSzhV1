@@ -1,0 +1,802 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="../Common/Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>
+    <link href="css/color.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        * {
+            overflow: hidden;
+        }
+
+        ul li {
+            list-style: none;
+        }
+
+        table {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tongji {
+            font-size: 14px;
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+            display: none;
+        }
+
+            .tongji ul {
+                width: -webkit-calc(100% - 2px);
+                width: -moz-calc(100% - 2px);
+                width: calc(100% - 2px);
+                overflow: auto;
+                border-bottom: #4f83ff 1px solid; /*#c5d1ff*/
+                border-left: #4f83ff 1px solid;
+                border-right: #4f83ff 1px solid;
+                background: #fff;
+                filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+                -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+                -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+                box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+                border-radius: 0px 0px 5px 5px;
+            }
+
+            .tongji table {
+                /* width: -webkit-calc(100% - 2px);width: -moz-calc(100% - 2px);width: calc(100% - 2px);*/
+                width: 100%;
+                overflow: auto;
+                border-bottom: #4f83ff 1px solid;
+                border-left: #4f83ff 1px solid;
+                border-right: #4f83ff 1px solid;
+                background: #fff;
+                filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+                -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+                -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+                box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+                border-radius: 0px 0px 5px 5px;
+            }
+
+            .tongji .yltj li {
+                list-style: none;
+                float: left;
+                min-width: 22%;
+                height: 30px;
+                line-height: 33px;
+            }
+
+            .tongji ul li input {
+                display: block;
+                float: left;
+                height: 32px;
+                width: 14px;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+
+            .tongji ul li img {
+                display: block;
+                height: 15px;
+                float: left;
+                padding: 0px 5px 5px 5px;
+                position: relative;
+                top: 8px;
+            }
+
+        .yltj {
+            width: 100%;
+            background-color: White;
+        }
+
+            .yltj ul li {
+                font-size: 14px;
+            }
+
+                .yltj ul li span {
+                    display: block;
+                    float: left;
+                }
+
+                .yltj ul li p {
+                    width: 100%;
+                    line-height: 22px;
+                }
+
+        * {
+            margin: 0;
+            padding: 0;
+            font-family: "arial";
+        }
+
+        .tjheader {
+            line-height: 25px;
+            background: #4f83ff;
+            text-indent: 5px;
+            text-align: left;
+            font-size: 14px;
+            color: #fff;
+            border-radius: 5px 5px 0px 0px;
+            border-top: #4f83ff 1px solid;
+            border-left: #4f83ff 1px solid;
+            border-right: #4f83ff 1px solid;
+            filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+            -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+            -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+            box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+        }
+        /*  .tongji table
+        {
+            width: 230px;
+            height: 65px;
+            background-color: white;
+        }*/
+        .tongji table tr td {
+            height: 16px;
+        }
+
+            .tongji table tr td img {
+                display: block;
+                float: left;
+                height: 14px;
+                width: 14px;
+                cursor: pointer;
+            }
+
+            .tongji table tr td input {
+                display: block;
+                float: left;
+                height: 14px;
+                width: 14px;
+                cursor: pointer;
+            }
+
+        .hidethisbiao {
+            cursor: pointer;
+        }
+
+        .showthisbiao {
+            cursor: pointer;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .color11 {
+            background: #FF0000;
+        }
+
+        .color22 {
+            background: #F7DA00;
+        }
+
+        .color33 {
+            background: #FFFF73;
+        }
+
+        .color44 {
+            background: #A5FF73;
+        }
+
+        .color55 {
+            background: #73DFFF;
+        }
+
+        .color66 {
+            background: #005DE7;
+        }
+
+        .color77 {
+            background: #FD5508;
+        }
+
+        .hwswll {
+            margin-top: 6px;
+            margin-left: 5px;
+            height: 10px;
+            width: 45px;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div id="sqtl" class="tongji" style="width: 105px;display:none">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>水情图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="width:100px;">
+                    <input id="cb_waterCB" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_red_u.gif" style="width: 15px; height: 15px;margin-top:2px" />
+                    <span>超保(<span id="waterCB" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <input id="cb_waterCJ" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_yellow_u.gif" style="width: 15px; height: 15px;margin-top:2px" />
+                    <span>超警(<span id="waterCJ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <input id="cb_waterZC" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/blue_hd.gif" style="width: 15px; height: 15px;margin-top:2px" />
+                    <span>正常(<span id="waterZC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <input id="cb_waterQC" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/gray_hd.gif" style="width: 15px; height: 15px;margin-top:2px" />
+                    <span>缺测(<span id="waterQC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div id="yqtl" class="tongji" style="display:none;width:230px;">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>雨量统计</strong>
+                <!--<span style="color:black; font-size:11px;">（单位:mm） </span>-->
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+                <!--<span style="display: block; float: right; line-height: 16px; font-size:14px;">
+                    <input id="rain0_0" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/d_white.png" style="width:14px;height:18px;" />无雨
+                    (<span id="rainfall0_0" style="color: #fff; font-size:14px; line-height: 14px;"></span>)
+                </span>-->
+            </p>
+            <table border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="15" style="padding-left: 3px;">
+                        <input id="rain0_0" type="checkbox" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_white.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td width="25">
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;">无雨</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall0_0" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+					
+					
+					 <td width="15" style="padding-left: 3px;">
+                        <input id="rain1_9" type="checkbox" checked="checked" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_grey.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td>
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;">1-10</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall1_9" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15" style="padding-left: 3px;">
+                        <input id="rain10_24" type="checkbox" checked="checked" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_sky.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td>
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;">10-25</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall10_24" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+					
+					<td width="15" style="padding-left: 3px;">
+                        <input id="rain25_49" type="checkbox" checked="checked" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_blue.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td>
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;">25-50</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall25_49" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15" style="padding-left: 3px;">
+                        <input id="rain50_99" type="checkbox" checked="checked" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_yellow.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td>
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;width: 45px;">50-100</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall50_99" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+					
+					<td width="15" style="padding-left: 3px;">
+                        <input id="rain100_249" type="checkbox" checked="checked" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_red.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td>
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;">100-200</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall100_249" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+                </tr>
+                <tr>
+                    <td width="15" style="padding-left: 3px;">
+                        <input id="rain250" type="checkbox" checked="checked" />
+                    </td>
+                    <td width="15">
+                        <img alt="" src="../arcgis_js_api/myJs/images/d_black.png?ver=0" style="width:14px;height:18px;" />
+                    </td>
+                    <td>
+                        <span style="display: block; float: left; line-height: 16px; font-size:14px;">>=200</span>
+                    </td>
+                    <td style="text-align: center;">
+                        (<span id="rainfall250" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+
+    <div id="gqtl" class="tongji" style="width: 145px; display: none;">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>工情图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top:5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="float:none !important;">
+                    <input id="cb_PS" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/z_green_1.png" style="margin-top:3px;width:17px;height:9px;" />
+                    <span>开(<span id="PSCount" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)</span>
+                </li>
+                <li style="float:none !important;">
+                    <input id="cb_YS" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/z_red_1.png" style="margin-top:3px;width:17px;height:9px;" />
+                    <span>关(<span id="YSCount" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)</span>
+                </li>
+                <li>
+                    <input id="cb_GZ" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/z_blur_1.png" style="margin-top:3px;width:17px;height:9px;" />
+                    <span>异常或检修(<span id="GZCount" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="ybtl" class="tongji" style="width: 190px;width:180px;display:none">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>预报图例</strong>
+                <img class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li>
+                    <input id="yb_waterCB" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_red_u.gif" style="width: 8px; height: 11px;margin-top:2px" />
+                    <span>超保(<span id="ywaterCB" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li>
+                    <input id="yb_waterCJ" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_yellow_u.gif" style="width: 8px; height: 11px;margin-top:2px" />
+                    <span>超警(<span id="ywaterCJ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li>
+                    <input id="yb_waterZC" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/blue_hd.gif" style="width: 8px; height: 11px;margin-top:2px" />
+                    <span>正常(<span id="ywaterZC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li>
+                    <input id="yb_waterQC" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/gray_hd.gif" style="width: 8px; height: 11px;margin-top:2px" />
+                    <span>缺测(<span id="ywaterQC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="mxsqtl" class="tongji" style="width: 105px;display:none">
+        <div class="showthisbiao" style="display:none;">
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>水情图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="width:100px;">
+                    <input id="mxcb_waterCB" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/tzIco/tz_red.png" style="width: 14px; height: 14px;margin-top:2px" />
+                    <span>超保(<span id="mxwaterCB" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <input id="mxcb_waterCJ" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/tzIco/tz_yellow.png" style="width: 14px; height: 14px;margin-top:2px" />
+                    <span>超警(<span id="mxwaterCJ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <input id="mxcb_waterZC" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/tzIco/tz_blue.png" style="width: 14px; height: 14px;margin-top:2px" />
+                    <span>正常(<span id="mxwaterZC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="mxsktl" class="tongji" style="width: 105px;display:none">
+        <div class="showthisbiao" style="display:none;">
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="width:100px;">
+                    <input id="mxcb_skCJ" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_yellow_u.gif" style="width: 8px; height: 11px;margin-top:2px" />
+                    <span>超汛限(<span id="mxskCJ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <input id="mxcb_skZC" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/blue_hd.gif" style="width: 8px; height: 11px;margin-top:2px" />
+                    <span>正常(<span id="mxskZC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="mxbztl" class="tongji" style="width:105px; display:none">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>泵站图例</strong>
+                <img class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li>
+                    <input id="mxcb_b0" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/beng-green.png" style="width: 15px; height: 15px;" />
+                    <span>开泵(<span id="mxb0Count" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li>
+                    <input id="mxcb_b1" type="checkbox" checked="checked" />
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/beng-rednew.png" style="width: 15px; height: 16px;" />
+                    <span>停泵(<span id="mxb1Count" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="mxsztl" class="tongji" style="display:none;">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao" style="height:160px;width:100px;">
+            <p class="tjheader">
+                <strong>水质图例</strong>
+                <img class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top:5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="height: 22px;line-height: 22px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/1.png" style="width: 45px; height: 10px;" />
+                    <span>I类</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/2.png" style="width: 45px; height: 10px;" />
+                    <span>II类</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/3.png" style="width: 45px; height: 10px;" />
+                    <span>III类</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/4.png" style="width: 45px; height: 10px;" />
+                    <span>IV类</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/5.png" style="width: 45px; height: 10px;" />
+                    <span>V类</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/sz/6.png" style="width: 45px; height: 10px;" />
+                    <span>劣V类</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="lztl" class="tongji" style="display:none;width:200px;">
+        <div class="showthisbiao" style="display:none;">
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <div class="colorL" style="height:120px;">
+                <table class="colorLnei" cellpadding="0" cellspacing="0" style="border-top:none;height:100%;">
+                    <tr>
+                        <td align="center" style="font-weight:bold">等级</td>
+                        <td align="center" style="font-weight:bold">图例</td>
+                    </tr>
+                    <tr>
+                        <td>轻度</td>
+                        <td><div class="colork" style="background:#52FF00;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>中度</td>
+                        <td><div class="colork" style="background:#FFFF00;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>重度</td>
+                        <td><div class="colork" style="background:#FF0000;"></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="mxfxttl" class="tongji" style="width:150px;">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <div class="colorL" style="height:86px;">
+                <div class="colorLtop" style="height:20px;line-height:20px;">
+                    <p>范围</p>
+                    <p>颜色</p>
+                </div>
+                <table class="colorLnei" cellpadding="0" cellspacing="0" style="border-top:none;height:65px;">
+                    <tr>
+                        <td>&lt;0.5m</td>
+                        <td><div class="colork" style="background:#FEB6B0;"></div></td>
+                    </tr>
+                    <!--<tr>
+                        <td>0.50-1.00</td>
+                        <td><div class="colork" style="background:#6D89B9;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>1.00-2.00</td>
+                        <td><div class="colork" style="background:#5C78A8;"></div></td>
+                    </tr>-->
+                    <tr>
+                        <td>0.5m-1.5m</td>
+                        <td><div class="colork" style="background:#FD847B;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>&gt;1.5m</td>
+                        <td><div class="colork" style="background:#F91503;"></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="mxswtl" class="tongji" style="display:none;">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao" style="height:230px;width:140px;">
+            <p class="tjheader">
+                <strong>水位图例(m)</strong>
+                <img class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top:5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#52D7FF;" class="hwswll"></div>
+                    <div style="float:left;">小于2.0</div>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#18AAF7;" class="hwswll"></div>
+                    <span>2.0-2.5</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#4AE700;" class="hwswll"></div>
+                    <span>2.5-3.0</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#00AA84;" class="hwswll"></div>
+                    <span>3.0-3.25</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#E7E700" class="hwswll"></div>
+                    <span>3.25-3.5</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#E70000;" class="hwswll"></div>
+                    <span>3.5-3.75</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#9C00F7;" class="hwswll"></div>
+                    <span>3.75-4.0</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#CE00F7;" class="hwswll"></div>
+                    <span>4.0-4.2</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#F700F7;" class="hwswll"></div>
+                    <span>大于4.2</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="mxlltl" class="tongji" style="display:none;">
+        <div class="showthisbiao" style="display:none;">
+            <!-- <img src="../arcgis_js_api/myJs/images/eyes.png" style="display:block;width:21px;height:17px;float:right;background:#ffffff;"/>-->
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao" style="height:230px;width:160px;">
+            <p class="tjheader">
+                <strong>流量图例(m³/s)</strong>
+                <img class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top:5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#52D7FF;" class="hwswll"></div>
+                    <div style="float:left;">小于5.0</div>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#18AAF7;" class="hwswll"></div>
+                    <span>5-10</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#4AE700;" class="hwswll"></div>
+                    <span>10-20</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#00AA84;" class="hwswll"></div>
+                    <span>20-30</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#E7E700;" class="hwswll"></div>
+                    <span>30-40</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#E70000;" class="hwswll"></div>
+                    <span>40-60</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#9C00F7;" class="hwswll"></div>
+                    <span>60-80</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#CE00F7;" class="hwswll"></div>
+                    <span>80-100</span>
+                </li>
+                <li style="height: 22px;line-height: 22px;">
+                    <div style="background:#F700F7;" class="hwswll"></div>
+                    <span>大于100</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div id="jyybtl" class="tongji" style="display:none;width:100px;">
+        <div class="showthisbiao" style="display:none;">
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>图例(mm)</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <div class="colorL" style="height:120px;">
+                <table class="colorLnei" cellpadding="0" cellspacing="0" style="border-top:none;height:100%;">
+                    <tr>
+                        <td>0-2</td>
+                        <td><div class="colork" style="background:#7FFFFF;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>2-4</td>
+                        <td><div class="colork" style="background:#23B7FF;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>4-6</td>
+                        <td><div class="colork" style="background:#0177B4;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>6-8</td>
+                        <td><div class="colork" style="background:#0052CA;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>8-10</td>
+                        <td><div class="colork" style="background:#000FDB;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>10-20</td>
+                        <td><div class="colork" style="background:#C36DF4;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>20-50</td>
+                        <td><div class="colork" style="background:#AC6AD4;"></div></td>
+                    </tr>
+                    <tr>
+                        <td>&ge;50</td>
+                        <td><div class="colork" style="background:#4C0180;"></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="backtl" class="tongji" style="width: 105px;display:none">
+        <div class="showthisbiao" style="display:none;">
+            <div style="float:left;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>图例</strong>
+                <img alt="" class="hidethisbiao" src="../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="width:100px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/green_hd.gif" style="width: 14px; height: 14px;margin-top:2px" />
+                    <span>正常(<span id="backZC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_yellow_u1.gif" style="width: 14px; height: 14px;margin-top:2px" />
+                    <span>告警(<span id="backGJ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <img alt="" src="../arcgis_js_api/myJs/images/s_red_u1.gif" style="width: 14px; height: 14px;margin-top:2px" />
+                    <span>故障(<span id="backGZ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    $(".hidethisbiao").click(function () {
+        $(".thisbiao").hide();
+        $(".showthisbiao").show();
+    })
+    $(".showthisbiao").click(function () {
+        $(".thisbiao").show();
+        $(".showthisbiao").hide();
+    })
+
+    $("input[type='checkbox']").click(function () {
+        window.parent.tlChecked();
+    })
+    function ShowTL(str) {
+        $("div.tongji").each(function () {
+            $(this).css('display', 'none');
+        });
+        document.getElementById(str).style.display = "block";
+    }
+</script>
+</html>

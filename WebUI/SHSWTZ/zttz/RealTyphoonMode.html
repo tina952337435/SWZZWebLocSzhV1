@@ -1,0 +1,821 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>实时台风</title>
+    <script src="../../arcgis_js_api/myJs/bj.js"></script>
+    <script src="../../Common/Scripts/echarts.min.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <link href="Css/TFMap.css?ver=1.0.0" rel="stylesheet" />
+    <style>
+        .rightTFUL {
+            display: none;
+            right: 10px;
+            top: 20px;
+            height: 90%;
+        }
+
+        .TFXSRirghtMenu {
+            right: 10px;
+            top: 20px;
+            height: 90%;
+        }
+        .zengshuibutton{
+            display:none;
+        }
+        .leftMenu {
+            display: none;
+        }
+
+        .bigTitleTool {
+            /*right: -20px;
+            position: absolute;
+            top: 20px;
+            cursor: pointer;*/
+        }
+
+        .mini-buttonedit-border {
+            float: none !important;
+            width: 100% !important;
+            height: 30px;
+            margin-left: 10px;
+            /*border: 1px solid #1182a8 !important;
+            background:white !important;*/
+        }
+
+        .mini-popupedit .mini-buttonedit-trigger .mini-buttonedit-icon {
+            background: url(images/arrow.png) no-repeat 1px 2px !important;
+        }
+
+        .allnav table tr th, td {
+            border: 0px !important;
+        }
+
+        .searchbox {
+            float: left;
+            padding: 0px;
+            margin-top: -9px;
+            margin-left: 15px;
+        }
+
+            .searchbox ul li {
+                width: 50px;
+                height: 30px;
+                background: none;
+                padding: 5px 10px;
+            }
+
+                .searchbox ul li:nth-of-type(1) {
+                    margin-right: 0px;
+                    border-radius: 4px 0px 0px 4px;
+                    /*border-left: 1px solid #ddd;*/
+                    border-right: 0px;
+                }
+
+                .searchbox ul li:nth-of-type(2) {
+                    border-radius: 0px 0px 0px 0px;
+                }
+        /* 头部和左边模块字体 */
+        @font-face {
+            font-family: largeFont;
+            src: url(../../Common/font/largeFont.ttf)
+        }
+
+        .titleText {
+            font-family: 'largeFont';
+            font-style: normal;
+            font-weight: 400;
+            font-size: 35px;
+            line-height: 57px;
+            text-align: center;
+            letter-spacing: 0.03em;
+            background: linear-gradient(180deg, #FFFFFF 37.41%, #B4CFF2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+            padding-top: 8px;
+        }
+
+        .wrap {
+            width: 200px;
+            height: 35px;
+            margin: 0px 10px;
+        }
+
+            .wrap ul li {
+                float: left;
+                width: 50%;
+                text-align: center;
+                height: 35px;
+                line-height: 35px;
+                font-size: 16px;
+                cursor: pointer;
+                background: none;
+                padding: 0px;
+                margin: 0px;
+            }
+
+                .wrap ul li.hover {
+                    color: #00fcff;
+                    border-bottom: 2px solid #00fcff;
+                    background: linear-gradient(180deg,rgba(19,235,205,.02),rgba(19,235,205,.08));
+                }
+        .u-showhisbtn {
+            border: 1px solid rgba(47,95,166,1);
+            width: 100px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 15px;
+            text-align: center;
+            margin: 10px auto;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="container" class="myMap"></div>
+    <!--无台风的显示-->
+    <div id="noTyphoonTip" style="height:40px;position:absolute;top:30px;left:calc(50% - 180px);width:360px;display:none;">
+        <div class="noTyphoonTip"><div class="swDiv">当前西北太平洋无活跃台风</div></div>
+        <div class="u-showhisbtn" onclick="showHistoryTF()">
+            历史台风
+        </div>
+    </div>
+    <!--最新台风距离上海多远-->
+    <div class="leftMenu">
+        <div id="selectDataleftXS" style="color:white;">
+        </div>
+    </div>
+    <div class="TFXSRirghtMenu">
+        <span class="out" id="outYBJY" onclick="closeDislog('TFXSRirghtMenu')">×</span>
+        <div style="height:90px;padding-top: 10px;" id="xiangsiSearchDiv">
+            <label style="vertical-align: -5px;color:white;margin-left:10px;">实时台风:</label>
+            <input id="tfListCom" class="mini-combobox" style="width:100px;margin-left:1px;"
+                   textField="zj_TFM" valueField="zj_TFBH" showNullItem="false" onvaluechanged="onDeptChanged" />
+            <div class="searchbox" style="display:none;">
+                <ul class="ul1" id="leixin">
+                    <li name="true" class="activeLi">上海</li>
+                    <li name="false">其他</li>
+                    <li name="all">全部</li>
+                </ul>
+            </div>
+
+            <div class="wrap" style="display:none;">
+                <ul style="list-style: none;">
+                    <li class="hover">预报相似</li>
+                    <li>历史相似</li>
+                </ul>
+            </div>
+
+            <div id="danweiDIVOBJ" style="color:white;height:40px;line-height:40px;margin-left:10px;">
+                <label style="vertical-align: -5px;">预报单位:</label>
+                <input id="tfDanweiCom" class="mini-combobox" style="width:100px;"
+                       textField="value" valueField="name" showNullItem="false" onvaluechanged="onDanweiChanged" />
+            </div>
+        </div>
+        <div id="xstfListTitle"></div>
+        <ul class="u-typhoonlist"></ul>
+    </div>
+    <!--右边台风列表-->
+    <div class="rightTFUL">
+        <div class="rightTFULMenu" style="height:400px;">
+            <div class="rightTFULSearch">
+                <img src="images/typhoonList.png">
+                <input id="yearListCom" class="mini-combobox" style="width:60px;" textField="year" valueField="year"
+                       onvaluechanged="onYearChanged"
+                       showNullItem="false" />
+            </div>
+            <div class="allnav" id="echart1" style="overflow:auto;height:350px;">
+            </div>
+        </div>
+        <div class="rightTFULMenu" style="height: calc(100% - 440px) !important;">
+            <div class="rightTFULSearch" style="border-top: 1px solid #1182a8;">
+                <img src="images/typhoonRoute.png">
+                <div class="Searchtext">台风路径</div>
+                <div style="float:right;margin-right:10px;">
+                    <a style="background:#ff7d3d !important;border-color:#ff7d3d !important;border-width:1px;font-size:13px;height:28px;width:60px;display: flex;
+    line-height: 28px;border-radius:5px;cursor:pointer;display:none;" onclick="clearAllTFLJ()">
+                        <img src="../../Common/images/removeWhite.png" style="width: 18px;
+    height: 18px;margin-top: 4px;margin-left: 5px;" />
+                        清除
+                    </a>
+                </div>
+            </div>
+            <div class="allnav" id="echart2" style="overflow:auto;height: calc(100% - 40px) !important;">
+                <div class="NoneBg" style="display: block;">请选择台风</div>
+            </div>
+        </div>
+    </div>
+    
+    <!--图例-->
+    <div id="FHDDTLHide" style="position:absolute;
+ left:5px;
+ bottom:5px;
+ border:1px solid #39aacf;
+border-radius:5px;color:white;padding:5px 10px;cursor:pointer;" onclick="showTuli()">
+        图例
+    </div>
+    <div id="FHDDTL" class="tuli" style="width:185px;display:none;">
+        <div class="tuliTitle">
+            图例
+            <span class="out" id="outYBJY" onclick="showTuli()">×</span>
+        </div>
+        <div class="colorL">
+            <div style="color:white;padding:5px;">台风等级</div>
+            <ul>
+                <li style="float:left;">
+                    <img src="images/typhoon/1.png" alt="">
+                    热带低压
+                </li>
+                <li style="float:left;padding-left: 16px;">
+                    <img src="images/typhoon/2.png" alt="">
+                    热带风暴
+                </li>
+                <li style="float:left;">
+                    <img src="images/typhoon/3.png" alt="">
+                    强热带风暴
+                </li>
+                <li style="float:left;">
+                    <img src="images/typhoon/4.png" alt="">
+                    台风
+                </li>
+
+                <li style="float:left;">
+                    <img src="images/typhoon/5.png" alt="">
+                    强台风
+                </li>
+
+                <li style="float:left;padding-left: 29px;">
+                    <img src="images/typhoon/6.png" alt="">
+                    超强台风
+                </li>
+            </ul>
+        </div>
+        <div class="colorL">
+            <div style="color:white;clear:both;padding:5px;">预报台</div>
+            <ul>
+                <li style="float:left;">
+                    <img src="images/typhoon/forecast-01.png" style="vertical-align: 4px;" alt="">
+                    中国
+                </li>
+                <li style="float:left;padding-left: 16px;">
+                    <img src="images/typhoon/forecast-02.png" style="vertical-align: 4px;" alt="">
+                    中国香港
+                </li>
+                <li style="float:left;">
+                    <img src="images/typhoon/forecast-03.png" style="vertical-align: 4px;" alt="">
+                    日本
+                </li>
+                <li style="float:left;padding-left: 16px;">
+                    <img src="images/typhoon/forecast-04.png" style="vertical-align: 4px;" alt="">
+                    中国台湾
+                </li>
+                <li style="float:left;">
+                    <img src="images/typhoon/forecast-05.png" style="vertical-align: 4px;" alt="">
+                    美国
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script src="../../Common/Scripts/es5.min.js"></script>
+    <script src="https://webapi.amap.com/maps?v=1.4.15&key=a7532933bb002d16d0b156b6574fb93a"></script>
+    <script src="js/myTyphoonMode.js?ver=1.0.4"></script>
+    <script>
+        mini.parse();
+        var myData = [];
+        var tfListCom = mini.get("tfListCom");
+        var yearListCom = mini.get("yearListCom");
+        var tfDanweiCom = mini.get("tfDanweiCom");
+        var yj_stime = GetQueryString("stime");
+        var yj_etime = GetQueryString("etime");
+        var SOLUTIONID=GetQueryString("SOLUTIONID")==null?"0":GetQueryString("SOLUTIONID");
+        if (GetQueryString("SOLUTIONID") == null) {//先判断是不是传了参数，再判断是不是存了本地localStorage
+            SOLUTIONID = GetQueryString("DD_ID");
+            if (SOLUTIONID == null || SOLUTIONID == "") {
+                SOLUTIONID = "0";
+            }
+        }
+        var yj_hour = 0;
+        if (yj_etime != null && yj_stime != null) {
+            yj_hour = GetDateDiff(yj_stime, yj_etime, 'hour');
+        }
+        //初始化地图
+        var map = new AMap.Map('container', {
+            resizeEnable: true, //是否监控地图容器尺寸变化
+            zoom: 10,//级别
+            center: [120.342546, 31.630305],//中心点坐标
+            viewMode: '3D',//使用3D视图
+            pitch: 0,
+            showLabel: true, //不显示地图文字标记
+            mapStyle: 'amap://styles/86951b6cfaaf52a1ffaca1235088281b', //设置地图的显示样式
+        });
+        map.on('click', function (e) {
+            var str = e.lnglat.getLng() + ',' + e.lnglat.getLat();
+        });
+        $(function () {
+            $(".rightTFUL").hide();
+            $.data(myData, "gridHeader", "预报相似");
+            onInitData();
+            var danWeiList = [
+                { value: "中国", name: "中国" },
+                { value: "中国香港", name: "中国香港" },
+                { value: "日本", name: "日本" },
+                { value: "中国台湾", name: "中国台湾" },
+                { value: "美国", name: "美国" },
+            ];
+            tfDanweiCom.setData(danWeiList);
+            tfDanweiCom.select(0);
+            $(".searchbox ul li").each(function (index) {
+                $(this).click(function () {
+                    $(".searchbox ul li").removeClass("activeLi");
+                    $(this).addClass("activeLi").siblings().removeClass("activeLi");
+                    var tfbh = tfListCom.getValue();
+                    var isWX = $(this).attr("name");
+                    $.data(myData, "isWX", isWX);
+                    searchXSTFData(tfbh, isWX);
+                });
+            });
+            $(".wrap ul li").click(function () {
+                var html = $(this).html();
+                $("#danweiDIVOBJ").hide();
+                $("#xiangsiSearchDiv").css("height", "50px");
+                $(".u-typhoonlist").css("height", "calc(100% - 90px)");
+                if (html == "预报相似") {
+                    $("#danweiDIVOBJ").show();
+                    $("#xiangsiSearchDiv").css("height", "90px");
+                    $(".u-typhoonlist").css("height", "calc(100% - 140px)");
+                }
+                $.data(myData, "gridHeader", html);
+                $(".wrap ul li").removeClass("hover");
+                $(this).addClass("hover");
+                var tfbh = tfListCom.getValue();
+                var isWX = $.data(myData, "isWX");
+                searchXSTFData(tfbh, isWX);
+            });
+        });
+        // 普通点
+        var normalMarker = new AMap.Marker({
+            offset: new AMap.Pixel(-75, -40),
+        });
+        function onInitData() {
+            var yearList = [];
+            var year = new Date().getFullYear();
+            for (var num = year; num >= 1949; num--) {
+                yearList.push({ year: num });
+            }
+            yearListCom.setData(yearList);
+            yearListCom.select(0);
+            //警戒线
+            drawWarningLineLayer();
+            setInterval("setTime()", "1000");
+            addPolyline();
+            //showJCTips();
+            loadZTList("1");
+        }
+        function onDeptChanged(e) {
+            var tfbh = tfListCom.getValue();
+            var tftext = tfListCom.getText();
+            $("#xstfListTitle").html("与【" + tfbh + tftext + "】相似台风列表");
+            GetTyphoonListLJ(e.value);
+            clearMapAllObj();
+            var isWX = $.data(myData, "isWX");
+            searchXSTFData(tfbh, isWX);
+        }
+        function onDanweiChanged(e) {
+            var tfbh = tfListCom.getValue();
+            var isWX = $.data(myData, "isWX");
+            searchXSTFData(tfbh, isWX);
+        }
+        //获取台风列表
+        function loadZTList(ZJ_ISCOMPLETED) {
+            var STIME=yearListCom.getValue()+"-01-01 00:00:00";
+            var ETIME=yearListCom.getValue()+"-12-31 23:59:59";
+            var strWhere = {
+                year: yearListCom.getValue(),
+                startdate: STIME,
+                enddate: ETIME
+            }
+            app.post("ZJ_TYPHOON_ZJ_TF/findResultzt", strWhere, (data) => {
+                JosnSel(data, "Sel")
+            })
+        }
+        function loadZTListHtml(data) {
+            var strHtml = "";
+            var tfbhStr = "";
+            var ZJ_ISCOMPLETED = 0;
+            var tfname = "";
+            var tfListData = [];
+            if (data.length > 0) {
+                strHtml = '<table width="100%">';
+                strHtml += '<thead>';
+                strHtml += '<tr>';
+                strHtml += '<th style="width:20%;">编号</th>';
+                strHtml += '<th>中文名</th>';
+                strHtml += '<th style="width:30%;">英文名</th>';
+                //strHtml += '<th style="width:10%;">专题</th>';
+                strHtml += '</tr>';
+                strHtml += '</thead>';
+                strHtml += '<tbody>';
+                for (var num = 0; num < data.length; num++) {
+                    var tfbh = data[num].zj_TFBH;
+                    var tfnm = data[num].zj_TFM;
+                    var tfnme = data[num].zj_TFME;
+                    var iscom = data[num].zj_ISCOMPLETED;
+                    var zt_id = data[num].zt_ID;
+                    var zt_idHtml = "";
+                    if (zt_id != undefined) {
+                        zt_idHtml = '<div onclick="openFaAnMenu(\'' + zt_id + '\')" title="进入台风专题" style="cursor:pointer;">进入</div>';
+                    }
+                    var checked = "";
+                    if (iscom == 1 || iscom == "1") {
+                        checked = 'checked="' + checked + '"';
+                        tfbhStr += tfbh + ',';
+                        ZJ_ISCOMPLETED = iscom;
+                        tfname += '<div class="swDiv">' + tfbh + tfnm + '</div>';
+                        tfListData.push(data[num]);
+                    }
+                    strHtml += '<tr>';
+                    strHtml += '<td>';
+                    strHtml += '<div class="checkboxFour">'
+                    strHtml += '<input type ="checkbox"  ' + checked + '  onclick="checkboxOnclick(this)" id = "checkboxFourInput' + num + '" name = "' + tfbh + '"/>'
+                    strHtml += '<label for="checkboxFourInput' + num + '"  ></label></div>'
+                    strHtml += '<div  class="checkboxFourText">' + tfbh + '</div>'
+                    strHtml += '</td>';
+                    strHtml += '<td style="color:#00fcff;">' + tfnm + '</td>';
+                    strHtml += '<td style="color:#00fcff;">' + tfnme + '</td>';
+                    //strHtml += '<td>' + zt_idHtml + '</td>';
+                    strHtml += '</tr>';
+                }
+                strHtml += '</tbody>';
+                strHtml += '</table>';
+                //正在运行的台风画路径
+                //if (tfbhStr.length > 0) {
+                //    //tfname = tfname.substring(0, tfname.length - 1);
+                //    tfbhStr = tfbhStr.substring(0, tfbhStr.length - 1);
+                //    GetTyphoonListLJ(tfbhStr);
+                //}
+            }
+            else {
+                strHtml = '<div class="NoneBg" style="display: block;">无台风信息</div >';
+            }
+            //只要当前无台风信息出现过，就一直显示无台风,主要是防止切年份时再次更新内容
+            var noTyphoonTipShow = $("#noTyphoonTip").css("display");
+            if (noTyphoonTipShow == "none") {
+                if (ZJ_ISCOMPLETED == 0) {
+                    $("#noTyphoonTip").show();
+                } else {
+                    tfListCom.setData(tfListData);
+                    tfListCom.select(0);
+                    $(".TFXSRirghtMenu").show();
+                    var tfbh = tfListCom.getValue();
+                    var tftext = tfListCom.getText();
+                    $("#xstfListTitle").html("与【" + tfbh + tftext + "】相似台风列表");
+                    GetTyphoonListLJ(tfbh);
+                }
+            }
+            $("#echart1").html(strHtml);
+        }
+        //台风路径列表
+        function GetTyphoonListHtml(data) {
+            var strHtml = "";
+            if (data.length > 0) {
+                $("#echart2").html("");
+                for (var _index = 0; _index < data.length; _index++) {
+                    strHtml = "";
+                    strHtml = '<table width="100%">';
+                    strHtml += '<thead>';
+                    strHtml += '<tr>';
+                    strHtml += '<th style="width:20%;">时间</th>';
+                    strHtml += '<th>风速</th>';
+                    strHtml += '<th>移向</th>';
+                    strHtml += '<th style="width:20%;">气压</th>';
+                    strHtml += '</tr>';
+                    strHtml += '</thead>';
+                    strHtml += '<tbody>';
+                    var pointsData = data[_index].points;
+                    pointsData = sortObjectArray(pointsData, ['RQSJ2'], "desc");
+                    for (var num = 0; num < pointsData.length; num++) {
+                        var value = pointsData[num];
+                        var strTime = value.RQSJ2;
+                        strTime = new Date(convertToDate(strTime)).format("MM-dd HH:mm");
+                        var strFSFL = value.FS + "米/秒";
+                        var strQY = value.QY != undefined ? value.QY + "百帕" : "-";
+                        strHtml += '<tr>';
+                        strHtml += '<td>' + strTime + '</td>';
+                        strHtml += '<td style="color:#00fcff;">' + strFSFL + '</td>';
+                        strHtml += '<td style="color:#00fcff;">' + value.MOVEFX + '</td>';
+                        strHtml += '<td style="color:#00fcff;">' + strQY + '</td>';
+                        strHtml += '</tr>';
+                    }
+                    strHtml += '</tbody>';
+                    strHtml += '</table>';
+                }
+                $("#echart2").html(strHtml);
+            }
+        }
+        //根据台风编号查询相似台风
+        function loadXSTFList(tfbh, isWX) {
+            if (tfbh != "") {
+                var strWhere = {
+                    tfbh: tfbh,
+                    isWX: isWX,
+                    TYPE: "上海相似台风"
+                };
+                GetJosns("GetTFBH_XSSel", strWhere, "GetTFBH_XSSel");
+            }
+        }
+        function loadXSTFListHtml(data) {
+            var strHtml = '';
+            $(".u-typhoonlist").html('');
+            if (data.length > 0) {
+                data = sortObjectArray(data, ['TFXIANGSIDU'], 'desc');
+                for (var num = 0; num < data.length; num++) {
+                    var checked = "";
+                    strHtml += '<li>'
+                        + '<div class="checkboxFour">'
+                        + '<input type ="checkbox"  ' + checked + '  onclick="checkboxOnclick(this)" id = "checkboxFourInputXSTF' + num + '" name = "' + data[num].TFBH + '"/>'
+                        + '<label for="checkboxFourInputXSTF' + num + '"  ></label></div>';
+
+                    var tfnameStr = data[num].TFBH + '' + data[num].TFNAME;
+                    if (data[num].TFXIANGSIDU != undefined) {
+                        tfnameStr += '<span style="color: #00fcff;">(' + data[num].TFXIANGSIDU + '%)</span>';
+                    }
+                    strHtml += '<div  class="checkboxFourText">' + tfnameStr + '</div>';
+
+                    var stime = data[num].TFSTIME != undefined ? new Date(convertToDate(data[num].TFSTIME)).format("yyyy-MM-dd HH:mm:ss") : data[num].TFSTIME;
+                    var etime = data[num].TFETIME != undefined ? new Date(convertToDate(data[num].TFETIME)).format("yyyy-MM-dd HH:mm:ss") : data[num].TFETIME;
+                    strHtml += '<div onclick="openFaAnZengshui(\'' + stime + '\',\'' + etime + '\',\''+data[num].TFBH+'\')" style="font-size:13px;padding-top:2px;float:right;cursor:pointer;margin-left:5px;border: 1px solid #6c696b;padding: 1px 8px; border-radius: 5px;color: #e1dada;" title="查看台风增水">增水</div>';
+
+                    //if (data[num].ZT_ID != undefined) {
+                    //    strHtml += '<div onclick="openFaAnMenu(\'' + data[num].ZT_ID + '\')" style="font-size:13px;padding-top:2px;float:right;cursor:pointer;border: 1px solid #6c696b;padding: 1px 8px; border-radius: 5px;color: #e1dada;" title="进入台风专题">专题</div>';
+                    //}
+                    strHtml += '</li>';
+                }
+            } else {
+                var tfbh = tfListCom.getValue();
+                var tftext = tfListCom.getText();
+                strHtml += '<div style="text-align: center;font-size: 15px;color: #00fcff;line-height: 50px;">无相似台风！</div>';
+            }
+            $(".u-typhoonlist").html(strHtml);
+        }
+
+        //根据台风编号查询预报路径相似的台风列表
+        function loadYBXSTFList(tfbh, isWX) {
+            if (tfbh != "") {
+                var strWhere = {
+                    tfbh: tfbh,
+                    // isWX: isWX,
+                    zj_TM: tfDanweiCom.getValue() //预报单位
+                };
+                strWhere.zj_YBSJ = "2022-09-14 21:00:00";//临时使用：测试数据
+                var ZJ_YBSJ = $.data(myData, "TyphoonYBTM");
+                if (ZJ_YBSJ != undefined && ZJ_YBSJ != null) {
+                    strWhere.zj_YBSJ = ZJ_YBSJ; //预报时间
+                }
+                app.post("ZJ_TYPHOON_ZJ_TF/GetTFBH_XSYBSel", strWhere, (data) => {
+                    JosnSel(data, "GetTFBH_XSYBSel")
+                })
+            }
+        }
+        function loadYBXSTFListHtml(data) {
+            var tfbh=tfListCom.getValue();
+            var tfName=tfListCom.getText();
+            $("#xstfListTitle").html(data.length+"个与【" + tfbh + tfName + "】相似台风");
+
+            $(".u-typhoonlist").html('');
+            var strHtml = '';
+            if (data != undefined && data.length > 0) {
+                data = sortObjectArray(data, ['TFXIANGSIDU'], 'desc');
+                for (var num = 0; num < data.length; num++) {
+                    var checked = "";
+                    strHtml += '<li>'
+                        + '<div class="checkboxFour">'
+                        + '<input type ="checkbox"  ' + checked + '  onclick="checkboxOnclick(this)" id = "checkboxFourInputXSTF' + num + '" name = "' + data[num].TFBH + '"/>'
+                        + '<label for="checkboxFourInputXSTF' + num + '"  ></label></div>';
+                    var tfnameStr = data[num].TFBH + '' + data[num].TFNAME;
+                    if (data[num].TFXIANGSIDU != undefined) {
+                        tfnameStr += '<span style="color: #00fcff;">(' + data[num].TFXIANGSIDU + '%)</span>';
+                    }
+                    strHtml += '<div  class="checkboxFourText">' + tfnameStr + '</div>';
+
+                    var stime = data[num].TFSTIME != undefined ? new Date(convertToDate(data[num].TFSTIME)).format("yyyy-MM-dd HH:mm:ss") : data[num].TFSTIME;
+                    var etime = data[num].TFETIME != undefined ? new Date(convertToDate(data[num].TFETIME)).format("yyyy-MM-dd HH:mm:ss") : data[num].TFSTIME;
+                   
+                    if (Number(data[num].TFBH) >= 200000) {
+                        strHtml += '<div onclick="openFaAnZengshui(\'' + stime + '\',\'' + etime + '\',\'' + data[num].TFBH + '\')" style="font-size:13px;padding-top:2px;float:right;cursor:pointer;margin-left: 5px;border: 1px solid #6c696b;padding: 1px 8px; border-radius: 5px;color: #e1dada;" title="查看台风增水">增水</div>';
+                    }
+
+                    //if (data[num].ZT_ID != undefined) {
+                    //    strHtml += '<div onclick="openFaAnMenu(\'' + data[num].ZT_ID + '\')" style="font-size:13px;padding-top:2px;float:right;cursor:pointer;border: 1px solid #6c696b;padding: 1px 8px; border-radius: 5px;color: #e1dada;" title="进入台风专题">专题</div>';
+                    //}
+                    strHtml += '</li>';
+                }
+            } else {
+                var tfbh = tfListCom.getValue();
+                var tftext = tfListCom.getText();
+                strHtml += '<div style="text-align: center;font-size: 15px;color: #00fcff;line-height: 50px;">无相似台风！</div>';
+            }
+
+            $(".u-typhoonlist").html(strHtml);
+        }
+
+        function searchXSTFData(tfbh, isWX) {
+            var gridHeader = $.data(myData, "gridHeader");
+            if (gridHeader == "预报相似") {
+                loadYBXSTFList(tfbh, isWX);
+            } else {
+                loadXSTFList(tfbh, isWX);
+            }
+        }
+
+
+        function GetTyphoonListLJ(tfbh) {
+            var strWhere = { tfbh: tfbh, isYB: "false" };
+            app.post("ZJ_TYPHOON_ZJ_TF/GetTyphoonList", strWhere, (data) => {
+                JosnSel(data, "GetTyphoonList")
+            })
+        }
+        var TyphoonXSTFList = [];//存放相似台风的集合
+        function checkboxOnclick(checkbox) {
+            var id = checkbox.id;
+            if (id.indexOf("XSTF") > -1) {
+                if (checkbox.checked == true) {
+                    TyphoonXSTFList.push(checkbox.name);
+                    GetTyphoonListLJ(checkbox.name);
+                }
+                else {
+                    if (arrayListMarker) {
+                        for (var i = 0; i < arrayListMarker.length; i++) {
+                            if (checkbox.name != undefined) {
+                                var id = arrayListMarker[i].w.id;
+                                if (id.indexOf(checkbox.name) > -1) {
+                                    map.remove(arrayListMarker[i]);
+                                }
+                            }
+                        }
+                    }
+                    if (arrayListLine) {
+                        for (var i = 0; i < arrayListLine.length; i++) {
+                            if (checkbox.name != undefined) {
+                                var id = arrayListLine[i].w.id;
+                                if (id.indexOf(checkbox.name) > -1) {
+                                    map.remove(arrayListLine[i]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                //只能选择一个台风
+                clearMapAllObj();
+                //console.error($("#echart1 input:checkbox").length);
+                if (checkbox.checked == true) {
+                    $("#echart1 input:checkbox").attr('checked', false);
+                    checkbox.checked = true;
+                    $(checkbox).attr('checked', true);
+                }
+
+                $.data(myData, "TFBH", checkbox.name);
+                var tfdata = $.data(myData, "tfdata");
+                var tfdataTemp = tfdata.filter(function (e) {
+                    return e.zj_TFBH == checkbox.name;
+                });
+                var tfListComData = tfListCom.getData();
+                //console.error(tfListComData);
+                if (checkbox.checked == true) {
+                    tfListComData.push(tfdataTemp[0]);
+                    var tfName = tfdataTemp[0].zj_TFM != undefined ? tfdataTemp[0].zj_TFM : tfdataTemp[0].zj_TFME;
+                    var tfbh = tfdataTemp[0].zj_TFBH;
+                    $("#xstfListTitle").html("与【" + tfbh + tfName + "】相似台风");
+                    $('.Searchtext').html(tfName + "台风路径");
+                    //加上路径
+                    GetTyphoonListLJ($.data(myData, "TFBH"));
+
+                    tfListCom.setData(tfListComData);
+                    tfListCom.select(tfListComData.length - 1);
+                    var tfbh = tfListCom.getValue();
+                    var isWX = "";
+                    $.data(myData, "isWX", isWX);
+                    //searchXSTFData(tfbh, isWX);
+                }
+                else {
+                    tfListComData.remove(tfdataTemp[0]);
+                    $(".u-typhoonlist").html('');
+                    $("#xstfListTitle").html("未选择台风");
+                }
+            }
+        }
+        function clearAllTFLJ() {
+            $(".checkboxFour input:checked").each(function (e) {
+                $(this).prop("checked", '');//全选
+            });
+            $.data(myData, "TFBH", null);
+            clearMapAllObj();
+            tfListCom.setData([]);
+        }
+        //显示or隐藏图例
+        function showTuli() {
+            var isDis = $("#FHDDTLHide").css("display");
+            if (isDis == "block") {
+                $("#FHDDTLHide").hide();
+                $("#FHDDTL").show();
+            } else {
+                $("#FHDDTLHide").show();
+                $("#FHDDTL").hide();
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                //console.error(data.data);
+                $.data(myData, "tfdata", data.data);
+                loadZTListHtml(data.data);
+            }
+            else if (typeID == "GetTyphoonList") {
+                //画路径
+                GetTyphoonList(data.data);
+                //台风路径列表
+                GetTyphoonListHtml(data.data);
+            }
+            else if (typeID == "GetTFBH_XSSel") {
+                loadXSTFListHtml(data.data);
+            }
+            else if (typeID == "GetTFBH_XSYBSel") {
+                loadYBXSTFListHtml(data.data);
+            }
+            else if (typeID == "GetTyphoonListYB") {
+                GetResultTFLX_YBS(data.data, "clickyblj");
+            }
+        }
+        function showJCTips() {
+            var x = "center";
+            var y = "top";
+            var state = "info";
+            //var strHtml = '<img src="images/logoWXTFXS.png"/>';
+            var strHtml = '台风路径';
+            var strHtml = "<label id='mini-tips-info-titletips' class='titleText'>" + strHtml + "</label>";
+            strHtml += '<div class="bigTitleTool">';
+            //strHtml += ' <div style="float:left;"><i class="fa fa-th-large" style="font-size:32px;color:white;margin-left:20px;" onclick="openMedialog()"></i></div>';
+            strHtml += '<div class="titleDate"></div>';
+            strHtml += '</div>';
+            mini.showTips({
+                content: strHtml,
+                state: state,
+                x: x,
+                y: y,
+                timeout: null
+            });
+        }
+        //展开专题列表
+        function openFaAnMenu(zt_id) {
+            //window.open("TFZTindexV2.html?ZT_ID=" + zt_id);
+            window.location.href = "TFZTindexV2.html?ZT_ID=" + zt_id;
+        }
+        function openFaAnZengshui(stime, etime,tfbh) {
+            var ZJ_YBSJ = $.data(myData, "TyphoonYBTM");
+            if (stime == undefined) {
+                stime = ZJ_YBSJ;
+            }
+            etime = AddHourDate(stime, yj_hour);//相似开始时间加上预见期
+            var iframeUrl = "zttzTide.html";
+            iframeUrl = "../../DD_MX/ShuiWeiSWTF.html";
+
+            iframeUrl += "?r=" + Math.random() + "&stime=" + yj_stime + "&etime=" + yj_etime + "&stimeTF=" + stime + "&etimeTF=" + etime;
+            iframeUrl += "&tfbh=" + tfbh+"&SOLUTIONID="+SOLUTIONID;
+            lookData("", iframeUrl, "", "70%", "80%", true)
+        }
+        //关闭窗口
+        function closeDislog(type) {
+            $("." + type).hide();
+        }
+        function onYearChanged(e) {
+            loadZTList();
+        }
+        //获取台风的预报路径
+        function GetZTResultTFLJ_YBS(RQSJ2) {
+            var tfbh = $.data(myData, "TFBH");
+            var strWhere = {
+                "tfbh": tfbh,
+                "rqsj2": RQSJ2,
+                //TFYBDW: "中国"
+            };
+            app.post("ZJ_TYPHOON_ZJ_TF/GetTyphoonListYB", strWhere, function(res){
+                JosnSel(res,"GetTyphoonListYB");
+            });
+        }
+        function showHistoryTF() {
+            var dis = $(".rightTFUL").css("display");
+            if (dis == "none") {
+                $(".rightTFUL").show();
+                loadZTList();
+            }
+        }
+        top["win"] = window;
+        function OpenHref(){
+            //top["win"].onLoadDataSW();
+        }
+    </script>
+</body>
+</html>

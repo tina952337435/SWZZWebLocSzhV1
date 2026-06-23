@@ -1,0 +1,387 @@
+﻿<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100mm以上暴雨查询</title>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="/Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <style>
+        ul.ui-choose > li {
+            width: auto;
+            padding: 0px 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar">
+        <div id="zhanList">
+            <div class="searchTitle" style="line-height:35px;float:left;">&nbsp; &nbsp;站点选择： </div>
+            <input id="STCD" name="STCD" class="mini-combobox" style="width:120px;" textField="STNM" valueField="STCD" allowInput="true"
+                   onvaluechanged="onvaluechangedTM" />
+
+            <div style="margin-left:12px;float:left;display:none;" id="zhanDiv">
+
+            </div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            开始日期：&nbsp;<input id="STIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:100px;" format="yyyy-MM-dd" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+            快捷输入：
+            <input id="TMLIST" name="TMLIST" class="mini-combobox" style="width:90px;" textField="dayText" valueField="day" allowInput="true"
+                   onvaluechanged="onvaluechangedTMList" />
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            &nbsp;&nbsp;
+                        <span style="display:none;" id="expButton">
+                            <button type="button" class="btn btn-info" onclick="OpenTab()" style="margin: 0px 0px;padding: 4px 12px;">2006年前数据导入</button>
+                            &nbsp;&nbsp;
+                            <button type="button" class="btn btn-info" onclick="OpenTab06()" style="margin: 0px 0px;padding: 4px 12px;">2006年后数据导入</button>
+                            <span class="separator"></span>
+                            <button type="button" class="btn btn-info" onclick="Exp()" style="margin: 0px 0px;padding: 4px 12px;">数据导出</button>
+                            <span class="separator"></span>
+                            <button type="button" class="btn btn-danger" id="uploadExcel" style="margin: 0px 0px;padding: 4px 12px;" onclick="saveEditData()">保存</button>
+                        </span>
+
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="cwchart" style="width:100%;height:300px;">
+        </div>
+        <div id="grid1" class="mini-datagrid"
+             style="width: 100%;height: -webkit-calc(100% - 300px);height: -moz-calc(100% - 300px);height: calc(100% - 300px);"
+             allowalternating="true" borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]"
+             pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+             allowcellselect="true" allowcelledit="true" 
+             ondrawcell="ondrawcell">
+            <div property="columns">
+                <div type="indexcolumn" headeralign="center" align="center">序号</div>
+                <div field="TDZ" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                    潮位(m)
+                    <input property="editor" class="mini-textbox" style="width:100px;"/>
+                </div>
+                <div field="TM" headeralign="center" align="center" allowsort="true">
+                    时间
+                </div>
+                <div field="STNM" headeralign="center" align="center">
+                    站名
+                </div>
+                <div field="STCD" headeralign="center" align="center">
+                    站码
+                </div>
+                <div name="action" field="action" width="50" headeralign="center" align="center">
+                    基本操作
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        mini.parse();
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var dataResult = [
+                { STCD: "63401750", STNM: "吴淞口" },
+                { STCD: "62701710", STNM: "高桥（二）" },
+                { STCD: "63405800", STNM: "芦潮港" },
+                { STCD: "63401100", STNM: "米市渡" },
+                { STCD: "63401500", STNM: "黄浦公园" },
+                { STCD: "63405900", STNM:"金山嘴"}
+            ];
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+            mini.get("STIME").setValue("2000-01-01");
+            mini.get("ETIME").setValue("2000-01-10");
+
+            var dataTMList = [
+                { day: 10, dayText: "10天" },
+                { day: 20, dayText: "20天" },
+                { day: 30, dayText: "30天" },
+                { day: 30, dayText: "40天" },
+                { day: 50, dayText: "50天" },
+                { day: 60, dayText: "60天" },
+                { day: 90, dayText: "90天" },
+            ];
+            mini.get("TMLIST").setData(dataTMList);
+
+            var strHtml = '<ul class="ui-choose choose-type-right" id="choseZhan">';
+            dataResult.forEach(function (item, index) {
+                var cls = '';
+                if (index == 0) {
+                    cls = 'selected';
+                }
+                strHtml += '<li id="' + item.STCD + '" class="' + cls + '"><span>' + item.STNM + '</span></li>';
+            });
+            strHtml += '</ul>';
+            $("#zhanDiv").html(strHtml);
+            search();
+        });
+
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var stime = mini.get("STIME").getFormValue() + " 00:00:00";
+            var etime = mini.get("ETIME").getFormValue() + " 23:59:59";
+            //etime = getCurrentMonthLast(etime).format("yyyy-MM-dd") + " 23:59:59";
+            var strWhere = {
+                STIME: stime,
+                ETIME: etime,
+                STCD: mini.get("STCD").getValue()
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_TIDE_RNAMESel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var xdata = [];
+                var ydata = [];
+                for (var num = 0; num < data.data.length; num++) {
+                    var tm = new Date(convertToDate(data.data[num].TM)).format("yyyy-MM-dd HH:mm");
+                    xdata.push(tm);
+                    ydata.push(data.data[num].TDZ);
+                }
+                chartCW("cwchart", xdata, ydata);
+                grid.setData(data.data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                ShowMsg(data.Message);
+            }
+            else if (typeID == "addpl") {
+                ShowMsg(data.Message);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "TM") {
+                var s = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+                e.cellHtml = s;
+            }
+            if (field == "TDZ") {
+               // e.cellStyle = "background:#f5f7d5;";
+                if (Number(value) >= 6) {
+                    e.cellStyle = "background:red;";
+                }
+            }
+            if (field == "action") {
+                var s = '<a title="删除" onclick="del(\'' + record.TM + '\',\'' + record.STCD + '\')" style="cursor:pointer;">删除</a>';
+                e.cellHtml = s;
+            }
+        }
+        function del(tm, stcd) {
+            var time = new Date(convertToDate(tm)).format("yyyy-MM-dd HH:mm:ss");
+            var strWhere = { TM: time, STCD: stcd};
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_TIDE_RDel", strWhere, "Del");
+        }
+        function OpenTab() {
+            var stcd = mini.get("STCD").getValue();
+            var stnm = mini.get("STCD").getText();
+            //批量导入
+            WindowsOpen("/SHSWTZ/sqtz/FIveStationTideLevelImport.html?STNM=" + stnm + "&STCD=" + stcd, stnm+ "潮位数据导入", "90%@80%");
+        }
+        function OpenTab06() {
+            WindowsOpen("/SHSWTZ/sqtz/FIveStationTideLevelImportAll.html", "潮位数据导入", "90%@80%");
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = mini.get("STCD").getText() + "(" + mini.get("STCD").getValue() + ")";
+            name += new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日") + "-";
+            name += new Date(mini.get("ETIME").getFormValue()).format("yyyy年M月d日") + "整点潮位数据";
+            ExportExcel(name, columns, data);
+        }
+        function saveEditData() {
+            grid.commitEdit();
+            var data = grid.getChanges();
+            var json = mini.encode(data);
+            if (json == "[]") {
+                ShowMsg("无修改数据！");
+                return;
+            }
+            var strWhere = { LISTMODE: json, UPDATE: true }
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_TIDE_RPL", strWhere, "addpl");
+        }
+        function onvaluechangedTM() {
+
+        }
+        function onvaluechangedTMList(e) {
+            var value = Number( e.value);
+            var stime = mini.get("STIME").getFormValue();
+            var etime = addDayDate(stime,value);
+            mini.get("ETIME").setValue(etime);
+            search();
+        }
+        function chartCW(ChartName, xdata, ydata) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var realEx = [];
+            var option = {
+                text: mini.get("STCD").getText() + "潮位过程",
+                title: {
+                    //text: mini.get("STCD").getText()+"潮位过程",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 14,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['预报', '实测', '警戒', '保证'],
+                    show: false,
+                    selected: {
+                        '警戒': false,
+                        '保证': false
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xdata
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                    }
+                ],
+                series: [
+                    {
+                        name: '潮位',
+                        type: 'line',
+                        color: "blue",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: true,
+                            position: 'top',
+                            offset: [0, -10],
+                            //padding: [3, 4, 5, 6],
+                            textStyle: {
+                                color: 'rgba(255, 255, 255, 1.00)',
+                                fontSize: 12,
+                                //fontWeight: 'bold'
+                                backgroundColor: 'rgba(0,0,255, 0.6)',
+                                borderWidth: 1,
+                                borderColor: 'rgba(0,0,255,1)',
+                                //borderRadius: 5,
+                                //padding: [3, 4, 5, 6],
+                                width: 40,
+                                height: 18,
+                                align: "center",
+                                verticalAlign: "middle",
+                                lineHeight: 18,
+                            },
+                            formatter: function (params) {
+                                //console.error(params);
+                                if ((ydata[params.dataIndex - 1] <= params.data && ydata[params.dataIndex + 1] < params.data) || (ydata[params.dataIndex - 1] >= params.data && ydata[params.dataIndex + 1] > params.data)) {
+                                    var s = Number(params.data).toFixed(2);
+                                    return s;
+                                } else {
+                                    return '';
+                                }
+                            }
+                        },
+                        data: ydata
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

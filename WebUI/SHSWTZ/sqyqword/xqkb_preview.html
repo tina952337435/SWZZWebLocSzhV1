@@ -1,0 +1,751 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>水情简报生成</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <!--富文本编辑器-->
+    <script src="/Common/Scripts/ckeditor_4.18.0_standard/ckeditor/ckeditor.js" type="text/javascript"></script>
+
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <!--上传文件的样式-->
+    <link href="/Common/bootstrap-fileinput/css/fileinput.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        html,body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            background: #fff;
+        }
+
+        .FactorUl li {
+            list-style: none;
+            float: left
+        }
+
+        .searchContext {
+            /*height: 40px;
+            line-height: 40px;*/
+            padding: 5px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+            line-height: 35px;
+        }
+
+        ul.ui-choose {
+            display: flow-root;
+        }
+
+            ul.ui-choose > li {
+                width: auto !important;
+                margin-right: 10px !important;
+                margin-bottom: 10px !important;
+            }
+
+        .btn {
+            padding: 4px 12px;
+        }
+
+        .table1 {
+            width: 98%;
+        }
+        .mini-grid-headerCell-nowrap{
+            background:#fff;
+
+        }
+        .mini-panel-border {
+            border: #000 1px solid !important;
+        }
+        .mini-grid-headerCell, .mini-grid-topRightCell, .mini-grid-columnproxy {
+            border-color: #000;
+        }
+        .mini-grid-headerCell-inner {
+            font-weight: bold;
+            font-size: 18px !important;
+            font-family: "仿宋" !important;
+        }
+        html body .mini-grid .mini-grid-cell-selected {
+            background: #fff;
+        }
+        .mini-grid-row-alt {
+            background: #fff !important;
+        }
+        .mini-grid-cell {
+            border: 1px !important;
+            border-bottom: #000 1px solid !important;
+            border-right: #000 1px solid !important;
+        }
+        .mini-grid-cell-inner {
+            height: 30px !important;
+            line-height: 30px !important;
+            font-size: 18px !important;
+            font-family: "仿宋" !important;
+        }
+        .mini-grid-rows-view{
+            overflow:hidden;
+        }
+    </style>
+
+    <style type="text/css">
+        .input, section {
+            clear: both;
+            padding-top: 10px;
+            display: none;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 14px;
+            display: block;
+            float: left;
+            padding: 10px 30px;
+            border-top: 2px solid transparent;
+            border-right: 1px solid transparent;
+            border-left: 1px solid transparent;
+            border-bottom: 1px solid #DDD;
+            color: #000;
+        }
+
+            .label:hover {
+                cursor: pointer;
+                text-decoration: underline;
+            }
+
+        #tab1:checked ~ div > #content1, #tab2:checked ~ div > #content2, #tab3:checked ~ div > #content3, #tab4:checked ~ div > #content4 {
+            display: block;
+        }
+
+        .input:checked + label {
+            border-top-color: #3291F9;
+            border-right-color: #DDD;
+            border-left-color: #DDD;
+            border-bottom-color: transparent;
+            text-decoration: none;
+        }
+
+        .table2 {
+            width: 100%;
+        }
+
+        .table2Tr {
+            height: 40px;
+        }
+    </style>
+
+    <!--文本下划线样式-->
+    <style>
+        .h1, h1 {
+            font-size: 25px;
+            font-weight: 600;
+        }
+        .mini-button-text{
+            font-size:14px;
+        }
+        .YEARCSS .mini-textbox-border,  .DZMTITLE .mini-textbox-border, .TOPTITLE .mini-textbox-border {
+            border: 0px !important;
+            border-bottom: 1px solid #808080 !important;
+            border-radius: 0px !important;
+        }
+        .TITLECSS .mini-textbox-border {
+            border: 0px !important;
+            border-bottom: 1px solid #808080 !important;
+            border-radius: 0px !important;
+            height: 40px;
+            line-height: 40px;
+        }
+        .YEARCSS .mini-textbox-input {
+            font-size: 18px !important;
+            text-align: center;
+            /*font-family: "宋体";*/
+        }
+        .TITLECSS .mini-textbox-input {
+            font-size: 18px !important;
+            font-weight: bold;
+            width: 600px;
+            text-align: center;
+            font-family:"仿宋";
+            height:40px;
+            line-height:40px;
+        }
+        .NOTECONTENT {
+            margin: 5px 0px !important;
+        }
+            .NOTECONTENT .mini-textbox-input {
+                font-size: 18px !important;
+                line-height: 30px;
+                font-family: "仿宋";
+                text-indent: 2em;
+            }
+        .DZMTITLE .mini-textbox-input {
+            font-size: 18px !important;
+            text-align: center;
+            font-family: "仿宋";
+        }
+        .TOPTITLE .mini-textbox-input {
+            font-size: 18px !important;
+            font-family:"仿宋";
+        }
+
+        .file-preview, .kv-upload-progress {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="form1" style="width:100%;height:100%;">
+        <!--收缩-->
+        <div style="position:absolute;top:10px;right:10px;z-index:9;">
+            <i class="fa fa-chevron-right" style="font-size:20px;transform: rotate(270deg);cursor:pointer;z-index: 9;" title="收缩" onclick="openMenu()" id="showMenu"></i>
+        </div>
+        <div class="mini-toolbar" style="z-index:1 !important;">
+            <div class="searchContext">
+                <div class="searchTitle">&nbsp; &nbsp;降雨要素：</div>
+                <ul class="ui-choose choose-type-right" id="choseJY">
+                    <li class="selected">
+                        <span name="weather">天气降雨概况</span>
+                    </li>
+                    <li class="selected">
+                        <span name="SHIJSL">全市时段降水总量</span>
+                    </li>
+                    <li class="selected">
+                        <span name="ShroudedRange">笼罩范围</span>
+                    </li>
+                    <li class="selected">
+                        <span name="AREATOP3">行政区面降雨前三</span>
+                    </li>
+                    <li>
+                        <span name="RAINGRADE">降雨级别</span>
+                    </li>
+                    <li class="selected">
+                        <span name="RainstormCenter">暴雨中心</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP24">最大24小时雨量</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP12">最大12小时雨量</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP6">最大6小时雨量</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP3">最大3小时雨量</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP1">最大1小时雨量</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP60M">最大60分钟雨量</span>
+                    </li>
+                    <li>
+                        <span name="MAXDRP30M">最大30分钟雨量</span>
+                    </li>
+                    <li class="selected">
+                        <span name="PLQK">排涝情况</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="searchContext">
+                <div class="searchTitle">&nbsp; &nbsp;水位要素：</div>
+                <ul class="ui-choose choose-type-right" id="choseSW">
+                    <li class="selected">
+                        <span name="SHISW">全市总体情况</span>
+                    </li>
+                    <li>
+                        <span name="YJYWSW">沿江沿湾</span>
+                    </li>
+                    <li>
+                        <span name="HPJZXYSW">黄浦江中下游</span>
+                    </li>
+                    <li>
+                        <span name="HPJSYSW">黄浦江上游及边界</span>
+                    </li>
+                    <li>
+                        <span name="SZHSYSW">苏州河上游</span>
+                    </li>
+                    <li>
+                        <span name="AREASW">水利片</span>
+                    </li>
+                </ul>
+            </div>
+            <div id="areaList">
+                <div class="searchTitle">&nbsp; &nbsp;流量要素： </div>
+                <ul class="ui-choose choose-type-right" id="choseLL">
+                    <li>
+                        <span name="HPJSYLL">黄浦江上游</span>
+                    </li>
+                    <li>
+                        <span name="SZHSYLL">苏州河上游</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;时间选择：</div>
+                <input id="XQKB_STM" name="XQKB_STM" class="mini-datepicker" style="width:110px;" showTime="false" format="yyyy-MM-dd" required="true" />
+                <input id="stmlist" name="stmlist" class="mini-combobox" value="8" style="width: 50px; margin-left: 2px;"
+                       required="true" />
+                —
+                <input id="XQKB_ETM" name="XQKB_ETM" class="mini-datepicker" style="width:110px;" showTime="false" format="yyyy-MM-dd" required="true" />
+                <input id="etmlist" name="etmlist" class="mini-combobox" value="8" style="width:50px; margin-left: 2px;"
+                       required="true" />
+
+                <a class="btn btn-info" onclick="onGetText()" style="width:105px;margin-left:10px;"><i class="fa fa-download"></i>&nbsp;快报分析</a>
+                <a class="mini-button" onclick="OnSava()" style="width:105px;margin-left:10px;"><i class="fa fa-file-word-o"></i>&nbsp;生成文件</a>
+
+            </div>
+        </div>
+        <div style="width:100%;background:#f7f6f6;margin-top: -20px;">
+            <div id="PrintA" style="width:900px;margin:0 auto;background:#fff;padding: 0px 80px;-webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);">
+                <div style="height:20px;">&nbsp;</div>
+                <h1 style="text-align:center;">
+                    水 情 简 报
+                </h1>
+                <div style="text-align:center;font-size:18px;line-height: 50px;height:50px;">
+                    <input id="XQKB_YEAR" name="XQKB_YEAR" class="mini-textbox DivSpan70 YEARCSS" value="2022" style="width:60px;" required="true" />
+                    年
+                    第
+                    <input id="XQKB_QIHAO" name="XQKB_QIHAO" class="mini-textbox DivSpan50 YEARCSS" style="text-align:center;" required="true" />
+                    期
+                </div>
+                <table cellpadding="0" cellspacing="0" border="0" style="width:100%">
+                    <tr>
+                        <td style="font-size: 18px;border-bottom:1px solid #000;">
+                            上海市水文总站
+                        </td>
+                        <td style="font-size: 18px;text-align: right;border-bottom:1px solid #000;" id="tdTM">
+                            <!--2019年5月26日18时-->
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" id="tdDiv">
+                            <table cellpadding="0" cellspacing="0" border="0" class="table2">
+                                <!--隐藏的行，请勿删除-->
+                                <tr style="display:none;">
+                                    <td>
+                                        <input id="XQKB_ID" name="XQKB_ID" class="mini-textbox Span90" style="display:none;" />
+                                        <input id="XQKB_OWEN" name="XQKB_OWEN" class="mini-textbox Span90" style="display:none;" />
+                                        <input id="XQKB_FILE" name="XQKB_FILE" class="mini-textbox Span90" style="display:none;" />
+                                    </td>
+                                </tr>
+                                <tr class="table2Tr">
+                                    <td style="width:100%;height:110px;line-height:110px;" align="center">
+                                        <input id="XQKB_TITLE" name="XQKB_TITLE" class="mini-textbox TITLECSS" style="width:600px;text-align:center;height:40px;" required="true" emptytext="请输入副标题" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <textarea id="editorJY" name="editorJY" rows="50" style="width: 100%; height:450px;" class="mini-textarea NOTECONTENT"
+                                                  emptytext="请输入降雨信息"></textarea>
+                                        <div style="position: relative;">
+                                            <div>
+                                                <img src="/Common/images/yuliangfenbu.png" id="DZMPIC" style="height:425px;" />
+                                            </div>
+                                            <div style="line-height:40px;">
+                                                <input class="mini-textbox DZMTITLE" id="XQKB_DZMTITLE" name="XQKB_DZMTITLE" style="width:350px;" required="true" emptytext="全市雨量分布图" />
+                                            </div>
+
+                                            <div style="width:20%;position:absolute;top:10px;right:10px;">
+                                                <div style="height:auto;overflow-x:auto;width:95%;">
+                                                    <input type="file" name="Files" id="Files" multiple class="file-loading" />
+                                                </div>
+                                            </div>
+                                            <div style="height:25px;">&nbsp;</div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div id="PrintB" style="width:900px;margin:25px auto;background:#fff;padding: 10px 80px;-webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);">
+                <table cellpadding="0" cellspacing="0" border="0" class="table2">
+                    <tr>
+                        <td>
+                            <div style="line-height:40px;">
+                                <input class="mini-textbox TOPTITLE" id="XQKB_TOPTITLE" name="XQKB_TOPTITLE" style="width:380px;" required="true" emptytext="雨量最大的前10个站" />
+                            </div>
+                            <div id="grid1" class="mini-datagrid" style="width:100%;height:390px;margin:0px auto;" allowalternating="true"
+                                 borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true"
+                                 emptytext="暂无数据" alwaysshowemptytext="true" showpager="false" allowcellselect="true" allowcelledit="true">
+                                <div property="columns">
+                                    <!--<div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>-->
+                                    <div field="STNM" width="80" headeralign="center" align="center" allowsort="true" format="yyyy-MM-dd">
+                                        站名
+                                    </div>
+                                    <div field="DRP" width="120" headeralign="center" align="center" decimalPlaces="1" dataType="float">
+                                        雨量(mm)
+                                        <input property="editor" class="mini-textbox" style="width:200px;" />
+                                    </div>
+                                    <div field="AREA" width="80" headeralign="center" align="center">
+                                        分区
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <!--<div name="editor" id="editorSW" rows="20" cols="80"></div>-->
+                            <textarea id="editorSW" name="editorSW" rows="50" style="width: 100%; height: 250px;" class="mini-textarea NOTECONTENT"
+                                      emptytext="请输入水位信息"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <!--<div name="editor" id="editorLL" rows="5" cols="80"></div>-->
+                            <textarea id="editorLL" name="editorLL" rows="50" style="width: 100%; height: 180px;" class="mini-textarea NOTECONTENT"
+                                      emptytext="请输入流量信息"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var form = new mini.Form("form1");
+        var grid = mini.get("grid1");
+        var ckJY = mini.get("editorJY");
+        var ckSW = mini.get("editorSW");
+        var ckLL = mini.get("editorLL");
+        var XQID = GetQueryString("XQID");
+        var PATHNAME = "XQKB";
+        var isBindText = false;
+        var myData = [];
+        $(function () {
+            mini.get("XQKB_STM").setValue(formatDate(addDayDate(new Date().format("yyyy-MM-dd"), -1)).format("yyyy-M-dd 08:00:00"));
+            mini.get("XQKB_ETM").setValue(new Date().format("yyyy-M-dd 08:00:00"));
+            mini.get("XQKB_OWEN").setValue(GetCookie("LOGINNAME"));
+            mini.get("XQKB_ID").setValue(GetTableID());
+            $("#tdTM").html(new Date().format("yyyy年M月d日H时"));
+            mini.get("XQKB_YEAR").setValue(new Date().getFullYear());
+            var hourList = [];
+            for (var num = 0; num < 24; num++) {
+                hourList.push({ id: num, text: num });
+            }
+            if (XQID != null) {
+                //是修改
+                mini.get("XQKB_ID").setValue(XQID);
+                PageFillData();
+            } else {
+                var Now = new Date();
+                var tm = Now.format("yyyy-01-01") + " 00:00:00";
+                var strWhere = { "thecol": "XQKB_QIHAO", "thetable": " swzz_floodtidedata.dbo.XQKB_LIST where XQKB_TM>='" + tm + "'  and XQKB_TYPE='水情简报'" };
+                GetJosns("TABLEMAXID", strWhere, "TABLEMAXID");
+                mini.get("stmlist").setData(hourList);
+                mini.get("etmlist").setData(hourList);
+            }
+            ulLiClick();
+
+            var oFileInput = new FileInput();
+            oFileInput.Init("Files", ServerIP + "/json/reply/UOLOADFILE");
+
+            
+           
+        });
+        function PageFillData() {
+            var strWhere = {
+                XQKB_ID: mini.get("XQKB_ID").getValue()
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTSel", strWhere, "Sel");
+        }
+        function onGetText() {
+            if (isBindText) {
+                mini.confirm("确定是否覆盖？", "确定？",
+                    function (action) {
+                        if (action == "ok") {
+                            onLoadText();
+                        } else {
+                        }
+                    }
+                );
+            } else {
+                onLoadText();
+            }
+            isBindText = true;
+        }
+        function onLoadText() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '文本生成中，请稍等...'
+            });
+            var yaosuStr = "";
+            $(".selected").each(function (e) {
+                var spanName = $(this).find("span").attr("name");
+                yaosuStr += spanName + ",";
+            });
+            if (yaosuStr != "") {
+                yaosuStr = yaosuStr.substring(0, yaosuStr.length - 1);
+            }
+            $.data(myData, "YAOSU", yaosuStr);
+            var strWhere = {
+                STIME: mini.get("XQKB_STM").getFormValue() + " " + mini.get("stmlist").getValue() + ":00:00",
+                ETIME: mini.get("XQKB_ETM").getFormValue() + " " + mini.get("etmlist").getValue() + ":00:00",
+                YAOSU: yaosuStr,
+                XQKB_ID: mini.get("XQKB_ID").getValue()
+            };
+            var choseArr = ["choseJY", "choseSW", "choseLL"];
+            for (var num = 0; num < choseArr.length; num++) {
+                var _length = $("#" + choseArr[num] + " .selected").length;
+                //console.error(_length);
+                if (_length > 0) {
+                    strWhere[choseArr[num]] = true;
+                } else {
+                    strWhere[choseArr[num]] = false;
+                }
+            }
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKBPrintText", strWhere, "printText");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Update" || typeID == "Add") {
+                //汛情快报的记录生成之后，生成汛情快报文件
+                exportFile();
+                if (data.data.length > 0) {
+                    XQID = data.data[0].XQKB_ID;
+                }
+            }
+            else if (typeID == "printWord") {
+                mini.unmask(document.body);
+                if (data.data == "生成文件失败") {
+                    mini.alert(data.data);
+                    return;
+                }
+                var fileName = data.data;
+                window.open(HttpUrl + "XQKB/" + fileName);
+            }
+            else if (typeID == "TABLEMAXID") {
+                mini.get("XQKB_QIHAO").setValue(data.ID);
+            }
+            else if (typeID == "printText") {
+                TextBind(data.data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Sel") {
+                if (data.total > 0) {
+                    bindForm(data.data);
+                }
+            }
+        }
+        function bindForm(data) {
+            form.setData(data[0]);
+            mini.get("XQKB_STM").setValue(convertToDate(data[0].XQKB_STM));
+            mini.get("XQKB_ETM").setValue(convertToDate(data[0].XQKB_ETM));
+            mini.get("stmlist").setValue(convertToDate(data[0].XQKB_STM).format("H"));
+            mini.get("etmlist").setValue(convertToDate(data[0].XQKB_ETM).format("H"));
+            mini.get("XQKB_YEAR").setValue(convertToDate(data[0].XQKB_TM).format("yyyy"));
+            ckJY.setValue(data[0].XQKB_YLNOTE);
+            ckSW.setValue(data[0].XQKB_SWNOTE);
+            ckLL.setValue(data[0].XQKB_LLNOTE);
+            var imgUrl = data[0].XQKB_DZMPIC;
+            $("#DZMPIC").attr("src", HttpUrl + "/" + PATHNAME + "/" + imgUrl);
+
+        }
+        function TextBind(data) {
+            ckJY.setValue(data[0].XQKB_YLNOTE);
+            ckSW.setValue(data[0].XQKB_SWNOTE);
+            ckLL.setValue(data[0].XQKB_LLNOTE);
+            grid.setData(data[0].JYTOP10Data);
+            $("#DZMPIC").attr("src", HttpUrl + "/" + PATHNAME+"/" + data[0].DZMPIC);
+            $.data(myData, "DZMPIC", data[0].DZMPIC);
+            mini.get("XQKB_DZMTITLE").setValue(data[0].DZMTITLE);
+            mini.get("XQKB_TOPTITLE").setValue(data[0].TOPTITLE);
+        }
+        function OnSava() {
+            form.validate();
+            if (form.isValid() == false) {
+                mini.alert("有必填项未填写，请检查！");
+                return;
+            }
+            var year = formatDate(mini.get("XQKB_STM").getFormValue()).format('yyyy');
+            var qihao = mini.get("XQKB_QIHAO").getValue();
+            var fileName = "水情简报[" + year + qihao + "]_" + mini.get("XQKB_TITLE").getValue() + ".docx";
+            mini.get("XQKB_FILE").setValue(fileName);
+            var strWhere = form.getData(true, true);
+            strWhere.XQKB_TM = new Date().format("yyyy-MM-dd HH:mm:ss");
+            strWhere.XQKB_TYPE = "水情简报";
+            strWhere.XQKB_STM = mini.get("XQKB_STM").getFormValue() + " " + mini.get("stmlist").getValue() + ":00:00";
+            strWhere.XQKB_ETM = mini.get("XQKB_ETM").getFormValue() + " " + mini.get("etmlist").getValue() + ":00:00";
+            strWhere.XQKB_YLNOTE = ckJY.getValue();
+            strWhere.XQKB_SWNOTE = ckSW.getValue();
+            strWhere.XQKB_LLNOTE = ckLL.getValue();
+            strWhere.XQKB_DZMPIC = $.data(myData, "DZMPIC");
+            strWhere.XQKB_YAOSU = $.data(myData, "YAOSU");
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '文件生成中，请稍等...'
+            });
+            if (XQID != null) {
+                GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTUpdate", strWhere, "Update");
+            }
+            else {
+                GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTAdd", strWhere, "Add");
+            }
+        }
+        function exportFile() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '文件生成中，请稍等...'
+            });
+            var fileName = mini.get("XQKB_FILE").getValue().replace(".docx", "");
+            var yaosuStr = "";
+            $(".selected").each(function (e) {
+                var spanName = $(this).find("span").attr("name");
+                yaosuStr += spanName + ",";
+            });
+            if (yaosuStr != "") {
+                yaosuStr = yaosuStr.substring(0, yaosuStr.length - 1);
+            }
+            var strWhere = form.getData(true, true);
+            strWhere.fileName = fileName;
+            strWhere.STIME = mini.get("XQKB_STM").getFormValue() + " " + mini.get("stmlist").getValue() + ":00:00";
+            strWhere.ETIME = mini.get("XQKB_ETM").getFormValue() + " " + mini.get("etmlist").getValue() + ":00:00";
+            strWhere.YAOSU = yaosuStr;
+            strWhere.XQKB_YLNOTE = ckJY.getValue();
+            strWhere.XQKB_SWNOTE = ckSW.getValue();
+            strWhere.XQKB_LLNOTE = ckLL.getValue();
+            strWhere.XQKB_TM = new Date().format("yyyy-MM-dd HH:mm:ss");
+            strWhere.JYTOP10Data = JSON.stringify(grid.getData());
+            strWhere.XQKB_DZM = $.data(myData, "DZMPIC");
+
+            //strWhere.DZMTITLE = mini.get("XQKB_DZMTITLE").getValue();
+            //strWhere.TOP10 = mini.get("XQKB_TOPTITLE").setValue();
+            var choseArr = ["choseJY", "choseSW", "choseLL"];
+            for (var num = 0; num < choseArr.length; num++) {
+                var _length = $("#" + choseArr[num] + " .selected").length;
+                if (_length > 0) {
+                    strWhere[choseArr[num]] = true;
+                } else {
+                    strWhere[choseArr[num]] = false;
+                }
+            }
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKBPrintWord", strWhere, "printWord");
+        }
+        function ulLiClick() {
+            $('#choseJY li').click(function () {
+                if ($(this).attr("class") == "selected") {
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).addClass('selected');
+                }
+            });
+            $('#choseSW li').click(function () {
+                if ($(this).attr("class") == "selected") {
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).addClass('selected');
+                }
+            });
+            $('#choseLL li').click(function () {
+                if ($(this).attr("class") == "selected") {
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).addClass('selected');
+                }
+            });
+        }
+        function openMenu() {
+            var dis = $(".mini-toolbar").css("display");
+            var showMenu = $("#showMenu");
+            if (dis == "block") {
+                $(".mini-toolbar").css("display", "none");
+                showMenu.css("transform", " rotate(90deg)");
+                showMenu.attr("title", "展开");
+            } else {
+                $(".mini-toolbar").css("display", "block");
+                showMenu.css("transform", " rotate(270deg)");
+                showMenu.attr("title", "收缩");
+            }
+        }
+    </script>
+
+    <script src="/Common/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/Common/bootstrap-fileinput/js/fileinput_locale_zh.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+        var myData = [];
+        var FileInput = function () {
+            var oFile = new Object();
+            //初始化fileinput控件（第一次初始化）
+            oFile.Init = function (ctrlName, uploadUrl) {
+                var control = $('#' + ctrlName);
+
+                //初始化上传控件的样式
+                control.fileinput({
+                    language: 'zh', //设置语言
+                    uploadUrl: uploadUrl, //上传的地址
+                    allowedFileExtensions: ['jpeg', 'jpg', 'gif', 'png'],//接收的文件后缀
+                    showClose: false,
+                    showUpload: false, //是否显示上传按钮
+                    showRemove: true, //是否显示删除按钮
+                    showCaption: false,//是否显示标题
+                    showUploadedThumbs: false,
+                    browseClass: "btn btn-primary", //按钮样式
+                    textEncoding: "UTF-8",
+                    dropZoneEnabled: true,//是否显示拖拽区域
+                    //minImageWidth: 50, //图片的最小宽度
+                    //minImageHeight: 50,//图片的最小高度
+                    //maxImageWidth: 1000,//图片的最大宽度
+                    //maxImageHeight: 1000,//图片的最大高度
+                    maxFileSize: 204800,//单位为kb，如果为0表示不限制文件大小
+                    //minFileCount: 0,
+                    maxFileCount: 100,
+                    enctype: 'multipart/form-data',
+                    validateInitialCount: true,
+                    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                    msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                    uploadExtraData: function (previewId, index) {   //额外参数的关键点
+                        var obj = {};
+                        obj.PDFTOTIF = false;
+                        obj.PATHNAME = PATHNAME;
+                        return obj;
+                    }
+                });
+
+                var FileResult = [];
+                //导入文件上传完成之后的事件
+                $("#Files").on("fileuploaded", function (event, data, previewId, index) {
+                    var strResult = data.response.data;
+                    if (strResult == undefined) {
+                        //toastr.error('文件格式类型不正确');
+                        return;
+                    }
+                    var imgUrl = strResult[0].HTTPURL;
+                    if (strResult[0].PATHNAME != undefined) {
+                        imgUrl += strResult[0].PATHNAME;
+                    }
+                    imgUrl += "/" + strResult[0].FILEPATH;
+                    $("#DZMPIC").attr("src", imgUrl);
+                    $.data(myData, "DZMPIC", strResult[0].FILEPATH);
+                });
+                $("#Files").on("filebatchselected", function (event, data, previewId, index) {
+                    //alert("fileimageuploaded");
+                    console.error(data);
+                    $(this).fileinput("upload");
+                });
+            }
+            return oFile;
+        };
+    </script>
+</body>
+</html>

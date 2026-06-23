@@ -1,0 +1,451 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <!--STATUS OK-->
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title></title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/mapIndex.js"></script>
+    <script src="backIndex.js"></script>
+    <style type="text/css">
+        .mini-grid-row-alt {
+            background: #ffffff !important;
+        }
+
+        .btn {
+            margin-top: 3px;
+            width: 70px;
+            text-indent: 0px;
+            font-size: 14px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            float: right;
+            margin-right: 10px;
+        }
+
+        .onlytab {
+            width: 90% !important;
+            height: 40px;
+            margin: auto;
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 50% !important;
+                height: 30px;
+                font: 14px/30px "arial";
+                text-align: center;
+            }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+
+        .left-nav li.subitem {
+            background-position: 164px center;
+        }
+        .tongji {
+            font-size: 14px;
+            position: absolute;
+            bottom: 5px;
+            left: 10px;
+            z-index:1;
+        }
+
+            .tongji ul {
+                width: -webkit-calc(100% - 2px);
+                width: -moz-calc(100% - 2px);
+                width: calc(100% - 2px);
+                overflow: auto;
+                border-bottom: #4f83ff 1px solid; /*#c5d1ff*/
+                border-left: #4f83ff 1px solid;
+                border-right: #4f83ff 1px solid;
+                background: #fff;
+                filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+                -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+                -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+                box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+                border-radius: 0px 0px 5px 5px;
+            }
+
+            .tongji table {
+                /* width: -webkit-calc(100% - 2px);width: -moz-calc(100% - 2px);width: calc(100% - 2px);*/
+                width: 100%;
+                overflow: auto;
+                border-bottom: #4f83ff 1px solid;
+                border-left: #4f83ff 1px solid;
+                border-right: #4f83ff 1px solid;
+                background: #fff;
+                filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+                -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+                -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+                box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+                border-radius: 0px 0px 5px 5px;
+            }
+
+            .tongji .yltj li {
+                list-style: none;
+                float: left;
+                min-width: 22%;
+                height: 33px;
+                line-height: 33px;
+            }
+
+            .tongji ul li input {
+                display: block;
+                float: left;
+                height: 32px;
+                width: 14px;
+                margin-left: 5px;
+                cursor: pointer;
+            }
+
+            .tongji ul li img {
+                display: block;
+                height: 15px;
+                float: left;
+                padding: 0px 2px 2px 2px;
+                position: relative;
+                top: 3px;
+            }
+        .tjheader {
+            line-height: 25px;
+            background: #4f83ff;
+            text-indent: 5px;
+            text-align: left;
+            font-size: 14px;
+            color: #fff;
+            border-radius: 5px 5px 0px 0px;
+            border-top: #4f83ff 1px solid;
+            border-left: #4f83ff 1px solid;
+            border-right: #4f83ff 1px solid;
+            filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff,direction=120,strength=4); /*ie*/
+            -moz-box-shadow: 2px 2px 10px #4f83ff; /*firefox*/
+            -webkit-box-shadow: 2px 2px 10px #4f83ff; /*safari或chrome*/
+            box-shadow: 2px 2px 10px #4f83ff; /*opera或ie9*/
+        }
+        /*  .tongji table
+        {
+            width: 230px;
+            height: 65px;
+            background-color: white;
+        }*/
+        .tongji table tr td {
+            height: 16px;
+        }
+
+            .tongji table tr td img {
+                display: block;
+                float: left;
+                height: 14px;
+                width: 14px;
+                cursor: pointer;
+            }
+
+            .tongji table tr td input {
+                display: block;
+                float: left;
+                height: 14px;
+                width: 14px;
+                cursor: pointer;
+            }
+
+        .hidethisbiao {
+            cursor: pointer;
+        }
+
+        .showthisbiao {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute"></div>
+
+    <div class="flex" style="width: 355px; height: 822px; overflow: hidden;background:white;position:absolute;
+background:white;right: 3px;top: 10px;padding: 10px;
+    border-radius: 5px;">
+        <div id="Chart" style="height:180px;">
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            站点统计
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 98%; height: 100%; margin: auto; "
+             showpager="false" allowalternating="true" idfield="TBA_FILENAME" allowresize="false"
+             onselectionchanged="onSelectionChanged" ondrawcell="ondrawcell">
+            <div property="columns">
+                <div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>
+                <div field="STNM" width="100" align="center" headeralign="center" allowsort="false">站名</div>
+                <div field="STATE" width="60" align="center" headeralign="center" allowsort="false">状态</div>
+            </div>
+        </div>
+    </div>
+    <div id="dataShow" style="position:absolute;top:50%;left:50%;margin-left:-55px; font-size:28px; font-weight:bold; display:none">暂无数据</div>
+    <!--页面载入显示-->
+    <div id="dataLoad">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img alt="" src="../../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="backtl" class="tongji" style="width: 105px;">
+        <div class="showthisbiao" style="display:none;">
+            <div style="float:right;width:50px;height:25px;cursor:pointer;border-radius:3px;background:#3291F9;color:white;line-height:25px;text-align:center;">图例</div>
+        </div>
+        <div class="thisbiao">
+            <p class="tjheader">
+                <strong>图例</strong>
+                <img alt="" class="hidethisbiao" src="..../../arcgis_js_api/myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            </p>
+            <ul class="yltj">
+                <li style="width:100px;">
+                    <img alt="" src="..../../arcgis_js_api/myJs/images/green_hd.gif" style="width: 22px; height: 22px;margin-top:2px" />
+                    <span>正常(<span id="backZC" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <img alt="" src="..../../arcgis_js_api/myJs/images/s_yellow_u1.gif" style="width: 22px; height: 22px;margin-top:2px" />
+                    <span>告警(<span id="backGJ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+                <li style="width:100px;">
+                    <img alt="" src="..../../arcgis_js_api/myJs/images/s_red_u1.gif" style="width: 22px; height: 22px;margin-top:2px" />
+                    <span>故障(<span id="backGZ" style="color: #0479ef; font-size:14px; line-height: 14px;">0</span>)</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var water1 = 10, water2 = 3, water3 = 2;
+        window.onload = function () {
+            data = {
+                "data": [
+                    { "STCD": "63201108", "STNM": "嘉善", STATE: "0", "BSNM": "", "LGTD": 120.923455, "LTTD": 30.850897, "ATCUNIT": "", "ADMAUTH": "0010000015", "UPZ": "3.24", "ZTM": "\/Date(1555306800000-0000)\/", "SJLL": 50.000 },
+                    { "STCD": "63201109", "STNM": "杜家浜", STATE: "0", "BSNM": "", "LGTD": 120.875787, "LTTD": 30.918241, "ATCUNIT": "", "ADMAUTH": "0010000013", "UPZ": "3.04", "ZTM": "\/Date(1564626000000-0000)\/", "SJLL": 50.000 },
+                    { "STCD": "63201215", "STNM": "卫生院", STATE: "0", "BSNM": "", "LGTD": 120.811640, "LTTD": 30.893819, "ATCUNIT": "", "ADMAUTH": "0010000019", "UPZ": "2.79", "ZTM": "\/Date(1564626000000-0000)\/", "ZD": "1", "SJLL": 50.000 },
+                    { "STCD": "63201400", "STNM": "花神庵港", STATE: "0", "BSNM": "", "LGTD": 120.971778, "LTTD": 30.847839, "ATCUNIT": "", "ADMAUTH": "0010000001", "UPZ": "2.92", "DWZ": "3.30", "ZTM": "\/Date(1564625700000-0000)\/", "SJLL": 50.000 },
+                    { "STCD": "63201402", "STNM": "小桥港", STATE: "0", "LGTD": 120.938873, "LTTD": 30.992803, "SJLL": 50.000 },
+                    { "STCD": "63201405", "STNM": "小腰子港", STATE: "0", "LGTD": 120.921626, "LTTD": 30.886831, "SJLL": 50.000 },
+                    { "STCD": "63201407", "STNM": "老变电所", STATE: "0", "LGTD": 120.809242, "LTTD": 30.970263, "SJLL": 50.000 },
+                    { "STCD": "63201409", "STNM": "利壳港闸", STATE: "1", "LGTD": 120.776363, "LTTD": 30.955888, "SJLL": 50.000 },
+                    { "STCD": "63201411", "STNM": "河泥田港闸", STATE: "1", "LGTD": 120.764486, "LTTD": 30.964647, "SJLL": 50.000 },
+                    { "STCD": "63201413", "STNM": "冯家港闸", STATE: "2", "LGTD": 120.785794, "LTTD": 30.968410, "SJLL": 50.000 },
+                    { "STCD": "63201414", "STNM": "急水桥水闸", STATE: "0", "LGTD": 120.891494, "LTTD": 30.921959, "SJLL": 50.000 },
+                    { "STCD": "63201415", "STNM": "肖家港北闸", STATE: "0", "LGTD": 120.835168, "LTTD": 30.971280, "SJLL": 50.000 },
+                    { "STCD": "63201416", "STNM": "北长河水闸", STATE: "2", "LGTD": 120.822765, "LTTD": 30.964316, "SJLL": 50.000 },
+                    { "STCD": "63201417", "STNM": "港娄口闸", STATE: "0", "LGTD": 120.846294, "LTTD": 30.954297, "SJLL": 50.000 },
+                    { "STCD": "63202101", "STNM": "李家埭西闸", STATE: "1", "BSNM": "", "LGTD": 120.807262, "LTTD": 30.947709, "ATCUNIT": "", "ADMAUTH": "0010000016", "UPZ": "3.45", "ZTM": "\/Date(1555255800000-0000)\/", "SJLL": 50.000 }
+                ], "PageTotal": 2, "PageSize": 15, "PageIndex": 0, "total": 20, "IsSuccess": true, "Message": "操作成功", "ElapseTime": 67
+            };
+            grid.setData(data.data);
+            addMark(data.data);
+            //tlCount();
+            var LineColor = ['#10CF12', "#F78812", "#F70B12"];
+            var strNote = [
+                { "name": "正常(" + water1 + ")", "codename": "text1", "tableV": "1", "isShow": true, "width": "30%", "tableColor": LineColor[0] },
+                { "name": "告警(" + water2 + ")", "codename": "text1", "tableV": "1", "isShow": true, "width": "30%", "tableColor": LineColor[1] },
+                { "name": "故障(" + water3 + ")", "codename": "text1", "tableV": "1", "isShow": true, "width": "30%", "tableColor": LineColor[2] },
+            ];
+            var xData = [];
+            xData.push({ "text1": water1, "text2": water2, "text3": water3 })
+            PieChart("Chart", xData, strNote, LineColor, "状态");
+            $("#dataLoad").hide();
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            if (field == "STATE") {
+                var s = "";
+                if (value == "0") {
+                    s = "正常";
+                } else if (value == "1") {
+                    s = "告警";
+                } else if (value == "2") {
+                    s = "故障";
+                }
+                e.cellHtml = s;
+            }
+        }
+        function onSelectionChanged(e) {
+            var grid = e.sender;
+            var record = grid.getSelected();
+            if (record) {
+                loc(record.LGTD, record.LTTD);
+            }
+        }
+        function loc(lgtd, lttd) {
+            if (lgtd != null && lttd != null) {
+                dyCenter(lgtd, lttd);
+            } else {
+                mini.alert("未找到经纬度");
+            }
+        }
+        function tlCount() {
+            getTLObj("backZC").innerHTML = water1;
+            getTLObj("backGJ").innerHTML = water2;
+            getTLObj("backGZ").innerHTML = water3;
+        }
+        function PieChart(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var chartName = []; 	//控件元素名称
+            var chartColor = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                chartColor.push(value.tableColor);
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                        //chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+
+            option = {
+                tooltip: {
+                    trigger: 'item',
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'vertical',
+                    x: 'right',
+                    right: '0',
+                    data: chartName
+                },
+                color: chartColor,
+                series: function () {
+                    var serie = [];
+                    var temValue = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            //chartValue.push(changeTwoDecimal(m[i][j], 0)); //循环价值
+                            chartValue.push(m[i][j]);
+                        }
+                        temValue.push({ "name": chartName[j], "value": chartValue })
+                    }
+
+                    var item = {
+                        name: "水质",
+                        type: 'pie',
+                        data: temValue,
+                        center: ['35%', '50%'],
+                        radius: ['50%', '80%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            normal: {
+                                show: false,
+                                position: 'center'
+                            },
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '30',
+                                    fontWeight: 'bold'
+                                }
+                            }
+                        },
+                        labelLine: {
+                            normal: {
+                                show: false
+                            }
+                        }
+                    }
+                    serie.push(item);
+                    return serie;
+                }()
+            };
+
+            myChart.setOption(option);
+            //myChart.on("click", eConsole);
+        }
+    </script>
+</body>
+</html>

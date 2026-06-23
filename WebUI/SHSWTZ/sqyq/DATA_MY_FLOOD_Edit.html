@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>时间设定管理</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1' style=' background-color: White; width: 95%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    梅雨日期设定
+                    <input id="ID" name="ID" class="mini-textbox Span90" style="display:none;" />
+                    <input id="YEAR" name="YEAR" class="mini-textbox Span90" value="2019" style="display:none;" />
+                    <input id="TYPEID" name="TYPEID" class="mini-textbox Span90" value="MY" style="display:none;" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始日期：
+                </td>
+                <td class="lie2">
+                    <input id="STM" name="STM" class="mini-datepicker Span90" showOkButton="true" showClearButton="false"/>
+                </td>
+                <td class="lie1" align="right">
+                    结束日期：
+                </td>
+                <td class="lie2">
+                    <input id="ETM" name="ETM" class="mini-datepicker Span90" showOkButton="true" showClearButton="false"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注：
+                </td>
+                <td class="lie2" colspan="3">
+                    <textarea id="NOTE" name="NOTE" rows="30" style="width:100%; height: 100px;" class="mini-textarea" emptytext="请输入备注"></textarea>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    汛期日期设定
+                    <input id="XQ_ID" name="XQ_ID" class="mini-textbox Span90" style="display:none;" />
+                    <input id="XQ_YEAR" name="XQ_YEAR" class="mini-textbox Span90" value="2019" style="display:none;" />
+                    <input id="XQ_TYPEID" name="XQ_TYPEID" class="mini-textbox Span90" value="RX" style="display:none;" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始日期：
+                </td>
+                <td class="lie2">
+                    <input id="XQ_STM" name="XQ_STM" class="mini-datepicker Span90" showOkButton="true" showClearButton="false"/>
+                </td>
+                <td class="lie1" align="right">
+                    结束日期：
+                </td>
+                <td class="lie2">
+                    <input id="XQ_ETM" name="XQ_ETM" class="mini-datepicker Span90" showOkButton="true" showClearButton="false"/>
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注：
+                </td>
+                <td class="lie2" colspan="3">
+                    <textarea id="XQ_NOTE" name="XQ_NOTE" rows="30" style="width:100%; height: 100px;" class="mini-textarea" emptytext="请输入备注"></textarea>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <a class="mini-button" onclick="onOk" style="width:60px;margin-right:20px;">确认</a>
+                    <a class="mini-button" onclick="onCancel" style="width:60px;">取消</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        //标准方法接口定义
+        function SetData(data) {
+            $.data(myData, "action", data.action);
+            if (data.action == "edit") {
+                //mini.get("ID").setValue(data.ID);
+                var strWhere = { "YEAR": data.YEAR };
+                GetJosns("FLOODTIDEDATA_MY_FLOODSel", strWhere, "Sel");
+            } else if (data.action == "new") {
+                var strID = GetTableID();
+                mini.get("ID").setValue(strID);
+                var tm = new Date();
+                mini.get("STM").setValue(tm.format("yyyy-06-22"));
+                mini.get("ETM").setValue(tm.format("yyyy-07-09"));
+                mini.get("XQ_STM").setValue(tm.format("yyyy-05-01"));
+                mini.get("XQ_ETM").setValue(tm.format("yyyy-10-01"));
+                mini.get("YEAR").setValue(tm.format("yyyy"));
+                mini.get("XQ_YEAR").setValue(tm.format("yyyy"));
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    //var o = mini.decode(data.data[0]);
+                    //FromSetData(o);
+
+                    var o = data.data.filter(function (e) {
+                        return e.TYPEID == "MY";
+                    }); 
+                    mini.get("ID").setValue(o[0].ID);
+                    mini.get("YEAR").setValue(o[0].YEAR);
+                    mini.get("STM").setValue(convertToDate(o[0].STM).format("yyyy-MM-dd"));
+                    mini.get("ETM").setValue(convertToDate(o[0].ETM).format("yyyy-MM-dd")); 
+                    mini.get("NOTE").setValue(o[0].NOTE); 
+                    o = data.data.filter(function (e) {
+                        return e.TYPEID == "RX";
+                    });
+                    mini.get("XQ_ID").setValue(o[0].ID);
+                    mini.get("XQ_YEAR").setValue(o[0].YEAR); 
+                    mini.get("XQ_STM").setValue(convertToDate(o[0].STM).format("yyyy-MM-dd"));
+                    mini.get("XQ_ETM").setValue(convertToDate(o[0].ETM).format("yyyy-MM-dd")); 
+                    mini.get("XQ_NOTE").setValue(o[0].NOTE); 
+
+                }
+            }
+            else if (typeID == "Update") {
+                mini.alert(data.Message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            }
+            else if (typeID == "Add") {
+                mini.alert(data.Message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            }
+            mini.unmask(document.body);
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+        function onOk(e) {
+            //保存数据
+            form.validate();
+            if (form.isValid() == false)
+                return;
+            var objSate = $.data(myData, "action");
+            if (objSate == "edit") {
+                var strId = mini.get("ID").getValue();
+            }
+            else {
+                var strId = GetTableID();
+                mini.get("ID").setValue(strId);
+                strId = GetTableID();
+                mini.get("XQ_ID").setValue(strId);
+            }
+            //var strWhere = form.getData(true, true);
+            var strWhere = [];
+            var temp = { "ID": mini.get("ID").getValue(), "YEAR": mini.get("YEAR").getValue(), "TYPEID": mini.get("TYPEID").getValue(), "STM": mini.get("STM").getFormValue(), "ETM": mini.get("ETM").getFormValue(), "NOTE": mini.get("NOTE").getValue() }
+            strWhere.push(temp);
+            temp = { "ID": mini.get("XQ_ID").getValue(), "YEAR": mini.get("XQ_YEAR").getValue(), "TYPEID": mini.get("XQ_TYPEID").getValue(), "STM": mini.get("XQ_STM").getFormValue(), "ETM": mini.get("XQ_ETM").getFormValue(), "NOTE": mini.get("XQ_NOTE").getValue() }
+            strWhere.push(temp);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            if (objSate == "edit") {
+                var tempWhere = { "UPDATE": "true", "LISTMODE": JSON.stringify(strWhere) };
+                GetJosns("FLOODTIDEDATA_MY_FLOODPL", tempWhere, "Update");
+            }
+            else {
+                var tempWhere = { "UPDATE": "false", "LISTMODE": JSON.stringify(strWhere) };
+                GetJosns("FLOODTIDEDATA_MY_FLOODPL", tempWhere, "Add");
+            }
+        }
+    </script>
+</body>
+</html>

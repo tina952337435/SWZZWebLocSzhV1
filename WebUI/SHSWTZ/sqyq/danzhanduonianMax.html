@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单站水情多年对比</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="line-height: 35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear" class="form-control" value="请选择年份" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear" class="form-control" value="请选择年份" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                &nbsp; &nbsp;站名：&nbsp;<input id="STCD" class="mini-combobox" style="width:110px;" textField="STNM" valueField="STCD"
+                                             onvaluechanged="onvaluechanged" allowInput="true" />
+                &nbsp; &nbsp;<a class="mini-button" onclick="search()">查询</a>
+                &nbsp; &nbsp;<a class="mini-button" onclick="Exp()" id="expButton" style="display:none;">导出报表</a>
+            </div>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height:-webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+         showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center">序号</div>
+            <div field="YEAR" width="60" headeralign="center" align="center" allowsort="true">
+                年度
+            </div>
+            <div field="MAXV" width="80" headeralign="center" align="center" allowsort="true" decimalPlaces="2"
+                 dataType="float">
+                最高水位(m)
+            </div>
+            <div field="MAXT" width="100" headeralign="center" align="center" format="yyyy-MM-dd" allowsort="true">
+                最高水位发生时间
+            </div>
+            <div field="MINV" width="80" headeralign="center" align="center" allowsort="true" decimalPlaces="2"
+                 dataType="float">
+                最低水位(m)
+            </div>
+            <div field="MINT" width="100" headeralign="center" align="center" format="yyyy-MM-dd" allowsort="true">
+                最低水位发生时间
+            </div>
+            <div field="CHAV" width="80" headeralign="center" align="center" allowsort="true" decimalPlaces="2">
+                水位年落差(m)
+            </div>
+        </div>
+    </div>
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = 1978;
+            GetObj("endYear").value = _year - 1;
+            var stcdArr = [
+                { STCD: "1170181", STNM: "吴淞口" },
+                { STCD: "1460281", STNM: "米市渡" },
+                { STCD: "2060881", STNM: "黄浦公园" },
+                { STCD: "1460381", STNM: "三角渡" },
+                { STCD: "1460481", STNM: "夏字圩" },
+            ];
+            mini.get("STCD").setData(stcdArr);
+            mini.get("STCD").select(0);
+            search();
+        });
+
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            var strWhere = {
+                STCD:  mini.get("STCD").getValue(),
+                STIME: GetObj("startYear").value +"-01-01 00:00:00",
+                ETIME: GetObj("endYear").value+"-12-31 00:00:00",
+            };
+            GetJosns("Annualmaximumwaterlevel", strWhere, "RSel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "RSel") {
+                $.data(myData, "data", data.data);
+                loadHtml();
+                mini.unmask(document.body);
+            }
+        }
+        function loadHtml() {
+            var data = $.data(myData, "data");
+            data = data.filter(function (e) {
+                return e.MAXV < 10 && e.MINV < 10;
+            });
+            grid.setData(data);
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "MAXT" || field == "MINT") {
+                var s = new Date(convertToDate(value)).format("yyyy-MM-dd");
+                e.cellHtml = s;
+            }
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = mini.get("STCD").getText() + "年最高水位对比";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+</body>
+</html>

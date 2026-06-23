@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>修改工程调度方案</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+            overflow: auto;
+        }
+
+        .onlytab li {
+            padding: 0px 6px 0px 6px;
+        }
+        .zhanUL{
+            list-style:none;
+        }
+        .zhanLI {
+            height: 50px;
+            line-height: 35px;
+        }
+        .c-index {
+            display: inline-block;
+            padding: 1px 0;
+            color: #fff;
+            width: 27px;
+            line-height: 100%;
+            font-size: 14px;
+            text-align: center;
+            background-color: #8eb9f5;
+        }
+
+        .c-gap-icon-right-small {
+            margin-right: 5px;
+        }
+
+        ul.ui-choose > li {
+            width: auto;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar">
+        <table cellpadding="0" cellspacing="0" border="0" style="padding-left: 10px;width:100%;">
+            <tr>
+                <td id="gcUL"></td>
+                <td align="right">
+                    <a class="mini-button" onclick="saveData()">使用方案</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div id="zhanDiv" style="overflow-y:auto;">
+
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var str_stcds = "";
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+        var initFa = "";//记录初始的方案
+        $(function () {
+            GetJosns("MODE_ES_SLTONGJISel", { "TYPE": "2", "PID": "11836313e8a414f5" }, "SLJISel");
+            //方案
+            GetJosns("MODE_ES_MODELFANGANSel", {}, "FSel");
+            //所有站点的方案
+            GetJosns("MODE_ES_MODELFANGANZHANSel", {}, "BSel");
+            setTimeout(function () {
+                onLoadData();
+            },1000);
+        });
+        //目前的调度方案是什么
+        function onLoadData() {
+            var s_where = { "stime": stime, "etime": etime, "msgType": "3" };
+            GetJosns("FH_GetBind", s_where, "SelData");
+        }
+        function loadZhan() {
+            GetJosns("MODE_ES_ZHANDIANSel", {}, "ZSel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SLJISel") {
+                var strJson = data.data;
+                var arr = strJson;
+                var strParaMsg = "";
+                var strParaNum = "";
+                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">水利片区：</span><ul class="onlytab" id="onlytab">';
+                //html += '<li id="gcULAll" name="" class="onlyli start onlyliHover" onclick="OnClickTitle(this.id,\'gcUL\',\'gcULAll\',\'全部\')">全部</li>';
+                for (var num = 0; num < arr.length; num++) {
+                    var tempParaID = arr[num].ID;
+                    var cls = "onlyli";
+                    if (num == 0) {
+                        str_stcds = arr[num].STCD;
+                        //str_type = arr[num].TITLE;
+                        cls = "onlyli start onlyliHover";
+                    }
+                    if (num == arr.length - 1) {
+                        cls = "onlyli end";
+                    }
+                    var title = arr[num].TITLE;
+                    html += '<li id="' + tempParaID + '" name="' + arr[num].STCD + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcUL\',\'' + arr[num].ID + '\',\'' + title + '\')">' + title + '</li>';
+
+                    var paraTee = strJson.filter(function (e) {
+                        return e.PID == arr[num].ID;
+                    })
+                    if (paraTee.length > 0) {
+                        strParaNum += tempParaID + ",";
+                        var paraNum = 25 * num;
+                        if (num == 1) {
+                            paraNum = 29;
+                        } else if (num == 3) {
+                            paraNum = 73;
+                        }
+                        //alert(paraNum);
+
+                        strParaMsg += "<div id=\"treeDiv" + num + "\" class=\"topMenus_skin " + tempParaID + "\" style=\" left: " + paraNum + "%;top:33px;display: none;width:80px\"> ";
+
+                        for (var paraII = 0; paraII < paraTee.length; paraII++) {
+                            strParaMsg += "<span id=\"SpanTree" + num + paraII + "\" href=\"#\"  name=\"" + paraTee[paraII].STCD + "\" style='cursor:pointer;' onclick=\"OnClickTitle(this.id,'" + tempParaID + "','" + paraTee[paraII].ID + "','" + paraTee[paraII].TITLE + "')\">" + paraTee[paraII].TITLE + "</span>";
+                        }
+                        strParaMsg += "</div>";
+                    }
+
+                }
+                html += '</ul>';
+                $("#gcUL").html(html + strParaMsg);
+            }
+            else if (typeID == "ZSel") {
+                $.data(myData, "zdata", data.data);
+                loadZhanHtml();
+            }
+            else if (typeID == "FSel") {
+                $.data(myData, "fdata", data.data);
+            }
+            else if (typeID == "SelData") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "gcdata", dataResult);
+                setTimeout(function (e) {
+                    loadZhan();
+                }, 500);
+            }
+            else if (typeID == "BSel") {
+                $.data(myData, "bdata", data.data);
+            }
+            else if (typeID == "plAdd") {
+                ShowMsg(data.data);
+                top["win"].onLoadData();
+                mini.unmask(document.body);
+            }
+        }
+        function loadZhanHtml() {
+            var fdata = $.data(myData, "fdata");
+            var zdata = $.data(myData, "zdata");
+            var gcdata = $.data(myData, "gcdata");
+            var bdata = $.data(myData, "bdata");//所有站点的方案
+            var html = "<ul class='zhanUL'>";
+            var _index = 1;
+            for (var num = 0; num < zdata.length; num++) {
+                var zhanid = zdata[num].ZHANID;
+                var bdataA = bdata.filter(function (e) {
+                    return e.ZHANID == zhanid;
+                });
+                if (bdataA.length > 0) {
+                    var isHide = "none";
+                    if (str_stcds.indexOf(zhanid) > -1) {
+                        isHide = "block";
+                    }
+
+                    html += '<li class="zhanLI" id="' + zhanid + '" style="display:' + isHide + ';">';
+
+                    var name = zdata[num].ZHANNAME;
+                    name = name.replaceAll("控制调度", "");
+                    if (name.indexOf("_") > -1) {
+                        name = name.substring(name.indexOf("_") + 1, name.length);
+                    }
+
+                    html += '<div style="float:left;width:150px;">' + name + '</div>';
+
+                    html += '<ul class="ui-choose choose-type-right" id="choseGrade' + zhanid + '"  style="float:left;">';
+
+                    var fdataTemp = fdata.filter(function (e) {
+                        return e.NEWFA_NAME == 'all' || e.NEWFA_NAME.indexOf(zhanid) > -1
+                    });
+                    for (var fnum = 0; fnum < fdataTemp.length; fnum++) {
+                        var cls = "";
+                        var gcStr = gcdata[0][zhanid];
+                        var bdataTemp = bdata.filter(function (e) {
+                            return e.NORMAL == gcStr;//根据当前的规则名称找方案
+                        });
+                        if (bdataTemp.length > 0) {
+                            var curFAID = bdataTemp[0].FA_ID;//工程当前使用的方案
+                            if (curFAID == fdataTemp[fnum].ID) {
+                                cls = "selected";
+
+
+                                initFa += zhanid + "@" + fdataTemp[fnum].ID + ",";
+                            }
+                        }
+                        //if (fnum == 0) cls = "selected";
+                        html += '<li class="' + cls + '"  id="' + zhanid + "li" + fdataTemp[fnum].ID + '"  onclick="OnClickTitle2(\'' + zhanid + '\',\'' + zhanid + "li" +  fdataTemp[fnum].ID+'\')">';
+                        html += '<span name="' + fdataTemp[fnum].FA_NAME + '">' + fdataTemp[fnum].FA_NAME + '</span>';
+                        html += ' </li >';
+                    }
+                    html += ' </ul >';
+                    html += '</li>';
+
+                    _index++;
+                }
+            }
+            if (initFa != "") initFa = initFa.substring(0, initFa.length - 1);
+            html += "</ul>";
+            $("#zhanDiv").html(html);
+        }
+        function OnClickTitle(SpanID, objID, objFax, objHNNM) {
+            str_type = objHNNM;
+            var only = $("#" + objID + " .onlyli").removeClass("onlyliHover");
+            $("#" + SpanID).addClass("onlyliHover");
+            $.data(myData, "TREEID", objFax);
+            $("#gcUL li span").css({ "backgroundColor": "#FFFFFF", "color": "#0079F5" });
+            var stcds = $("#" + SpanID).attr("name");
+            str_stcds = stcds;
+            loadZhan();
+        }
+
+        function OnClickTitle2(zhanid, objid) {
+            $('#choseGrade' + zhanid + ' li').each(function (index, item) {
+                $(item).removeClass('selected');
+            });
+            $("#" + objid).addClass('selected');
+        }
+        function saveData() {
+            var strID = "";
+            $("#zhanDiv .ui-choose .selected").each(function (index, item) {
+                var fa_id = $(item).attr('id');
+                //var arr = fa_id.split('li');
+                var fa_id = fa_id.replaceAll("li", "@");
+                strID += fa_id+",";
+            });
+            if (strID != "") {
+                strID = strID.substring(0, strID.length-1);
+            }
+            if (initFa == strID) {
+                mini.alert("调度方案未发生改变！");
+                return;
+            } 
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '调度方案修改中...'
+            });
+            //改变调度方案
+            var strWhere = { GCDDFA: strID, SOLUTIONID:"0" };
+            GetJosns("updateGCSSLLALLGCGZ", strWhere, "plAdd");
+        }
+    </script>
+</body>
+</html>

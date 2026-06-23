@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>预报单站水库结果</title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+
+    <style type="text/css">
+        .asLabel .mini-textbox-border,
+        .asLabel .mini-textbox-input,
+        .asLabel .mini-buttonedit-border,
+        .asLabel .mini-buttonedit-input,
+        .asLabel .mini-textboxlist-border {
+            border: 0;
+            background: none;
+            cursor: default;
+            background:#ffffff !important;
+        }
+
+        .asLabel .mini-buttonedit-button,
+        .asLabel .mini-textboxlist-close {
+            display: none;
+        }
+
+        .asLabel .mini-textboxlist-item {
+            padding-right: 8px;
+        }
+
+        .table-bordered tr th, .table-bordered tr td, .table-bordered tbody tr td {
+            border: 1px solid #efeeee !important;
+        }
+    </style>
+
+</head>
+<body>
+    <div style="width:100%;height:100%;">
+        <div style="height:45px;line-height:35px; font-weight:bold;font-size:16px;text-align:center;" id="titleName">
+            入库洪量：10亿立方米&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            出库洪量：9亿立方米
+        </div>
+        <div style="width:100%;height:calc(100% - 45px);">
+            <div style="float:left;width: -webkit-calc(60% - 10px);width: -moz-calc(60% - 10px);width: calc(60% - 10px);border: 1px solid #efeeee;border-radius: 5px;height:calc(100% - 5px);margin-left: 5px;" id="chartSK"></div>
+            <div style="float:right;width:-webkit-calc(40% - 10px);width:-moz-calc(40% - 10px);width: calc(40% - 10px);border: 1px solid #efeeee;border-radius: 5px;height:calc(100% - 5px);margin-right: 5px;">
+                <div style="height:365px;width:100%;" id="myTableDiv">
+                    <div id="form1" class="td_bg">
+                        <table cellspacing="0" align="center" cellpadding="2" rules="all" border="1" bordercolor="#F5FAFE"
+                               style="color: #333333; border-color: #F5FAFE; border-width: 1px; border-style: solid;
+                            width:100%; border-collapse: collapse;" class="table table-bordered" id="myTable">
+                            
+                        </table>
+                    </div>
+                </div>
+
+                <div id="grid1" class="mini-datagrid" style="width: 100%; height: -webkit-calc(100% - 365px);height: -moz-calc(100% - 365px);height: calc(100% - 365px);" allowalternating="true" 
+                     allowresize="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" 
+                     showpager="false" ondrawcell="ondrawcell" ondrawsummarycell="onDrawSummaryCell" showSummaryRow="true">
+                    <div property="columns">
+                        <div field="TM" width="20%" align="center" headeralign="center">
+                            预测时间
+                        </div>
+                        <div field="UPZ" width="20%" align="center" headeralign="center">
+                            计算水位
+                        </div>
+                        <div field="Z" width="20%" align="center" headeralign="center">
+                            实测水位
+                        </div>
+                        <div field="RQ" width="20%" align="center" headeralign="center">
+                            入流
+                        </div>
+                        <div field="CQ" width="20%" align="center" headeralign="center">
+                            出流
+                        </div>
+                        <div field="XSL" width="20%" align="center" headeralign="center">
+                            蓄水量
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var DD_ID = GetQueryString("DD_ID");
+        var STNM = GetQueryString("STNM");
+        var STCD = GetQueryString("STCD");
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+        var grid = mini.get("grid1");
+        var form = new mini.Form("#form1");
+
+        $(function () {
+            $("#titleName").html(STNM+"预测水位流量过程线图表");
+            labelModel();
+
+            onClickSK();
+        });
+
+        function labelModel() {
+            var fields = form.getFields();
+            for (var i = 0, l = fields.length; i < l; i++) {
+                var c = fields[i];
+                if (c.setReadOnly) c.setReadOnly(true);     //只读
+                if (c.setIsValid) c.setIsValid(true);      //去除错误提示
+                if (c.addCls) c.addCls("asLabel");          //增加asLabel外观
+            }
+        }
+        
+        
+        function GetQueryString(str) {
+            var LocString = String(window.document.location.href);
+            var rs = new RegExp("(^|)" + str + "=([^&]*)(&|$)", "gi").exec(LocString), tmp;
+            if (tmp = rs)
+                return decodeURI(tmp[2]);
+            return null;
+        }
+        //水库
+        function onClickSK() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            var strParam={"STCD": STCD };
+            GetJosns("MODE_ST_STRVFCCH_SKBSel", strParam, "MODE_ST_STRVFCCH_SKBSel");
+
+            $.data(myData, "SKSTNM", STNM);
+            strParam = { "DD_ID": DD_ID, "STCD": STCD, STIME: stime, ETIME: etime };
+            GetJosns("SKZHAN", strParam, "SKZHAN");
+        }
+
+        function onLoadSKData(strJson) {
+            //console.error(JSON.stringify(strJson));
+            var strNote = [];
+            strNote.push({ name: "时间", codename: "TM", tableV: "1", isShow: true, width: "30%" });
+            strNote.push({ name: "计算水位", codename: "UPZ", tableV: "1", isShow: true, width: "30%" });
+            strNote.push({ name: "实测水位", codename: "Z", tableV: "1", isShow: true, width: "30%" });
+            strNote.push({ name: "入流", codename: "RQ", tableV: "1", isShow: true, width: "30%" });
+            strNote.push({ name: "出流", codename: "CQ", tableV: "1", isShow: true, width: "30%" });
+            strNote.push({ name: "蓄水量", codename: "XSL", tableV: "1", isShow: false, width: "30%" });
+            strNote.push({ name: "汛限水位", codename: "WRZ", tableV: "1", isShow: false, width: "30%" });
+            var LineColor = ['#CA24E0','#00FFFF','#0000FF', 'red', 'blue', '#F87115'];
+            chartSWLL("chartSK", strJson, strNote, LineColor, $.data(myData, "SKSTNM"));
+            grid.setData(strJson);
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "SKZHAN") {
+                onLoadSKData(data.data);
+                mini.unmask(document.body);
+            } else if (typeID == "MODE_ST_STRVFCCH_SKBSel") {
+                var o = data.data[0];
+
+                //o.SZ = o.SZ + " m";
+                //o.WRZ1 = o.WRZ1 + " m";
+                //o.JHHZ = o.JHHZ + " m";
+                //o.SJHZ = o.SJHZ + " m";
+                //o.FHGZ = o.FHGZ + " m";
+                //o.ZCXZ = o.ZCXZ + "m";
+                //o.ZKR = o.ZKR + " 百万方";
+                //o.AREA = o.AREA + " km2";
+                //form.setData(o); 
+                htmlTable(o);
+            }
+        }
+
+        function htmlTable(o) {
+            var zongRows = 7;
+            var rows = 3;
+            var strTemp = "";
+            strTemp += '<tr height="25"> ';
+            strTemp += '<td style="text-align:center;background-color:#F5FAFE;">汛限水位(非汛期)</td>';
+            strTemp += '<td style="text-align:center;"> <strong>' + o.WRZ1.toFixed(2) + '</strong></td>';
+            strTemp += '</tr >';
+            strTemp += '<tr height="25"> ';
+            strTemp += '<td style="text-align:center;background-color:#F5FAFE;">汛限水位(汛期)</td>';
+            strTemp += '<td style="text-align:center;"> <strong>' + o.WRZ2.toFixed(2) + '</strong></td>';
+            strTemp += '</tr >';
+            if (o.WRZ3 != undefined) {
+                $("#myTableDiv").css("height", "375px");
+                $("#grid1").css("height", "calc(100% - 375px)");
+                $("#grid1").css("height", "-webkit-calc(100% - 375px)");
+                $("#grid1").css("height", "-moz-calc(100% - 375px)");
+                zongRows = 8;
+                rows = 4;
+                strTemp = "";
+                strTemp += '<tr height="25"> ';
+                strTemp += '<td style="text-align:center;background-color:#F5FAFE;">汛限水位(非汛期)</td>';
+                strTemp += '<td style="text-align:center;"> <strong>' + o.WRZ1.toFixed(2) + '</strong></td>';
+                strTemp += '</tr >';
+                strTemp += '<tr height="25"> ';
+                strTemp += '<td style="text-align:center;background-color:#F5FAFE;">汛限水位(梅汛期)</td>';
+                strTemp += '<td style="text-align:center;"> <strong>' + o.WRZ2.toFixed(2) + '</strong></td>';
+                strTemp += '</tr >';
+                strTemp += '<tr height="25"> ';
+                strTemp += '<td style="text-align:center;background-color:#F5FAFE;">汛限水位(台汛期)</td>';
+                strTemp += '<td style="text-align:center;"> <strong>' + o.WRZ3.toFixed(2) + '</strong></td>';
+                strTemp += '</tr >';
+            }
+
+            var jhhz = o.JHHZ != undefined ? o.JHHZ.toFixed(2) : "-";
+            var sjhz = o.SJHZ == undefined ? "-" : o.SJHZ.toFixed(2);
+            var zkr = o.ZKR == undefined ? "-" : o.ZKR;
+
+            var html = '<tr height="25"> ';
+            html += '<td colspan="3" style = "width:50%; background-color:#F5FAFE; text-align: center; height: 25px;" >水库名称</td >';
+            html += '<td colspan="3" style="height: 25px; width:50%;text-align:center;"> <strong>' + o.STNM + '</strong></td>';
+            html += '</tr >';
+            html += '<tr height="25"> ';
+            html += '<td colspan="3" style = "width:50%;text-align: center; background-color:#F5FAFE;" >水库类型</td >';
+            html += '<td colspan="3" style="width:50%;text-align:center;"> <strong>' + o.TYPE + '</strong></td>';
+            html += '</tr >';
+            html += '<tr height="25"> ';
+            html += '<td colspan="3" style = "width:50%;text-align: center; background-color:#F5FAFE;" >水库位置</td >';
+            html += '<td colspan="3" style="width:50%;text-align:center;"> <strong>' + o.LOC + '</strong></td>';
+            html += '</tr >';
+            html += '<tr height="25"> ';
+            html += '<td colspan="3" style = "width:50%;text-align: center; background-color:#F5FAFE;" >高程体系</td >';
+            html += '<td colspan="3" style="width:50%;text-align:center;"> <strong>' + o.GCTX + '</td>';
+            html += '</tr >';
+            html += '<tr height="25"> ';
+            html += '<td colspan="3" style = "width:50%;text-align: center; background-color:#F5FAFE;" >集水面积(平方公里)</td >';
+            html += '<td colspan="3" style="width:50%;text-align:center;"> <strong>' + o.AREA + '</strong></td>';
+            html += '</tr >';
+
+            html += '<tr height="25"> ';
+            html += '<td rowspan="' + zongRows+'" style="text-align: center; background-color:#F5FAFE;" >特征水位<br/>(m)</td >';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">校核<br/>洪水位</td>';
+            html += '<td style="text-align:center;"> <strong>'+ jhhz + '</strong></td>';
+            html += '<td rowspan="' + zongRows +'" style="text-align: center; background-color:#F5FAFE;" >特征库容<br/>(百万方)</td >';
+            
+            html += '<td rowspan="2" style="text-align:center;background-color:#F5FAFE;">总库容</td>';
+            html += '<td rowspan="2" style="text-align:center;"> <strong>' + zkr + '</strong></td>';
+            html += '</tr >';
+            html += '<tr height="25"> ';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">设计<br/>洪水位</td>';
+            html += '<td style="text-align:center;"> <strong>' + sjhz + '</strong></td>';
+            html += '</tr >';
+            html += '<tr height="25"> ';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">防洪<br/>高水位</td>';
+            html += '<td style="text-align:center;"> <strong>' + o.FHGZ.toFixed(2) + '</strong></td>';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">防洪库容</td>';
+            html += '<td style="text-align:center;"> <strong>' + o.FHKR + '</strong></td>';
+            html += '</tr >';
+
+            html += '<tr height="25"> ';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">死水位</td>';
+            html += '<td style="text-align:center;"> <strong>' + o.SZ.toFixed(2) + '</strong></td>';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">死库容</td>';
+            html += '<td style="text-align:center;"> <strong>' + o.SKR + '</strong></td>';
+            html += '</tr >';
+
+            
+            html += '<tr height="25"> ';
+            html += '<td style="text-align:center;background-color:#F5FAFE;">正常蓄水位</td>';
+            html += '<td style="text-align:center;"> <strong>' + o.ZCXZ.toFixed(2) + '</strong></td>';
+            html += '<td rowspan="' + rows+'" style="text-align:center;background-color:#F5FAFE;">兴利库容</td>';
+            html += '<td rowspan="' + rows + '" style="text-align:center;"> <strong>' + o.XLKR + '</strong></td>';
+            html += '</tr >';
+
+            html += strTemp;
+
+            $("#myTable").html(html);
+        }
+
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            if (field == "TM") {
+                e.cellHtml = new Date(convertToDate(value)).format("MM-dd HH:mm");
+            }
+        }
+
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var field = e.field;
+            var grid = e.sender;
+            var rows = e.data;
+            //服务端汇总计算 
+            if (field == "RQ") {
+                var rq = 0;
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+                    rq+=row.RQ;
+                }
+                var rows = e.data;
+                var s = "<span>";
+                s += "<div  style='text-align:center;font-size:13px;'>" + (rq * 0.36).toFixed(1) + "</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+            if (field == "CQ") {
+                var cq = 0;
+                for (var i = 0, l = rows.length; i < l; i++) {
+                    var row = rows[i];
+                    cq += row.CQ;
+                }
+                var s = "<span>";
+                s += "<div style='text-align:center;font-size:13px;'>" + (cq * 0.36).toFixed(1) +"</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+            if (field == "TM") {
+                var s = "<div style='text-align:center;font-size:13px;'>出入库洪量(万方)</div>";
+                e.cellHtml = s;
+            }
+        }
+
+
+        /* 水位、流量
+* ChartName画图控件名称
+* dataS数据对象，数据格式json
+* strNote数据说明，数据类型数组，数据格式
+* json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示
+*/
+        function chartSWLL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var max_Name = "";
+            if (max_min_Name != "降雨量") {
+                max_Name = "流量（m³/s）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+            var ShowSelected = {};
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(new Date(convertToDate(value[value1.codename])).format("MM-dd HH:mm")); //加入时间集合
+                    }
+                    else {
+                        if (value[value1.codename] != undefined) {
+                            chartValue.push(value[value1.codename]);
+                        }
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    },
+                    selected: ShowSelected
+                },
+                grid: {
+                    left: '2%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '10%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }, axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '水位(m)',
+                        boundaryGap: false,
+                        scale: true, //是否自动计算最大最小值。
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        },
+                        min: function (value) {
+                            
+                                return value.min -3;
+                            
+                        },
+                        max: function (value) {
+                            return value.max + 5;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        }
+                    },
+                    {
+                        name: max_Name,
+                        type: 'value',
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        },
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            //chartValue.push(changeTwoDecimal(m[i][j], 2)); //循环价值
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+
+                        if (chartName[j] == "入流" || chartName[j] == "出流" || chartName[j] == "蓄水量") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                symbol: 'none',  //这句就是去掉点的
+                                smooth: true,  //这句就是让曲线变平滑的
+                                data: chartValue,
+                                yAxisIndex: 1,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                symbol: 'none',  //这句就是去掉点的
+                                smooth: true,  //这句就是让曲线变平滑的
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+
+
+            
+            myChart.on('legendselectchanged', function (obj) {
+                var selected = obj.selected;
+                var legend = obj.name;
+                var b = selected[legend];//判断是选中还是取消
+                var color = "#FFFFFF";
+                var name = "流量(m³/s)";
+                var selecteds = { 时间: false, 库水位: true, 入流: true, 出流: true, 蓄水量: false };
+                if (legend == "蓄水量") {
+                    selecteds = { 时间: false, 库水位: true, 入流: false, 出流: false, 蓄水量: true };
+                    name = "蓄水量(万方)";
+                    color = "red";
+                }
+                if (legend == "出流" || legend == "入流") {
+                    selecteds = { 时间: false, 库水位: true, 入流: true, 出流: true, 蓄水量: false };
+                    name = "流量(m³/s)";
+                }
+
+                if (b) {
+                    option.legend.selected = selecteds;
+                    option.yAxis[1].name = name;
+                    //option.yAxis[1].textStyle.color = color;
+                    myChart.setOption(option);
+                }
+            });
+            
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

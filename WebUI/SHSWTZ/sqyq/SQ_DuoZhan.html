@@ -1,0 +1,728 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+
+    <script src="/Common/Scripts/poulic_charts.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        .classColor {
+            font-size: 14px;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .classColor {
+            font-size: 14px;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .mini-grid-summaryCell {
+            line-height: 35px;
+            text-align: center;
+            color: #FF0000;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            text-align: center;
+            white-space: pre-wrap !important;
+        }
+    </style>
+    <style type="text/css">
+        .allocate_show {
+            background: #f9f9f9;
+            /*padding-bottom: 20px;*/
+            padding-left: 20px;
+        }
+
+        .btn-allocate.btn-tick {
+            background: url(/Common/images/theme-one-bg.png) no-repeat;
+            background-position: right bottom;
+            border: 1px solid #048fff;
+            color: #666;
+            border-radius: 6px;
+        }
+
+        .btn-allocate {
+            padding: 5px 15px;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        button {
+            cursor: pointer;
+            outline: none !important;
+        }
+
+        .allocate_show_title {
+            font-size: 14px;
+            /*height: 40px;*/
+            line-height: 0px;
+            margin-bottom: 5px;
+        }
+
+        .mini-grid-rows-view {
+            overflow: auto;
+        }
+        .mini-toolbar {
+            position: relative;
+            border: solid 1px #c0c6ce;
+            background: #ffffff;
+            margin-bottom: 2px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="contentbody">
+
+    <div showcollapsebutton="true" style="width: 100%; height: 100%;background:white;">
+        <div style="width:200px;float:left;height:100%;">
+            <div style="height:50px;line-height:50px;text-align:center;">
+                <input id="key" class="mini-textbox" style="width:120px;" />
+                <a class="mini-button" style="width:60px;" onclick="treeSel()">查询</a>
+            </div>
+
+            <ul id="tree1" class="mini-tree" style="width:100%;height: -webkit-calc(100% - 70px);height: -moz-calc(100% - 70px);height: calc(100% - 70px);padding:5px;"
+                showTreeIcon="true" textField="STNM" expandOnLoad="0" allowDrag="true" allowDrop="true" allowLeafDropIn="true"
+                idField="STCD" parentField="PID" resultAsTree="false" onnodecheck="onSelectNode" allowSelect="true" showCheckBox="true" autoCheckParent="true"></ul>
+        </div>
+
+        <div style="width:calc(100% - 200px);float:left;height:100%;">
+            <div class="mini-toolbar" style="padding-top: 5px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 85%;">
+                            &nbsp;&nbsp;
+                            <span style="float:left;">
+                                开始日期：<input id="stime" class="mini-datepicker" style="width:180px;" format="yyyy-MM-dd HH:mm:ss" timeFormat="HH:mm" showTime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                                结束日期：<input id="etime" class="mini-datepicker" style="width:180px;" format="yyyy-MM-dd HH:mm:ss" timeFormat="HH:mm" showTime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                                <input type="hidden" id="HidType" />
+                            </span>
+
+                            <span id="rbl" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical" style="float:left;display:none;"
+                                  textField="text" valueField="id" value="Minute" data="[{'id':'Minute','text':'实时'},{'id':'HOUR','text':'小时'},{'id':'DAY','text':'日'}]"></span>
+                            
+                            <span>
+                                <a id="searchbtn" class="mini-button" onclick="search()">统计</a>
+                                <a id="expButton" class="mini-button" onclick="Exp()" style="display:none;">导出</a>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="bootstrap-switch ">
+                                <div class="bootstrap-switch-container">
+                                    <!--<span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit0')" id="switch0"><i class="fa fa-adjust"></i></span>-->
+                                    <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
+                                    <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i class="fa fa-table"></i></span>
+                                </div>
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <div class="allocate_show">
+                                <h4 class="allocate_show_title" style="float:left;width:100px;">站点：(<span style="color:blue;cursor:pointer;" onclick="clearSTCDAll()">清空</span>)</h4>
+                                <div style="float:left;width: calc(100% - 100px);" class="allocate_list" id="show_spec"></div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 38px);height: -moz-calc(100% - 38px);height: calc(100% - 4px);">
+
+                <div id="fit1" class="fit" style="float:left;width:100%;height:100%;">
+                    <div style="width:100%;height:90%;min-height:700px; margin:0 auto;" id="Chart">
+
+                    </div>
+                </div>
+
+                <div id="fit2" class="fit" style="height:100%;float:left;width:100%;">
+                    <div id="grid1" class="mini-datagrid" style="width:100%;height: -webkit-calc(100% - 10px);height: -moz-calc(100% - 10px);height: calc(100% - 10px);" allowAlternating="true" showEmptyText="无数据" showSummaryRow="true" allowResize="true" ondrawsummarycell="onDrawSummaryCell" showpager="false" summaryPosition="bottom"
+                         borderStyle="border-right:0;" idField="STCD" sortMode="client" sizeList="[15,20,30,50]" pageSize="15" ondrawcell="ondrawcell">
+                        <div property="columns">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        var myData = [];
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        var treeID = GetQueryString("TREEID");
+        if (treeID == null) {
+            treeID = "2019061410110012846";
+        }
+        var tree = mini.get("tree1");
+        var dtSTCD = [];
+        onload = function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            $("#fit2").hide();
+            //初始化事件控件
+            var Now = new Date();
+            mini.get("stime").setValue(addDayDate(Now.format("yyyy-MM-dd"), -1) + " 08:00:00");
+            mini.get("etime").setValue(Now.format("yyyy-MM-dd HH:mm"));
+            var data = [
+                { STCD: "1170181", STNM: "吴淞口" },
+                { STCD: "2060881", STNM: "黄浦公园" },
+                //{ STCD: "63401400", STNM:"吴泾"},
+                { STCD: "1460281", STNM: "米市渡" },
+                //{ STCD: "1460481", STNM: "夏字圩" },
+                //{ STCD: "1360581", STNM: "河祝" },
+                { STCD: "1850281", STNM: "芦潮港" },
+                { STCD: "1970281", STNM: "金山嘴" },
+                { STCD: "1680281", STNM: "高桥" },
+                //{ STCD: "1050181", STNM: "堡镇" },
+            ];
+            var dataResult = { data: data };
+            JosnSel(dataResult,"QUSel");
+        }
+        function onSelectNode(e) {
+            if (e.isLeaf == true) {
+                //单站
+                var node = e.node;
+                if (e.node) {
+                    var strPID = e.node.PID;
+                    $.data(myData, "ID", e.node.ID);
+                    $.data(myData, "PID", strPID);
+                    if (node["checked"] == true) {
+                        dtSTCD.push(node.STCD);
+                        $("#show_spec").append("<button  class='btn-allocate btn-tick show_spec" + node.STCD + "' id='show_spec" + node.STCD + "'>" + node.STNM + "</button>")
+                    } else {
+                        if (dtSTCD.length > 0) {
+                            dtSTCD.removeValue(node.STCD);
+                        }
+                        $("#show_spec" + node.STCD).remove();
+                    }
+
+                }
+            } else {
+                var nodes = e.node.children;
+                 if (nodes.length > 0) {
+                    for (num = 0; num < nodes.length; num++) {
+                        if (nodes[num]["checked"] == true) {
+                            dtSTCD.push(nodes[num].STCD);
+                            $("#show_spec").append("<button  class='btn-allocate btn-tick show_spec" + nodes[num].STCD + "' id='show_spec" + nodes[num].STCD + "'>" + nodes[num].STNM + "</button>")
+                        } else {
+                            if (dtSTCD.length > 0) {
+                                try {
+                                    dtSTCD.removeValue(nodes[num].STCD);
+                                } catch (err) {
+                                }
+
+                            }
+                            $("#show_spec" + nodes[num].STCD).remove();
+                        }
+                    }
+                }
+
+            }
+
+            btnTick();
+            search();
+        }
+        function clearSTCDAll() {
+            $("#show_spec").html("");
+            dtSTCD = [];
+            tree.uncheckAllNodes();
+            search();
+        }
+        function btnTick() {
+            $(".btn-tick").click(function (res) {
+                var _stcd = res.target.id;
+                if ($("#show_spec button").hasClass(_stcd)) {
+                    $("#" + _stcd).remove();
+
+                    _stcd = _stcd.replaceAll("show_spec", "");
+                    var nodes = tree.findNodes(function (node) {
+                        if (node.STCD == _stcd) return true;
+                    });
+                    tree.uncheckNodes(nodes);
+                    if (dtSTCD.length > 0) {
+                        dtSTCD.removeValue(_stcd);
+                    }
+                }
+                search();
+            })
+
+        }
+
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            if (objID == "switch0") {
+                $("#fit1").css("width", "50%");
+                $("#fit2").css("width", "50%");
+                $("#Chart").css("width", "550px");
+                alert(objID)
+                //chartSW("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "水位");
+                $(".fit").hide();
+                $("#fit1").show();
+                $("#fit2").show();
+            } else if (objID == "switch1") {
+                $("#" + objFit).css("width", "100%");
+                //chartSW("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "水位");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            } else {
+                $("#" + objFit).css("width", "100%");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            }
+            search();
+        }
+
+
+        function JosnSel(data, typeID) {
+            if (typeID == "QUSel") {
+                $.data(myData, "result", data.data);
+                var dt = [];
+                var tempData = groupBy(data.data, "SOURCE");
+                if (tempData.length > 0) {
+                    for (num = 0; num < tempData.length; num++) {
+                        var strWhere = {};
+                        var strID = generateUUID();
+                        //strWhere["STCD"] = strID;
+                        //strWhere["PID"] = -1;
+                        //strWhere["STNM"] = tempData[num][0]["SOURCE"];
+                        //dt.push(strWhere);
+
+                        var allJson = tempData[num];
+                        if (allJson.length > 0) {
+                            for (II = 0; II < allJson.length; II++) {
+                                var strJson = allJson[II];
+                                strWhere = {};
+                                strWhere["STCD"] = strJson.STCD;
+                                strWhere["PID"] = strID;
+                                strWhere["STNM"] = strJson.STNM;
+                                var tempSTCD = ["1170181","2060881", "1460281", "1850281"];
+                                if (tempSTCD.contains(strWhere["STCD"])) {
+                                    strWhere["checked"] = "true";
+                                    dtSTCD.push(strWhere["STCD"]);
+                                    $("#show_spec").append("<button  class='btn-allocate btn-tick show_spec" + strWhere["STCD"] + "' id='show_spec" + strWhere["STCD"] + "'>" + strWhere["STNM"] + "</button>")
+                                }
+                                dt.push(strWhere);
+                            }
+                        }
+
+                    }
+                }
+                tree.loadList(dt, "STCD", "PID");
+                btnTick();
+                search();
+            } 
+			else if (typeID == "Sel") {
+                var columns = [];
+                columns.push({ type: "indexcolumn", header: "序号", headerAlign: 'center', align: 'center', width: 50 });
+                columns.push({ field: 'TM', width: 150, header: '时间', headerAlign: 'center', align: 'center', dateFormat: 'yyyy-MM-dd HH:mm:ss' });
+                var strNote = [];
+                if (mini.get("rbl").getValue() == "DAY") {
+                    strNote.push({ "name": "时间", "codename": "TM", "tableV": "yyyy-MM-dd", "isShow": true, "width": "40%" });
+                } else if (mini.get("rbl").getValue() == "HOUR") {
+                    strNote.push({ "name": "时间", "codename": "TM", "tableV": "MM-dd HH:mm", "isShow": true, "width": "40%" });
+
+                } else {
+                    strNote.push({ "name": "时间", "codename": "TM", "tableV": "yyyy-MM-dd HH:mm:ss", "isShow": true, "width": "40%" });
+                }
+                var AggName = $.data(myData, "WATER_ST_STBPRP_B_QU");
+                if (AggName != undefined) {
+                    if (AggName.length > 0) {
+                        var valuNum = 0;
+                        for (num = 0; num < AggName.length; num++) {
+                            columns.push({ field: "UPZ" + AggName[valuNum].STCD, header: AggName[num].STNM, headerAlign: 'center', align: 'center', autoescape: true });
+                            if (num == AggName.length - 1) {
+                                strNote.push({ "name": AggName[num].STNM, "codename": "UPZ" + AggName[valuNum].STCD, "tableV": "1", "isShow": true, "width": "30%", "summaryType": "max" });
+                            } else {
+                                strNote.push({ "name": AggName[num].STNM, "codename": "UPZ" + AggName[valuNum].STCD, "tableV": "1", "isShow": true, "width": "30%", "summaryType": "max" });
+                            }
+                            valuNum++;
+                        }
+                    }
+                    grid.set({ columns: columns });
+                    grid.frozenColumns(0, 1);
+                }
+
+
+                var myDataBin = [];
+                if (data.data.length > 0) {
+                    var strJson = data.data;
+                    var TMData = unique(strJson, "TIME");
+                    for (II = 0; II < TMData.length; II++) {
+                        var arr = { TM: TMData[II].TIME };
+                        for (num = 0; num < AggName.length; num++) {
+                            var stcdValue = AggName[num].STCD;
+                            var node = strJson.filter(function (e) {
+                                return (e.ZSTCD == stcdValue && e.TIME == TMData[II].TIME);
+                            });
+                            var tempValue = null;
+                            if (node.length > 0) {
+                                if (node[0].UPZ != "" && node[0].UPZ != null) {
+                                    tempValue = Number(Number(node[0].UPZ).toFixed(2));
+                                }
+                            }
+
+                            arr["UPZ" + stcdValue] = tempValue;
+
+                        }
+                        myDataBin.push(arr);
+                    }
+                }
+				
+				//console.error(myDataBin);
+                if (myDataBin.length > 0) {
+                    for (num = 0; num < AggName.length; num++) {
+                        var _avg = 0,_avgCount=0;
+                        var _maxData = -99999, maxTM;
+                        var _minData = 99999, minTM;
+                        var item = "UPZ" + AggName[num].STCD;
+                        for (II = 0; II < myDataBin.length; II++) {
+
+                            var tempData = myDataBin[II][item];
+                            var tempTM = myDataBin[II].TM;
+                            if (tempData != null && tempData != undefined && tempData != "NaN") {
+                                tempData = Number(tempData);
+                            } else {
+                                tempData = 0;
+                            }
+if(tempData>0){
+     _avg += tempData;
+	 _avgCount++;
+}
+
+                            var tempSTM = mini.get("stime").getFormValue() + ":00";
+                            var tempETM = mini.get("etime").getFormValue() + ":59";
+                            var date3 = new Date(tempETM).getTime() - new Date(tempSTM).getTime();
+                            var leave1 = date3 / (3600 * 1000);
+
+ var rbl = mini.get("rbl").getValue();
+
+
+                            if (_maxData < tempData) {
+                                _maxData = tempData;
+                                if (leave1 > 168) {
+                                    //maxTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    if (rbl == "HOUR") {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd HH:mm");
+                                    } else if (rbl == "DAY") {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    } else {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                } else if (leave1 > 24) {
+                                    //maxTM = new Date(tempTM).format("MM-dd HH");
+                                    if (rbl == "HOUR") {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd HH:mm");
+                                    } else if (rbl == "DAY") {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    } else {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                } else {
+                                    //maxTM = new Date(tempTM).format("MM-dd HH:mm");
+                                    if (rbl == "HOUR") {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd HH:mm");
+                                    } else if (rbl == "DAY") {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    } else {
+                                        maxTM = new Date(tempTM).format("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                }
+                            }
+                            if (_minData > tempData) {
+                                _minData = tempData;
+                                if (leave1 > 168) {
+                                    //minTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    if (rbl == "HOUR") {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd HH:mm");
+                                    } else if (rbl == "DAY") {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    } else {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                } else if (leave1 > 24) {
+                                    //minTM = new Date(tempTM).format("MM-dd HH");
+                                    if (rbl == "HOUR") {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd HH:mm");
+                                    } else if (rbl == "DAY") {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    } else {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                } else {
+                                    //minTM = new Date(tempTM).format("MM-dd HH:mm");
+                                    if (rbl == "HOUR") {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd HH:mm");
+                                    } else if (rbl == "DAY") {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd");
+                                    } else {
+                                        minTM = new Date(tempTM).format("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                }
+                            }
+                            /*if (_maxData < tempData) {
+                                _maxData = tempData;
+                                if (leave1 > 168) {
+                                    maxTM = new Date(tempTM).format("yyyy-MM-dd");
+                                } else if (leave1 > 24) {
+                                    maxTM = new Date(tempTM).format("MM-dd HH");
+                                } else {
+                                    maxTM = new Date(tempTM).format("MM-dd HH:mm");
+                                }
+                            }
+                            if (_minData > tempData) {
+                                _minData = tempData;
+                                if (leave1 > 168) {
+                                    minTM = new Date(tempTM).format("yyyy-MM-dd");
+                                } else if (leave1 > 24) {
+                                    minTM = new Date(tempTM).format("MM-dd HH");
+                                } else {
+                                    minTM = new Date(tempTM).format("MM-dd HH:mm");
+                                }
+                            }*/
+                        }
+                        var tempAVG = (_avg / _avgCount).toFixed(2);
+                        var tempSum = _avg.toFixed(2);
+                        $.data(myData, "SUM" + item, tempSum);
+                        $.data(myData, "AVG" + item, tempAVG);
+                        $.data(myData, "MAX" + item, _maxData);
+                        $.data(myData, "MAXTM" + item, maxTM);
+                        $.data(myData, "MIN" + item, _minData);
+                        $.data(myData, "MINTM" + item, minTM);
+
+                    }
+                }
+                var BinData = "{\"data\": " + JSON.stringify(myDataBin) + ", \"total\": " + myDataBin.length + "}";
+
+                dataResult = mini.decode(BinData);
+                grid.setData(dataResult.data);
+                //fillData(0, grid.getPageSize(), dataResult, grid);
+                //grid.setData(myDataBin);
+
+                var objArrg = sortObjectArray(myDataBin, ['TM'], 'asc');
+
+                //绘制过程线颜色设置
+                //var LineColor = ['#0000FF', '#00FF00', '#FFA500'];
+                var LineColor = ['#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"];
+                LineColor = ['#0000FF', '#FF00FF', '#00FFFF', '#FFFF00', '#000000', '#70DB93', '#5C3317', '#9F5F9F', '#B5A642', '#D9D919', '#A67D3D', '#8C7853', '#A67D3D', '#5F9F9F', '#D98719', '#B87333', '#FF7F00', '#42426F', '#5C4033', '#2F4F2F', '#4A766E', '#4F4F2F', '#9932CD', '#871F78', '#6B238E', '#2F4F4F', '#97694F', '#7093DB', '#855E42', '#545454', '#545454', '#D19275', '#8E2323', '#238E23', '#CD7F32', '#DBDB70', '#C0C0C0', '#527F76', '#93DB70', '#215E21', '#4E2F2F', '#9F9F5F', '#C0D9D9', '#A8A8A8', '#8F8FBD', '#E9C2A6', '#32CD32', '#E47833', '#8E236B', '#32CD99', '#3232CD', '#6B8E23', '#EAEAAE', '#9370DB', '#426F42', '#7F00FF', '#7FFF00', '#70DBDB', '#DB7093', '#A68064', '#2F2F4F', '#23238E', '#4D4DFF', '#FF6EC7', '#00009C', '#EBC79E', '#CFB53B', '#FF7F00', '#FF2400', '#DB70DB', '#8FBC8F', '#BC8F8F', '#EAADEA', '#D9D9F3', '#5959AB', '#6F4242', '#BC1717', '#238E68', '#6B4226', '#8E6B23', '#E6E8FA', '#3299CC', '#007FFF', '#FF1CAE', '#00FF7F', '#236B8E', '#38B0DE', '#DB9370', '#D8BFD8', '#ADEAEA', '#5C4033', '#CDCDCD', '#4F2F4F', '#CC3299', '#D8D8BF', '#99CC32'];
+                LineColor = ["#FF0282", "#FF8141", "#8202FF", "#800101", "#818101", "#008100", "#008181", "#000181", "#810881", "#800080", "#00FF00"];
+                //LineColor = [ "#FF0080", "#FF8080", "#8000FF", "#800000", "#808000", "#008000", "#008080", "#000080", "#800080", "#00FF00" ];
+                LineColor = ["#FF8040", "#FF0080", "#FF8040", "#8000FF", "#800000", "#808000", "#008000", "#008080", "#000080", "#800080", "#00FF00"];
+                LineColor = ["#0000FE", "#E80000", "#00FF00", "#CBA864", "#8000FF", "#800000", "#FF00FF", "#DB7093", "#008080", "#38B0DE", "#CC3299", "#99CC32", '#00FFFF', '#FFFF00', '#000000', '#70DB93', '#5C3317', '#9F5F9F', '#B5A642', '#D9D919', '#A67D3D', '#8C7853', '#A67D3D', '#5F9F9F', '#D98719', '#B87333', '#FF7F00', '#42426F', '#5C4033', '#2F4F2F', '#4A766E', '#4F4F2F', '#9932CD', '#871F78', '#6B238E', '#2F4F4F', '#97694F', '#7093DB', '#855E42', '#545454', '#545454', '#D19275', '#8E2323', '#238E23', '#CD7F32', '#DBDB70', '#C0C0C0', '#527F76', '#93DB70', '#215E21', '#4E2F2F', '#9F9F5F', '#C0D9D9', '#A8A8A8', '#8F8FBD', '#E9C2A6', '#32CD32', '#E47833', '#8E236B', '#32CD99', '#3232CD', '#6B8E23', '#EAEAAE', '#9370DB', '#426F42', '#7F00FF', '#7FFF00', '#70DBDB', '#DB7093', '#A68064', '#2F2F4F', '#23238E', '#4D4DFF', '#FF6EC7', '#00009C'];
+
+                $.data(myData, "jsonData", objArrg);
+                $.data(myData, "strNote",  strNote);
+                $.data(myData, "LineColor", LineColor);
+                ////绘制图形
+                chartSW("Chart", objArrg, strNote, LineColor, "水位");
+
+                mini.unmask(document.body);
+            }
+
+        }
+
+
+
+        function Exp() {
+            var name = "多站水情对比";
+			var columns = grid.columns;
+                var datas = grid.getData();
+            ExportExcel(name,columns,datas);
+        }
+        //刷新
+        function refresh() {
+            search();
+        }
+        // 获取所有数据和总记录数 { total: 100, data: [...] }
+        var dataResult = null;
+
+        function search() {
+            var Startime = mini.get("stime").getFormValue();
+            var Endtime = mini.get("etime").getFormValue();
+            if (Startime > Endtime) {
+                mini.alert("请确认起止日期次序是否正确（中止日期至少是起始日期的次日）！");
+                return false;
+            }
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var tempSTCD = dtSTCD.toString();
+            var tempTree = $.data(myData, "result").filter(function (e) {
+                return dtSTCD.contains(e.STCD);
+            });
+            $.data(myData, "WATER_ST_STBPRP_B_QU", tempTree);
+            //if (tempTree.length > 0) {
+            //    for (num = 0; num < tempTree.length; num++) {
+            //        tempSTCD += tempTree[num].STCD + ",";
+            //    }
+            //}
+            $.data(myData, "STCD", tempSTCD);
+            var strWhere = { STIME: Startime, ETIME: Endtime, STCD: $.data(myData, "STCD"), "DAY": mini.get("rbl").getValue() }
+            GetJosns("DT_SQDUOZHANLISTSel", strWhere, "Sel");
+        }
+
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+        //鼠标移动上去的提示信息。
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+
+            //超链接任务
+            //            if (field == "RC_NAME") {
+            //                var s = '<a title="' + value + '" href="javascript:lookRow(\'' + row.RC_ID + '\',\'' + row.ZT_STIME + '\',\'' + row.ZT_ETIME + '\',\'' + row.ZT_TYPE + '\')">' + value + '</a>';
+            //                e.cellHtml = s;
+            //            }
+            if (field == "TM") {
+                var rbl = mini.get("rbl").getValue();
+                if (rbl == "HOUR") {
+                    e.cellHtml = new Date(value).format("yyyy-MM-dd HH:mm");
+                } else if (rbl == "DAY") {
+                    e.cellHtml = new Date(value).format("yyyy-MM-dd");
+                } else {
+                    e.cellHtml = new Date(value).format("yyyy-MM-dd HH:mm:ss");
+                }
+            }
+        }
+
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var grid = e.sender;
+            //服务端汇总计算
+            if (e.field == "TM") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:#18CF5D;'>平均值</div>";
+                s += "<div class='classColor' style='color:#FF0000;'>最大值</div>";
+                s += "<div class='classColor' style='color:#FF0000;'>最大时间</div>";
+                s += "<div class='classColor' style='color:black;'>最小值</div>";
+                s += "<div class='classColor' style='color:black;'>最小时间</div>";
+                s += "</span>";
+                e.cellHtml = s;
+
+            } else if (e.field != undefined) {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:#18CF5D;'>" + $.data(myData, "AVG" + e.field) + " </div>";
+                s += "<div class='classColor' style='color:#FF0000;'>" + $.data(myData, "MAX" + e.field) + " </div>";
+                s += "<div class='classColor' style='color:#FF0000;'> " + $.data(myData, "MAXTM" + e.field) + "</div>";
+                s += "<div class='classColor' style='color:black;'>" + $.data(myData, "MIN" + e.field) + "</div>";
+                s += "<div class='classColor' style='color:black;'>" + $.data(myData, "MINTM" + e.field) + "</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+        }
+
+
+        function onBeforeNodeCheck(e) {
+            var tree = e.sender;
+            var node = e.node;
+            if (tree.hasChildren(node)) {
+                //e.cancel = true;
+            }
+        }
+
+        function onChart(xval, yval) {
+            $('#Chart').highcharts({
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: '多站水情对比分析'
+                },
+                exporting: {
+                    enabled: false //用来设置是否显示‘打印’,'导出'等功能按钮，不设置时默认为显示
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: eval(xval),
+                    crosshair: true
+                },
+                yAxis: {
+                    min: 3,
+                    tickInterval: 0.2,
+                    title: {
+                        text: '水位 (m)'
+                    }
+                },
+                legend: {
+                    verticalAlign: 'top',
+                    y: 20
+                },
+                tooltip: {
+                    headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                    pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                        '<td style="padding:0"><b>{point.y:.1f} m</b></td></tr>',
+                    footerFormat: '</table>',
+                    shared: true,
+                    useHTML: true
+                },
+                plotOptions: {
+                    series: {
+                        marker: {
+                            //enabled: false//无点
+                            radius: 3,  //曲线点半径，默认是4
+                            symbol: 'diamond' //曲线点类型："circle", "square", "diamond", "triangle","triangle-down"，默认是"circle"
+
+                        }
+                    },
+                    column: {
+                        pointPadding: 0.2,
+                        borderWidth: 0
+                    }
+                },
+                series: eval(yval)
+            });
+        }
+
+
+        function treeSel() {
+            var key = mini.get("key").getValue();
+            if (key == "") {
+                tree.clearFilter();
+            } else {
+                key = key.toLowerCase();
+                tree.filter(function (node) {
+                    var text = node.STNM ? node.STNM.toLowerCase() : "";
+                    if (text.indexOf(key) != -1) {
+                        return true;
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

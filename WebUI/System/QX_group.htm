@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>用户组管理</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <table style="width:100%;">
+                <tr>
+                    <td style="width:60px; font-size:14px;" align="right">
+                        关键字：
+                    </td>
+                    <td style="width:160px;">
+                        <input id="key" class="edittext DivSpan150" style="height:25px;" emptytext="请输入关键字" />
+                    </td>
+                    <td align="left">
+                        <a class="mini-button" onclick="search()">查询</a>
+                        <span class="separator"></span>
+                        <a class="mini-button" id="addbtn" onclick="addRow()">增加</a>
+                        <span class="separator"></span>
+                        <a class="mini-button" id="savebtn" onclick="saveData()">保存</a>
+                    </td> 
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="datagrid1" class="mini-datagrid" style="width:100%;margin-top:1px; height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);"
+         allowcellselect="true" allowcelledit="true" allowalternating="true" ondrawcell="ondrawcell" 
+         sizelist="[15,20,30,50]" pagesize="15" showemptytext="true" emptytext="暂无数据" 
+         alwaysshowemptytext="true">
+
+        <div property="columns">
+            <div field="qx_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                编号
+            </div>
+            <div field="qx_NAME" width="120" headeralign="center" align="center">
+                组名
+                <input property="editor" class="mini-textbox" style="width:100%;" />
+            </div>
+            <div field="qx_NOTE" width="150" headeralign="center" align="center">
+                备注
+                <input property="editor" class="mini-textarea" style="width:100%;" />
+            </div>
+            <div name="action" width="120" headeralign="center" align="center" allowsort="true" renderer="onActionRenderer">基础操作</div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    mini.parse();
+
+    var grid = mini.get("datagrid1");
+    //  grid.load();
+    window.onload = function () {
+        search();
+    }
+    var dataResult;
+    //查询
+    function search() {
+        var strWhere = { stcd: "", kwtxt: GetObj("key").value };
+        //GetJosns("DATA_QX_GROUPSel", strWhere, "Sel");
+		app.post("SWZZ_DATA_qx_group/findResult",strWhere,(data)=>{
+			JosnSel(data,"Sel")
+		})
+    }
+    function JosnSel(data, TYPEID) {
+        if (TYPEID == "Sel") {
+            dataResult = data;
+            fillData(0, grid.getPageSize(), dataResult, grid);
+        } else if (TYPEID == "QX_GROUPDel") {
+            alert(data.message);
+            if (data.isSuccess) {
+                search();
+            }
+        }  else if (TYPEID == "QX_GROUPUPDATE") {
+            if (data.isSuccess) {
+                search();
+            }
+        }
+    }
+    // 监听分页前事件，阻止后自行设置当前数据和分页信息
+    grid.on("beforeload", function (e) {
+        e.cancel = true;
+        var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+        fillData(pageIndex, pageSize, dataResult, grid);
+    });
+    //编辑
+    function editRow(objID) {
+        mini.open({
+            url: "System/QX_group_edit.htm",
+            title: "系统模块权限", width: "85%", height: "90%",
+            iconCls: "icon-edit",
+            onload: function () {
+                var iframe = this.getIFrameEl();
+                var data = { action: "edit", id: objID };
+                iframe.contentWindow.SetData(data);
+            },
+            ondestroy: function (action) {
+                grid.reload();
+            }
+        });
+    }
+
+    var isAdd = "";
+    //增加
+    function addRow() {
+        isAdd = "add";
+        var newRow = { name: "New Row" };
+        grid.addRow(newRow, 0);
+        grid.beginEditRow(newRow);
+    }
+
+
+    //删除
+    function removeRow(objID) {
+        mini.confirm("确定删除记录？", "确定？",
+            function (action) {
+                if (action == "ok") {
+                    grid.loading("执行删除中，请稍后......");
+                    var strWhere = { stcd: objID };
+                    //GetJosns("DATA_QX_GROUPDel", strWhere, "QX_GROUPDel");
+					app.post("SWZZ_DATA_qx_group/remove",strWhere,(data)=>{
+						JosnSel(data,"QX_GROUPDel")
+					})
+                }
+                else {
+                    //alert("不删除!");
+                }
+            }
+        );
+    }
+
+    //保存
+    var AddQX_NAME = "", AddQX_NOTE = "";
+    function saveData() {
+        grid.commitEdit();
+
+        var data = grid.getChanges();
+        var json = mini.encode(data);
+        if (json == "[]") {
+            mini.alert("没有可以保存的数据！");
+            return;
+        }
+        grid.loading("保存中，请稍后......");
+        var obj = eval('(' + json + ')');
+        if (obj.length > 0) {
+            for (i = 0; i < obj.length; i++) {
+                var STATE = obj[i]._state;
+                if (STATE == "added") { 
+                    try {
+                        AddQX_NAME = obj[i].qx_NAME;
+                        AddQX_NOTE = obj[i].qx_NOTE;
+                    } catch (ex) { }
+                    var strWhere = { qx_ID: GetTableID(), qx_NAME: AddQX_NAME, qx_NOTE: AddQX_NOTE };
+                    //GetJosns("DATA_QX_GROUPAdd", strWhere, "QX_GROUPUPDATE");
+					app.post("SWZZ_DATA_qx_group/add",strWhere,(data)=>{
+						JosnSel(data,"QX_GROUPUPDATE");
+					})
+                } else {
+                    var _ID = obj[i].qx_ID;
+                    var _NAME = obj[i].qx_NAME;
+                    var _NOTE = obj[i].qx_NOTE;
+                    var strWhere = { qx_ID: _ID, qx_NAME: _NAME, qx_NOTE: _NOTE };
+                    //GetJosns("DATA_QX_GROUPUpdate", strWhere, "QX_GROUPUPDATE");
+					app.post("SWZZ_DATA_qx_group/modify",strWhere,(data)=>{
+						JosnSel(data,"QX_GROUPUPDATE");
+					})
+                }
+            }
+
+        }
+
+    }
+    //鼠标移动上去的提示信息。
+    function ondrawcell(e) {
+        var row = e.row,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+
+        //超链接任务
+        //if (field == "QX_ID") {
+        //    var s = '<a title="' + value + '" style="color:blue" href="javascript:editRow(\'' + row.QX_ID + '\')">' + value + '</a>';
+        //    e.cellHtml = s;
+        //}
+    }
+    //==加上编辑列代码
+    function onActionRenderer(e) {
+        var grid = e.sender;
+        var record = e.record;
+        var uid = record._uid;
+        var rowIndex = e.rowIndex;
+
+        var s = ' <img style="cursor:pointer;" onclick="editRow(\'' + record.qx_ID + '\')" src="../Common/miniui/themes/icons/user.png" title="授权" />&nbsp;';
+        s += ' <img style="cursor:pointer;" onclick="removeRow(\'' + record.qx_ID + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+
+        return s;
+    }
+</script>
+
+</body>
+</html>
+

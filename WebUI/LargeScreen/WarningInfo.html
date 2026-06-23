@@ -1,0 +1,300 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>预警响应</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="../Common/CSS/danzhanSQLine.css">
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /*overflow: hidden;*/
+            font-size: 12px;
+        }
+
+        .lie1 {
+            background: rgba(216,234,252,0) !important;
+            text-align: right;
+            color: #00A3FF;
+            width: 20%;
+            font-size: 16px;
+        }
+
+        .lie2 {
+            text-align: left;
+            font-size: 14px;
+            padding: 10px;
+            width: 80% !important;
+        }
+
+        .mini-textbox-border {
+            border: solid 1px #02384d;
+        }
+
+
+        .mini-textbox-input {
+            cursor: text;
+            color: rgba(255,255,255,0.80);
+            background: rgba(3,23,31,1);
+            width: 100%;
+            line-height: 26px;
+            font-family: Verdana;
+            font-size: 16px;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            outline: none;
+        }
+
+        .mini-required .mini-textbox-border, .mini-required .mini-buttonedit-border {
+            background: rgba(3,23,31,1);
+            border: 1px solid rgba(255,255,255,0.30);
+        }
+
+
+
+        .table > thead > tr > th {
+            line-height: 1.42857;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+            vertical-align: top;
+            border: 1px solid rgba(235,235,235,0.3);
+            background-color: rgba(3,23,31,1);
+            color: #00A3FF;
+        }
+
+        .table-bordered tr th, .table-bordered tr td, .table-bordered tbody tr td {
+            border: 0px;
+            line-height: 1.42857;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+            background-color: rgba(3,23,31,1);
+            border: 1px solid rgba(235,235,235,0.3);
+        }
+
+    </style>
+</head>
+
+<body class="contentbody" style="background-color: rgba(3,23,31,1);">
+
+    <div class="mini-toolbar" style="padding-top: 3px; text-align:center;display:none;">
+        <div class="bootstrap-switch" style="border:0px;">
+            <div class="bootstrap-switch-container">
+                <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1">
+                    暴雨预警
+                </span>
+                <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2">
+                    台风预警
+                </span>
+                <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit3')" id="switch3">
+                    防汛防台响应
+                </span>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:1px;padding:30px 15px 0px 20px;border:0px; background: rgba(3,23,31,1);    height: 355px;">
+        <div id="checklist">
+
+        </div>
+    </div>
+    <div id="form1" style="text-align: center;background: rgba(3,23,31,1);">
+        <table cellspacing='0' cellpadding='0' border='0' class="table2" id='GridView1'
+               style=' background-color: rgba(3,23,31,1); width: 95%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <a class="mini-button" onclick="onOk" style="width:60px;margin-right:20px;">发布</a>
+                    <!-- <a class="mini-button" onclick="onCancel" style="width:60px;">取消</a> -->
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        var strID = GetQueryString("ID");
+
+        $(function () {
+            search();
+        })
+        //标准方法接口定义
+        function SetData(data) {
+            search();
+        }
+
+        function search() {
+            app.post("SWZZ_MODE_PRO_WarningInfo/findResult", {}, (data) => {
+                JosnSel(data, "Sel")
+            })
+        }
+
+        var yj_info = ["蓝色预警", "黄色预警", "橙色预警", "红色预警", "解除预警"]
+        var xy_info = ["Ⅳ", "Ⅲ", "Ⅱ", "Ⅰ",  "解除应急响应"]
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var name = "";
+                    $.data(myData, "WARNINGDATA", data.data);
+                    var strJson = groupBy(data.data, "SEASONTYPE");
+                    var Person_list = " <table class=\"table table-bordered table-striped\" style=\"color:white;background: rgba(3,23,31,1);\">";
+                    if (strJson.length > 0) {
+                        for (num = 0; num < strJson.length; num++) {
+                            var strResult = strJson[num];
+                            if (strResult.length > 0) {
+                                Person_list += "  <thead style='border: 1px solid rgba(235,235,235,0.3);'><tr> <th>" + strResult[0].SEASONTYPE + "</th></tr>";
+                                Person_list += "   <tbody><tr>";
+                                Person_list += "<td>";
+                                Person_list += "<table width=98% border=0 style=\"color:white;background: rgba(3,23,31,1);\">";
+                                // Person_list += "<tr bgcolor='#222B2F'>";
+                                Person_list += "<tr bgcolor='#03171F'>";
+                                if (strResult[0].SEASONTYPE == "台风预警" || strResult[0].SEASONTYPE == "暴雨预警") {
+                                    for (II = 0; II < yj_info.length; II++) {
+                                        var tempResult = yj_info[II];
+                                        if (tempResult == strResult[0].SEASONLEVEL) {
+                                            Person_list += "<td width='20%' style='border: 2px solid #00A3FF;'>";
+                                            Person_list += " <input id=\"Employ_" + num + "_" + II + "\" type=radio name=rd" + num + " value=\"" + tempResult + ":" + strResult[0].SEASONTYPE + "\" checked=\"true\" > " + tempResult + "";
+                                        } else {
+                                            Person_list += "<td width='20%'>";
+                                            Person_list += " <input id=\"Employ_" + num + "_" + II + "\" type=radio name=rd" + num + " value=\"" + tempResult + ":" + strResult[0].SEASONTYPE + "\"> " + tempResult + "";
+                                        }
+                                        Person_list += "</td>";
+                                    }
+                                } else {
+                                    for (II = 0; II < xy_info.length; II++) {
+                                        var tempResult = xy_info[II];
+                                        if (tempResult == strResult[0].SEASONLEVEL) {
+                                            Person_list += "<td width='20%' style='border: 2px solid #00A3FF;'>";
+                                            Person_list += " <input id=\"Employ_" + num + "_" + II + "\" type=radio name=rd" + num + " value=\"" + tempResult + ":" + strResult[0].SEASONTYPE + "\" checked=\"true\" > " + tempResult + "级响应";
+                                        } else {
+                                            Person_list += "<td width='20%'>";
+                                            Person_list += " <input id=\"Employ_" + num + "_" + II + "\" type=radio name=rd" + num + " value=\"" + tempResult + ":" + strResult[0].SEASONTYPE + "\"> " + tempResult + "级响应";
+                                        }
+                                        Person_list += "</td>";
+                                    }
+                                }
+
+                                Person_list += "</tr> ";
+                                Person_list += " </table>";
+                                Person_list += "</td>";
+                                Person_list += " </tr>";
+                                Person_list += "</tbody> ";
+                            }
+                        }
+                    }
+
+                    Person_list += " </table>";
+                    $("#checklist").html(Person_list)
+                }
+            } else if (typeID == "Add") {
+                showTips(data.Message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            }
+            mini.unmask(document.body);
+        }
+
+
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+
+        function onOk(e) {
+            //保存数据
+            //form.validate();
+            //if (form.isValid() == false)
+            //    return;
+
+            var strParams = [];
+
+            var strData = $.data(myData, "WARNINGDATA");
+            for (var i = 0; i < strData.length; i++) {
+                if (undefined != $("input[name='rd" + i + "']:checked").val()) {
+                    var strVal = $("input[name='rd" + i + "']:checked").val().split(':');
+                    if (strVal.length > 0) {
+                        var s = strData.filter(function (item) {
+                            return item.SEASONTYPE == strVal[1] && item.SEASONLEVEL == strVal[0];
+                        });
+                        if (s.length < 1) {
+                            var strParam = {};
+                            strParam["ID"] = generateUUID();
+                            strParam["CITYID"] = "2021041223544322890";
+                            strParam["CITYNAME"] = "上海市";
+                            strParam["SEASONLEVEL"] = strVal[0];
+                            strParam["STARTDATE"] = (new Date()).format('yyyy-MM-dd HH:mm:00');
+                            strParam["CREATETIME"] = (new Date()).format('yyyy-MM-dd HH:mm:ss');
+                            strParam["SEASONTYPE"] = strVal[1];
+                            strParam["OWEN"] = GetCookie("LOGINNAME");
+                            strParam["STATE"] = "1";
+                            if (strVal[0].indexOf('解除') > -1) {
+                                strParam["STATE"] = "0";
+                            }
+
+                            strParams.push(strParam);
+                        }
+                    }
+                }
+            }
+            if (strParams.length > 0) {
+                var strWhere = { UPDATE: "false", LISTMODE: JSON.stringify(strParams) }
+                GetJosns("MODE_PRO_WARNINGINFOPL", strWhere, "Add");
+            } else {
+                showTips('预警未调整,无法保存');
+            }
+
+        }
+
+
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            //$(".fit").css("display", "none");
+            //$("#" + objFit).css("display", "block");
+            if (objID == "switch0") {
+                $("#fit1").css("width", "50%");
+                $("#fit2").css("width", "50%");
+                $("#Chart").css("width", "550px");
+                alert(objID)
+                chartSW("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "水位");
+                $(".fit").hide();
+                $("#fit1").show();
+                $("#fit2").show();
+            } else if (objID == "switch1") {
+                $("#" + objFit).css("width", "100%");
+                //$("#Chart").css("width", "100%");
+                chartSW("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "水位");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            } else {
+                $("#" + objFit).css("width", "100%");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            }
+        }
+
+    </script>
+</body>
+
+</html>

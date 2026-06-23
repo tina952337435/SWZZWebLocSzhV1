@@ -1,0 +1,1194 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>年度暴雨频次对比分析</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .conrainer {
+            width: 100%;
+            position: relative;
+            height: 100%;
+        }
+
+        .type {
+            width: 100%;
+            /* height: 500px; */
+        }
+
+        .type .title {
+            height: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 20px;
+        }
+
+        .type .lx {
+            width: 55%;
+            background: white;
+        }
+
+        .type .pc {
+            width: 44%;
+            background: white;
+            position: absolute;
+            margin-left: 56%;
+            top: 0px;
+        }
+
+        .title p {
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 10px;
+            display: inline-block;
+        }
+
+        .lx {
+            margin-top: 10px;
+            width: 55%;
+            height: 600px;
+            background: white;
+        }
+
+        .count .title {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 20px;
+        }
+
+        .jb {
+            margin-top: 5px;
+            width: 44%;
+            height: 600px;
+            background: white;
+            margin-left: 56%;
+            position: absolute;
+            top: 542px;
+        }
+
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        #areaList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+
+        .yb_left {
+            float: left;
+            width: 49.75%;
+            height: 450px;
+            /*border: 1px solid #d3d3d3;*/
+            /*background: #ffffff;*/
+        }
+
+        .tqyb_right {
+            float: right;
+            width: 49.75%;
+            height: 450px;
+            /*background: #CFE4FF;*/
+        }
+
+        .mwsChart {
+            -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            background-color: #fff;
+            /*padding-left: 10px;
+            padding-right: 10px;*/
+            width: 100%;
+            height: 100%;
+        }
+
+        .textContent {
+            width: 100%;
+            height: -webkit-calc(100% - 45px);
+            height: -moz-calc(100% - 45px);
+            height: calc(100% - 45px);
+            margin: auto;
+            font-size: 15px;
+        }
+
+
+        .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+            background-color: #fff;
+        }
+
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            /*padding-top: 10px;*/
+            padding-bottom: 5px;
+            width: 100% !important;
+            display:none;
+        }
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width:70px !important;
+            height: 34px;
+            font: 14px/34px "arial";
+            text-align: center;
+        }
+
+        .onlytab li:nth-child(2) {
+            border-left: 0px;
+        }
+
+        .onlytab li:nth-child(3) {
+            border-left: 0px;
+        }
+
+        .onlytab li:nth-child(4) {
+            border-left: 0px;
+        }
+        .sysList {
+            margin-top: 25px;
+            color: gray;
+            margin-left: 0%;
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+            top: 15px;
+            left: 357px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+            padding: 10px;
+        }
+
+        .sysList table td {
+            padding: 10px 3px 0px 3px;
+            /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+        }
+
+        #sysList table td {
+            padding: 10px 3px 10px 3px !important;
+        }
+
+        .sysList table td span {
+            line-height: 20px;
+        }
+        .title_dailog {
+            font-size: 15px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            /*padding: 10px 0;*/
+            height: 30px;
+            color: #588CD2;
+            border-bottom: 1px dashed #4D96DF;
+        }
+        .dailog_divOperation {
+            display: -webkit-flex;
+            display: flex;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 3px 2px;
+            justify-content: flex-end;
+            float: right;
+            height: 36px;
+        }
+        .btn_span {
+            padding: 6px 10px;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: normal;
+            -moz-user-select: -moz-none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            color: #fff;
+            background: #4D96DF;
+        }
+        /* line 104, ../sass/dialog.scss */
+       .dailog_divOperation .btn_span:first-child {
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 4px 12px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear" class="form-control" value="请选择年份" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear" class="form-control" value="请选择年份" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <ul class="onlytab" id="onlytab2"
+                    style="width:140px !important;margin-left:20px;float:left;">
+                    <li id="TitleLidoing" onclick="OnClickTitle2(this.id,'汛期')" class="onlyli start">汛期</li>
+                    <li id="TitleLiafter" onclick="OnClickTitle3(this.id,'非汛期')" class="onlyli end">非汛期</li>
+                </ul>
+                <div id="sysList" class="sysList" hidden="hidden" style="z-index:99;width:240px;">
+                    <div class="title_dailog">汛期月份选择</div>
+                    <table>
+                        <tr>
+                            <td>
+                                起：<input id="comboStart" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="5" />
+                            </td>
+                            <td>
+                                止：<input id="comboEnd" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="10" />
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="dailog_divOperation">
+                        <span class="btn_span" data-name="确定" onclick="XunOK()">确定</span>
+                        <!--<span class="btn_span" data-name="取消">取消</span>-->
+                    </div>
+                </div>
+                <div id="sysListFei" class="sysList" hidden="hidden" style="z-index:99;width:240px;">
+                    <div class="title_dailog">非汛期月份选择</div>
+                    <table>
+                        <tr>
+                            <td>
+                                起：<input id="comboStartFei" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="1" />
+                            </td>
+                            <td>
+                                止：<input id="comboEndFei" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="4" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>起：<input id="comboStartFei1" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="11" /></td>
+                            <td>止：<input id="comboEndFei1" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="12" /></td>
+                        </tr>
+                    </table>
+                    <div class="dailog_divOperation">
+                        <span class="btn_span" data-name="确定" onclick="feiXunOK()">确定</span>
+                        <!--<span class="btn_span" data-name="取消">取消</span>-->
+                    </div>
+                </div>
+                &nbsp;&nbsp;
+
+                <a class="mini-button" onclick="search();breakgrid()">查询</a>
+                <button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="display:none;">导出报表</button>
+
+
+                <div style="float:right;color:red;margin-right:10px;">
+                    <ul style="list-style:none;color:gray;">
+                        <li style="height:30px;"> 注：暴雨、大暴雨和特大暴雨相互不包含</li>
+                        <!--<li style="height:30px;">暴雨：50mm&le; 暴雨总量&lt;100mm</li>
+                        <li style="height:30px;">大暴雨：100mm&le; 暴雨总量&lt;200mm</li>
+                        <li style="height:30px;">特大暴雨：暴雨总量&ge;200mm</li>-->
+                    </ul>
+                </div>
+            </div>
+
+            <!--暴雨级别筛选-->
+            <div class="searchContext">
+                <div class="searchTitle">&nbsp; &nbsp;暴雨级别：</div>
+                <ul class="ui-choose choose-type-right" id="choseGrade">
+                    <li class="selected">
+                        <span name="全部">全部</span>
+                    </li>
+                    <li>
+                        <span name="暴雨">暴雨</span>
+                    </li>
+                    <li>
+                        <span name="大暴雨">大暴雨</span>
+                    </li>
+                    <li>
+                        <span name="特大暴雨">特大暴雨</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="searchContext">
+                <div class="searchTitle">&nbsp; &nbsp;分类规则：</div>
+                <ul class="ui-choose choose-type-right" id="choseMNLX">
+                    <li class="selected">
+                        <span>无</span>
+                    </li>
+                    <li>
+                        <span>行政分区</span>
+                    </li>
+                    <li>
+                        <span>水利片区</span>
+                    </li>
+                </ul>
+            </div>
+            <div id="areaList" style="display:none;">
+                <div style="height:25px;line-height:50px;">&nbsp; &nbsp;区域选择： </div>
+                <div id="areaDiv" style="margin-left: 92px;margin-top: -25px;">
+                </div>
+
+                <div id="sysListPD" class="sysList" hidden="hidden" style="z-index:99;width:202px;top: 145px;left: 678px;">
+                    <ul class="ui-choose choose-type-right" id="choseMNPD">
+                        <li style="margin-right:0px;margin-top:0px;">
+                            <span name="100071">浦东北片</span>
+                        </li>
+                        <li style="margin-right:0px;margin-top:0px;">
+                            <span name="100072">浦东南片</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div id="zhanList">
+                <div class="searchTitle" style="line-height:55px;">&nbsp; &nbsp;站点选择： </div>
+                <div style="margin-left:92px;" id="zhanDiv">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="type" style="position:relative;height:500px;">
+        <div id="chartPie" style="height:100%;width:100%;">
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height:auto;" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true"
+         emptytext="暂无数据" alwaysshowemptytext="true" showpager="false" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="30" headeralign="center" align="center">序号</div>
+            <div field="YEAR" name="YEAR" width="40" headeralign="center" align="center" allowsort="true">
+                年份
+            </div>
+            <div field="BGTM" headeralign="center" align="center" allowsort="true">
+               开始时间
+            </div>
+            <div field="HOUR" headeralign="center" align="center" allowsort="true"  decimalPlaces="0" dataType="float">
+                历时(小时)
+            </div>
+            <div field="BYCENTER" headeralign="center" align="center">
+                暴雨中心
+            </div>
+            <div field="DRP" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                最大点暴雨(mm)
+            </div>
+            <div field="AREA" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                笼罩范围(k㎡)
+            </div>
+
+            <div field="RTYPE" headeralign="center" align="center" allowsort="true">
+                暴雨类型
+            </div>
+			<div field="SHIDRP" width="60" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                面雨量(mm)
+            </div>
+            <div field="" align="center" headeralign="center">
+                最大雨量(mm)
+                <div property="columns" align="center">
+                    <div field="MAXHOURDRP" width="50" headeralign="center" align="center" allowsort="true" decimalPlaces="1"
+                        dataType="float">
+                        1小时
+                    </div>
+                    <div field="DRP3" width="50" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                        3小时
+                    </div>
+                    <div field="DRP6" width="50" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                        6小时
+                    </div>
+                    <div field="DRP12" width="50" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                        12小时
+                    </div>
+                    <div field="DRP24" width="50" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                        24小时
+                    </div>
+                </div>
+            </div>
+            <div field="action" name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        mini.parse();
+        var myData = [];
+        var shNo = "310000";
+        var shTitle = "全市";
+        var grid = mini.get("grid1");
+        var dataMonth = [];
+        $(function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = 1978;
+            GetObj("endYear").value = _year-2;
+            $.data(myData, "STCD", shNo);
+            $.data(myData, "GRADE",null);
+            loadArea();
+            loadStation();
+            loadAreaStation();
+            search();
+            breakgrid();
+            $('#choseMNLX li').click(function () {
+                var f = this;
+                $('#choseMNLX li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var ATYPE = $(this).find("span").html();
+                $.data(myData, "STCD", shNo);
+                $.data(myData, "ATYPE", ATYPE);
+                if (ATYPE == "行政分区" || ATYPE == "水利片区") {
+                    $("#areaList").show();
+                    var dataResult = $.data(myData, "AreaData");
+                    dataResult = dataResult.filter(function (item) {
+                        return item.ATYPE == ATYPE && item.AID != '100071' && item.AID != '100072';
+                    });
+                    var strHtml = '<ul class="ui-choose choose-type-right" id="choseArea">';
+                    strHtml += '<li class="selected"><span id="areaAll">全部</span></li>';
+                    dataResult.forEach(function (item, index) {
+                        strHtml += '<li><span  id="' + item.AID + '">' + item.AREANAME + '</span></li>';
+                    });
+                    strHtml += '</ul>';
+                    $("#areaDiv").html(strHtml);
+                    $('#choseArea li').click(function () {
+                        $("#sysListPD").hide();
+                        var f = this;
+                        $('#choseArea li').each(function (index, item) {
+                            this.className = this == f ? 'selected' : '';
+                        });
+                        var stcd = $(this).find("span").attr("id");
+                        if (stcd.indexOf("All") == -1) {
+                            $.data(myData, "STCD", stcd);
+                            shTitle = $(this).find("span").html();
+                            var stcsArr = [];
+                            var AreaStationData = $.data(myData, "AreaStationData");
+                            AreaStationData = AreaStationData.filter(function (item) {
+                                if (item.PAID == stcd) {
+                                    stcsArr.push(item.STCD);
+                                }
+                            });
+                            //根据分区编号筛选站点
+                            $.data(myData, "STCDS", stcsArr);
+
+                        } else {
+                            shTitle = "全市";
+                            $.data(myData, "STCD", shNo);
+                            $.data(myData, "STCDS", null);
+                        }
+                        loadAreaStationHtml();
+                        search();
+                        breakgrid();
+                    });
+                    $('#choseArea li').mousemove(function () {
+                        var stcd = $(this).find("span").attr("id");
+                        if (stcd == "10007") {//浦东分区分了两个区域
+                            $("#sysListPD").show();
+                        } else {
+                            $("#sysListPD").hide();
+                        }
+                    });
+                }
+                else {
+                    $("#areaList").hide();
+                    shTitle = "全市";
+                    $.data(myData, "STCD", shNo);
+                    $.data(myData, "STCDS", null);
+                    loadAreaStationHtml();
+                }
+                search();
+                breakgrid();
+            });
+            $('#choseGrade li').click(function () {
+                var f = this;
+                $('#choseGrade li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var grade = $(this).find("span").attr("name");
+                if (grade == "全部") {
+                    grade = null;
+                }
+                $.data(myData, "GRADE", grade);
+                search();
+                breakgrid();
+            });
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+            $('#choseMNPD li').click(function () {
+                var f = this;
+                $('#choseMNPD li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                shTitle = $(this).find("span").html();
+                var stcd = $(this).find("span").attr("name");
+                var stcsArr = [];
+                var AreaStationData = $.data(myData, "AreaStationData");
+                AreaStationData = AreaStationData.filter(function (item) {
+                    if (item.PAID == stcd) {
+                        stcsArr.push(item.STCD);
+                    }
+                });
+                //根据分区编号筛选站点
+                $.data(myData, "STCDS", stcsArr);
+                $.data(myData, "STCD", stcd);
+                loadAreaStationHtml();
+                search();
+                breakgrid();
+            });
+            for (var m = 1; m <= 12; m++) {
+                dataMonth.push({ id: m, text: m });
+            }
+            mini.get('comboStart').setData(dataMonth);
+            mini.get('comboEnd').setData(dataMonth);
+            mini.get('comboStartFei').setData(dataMonth);
+            mini.get('comboEndFei').setData(dataMonth);
+            mini.get('comboStartFei1').setData(dataMonth);
+            mini.get('comboEndFei1').setData(dataMonth);
+        });
+        //获取分区代表站
+        function loadStation() {
+            var strWhere = { STTP: "PP" };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_STBPRP_BSel", strWhere, "SSel");
+        }
+        function loadArea() {
+            var strWhere = {};
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_AREA_BSel", strWhere, "ASel");
+        }
+        //分区与站点关联关系表
+        function loadAreaStation() {
+            var strWhere = { BTYPE: "雨量" };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_AREACWSTATION_BSel", strWhere, "BSel");
+        }
+        function loadAreaStationHtml() {
+            var data = $.data(myData, "StationData");
+            if ($.data(myData, "STCDS") != undefined) {
+                var stcds = $.data(myData, "STCDS");
+                data = data.filter(function (item) {
+                    return stcds.indexOf(item.STCD) > -1;
+                });
+            }
+            var strHtml = '<ul class="ui-choose choose-type-right" id="choseZhan">';
+            strHtml += '<li class="selected"><span id="staAll">全部</span></li>';
+            data.forEach(function (item) {
+                strHtml += '<li><span id="' + item.STCD + '">' + item.STNM + '</span></li>';
+            });
+            strHtml += '</ul>';
+            $("#zhanDiv").html(strHtml);
+            $('#choseZhan li').click(function () {
+                var f = this;
+                $('#choseZhan li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var stcd = $(this).find("span").attr("id");
+                shTitle = $(this).find("span").html();
+                if (stcd.indexOf("All") > -1) {
+                    var astcd = $('#choseArea .selected').find("span").attr("id");//分区的编号或者全市的编号
+                    var astnm = $('#choseArea .selected').find("span").html();
+                    if (astcd == undefined || astcd.indexOf("All") > -1) {
+                        stcd = shNo;
+                        shTitle = "全市";
+                    } else {
+                        stcd = astcd;
+                        shTitle = astnm;
+                    }
+                }
+                $.data(myData, "STCD", stcd);
+                search();
+                breakgrid();
+            });
+        }
+        //场次数据
+        function search() {
+            if (Number(GetObj("endYear").value) >= Number(GetObj("startYear").value)) {
+                var stime = GetObj("startYear").value + "-01-01 00:00:00";
+                var etime = GetObj("endYear").value + "-12-31 23:59:59";
+                var strWhere = {
+                    STCD: $.data(myData, "STCD"),
+                    STIME: stime,
+                    ETIME: etime,
+                    GRADE: $.data(myData, "GRADE")
+                };
+                GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINSTORMFREQUENCY_RSel", strWhere, "RSel");
+            }
+        }
+
+        function breakgrid() {
+            var stime = GetObj("startYear").value + "-01-01 00:00:00";
+            var etime = GetObj("endYear").value + "-12-31 23:59:59";
+            var strWhere = { STCD: $.data(myData, "STCD"), STIME: stime, ETIME: etime, GRADE: $.data(myData, "GRADE") };
+            GetJosns("ST_RAINSTORMFREQUENCYNAMESel", strWhere, "NAMESel");
+        }
+        function loadChartHtml(data) {
+            var grade = $.data(myData, "GRADE");
+            if (grade != undefined && grade != null) {
+                if (grade == "暴雨") {
+                    data = data.filter(function (e) {
+                        return e.DRP24 >= 50 && e.DRP24<100
+                    });
+                } else if (grade == "大暴雨") {
+                    data = data.filter(function (e) {
+                        return e.DRP24 >= 100 && e.DRP24 < 200
+                    });
+                } else if (grade == "特大暴雨") {
+                    data = data.filter(function (e) {
+                        return e.DRP24 >=200
+                    });
+                }
+            }
+            var startYear = GetObj("startYear").value;
+            var endYear = GetObj("endYear").value;
+            var dataX = []; //["1987", "1988", "1989", "1990", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2012", "2013", "2014", "2015", "2016", "2018", "2019", "2020", "2021"];
+            var dataY = [];//[4, 3, 5, 2, 1, 2, 3, 1, 2, 1, 3, 1, 5, 1, 1, 1, 2, 4, 2, 2, 1, 1, 4, 1, 3, 2, 2, 5, 1, 1, 1];
+            var QNum = 0, ZNum = 0, RNum = 0, TotalNum = 0;
+            for (var num = startYear; num <= endYear; num++) {
+                dataX.push(num);
+                var stime = new Date(num + "-01-01 00:00:00");
+                var etime = new Date(num + "-12-31 23:59:59");
+                var dataTemp = data.filter(function (item) {
+                    return new Date(convertToDate(item.BGTM)) >= stime && new Date(convertToDate(item.BGTM)) <= etime && Number(item.DRP24) >= 50;
+                });
+                dataY.push(dataTemp.length);
+                dataTemp.forEach(function (item) {
+                    var drp = Number(item.DRP24);
+                    if (drp >= 50 && drp < 100) {
+                        RNum++;
+                    } else if (drp >= 100 && drp < 200) {
+                        ZNum++;
+                    } else if (drp >= 200) {
+                        QNum++;
+                    }
+                });
+            }
+            TotalNum = QNum + ZNum + RNum;
+            var dataPie = [{ value: QNum, name: "特大暴雨" }, { value: ZNum, name: "大暴雨" }, { value: RNum, name: "暴雨" }];
+            chartBarPie('chartPie', dataX, dataY, dataPie, TotalNum);
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SSel") {
+                $.data(myData, "StationData", data.data);
+                loadAreaStationHtml();
+            }
+            else if (typeID == "ASel") {
+                $.data(myData, "AreaData", data.data);
+            }
+            else if (typeID == "RSel") {
+                loadChartHtml(data.data);
+            }
+            else if (typeID == "BSel") {
+                $.data(myData, "AreaStationData", data.data);
+            }
+            else if (typeID == "NAMESel") {
+                var dataResult = data.data;// sortObjectArray(data.data, ['BGTM'], 'desc');
+                var grade = $.data(myData, "GRADE");
+                if (grade != undefined && grade != null) {
+                    if (grade == "暴雨") {
+                        dataResult = dataResult.filter(function (e) {
+                            return e.DRP24 >= 50 && e.DRP24 < 100
+                        });
+                    } else if (grade == "大暴雨") {
+                        dataResult = dataResult.filter(function (e) {
+                            return e.DRP24 >= 100 && e.DRP24 < 200
+                        });
+                    } else if (grade == "特大暴雨") {
+                        dataResult = dataResult.filter(function (e) {
+                            return e.DRP24 >= 200
+                        });
+                    }
+                }
+                dataResult=sortObjectArray(dataResult, ['YEAR'], 'desc');
+                grid.setData(dataResult);
+                //grid.mergeColumns(["YEAR"]);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var grid = e.sender;
+            var record = e.record;
+            var rowIndex = e.rowIndex;
+            if (field == "BGTM") {
+                var stm = mini.formatDate(convertToDate(value), 'yyyy-MM-dd HH:mm:ss');
+                e.cellHtml = stm;
+            }
+            if (field == "DRP") {
+                var tm = new Date(convertToDate(record.BGTM)).format("yyyy-MM-dd HH:mm:ss");
+                var StationData = $.data(myData, "StationData");
+                StationData = StationData.filter(function (e) {
+                    return e.STNM == record.BYCENTER;
+                });
+                var etm = AddHourDate(tm, Number( record.HOUR));
+                var str = "<a  style='cursor:pointer;' onclick='lookData(\"STCD@" + StationData[0].STCD + ",TM@" + tm + ",ETM@" + etm +  "\",\"/SHSWTZ/yqtz/baoyuchaxundanzhan.html\",\"" + record.STNM + "暴雨过程\",\"60%\",565,\"true\")'>" + Number(value).toFixed(1) + "</a>";
+                e.cellHtml = str;
+            }
+            if (field == "action") {
+                var s = '<span  style="cursor:pointer;" onclick="OpenHref(\'' + record.BGTM  + '\',\'' + record.ENDTM + '\')"><img src="/Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;查看</span>'
+                e.cellHtml = s;
+            }
+        }
+        //柱子的点击事件
+        function loadChangci(year) {
+            var strTitle = shTitle;
+            var STCD = $.data(myData, "STCD");
+            var strParam = "STCD@" + STCD;
+            var rainLevel = "";
+            if (isNaN(year)) {
+                strTitle += "1978年至2020年" + year + "频次";
+                rainLevel = year;
+                strParam += ",TYPE@" + rainLevel;
+            } else {
+                strTitle += year + "年暴雨频次";
+                var stime = year + "-01-01 00:00:00";
+                var etime = year + "-12-31 23:59:59";
+                strParam += ",STIME@" + stime + ",ETIME@" + etime
+            }
+            var grade = $.data(myData, "GRADE");
+            strParam += ",GRADE@" + grade;
+            var url = "/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html";
+            lookData(strParam, url, strTitle, "50%", 565, "true");
+        }
+        function chartBarPie(ChartName, dataX, dataY, dataPie, totalTF) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.off('click');
+            myChart.clear();
+            var colorList = ['#afa3f5', '#00d488', '#3feed4', '#3bafff', '#f1bb4c', "rgba(250,250,250,0.5)"];
+            var sportsIcon = {
+                'a': '/asset/get/s/data-1559121268278-ozjd-lXoz.png',
+                'b': '/asset/get/s/data-1559121263841-UC5w7mTJ9.png',
+                'c': '/asset/get/s/data-1559121259198-sxyPSimU9.png',
+                'd': '/asset/get/s/data-1559121254241-xj5JAIBzC.png',
+                'e': '/asset/get/s/data-1559121249274-QxHDAdQGy.png',
+            };
+            var grade = $("#choseGrade .selected").find("span").html();
+            var isGradeShow = true;
+            if (grade == "全部") {
+                grade = "暴雨";
+                isGradeShow = true;
+            } else {
+                isGradeShow = false;
+            }
+            var seriesData = [{
+                type: 'bar',
+                barMaxWidth: 20,
+                zlevel: 10,
+                data: dataY,
+                itemStyle: {
+                    normal: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0,
+                                color: '#2D8DED'
+                            }, {
+                                offset: 1,
+                                color: '#5ED8FB'
+                            }]
+                        },
+                        barBorderRadius: [30, 30, 0, 0],
+                    }
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params) {
+                            return params.value;
+                        },
+                        textStyle: {
+                            color: '#2D8DED', //color of value
+                            fontSize: 14
+                        }
+                    }
+                },
+
+            },];
+            if (isGradeShow) {
+                seriesData.push(
+                     // 主要展示层的
+                    {
+                        radius: ['25%', '35%'],
+                        center: ['25%', '30%'],
+                        type: 'pie',
+                        show: isGradeShow,
+                        itemStyle: {
+                            normal: {
+                                color: function (params) {
+                                    return colorList[params.dataIndex]
+                                }
+                            }
+                        },
+                        labelLine: {
+                            normal: {
+                                show: true,
+                                length: 15,
+                                length2: 120,
+                                lineStyle: {
+                                    color: '#d3d3d3'
+                                },
+                                align: 'right'
+                            },
+                            color: "#000",
+                            emphasis: {
+                                show: true
+                            }
+                        },
+                        label: {
+                            normal: {
+                                formatter: function (params) {
+                                    var str = '';
+                                    switch (params.name) {
+                                        case '特大暴雨': str = '{a|}\n{nameStyle|特大暴雨 }' + '{rate|' + params.value + '}'; break;
+                                        case '大暴雨': str = '{b|}\n{nameStyle|大暴雨 }' + '{rate|' + params.value + '}'; break;
+                                        case '暴雨': str = '{c|}\n{nameStyle|暴雨 }' + '{rate|' + params.value + '}'; break;
+                                    }
+                                    return str
+                                },
+                                padding: [0, -110],
+                                height: 165,
+                                rich: {
+                                    a: {
+                                        width: 38,
+                                        height: 38,
+                                        lineHeight: 50,
+                                        backgroundColor: {
+                                            image: sportsIcon.e
+                                        },
+                                        align: 'left'
+                                    },
+                                    b: {
+                                        width: 29,
+                                        height: 45,
+                                        lineHeight: 50,
+                                        backgroundColor: {
+                                            image: sportsIcon.d
+                                        },
+                                        align: 'left'
+                                    },
+                                    c: {
+                                        width: 34,
+                                        height: 33,
+                                        lineHeight: 50,
+                                        backgroundColor: {
+                                            image: sportsIcon.c
+                                        },
+                                        align: 'left'
+                                    },
+                                    d: {
+                                        width: 34,
+                                        height: 44,
+                                        lineHeight: 50,
+                                        backgroundColor: {
+                                            image: sportsIcon.b
+                                        },
+                                        align: 'left'
+                                    },
+                                    e: {
+                                        width: 38,
+                                        height: 30,
+                                        lineHeight: 50,
+                                        backgroundColor: {
+                                            image: sportsIcon.a
+                                        },
+                                        align: 'left'
+                                    },
+                                    nameStyle: {
+                                        fontSize: 16,
+                                        color: "#555",
+                                        align: 'left'
+                                    },
+                                    rate: {
+                                        fontSize: 20,
+                                        color: "#1ab4b8",
+                                        align: 'left'
+                                    }
+                                }
+                            }
+                        },
+                        data: dataPie,
+                    },
+                );
+            }
+            option = {
+                backgroundColor: '#fff',
+                title: {
+                    text: shTitle + GetObj("startYear").value + "至" + GetObj("endYear").value + grade+ "频次(共" + totalTF + "次)",
+                    //subtext: '历史影响台风列表',
+                    //x: '72.5%',
+                    //y: '32%',
+                    x: "50%",
+                    y: "top",
+                    textAlign: "center",
+                    textStyle: {
+                        fontSize: 24,
+                        fontWeight: 'normal',
+                        color: ['#333']
+                    },
+                    subtextStyle: {
+                        color: '#666',
+                        fontSize: 16
+                    },
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    axisPointer: {
+                        lineStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: '#FFD56E'
+                                }, {
+                                    offset: 0.5,
+                                    color: '#fff',
+                                }, {
+                                    offset: 1,
+                                    color: '#FFD56E'
+                                }],
+                                global: false
+                            }
+                        },
+                    }
+                },
+                legend: {
+                    right: 20,
+                    show: false,
+                    top: 0,
+                    itemGap: 10, // 各个item之间的间隔，单位px，默认为10，
+                    itemWidth: 30, // 图例图形宽度
+                    itemHeight: 10, // 图例图形高度
+                    textStyle: {
+                        //color: 'red',
+                        fontWeight: 'normal',
+                        fontSize: 14
+                    },
+                },
+                // barGap: '100%',
+                toolbox: {//echart保存为图片
+                    show: true,
+                    feature: {
+                        mark: {
+                            show: true
+                        },
+                        //restore: {
+                        //    show: true
+                        //},
+                        saveAsImage: {
+                            show: true,
+                            pixelRatio: 1,
+                            title: '保存为图片',
+                            type: 'png',
+                            lang: ['点击保存']
+                        }
+                    }
+                },
+                grid: {
+                    top: '5%',
+                    left: '3%',
+                    right: '1%',
+                    bottom: '8%',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: dataX,
+                        axisTick: {
+                            show: false // 是否显示坐标轴轴线
+                        },
+                        axisLabel: {
+                            color: '#282828'
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                        boundaryGap: true,
+                        axisLine: { //坐标轴轴线相关设置。
+                            show: true,
+                            inside: false,
+                            lineStyle: {
+                                color: '#000'
+                            }
+                        }
+                    },
+                ],
+                yAxis: [{
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 5;
+                    },
+                    min: 0,
+                    splitNumber: 4,
+                    splitLine: { show: true },
+                    axisLabel: { //坐标轴刻度标签的相关设置。
+                        show: true,
+                        textStyle: {
+                            color: '#737373',
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(131,101,101,0.2)',
+                            type: 'dashed',
+                        }
+                    },
+                    show: true,
+                }],
+                series:seriesData
+            };
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var year = param.name;
+                loadChangci(year);
+            }
+        }
+        function OpenHref(stime, etime) {
+            var stime = new Date(convertToDate(stime)).format("yyyy-MM-dd HH:mm:ss");
+            var etime = new Date(convertToDate(etime)).format("yyyy-MM-dd HH:mm:ss");
+            var strParam = "STIME@" + stime + ",ETIME@" + etime;
+            var url = "/SHSWTZ/yqtz/danzhanchangcichaxun.html";
+            var title = new Date(stime).format("yyyy年M月d日H时") + "至" + new Date(etime).format("yyyy年M月d日H时") + "暴雨笼罩面积";
+            lookData(strParam, url, title, "60%", "75%", "true");
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = shTitle;
+            name += GetObj("startYear").value + "年至" + GetObj("endYear").value + "年暴雨频次";
+            ExportExcel(name, columns, data);
+        }
+        function OnClickTitle2(objID, name) {
+            $("#sysListFei").css("display", "none");
+            var only = $("#onlytab2 .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            var isDisplay = $("#sysList").css("display");
+            if (isDisplay == "none") {
+                $("#sysList").css("display", "block");
+            } else {
+                $("#sysList").css("display", "none");
+            }
+        }
+        function OnClickTitle3(objID, name) {
+            $("#sysList").css("display", "none");
+            var only = $("#onlytab2 .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            var isDisplay = $("#sysListFei").css("display");
+            if (isDisplay == "none") {
+                $("#sysListFei").css("display", "block");
+            } else {
+                $("#sysListFei").css("display", "none");
+            }
+        }
+        function XunOK() {
+            $("#sysList").css("display", "none");
+        }
+        function feiXunOK() {
+            $("#sysListFei").css("display", "none");
+        }
+    </script>
+</body>
+</html>

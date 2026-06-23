@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js"></script>
+	<style>
+	body{
+	overflow: hidden;
+	}
+	</style>
+</head>
+<body>
+    <div id="mainTabs" class="mini-tabs" activeIndex="0" style="width:100%;height:550px;" >
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var tabs = mini.get("mainTabs");
+        var myData = [];
+        $(function () {
+            var _stcd = GetQueryString("stcd");
+            var _stnm = GetQueryString("stnm");
+            var _stime = GetQueryString("stime");
+            var _etime = GetQueryString("etime");
+            var _TYPENAME = GetQueryString("TYPENAME"); 
+            $.data(myData, "STCD", _stcd);
+            $.data(myData, "STNM", _stnm);
+            $.data(myData, "STIME", _stime);
+            $.data(myData, "ETIME", _etime);
+            $.data(myData, "TYPENAME", _TYPENAME); 
+            var s_where={ "stcd": _stcd, "pattem": "站点关联配置" };
+            app.post("SWZZ_RTSQ_GL_STCD/findResult",s_where,function(res){
+                JosnSel(res,"Sel");
+            });
+        })
+
+        function JosnSel(data, typeID) { 
+            if (typeID == "Sel") {
+                var JsonData = data.data; 
+                if (JsonData.length > 0) {
+                    for (num = 0; num < JsonData.length; num++) {
+                        var _name = JsonData[num].name; 
+                        var _url = JsonData[num].url;
+
+                        if (_name=="水位过程") {
+                            _url="SQLine.html";
+                        }
+                        else if (_name=="降雨过程") {
+                            _url="YQLine.html";
+                        }
+                        else if (_name=="水雨情") {
+                            _url="SQYQLine.html";
+                        }
+                        else {
+                            continue;
+                        }
+                        if (_url.lastIndexOf("?") > -1) {
+                            _url += "&STCD=" + $.data(myData, "STCD"); 
+                        } else {
+                            _url += "?STCD=" + $.data(myData, "STCD"); 
+                        }
+                        _url += "&STNM=" + $.data(myData, "STNM");
+                        _url += "&STIME=" + $.data(myData, "STIME");
+                        _url += "&ETIME=" + $.data(myData, "ETIME");
+                         
+                        var tab = { title: _name, url: _url, showCloseButton: false }; 
+                        tabs.addTab(tab); 
+
+                        if ($.data(myData, "TYPENAME") != null) {
+                            if (_name == $.data(myData, "TYPENAME")) {
+                                tabs.activeTab(tab);
+                            }
+                        } else {
+                            if (num == 0) {
+                                tabs.activeTab(tab);
+                            }
+                        }
+                        
+                    } 
+                }
+            }
+        }
+    </script>
+</body>
+</html>

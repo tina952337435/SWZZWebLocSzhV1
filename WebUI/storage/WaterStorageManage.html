@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>调度方案</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet" />
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="/Common/Scripts/5.2.0_dist_echarts.min.js"></script>
+    <script type="text/javascript" src="/Common/Scripts/latest_dist_ecStat.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .mini-toolbar{
+            border:0px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mini-toolbar" style="padding-right: 20px; ">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100%;">
+                    &nbsp;&nbsp;&nbsp;
+                    水位：
+                    <!-- <input id="key" class="mini-textbox" emptytext="请输入水位" style="height: 25px;width: 150px;"
+                        onenter="onKeyEnter" />
+                    <span id="jisuanCXL">
+                    </span>
+                    <a id="searchbtn" class="mini-button" onclick="getCXL()">获取蓄量</a> -->
+
+                    <input id="key" changeOnMousewheel="false" class="mini-spinner" style="width:150px;" minValue="1.5" 
+                    maxValue="4.2" increment="0.01" format="n2" onvaluechanged="onValueChanged" value=""/>
+                </td>
+                <td style="white-space:nowrap;">
+                    &nbsp;&nbsp; <a class="mini-button" id="addbtn" onclick="addRow()" plain="false">增加</a>
+                    &nbsp;&nbsp; <a class="mini-button" id="savebtn" onclick="saveData()">保存</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div style="height:350px;width:100%;" id="chartPie">
+
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 400px);height: -moz-calc(100% - 400px);height: calc(100% - 400px);"
+        allowalternating="true" borderstyle="border-right:0;" idfield="ID" sortmode="client" showPager='false' sizelist="[15,20,30,50]"
+        pagesize="15" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell"
+        allowcellselect="true" allowcelledit="true">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center">序号</div>
+            <div field="UPZ" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                水位(m)
+                <input property="editor" class="mini-textarea" style="width:100%;" />
+            </div>
+            <div field="S" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                蓄量(百万方)
+                <input property="editor" class="mini-textarea" style="width:100%;" />
+            </div>
+            <div field="AREA" headeralign="center" align="center" allowsort="true" decimalPlaces="2" dataType="float">
+                面积(平方公里)
+                <input property="editor" class="mini-textarea" style="width:100%;" />
+            </div>
+            <div field="action" width="10%" name="action" headeralign="center" align="center" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        var myData = [];
+        $(function () {
+            //获取当前水位
+            modelGetResultPresetByTimePeriod();
+            //默认加载数据
+            search();
+        })
+        function onKeyEnter() {
+            //关键字
+            search();
+        }
+        var dataResult = null;
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            PageFillData(0, 15);
+        }
+        function modelGetResultPresetByTimePeriod() {
+            var idArr = "81459".split(',');//嘉宝北片平均计算水位81459
+            var curDate = new Date().format('yyyy-MM-dd HH:mm:ss');
+            var stime = AddHourDate(curDate, -1).replaceAll('/', '-');
+            var etime = AddHourDate(curDate, 1).replaceAll('/', '-');
+            var id = idArr[0];
+            var isHaveData = false;
+            var msg = "";
+            var strWhere = {
+                "version": 1,
+                "api": "GetResultPresetByTimePeriod",
+                "id": id,//主图形编号
+                "startTM": stime,
+                "endTM": etime,
+                "taskID": "00000000000000000000000000000000"
+            }
+            app.postAsync("", strWhere, function (res) {
+                var info = res.info;
+                if (!info.success) {
+                    isHaveData = false;
+                    msg = (info.msg);
+                } else {
+                    isHaveData=true;
+                    $.data(myData, "swdata", res.data);
+                }
+            });
+            var upz = 2.67;
+            if (isHaveData) {
+                var dataSW = $.data(myData, "swdata");
+                var times = dataSW.times;
+                var valsSW = dataSW.vals;
+				if(valsSW.length>0){
+				  upz =Number(valsSW[valsSW.length - 1]).toFixed(2);
+				}
+            }
+            mini.get("key").setValue(upz);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            //查询方法
+            var strWhere = {};
+            GetJosns("STORAGE_ST_WATERSTORAGE_BSel", strWhere, "Sel");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                $.data(myData, "bdata", dataResult.data);
+                loadChart();
+                grid.setData(dataResult.data);
+                // fillData(0,15, dataResult, grid);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    ShowMsg(data.Message);
+                    search();
+                }
+            }
+            else if (typeID == "Update") {
+                if (data.total > 0) {
+                    ShowMsg(data.Message);
+                    search();
+                }
+            }
+        }
+        function loadChart() {
+            var data = $.data(myData, "bdata");
+            var dataX = [],dataXL=[],dataMJ=[];
+            for (var num = 0; num < data.length; num++) {
+                dataX.push(data[num].UPZ);
+                dataXL.push(data[num].S);
+                dataMJ.push(data[num].AREA);
+            }
+            chartNHXNew('chartPie', dataX,dataXL,dataMJ);
+        }
+
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "ID": objID };
+                        GetJosns("STORAGE_ST_WATERSTORAGE_BDel", strWhere, "Del");
+                    }
+                }
+            );
+        }
+        //--------------------------------
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "QCZ" || field == "QMZ" || field == "MAXZ" || field == "MINZ") {
+                if (value != undefined) {
+                    e.cellHtml = parseFloat(value).toFixed(2);
+                }
+            }
+            if (field == "DD_STANA") {
+                if (!isNaN(value)) {
+                    //e.cellHtml = parseFloat(value/24).toFixed(0);
+                }
+            }
+
+            if (field == "DD_TM" || field == "DD_CARRYTM") {
+                e.cellHtml = mini.formatDate(convertToDate(value), 'yyyy年MM月dd日 H时');
+            }
+            if (field == "action") {
+                var s = "";//修改
+                //s += '<img style="cursor:pointer;" onclick="edit(\'' + record.ID + '\')" src="/Common/miniui/themes/icons/edit.png" title="编辑调度方案" />&nbsp;';
+                s += '<img style="cursor:pointer;" onclick="del(\'' + record.ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除调度方案" />&nbsp;';
+                e.cellHtml = s;
+            }
+        }
+        function onValueChanged(res) {
+                var ChartName = "chartPie";
+                var myChart = echarts.init(document.getElementById(ChartName));
+                var listSeries = myChart.getOption();
+                var val=(Number(res.value)-1.5)*10;
+                var xlValue=getCXL();
+                if (listSeries.series.length > 0) {
+                    for (var num = 0; num < listSeries.series.length; num++) {
+                        try {
+                            listSeries.series[num]["markLine"]["data"][0]["xAxis"] = val;
+                            listSeries.series[num]["markLine"]["label"]["formatter"] = Number(xlValue).toFixed(2);
+                        } catch (error) {
+                        }
+                    }
+                }
+                myChart.setOption(listSeries);
+            }
+        //增加
+        function addRow() {
+            isAdd = "add";
+            var newRow = { name: "New Row" };
+            grid.addRow(newRow, 0);
+            grid.beginEditRow(newRow);
+        }
+
+        //保存
+        function saveData() {
+            grid.commitEdit();
+            var data = grid.getChanges();
+            var json = mini.encode(data);
+            if (json == "[]") {
+                mini.alert("没有可以保存的数据！");
+                return;
+            }
+            grid.loading("保存中，请稍后......");
+            var obj = eval('(' + json + ')');
+            if (obj.length > 0) {
+                for (i = 0; i < obj.length; i++) {
+                    var STATE = obj[i]._state;
+                    if (STATE == "added") {
+                        var strWhere = { ID: GetTableID(), UPZ: obj[i].UPZ, AREA: obj[i].AREA, S: obj[i].S };
+                        GetJosns("STORAGE_ST_WATERSTORAGE_BAdd", strWhere, "Update");
+                    } else {
+                        var _ID = obj[i].ID;
+                        var _UPZ = obj[i].UPZ;
+                        var _AREA = obj[i].AREA;
+                        var _S = obj[i].S;
+                        var strWhere = { ID: _ID, UPZ: _UPZ, AREA: _AREA, S: _S };
+                        GetJosns("STORAGE_ST_WATERSTORAGE_BUpdate", strWhere, "Update");
+                    }
+                }
+
+            }
+        }
+        function getCXL() {
+            var keyValue = mini.get('key').getValue();
+            var cxlValue="";
+            if (keyValue != "") {
+                cxlValue = getStorageValue(keyValue);
+                //$("#jisuanCXL").html(cxlValue + "百万方");
+            }
+            return cxlValue;
+        }
+        function getStorageValue(upz) {
+            upz = parseFloat(upz);
+            var data = $.data(myData, "bdata");
+            var dataTempMax = data.filter(function (res) {
+                return res.UPZ >= upz;
+            });
+            var dataTempMin = data.filter(function (res) {
+                return res.UPZ <= upz;
+            });
+            var minUpz = dataTempMin[dataTempMin.length - 1].UPZ;
+            var maxUpz = dataTempMax[0].UPZ;
+            var S = dataTempMax[0].S;
+            if (minUpz != maxUpz) {
+                var cha = Number(parseFloat(maxUpz - minUpz).toFixed(2));//总差值
+                var scha = Number(parseFloat(upz - minUpz).toFixed(2));//距离上一个差值;
+                var upzBili = scha / cha;
+
+                var minS = dataTempMin[dataTempMin.length - 1].S;
+                var maxS = dataTempMax[0].S;
+                var chaS = maxS - minS;//蓄量总差值
+                var sscha = chaS * upzBili;
+                S = (minS + sscha).toFixed(2);
+            }
+            return S;
+        }
+
+        function chartNHXNew(ChartName, dataX,dataXL,dataMJ) {
+            var titleText = "嘉宝北片水位～面积～蓄量关系曲线";
+            var configMethod = { method: 'polynomial', order: 2 };
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            echarts.registerTransform(ecStat.transform.regression);
+        
+            var xAxisVal=0,formatterVal=0;
+            formatterVal=getCXL();
+            if (formatterVal != "") {
+                var data = $.data(myData, "bdata");
+                var startUpz = Number(data[0].UPZ);
+                var endUpz = data[data.length - 1].UPZ;
+                var curUpz =Number( mini.get('key').getValue());
+                xAxisVal=((curUpz - startUpz) * 10);
+            }
+            option = {
+                title: {
+                    text: titleText,
+                    textStyle: {
+                        color: '#414C59',
+                    },
+                    // subtext: subtext,
+                    subtextStyle: {
+                        color: '#497DBB',
+                        fontSize: 16,
+                        fontWeight: 'normal'
+                    },
+                    left: 'center',
+                    top:0,
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: ['水面面积','蓄量'],
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    },
+                    x:'center',
+                    y:25
+                },
+                xAxis: {
+                    name: "水位(m)",
+                    nameLocation:'center',
+                    boundaryGap: false,
+                    nameTextStyle:{
+                        padding:[15,0],
+                        fontSize:13,
+                    },
+                    data:dataX,
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return Number( v).toFixed(1);
+                        }
+                    },
+                },
+                yAxis: [
+                    {
+                    name: "面积(平方公里)",
+                    min: 43,
+                    max: 55,
+                    // 坐标刻度线
+                        axisTick: {
+                            show: true,
+                            lineStyle: {
+                                type: 'solid', //y轴分割线类型
+                                color: 'rgba(102,102,102,0.9)',
+                                // width: 2.5,
+                            },
+                        },
+                        // 坐标 轴线
+                        axisLine: {
+                            show: true,
+                            lineStyle: {
+                                type: 'solid',
+                                // color: 'rgba(66, 192, 255, .3)',
+                                color: 'rgba(102,102,102,0.9)',
+                                // width: 2.5
+                                // color: 'red'
+                            },
+                        },
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return v.toFixed(2);
+                        }
+                    },
+                },
+                {
+                    name: "蓄量(百万方)",
+                    min: 70,
+                    max: 220,
+                    // 坐标刻度线
+                    axisTick: {
+                            show: true,
+                            lineStyle: {
+                                type: 'solid', //y轴分割线类型
+                                color: 'rgba(102,102,102,0.9)',
+                                // width: 2.5,
+                            },
+                        },
+                        // 坐标 轴线
+                        axisLine: {
+                            show: true,
+                            lineStyle: {
+                                type: 'solid',
+                                // color: 'rgba(66, 192, 255, .3)',
+                                color: 'rgba(102,102,102,0.9)',
+                                // width: 2.5
+                                // color: 'red'
+                            },
+                        },
+                    splitLine: {
+                        show:false,
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return v.toFixed(2);
+                        }
+                    },
+                }
+                ],
+                series: [
+                    {
+                        name: '水面面积',
+                        type: 'line',
+                        yAxisIndex:0,
+                        smooth: true,
+                        symbol: 'circle',
+                        color: '#5B9BD5',//#497DBB
+                        lineStyle: {
+                            //type: 'dashed'
+                        },
+                        data:dataMJ,
+                        label: {
+                            show: false,
+                            fontSize: 16,
+                        },
+                    },
+                    {
+                        name: '蓄量',
+                        type: 'line',
+                        markLine: {
+                            symbol: ["none", "none"], //箭头
+                            data: [{
+                                xAxis: xAxisVal,
+                            },
+                            ],
+                            label: {
+                                formatter: function () {
+                                    return formatterVal; //"当前蓄量："+formatterVal;
+                                },
+                                color:'red',
+                                distance:-2
+                            },
+                            lineStyle: {
+                                color: "red",
+                                width:2,
+                            },
+                        },
+                        yAxisIndex:1,
+                        smooth: true,
+                        symbol: 'circle',
+                        color: 'red',//#497DBB
+                        lineStyle: {
+                            //type: 'dashed'
+                        },
+                        data:dataXL,
+                        label: {
+                            show: false,
+                            fontSize: 16,
+                        }
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

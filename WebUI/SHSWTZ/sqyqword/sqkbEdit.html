@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水情快报生成系统</title>
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet"> -->
+    <style>
+        :root {
+            --ink: #1a1f2e;
+            --ink-light: #3d4a63;
+            --paper: #f5f1ea;
+            --paper-warm: #ede8df;
+            --accent: #017DE4;
+            --accent2: #c0392b;
+            --accent-light: #e8eff8;
+            --gold: #a07c30;
+            --border: #c8bfad;
+            --success: #2e7d52;
+            --shadow: rgba(30, 40, 80, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            /* background: #e8e3d9; */
+            color: var(--ink);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--accent);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-header .logo {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .app-header h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .app-header .subtitle {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 2px;
+        }
+
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            min-height: 100vh;
+            /*calc(100vh - 68px);*/
+        }
+
+        /* Sidebar */
+        .sidebar {
+            /* background: var(--paper-warm); */
+            border-right: 1px solid var(--border);
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--ink-light);
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            /* font-size: 13px;
+    color: var(--ink-light); */
+            font-weight: 500;
+        }
+
+        .field-input {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 14px;
+            background: white;
+            color: var(--ink);
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .field-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .btn-generate {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-generate:hover {
+            background: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .btn-generate.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .template-info {
+            background: var(--accent-light);
+            border: 1px solid #b8cce4;
+            border-radius: 8px;
+            padding: 12px 14px;
+            font-size: 12px;
+            color: var(--accent);
+            line-height: 1.7;
+        }
+
+        .template-info strong {
+            font-weight: 700;
+        }
+
+        .history-item {
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .history-item:hover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        .history-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            flex-shrink: 0;
+        }
+
+        /* Main content */
+        .main-content {
+            /* background: var(--paper); */
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        /* Placeholder */
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 16px;
+            color: var(--ink-light);
+            opacity: 0.6;
+        }
+
+        .placeholder-icon {
+            font-size: 64px;
+        }
+
+        .placeholder h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 22px;
+        }
+
+        .placeholder p {
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* Report */
+        .report-container {
+            display: none;
+        }
+
+        .report-container.visible {
+            display: block;
+        }
+
+        .report-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .report-toolbar h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 7px 16px;
+            border-radius: 7px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid;
+        }
+
+        .btn-outline {
+            background: white;
+            border-color: var(--border);
+            color: var(--ink-light);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #163d73;
+        }
+
+        /* Document style */
+        .document {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-shadow: 0 2px 20px var(--shadow);
+            padding: 60px 72px;
+            max-width: 860px;
+            margin: 0 auto;
+            position: relative;
+            overflow-y: auto;
+            max-height: calc(100vh - 60px);
+        }
+
+        .document::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .doc-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid var(--ink);
+        }
+
+        .doc-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 8px;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .doc-issue {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 12px;
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--ink-light);
+            margin-top: 12px;
+        }
+
+        .doc-section {
+            margin-bottom: 28px;
+        }
+
+        .doc-section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 14px;
+            padding: 6px 0 6px 12px;
+            border-left: 4px solid var(--accent);
+            background: var(--accent-light);
+        }
+
+        .doc-section-content {
+            font-size: 15px;
+            line-height: 2;
+            color: var(--ink);
+            text-align: justify;
+        }
+
+        .doc-section-content p {
+            margin-bottom: 12px;
+            text-indent: 2em; /* 首行缩进两个字符 */
+        }
+
+        .doc-sub-title {
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .doc-figure {
+            /* background: var(--paper-warm); */
+            /* border: 1px solid var(--border); */
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            margin: 16px 0;
+            color: var(--ink-light);
+            font-size: 13px;
+        }
+
+        .doc-figure .fig-placeholder {
+            /* height: 120px; */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .doc-figure .fig-placeholder img {
+            /* height: 240px; */
+            width: 80%;
+        }
+
+        .doc-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--ink-light);
+        }
+
+        .doc-footer .sign-field {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .sign-line {
+            width: 80px;
+            border-bottom: 1px solid var(--ink-light);
+        }
+
+        /* Editable fields */
+        [contenteditable] {
+            outline: none;
+            border-radius: 3px;
+            transition: background 0.15s;
+        }
+
+        [contenteditable]:hover {
+            background: rgba(30, 77, 140, 0.05);
+        }
+
+        [contenteditable]:focus {
+            background: rgba(30, 77, 140, 0.07);
+            box-shadow: 0 0 0 2px var(--accent);
+            padding: 2px 4px;
+            margin: -2px -4px;
+        }
+
+        .edit-badge {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            background: var(--success);
+            color: white;
+            font-size: 12px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            z-index: 99;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stat cards */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .stat-card {
+            background: var(--accent-light);
+            border: 1px solid #b8cce4;
+            border-radius: 8px;
+            padding: 12px 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .stat-unit {
+            font-size: 12px;
+            color: var(--ink-light);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--ink-light);
+            margin-top: 4px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(245, 241, 234, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 200;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-overlay.visible {
+            display: flex;
+        }
+
+        .loading-wave {
+            display: flex;
+            gap: 6px;
+        }
+
+        .loading-wave span {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        .loading-wave span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-wave span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        .loading-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .loading-sub {
+            font-size: 13px;
+            color: var(--ink-light);
+        }
+
+        .notice {
+            background: #fff8e1;
+            border: 1px solid #f5c842;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #7a6200;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            line-height: 1.6;
+        }
+
+        @media print {
+
+            .app-header,
+            .sidebar,
+            .report-toolbar {
+                display: none !important;
+            }
+
+            .main-content {
+                padding: 0;
+            }
+
+            .document {
+                box-shadow: none;
+                border: none;
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <!-- <div class="sidebar-label">生成参数</div> -->
+                <div class="field-group" style="display:none;">
+                    <div class="field-label">报告期次</div>
+                    <input type="text" class="field-input" id="issueNo" placeholder="例：2025年第1期" value="2025年第1期">
+                </div>
+                <div class="field-group">
+                    <div class="field-label">统计起始时间</div>
+                    <input type="datetime-local" class="field-input" id="startTime" value="2026-04-28 08:00:00">
+                </div>
+                <div class="field-group">
+                    <div class="field-label">统计截止时间</div>
+                    <input type="datetime-local" class="field-input" id="endTime" value="2026-04-29 08:00:00">
+                </div>
+                <div class="field-group" style="display:none;">
+                    <div class="field-label">发布日期</div>
+                    <input type="date" class="field-input" id="pubDate" value="2025-05-09">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <!-- <div class="sidebar-label">报告模板</div> -->
+                <div class="template-info" style="display:none;">
+                    <strong>📄 暴雨分析模板</strong><br>
+                    包含：概况、简要分析（降水覆盖、持续时间、水位情况），数据自动填充，支持在线编辑。
+                </div>
+            </div>
+
+            <button class="btn-generate" id="btnGenerate" onclick="generateReport()">
+                <div class="spinner" id="spinner"></div>
+                <span id="btnText">⚡ 生成报告</span>
+            </button>
+
+            <div class="notice">
+                💡 报告生成后，可直接在正文中点击任意文字段落进行编辑修改，完成后点击「保存」。
+            </div>
+
+            <div class="sidebar-section" style="display:none;">
+                <div class="sidebar-label">历史记录</div>
+                <div class="history-item" onclick="loadHistory('2025-05-08')">
+                    <div class="history-dot"></div>
+                    <div>
+                        <div style="font-weight:500">5月8日暴雨分析</div>
+                        <div style="font-size:11px;color:var(--ink-light)">2025-05-09 · 第1期</div>
+                    </div>
+                </div>
+                <div class="history-item" onclick="loadHistory('2025-04-20')">
+                    <div class="history-dot" style="background:#a07c30"></div>
+                    <div>
+                        <div style="font-weight:500">4月20日强降水分析</div>
+                        <div style="font-size:11px;color:var(--ink-light)">2025-04-21 · 第2期（草稿）</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="placeholder" id="placeholder">
+                <div class="placeholder-icon">📋</div>
+                <h2>暂无报告</h2>
+                <p>请在左侧填写时间参数<br>点击「生成报告」即可自动生成汛情快报</p>
+            </div>
+
+            <div class="report-container" id="reportContainer">
+                <div class="report-toolbar">
+                    <h2 id="toolbarTitle">汛情快报</h2>
+                    <div class="toolbar-actions">
+                        <!-- <button class="btn-action btn-outline" onclick="resetEdits()">↩ 重置</button> -->
+                        <!-- <button class="btn-action btn-outline" onclick="window.print()">🖨 打印</button> -->
+                        <button class="btn-action btn-primary" onclick="exportReport()">📥 保存</button>
+                    </div>
+                </div>
+
+                <div class="document" id="document">
+                    <!-- Header -->
+                    <div class="doc-header">
+                        <div class="doc-title">汛 情 快 报</div>
+                        <div class="doc-issue" id="docIssue"></div>
+                        <div class="doc-meta">
+                            <span>上海市水文总站</span>
+                            <span id="docDate"></span>
+                        </div>
+                    </div>
+
+                    <!-- Report subtitle -->
+                    <div style="text-align:center;font-size:17px;font-weight:700;font-family:'Noto Serif SC',serif;margin-bottom:24px;"
+                        id="reportSubtitle" contenteditable="true">
+
+                    </div>
+
+                    <!-- Stat cards -->
+                    <div class="stat-row" style="display:none;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="statAvg" contenteditable="true">43.3</div>
+                            <div class="stat-unit">mm</div>
+                            <div class="stat-label">全市平均降水量</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statMax" contenteditable="true">85.8</div>
+                            <div class="stat-unit">mm</div>
+                            <div class="stat-label">单站最大降水量</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="statHour" contenteditable="true">35.6</div>
+                            <div class="stat-unit">mm/h</div>
+                            <div class="stat-label">最大60min降水量</div>
+                        </div>
+                    </div>
+
+                    <!-- Section 1 -->
+                    <div class="doc-section">
+                        <div class="doc-section-title">一、概况</div>
+                        <div class="doc-section-content" contenteditable="true" id="section1">
+                        </div>
+                        <div class="doc-figure">
+                            <div class="fig-placeholder">
+                                <img id="figImg1" />
+                            </div>
+                            <div>图1 &nbsp; <span id="figTitle1"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2 -->
+                    <div class="doc-section">
+                        <div class="doc-section-title">二、简要分析</div>
+                        <div class="doc-section-content" contenteditable="true" id="analysisText">
+
+                        </div>
+                        <div class="doc-figure">
+                            <div class="fig-placeholder">
+                                <img id="figImg2" />
+                            </div>
+                            <div>图2 &nbsp; <span id="figTitle2"></span></div>
+                        </div>
+                        <div class="doc-figure">
+                            <div class="fig-placeholder">
+                                <img id="figImg3" />
+                            </div>
+                            <div>图3 &nbsp; <span id="figTitle3"></span></div>
+                        </div>
+                        <div class="doc-section-content" contenteditable="true" id="analysisText2">
+                        </div>
+                        <div class="doc-figure">
+                            <div class="fig-placeholder">
+                                <img id="figImg4" />
+                            </div>
+                            <div>图4 &nbsp; <span id="figTitle4"></span></div>
+                        </div>
+                        <div class="doc-section-content" contenteditable="true" id="waterLevelDesc">
+                        </div>
+                        <div class="doc-figure">
+                            <div class="fig-placeholder">
+                                <img id="figImg5" />
+                            </div>
+                            <div>图5 &nbsp; <span id="figTitle5"></span></div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="doc-footer">
+                        <div class="sign-field">编写：<div class="sign-line" contenteditable="true" id="author"></div>
+                        </div>
+                        <div class="sign-field">校核：<div class="sign-line" contenteditable="true" id="reviewer"></div>
+                        </div>
+                        <div class="sign-field">审核：<div class="sign-line" contenteditable="true" id="approver"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-wave">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="loading-text">正在生成报告...</div>
+        <div class="loading-sub" id="loadingStep">正在解析时间参数</div>
+    </div>
+
+    <div class="edit-badge" id="editBadge">✓ 已保存修改</div>
+
+    <script>
+        let originalContent = {};
+
+        // Track edits
+        document.querySelectorAll('[contenteditable]').forEach(el => {
+            el.addEventListener('input', () => showEditBadge());
+        });
+
+        function showEditBadge() {
+            const badge = document.getElementById('editBadge');
+            badge.style.display = 'block';
+            clearTimeout(window._badgeTimer);
+            window._badgeTimer = setTimeout(() => { badge.style.display = 'none'; }, 2000);
+        }
+
+        function saveOriginal() {
+            document.querySelectorAll('[contenteditable]').forEach(el => {
+                originalContent[el.id] = el.innerHTML;
+            });
+        }
+
+        function resetEdits() {
+            if (!confirm('确定要撤销所有修改，恢复为生成结果吗？')) return;
+            document.querySelectorAll('[contenteditable]').forEach(el => {
+                if (originalContent[el.id] !== undefined) el.innerHTML = originalContent[el.id];
+            });
+        }
+
+        function formatDate(dtStr) {
+            const d = new Date(dtStr);
+            return `${d.getMonth() + 1}月${d.getDate()}日`;
+        }
+        function formatDateNext(dtStr) {
+            const d = new Date(dtStr);
+            return `${d.getDate() + 1}日`;
+        }
+        function formatPubDate(dateStr) {
+            const [y, m, day] = dateStr.split('-');
+            return `${y}年${parseInt(m)}月${parseInt(day)}日`;
+        }
+
+        const loadingSteps = [
+            '正在解析时间参数…',
+            '调用气象数据接口…',
+            '汇总各区降水统计…',
+            '生成分析文本内容…',
+            '排版报告格式…'
+        ];
+        var getReportData = {};
+        function generateReport() {
+            const btn = document.getElementById('btnGenerate');
+            const spinner = document.getElementById('spinner');
+            const btnText = document.getElementById('btnText');
+            const overlay = document.getElementById('loadingOverlay');
+            const stepEl = document.getElementById('loadingStep');
+
+            // Animate loading steps
+            let stepIdx = 0;
+            const stepInterval = setInterval(() => {
+                stepEl.textContent = loadingSteps[Math.min(stepIdx++, loadingSteps.length - 1)];
+            }, 700);
+
+            btn.classList.add('loading');
+            spinner.style.display = 'block';
+            btnText.textContent = '生成中…';
+            overlay.classList.add('visible');
+
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const issueNo = document.getElementById('issueNo').value;
+            const pubDate = document.getElementById('pubDate').value;
+
+            const startLabel = formatDate(startTime);
+            const endLabel = formatDate(endTime);
+            const pubLabel = formatPubDate(pubDate);
+
+            try {
+                var stime = new Date(startTime + ":00").format("yyyy-MM-dd HH:mm:ss");
+                var etime = new Date(endTime + ":00").format("yyyy-MM-dd HH:mm:ss");
+                //调用接口
+                var strWhere = {
+                    "stime": stime,
+                    "etime": etime
+                }
+                app.post("SWZZ_RTSQ_sqkb/getReportData", strWhere, function (res) {
+                    const data = res.data;
+                    getReportData = data;
+                    // console.error(JSON.stringify( data));
+                    applyReport(data, issueNo, pubLabel, startLabel, endLabel);
+
+                    overlay.classList.remove('visible');
+                    btn.classList.remove('loading');
+                    spinner.style.display = 'none';
+                    btnText.textContent = '⚡ 生成报告';
+                });
+
+            } catch (err) {
+            }
+        }
+        function applyReport(report, issueNo, pubLabel, startLabel, endLabel) {
+            // Update header
+            document.getElementById('docIssue').textContent = report.year + "年" + report.qihao + "期";
+            document.getElementById('docDate').textContent = new Date().format("yyyy年M月d日");
+            // document.getElementById('toolbarTitle').textContent = `汛情快报 · ${issueNo}`;
+
+            // Update subtitle
+            document.getElementById('reportSubtitle').textContent = report.subtitle || `${startLabel}暴雨分析`;
+
+            // Stat cards
+            document.getElementById('statAvg').textContent = report.avgRainfall;
+            document.getElementById('statMax').textContent = report.maxRainfall;
+            document.getElementById('statHour').textContent = report.maxHourRainfall;
+
+            // Section 1
+            document.getElementById('section1').innerHTML = `<p>${report.overview}</p>`;
+
+            // Analysis sections
+            document.getElementById('analysisText').innerHTML = `<p>${report.analysisText}</p>`;
+            document.getElementById('analysisText2').innerHTML = `<p>${report.analysisText2}</p>`;
+            document.getElementById('waterLevelDesc').innerHTML = `<p>${report.waterLevelDesc}</p>`;
+
+
+            document.getElementById('figImg1').src = "/ModeUploadDoc/sqkb/" + report.image1Path;
+            document.getElementById('figImg2').src = "/ModeUploadDoc/sqkb/" + report.image2Path;
+            document.getElementById('figImg3').src = "/ModeUploadDoc/sqkb/" + report.image3Path;
+            document.getElementById('figImg4').src = "/ModeUploadDoc/sqkb/" + report.image4Path;
+            document.getElementById('figImg5').src = "/ModeUploadDoc/sqkb/" + report.image5Path;
+
+
+            document.getElementById('figTitle1').innerHTML = report.image1PathTitle;
+            document.getElementById('figTitle2').innerHTML = report.image2PathTitle;
+            document.getElementById('figTitle3').innerHTML = report.image3PathTitle;
+            document.getElementById('figTitle4').innerHTML = report.image4PathTitle;
+            document.getElementById('figTitle5').innerHTML = report.image5PathTitle;
+
+
+            document.getElementById('author').innerHTML = GetCookie("LOGINNAME");//report.author;
+            document.getElementById('reviewer').innerHTML = report.reviewer;
+            document.getElementById('approver').innerHTML = report.approver;
+
+
+
+
+            // Figure labels
+            // ['figTitle1','figTitle2','figTitle4'].forEach(id => {
+            //   const el = document.getElementById(id);
+            //   if(el) el.textContent = startLabel;
+            // });
+            // ['figTitle1b','figTitle2b'].forEach(id => {
+            //   const el = document.getElementById(id);
+            //   if(el) el.textContent = endLabel;
+            // });
+
+
+
+            // Show report
+            document.getElementById('placeholder').style.display = 'none';
+            document.getElementById('reportContainer').classList.add('visible');
+
+            saveOriginal();
+
+            // Scroll to doc
+            // document.getElementById('reportContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function loadHistory(date) {
+            document.getElementById('startTime').value = date + 'T08:00';
+            const nextDate = new Date(date);
+            nextDate.setDate(nextDate.getDate() + 1);
+            document.getElementById('endTime').value = nextDate.toISOString().slice(0, 10) + 'T08:00';
+            document.getElementById('pubDate').value = nextDate.toISOString().slice(0, 10);
+            generateReport();
+        }
+
+        function exportReport() {
+            // const content = document.getElementById('document').innerText;
+            // const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            // const a = document.createElement('a');
+            // a.href = URL.createObjectURL(blob);
+            // a.download = `汛情快报_${document.getElementById('docIssue').textContent}.txt`;
+            // a.click();
+            // URL.revokeObjectURL(a.href);
+
+            getReportData.title = document.getElementById('reportSubtitle').innerText;
+            getReportData.overview = document.querySelector('#section1 p').innerText;
+            getReportData.analysisText = document.querySelector('#analysisText p').innerText;
+            getReportData.analysisText2 = document.querySelector('#analysisText2 p').innerText;
+            getReportData.waterLevelDesc = document.querySelector('#waterLevelDesc p').innerText;
+            getReportData.author = document.getElementById('author').innerText;
+            getReportData.reviewer = document.getElementById('reviewer').innerText;
+            getReportData.approver = document.getElementById('approver').innerText;
+
+            // console.error('getReportData',getReportData);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '保存中，请稍等...'
+            });
+            app.post("SWZZ_RTSQ_sqkb/generateWordPath", getReportData, function (res) {
+                var data = res.data;
+                if (SetNull(data) != "") {
+                    ShowMsg("保存成功！已经下载到本地");
+                    var fileName = data.fileName;
+                    window.open("/ModeUploadDoc/sqkb/" + fileName);
+                    mini.unmask(document.body);
+                }
+                else{
+                    ShowMsg("保存失败！");
+                    mini.unmask(document.body);
+                }
+            });
+
+            // var xhr = new XMLHttpRequest();
+            // xhr.open('POST', ServerIP + 'SWZZ_RTSQ_sqkb/previewWord', true);
+            // xhr.setRequestHeader('Content-Type', 'application/json;charset=utf-8');
+            // xhr.setRequestHeader('Authorization', token || localStorage.getItem('token') || '');
+            // xhr.responseType = 'blob';
+            // xhr.onload = function() {
+            //     if (xhr.status === 200) {
+            //         var blob = xhr.response;
+            //         var url = URL.createObjectURL(blob);
+            //         // 尝试用新窗口打开
+            //         var newWindow = window.open("", "_blank");
+            //         if (newWindow) {
+            //             newWindow.location.href = url;
+            //         }
+            //     }
+            // };
+            // xhr.send(JSON.stringify(getReportData));
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background:white;
+        }
+
+        .mini-grid-checkbox {
+            margin-top: 10px;
+        }
+        /*.mini-labelfield-checkboxlist table{
+            padding-left:60px !important;
+        }*/
+        .mini-panel .mini-panel-viewport {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:200px;float:left;height:100%; margin-right: 5px;">
+        <div class="mini-toolbar">
+            <a class="mini-button" id="addbtn" onclick="addFuData()" plain="false">增加(节点)</a>
+            <a class="mini-button" id="addbtn" onclick="addZiData()" plain="false">增加(子节点)</a><br />
+            <a class="mini-button" id="addbtn" onclick="edit()" plain="false">编辑(节点)</a>
+            <a class="mini-button" id="addbtn" onclick="delTree()" plain="false">删除</a>
+
+        </div>
+        <ul id="tree1" class="mini-tree" style="width:100%;height: -webkit-calc(100% - 70px);height: -moz-calc(100% - 70px);height: calc(100% - 70px);padding:5px;"
+            showTreeIcon="true" textField="title" expandOnLoad="0" allowDrag="true" allowDrop="true" allowLeafDropIn="true"
+            idField="id" parentField="pid" resultAsTree="false" onnodeselect="onSelectNode"></ul>
+    </div>
+    <div style="width:calc(100% - 210px);float:left;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);">
+        <table cellpadding="0" cellspacing="0" border="0" width="100%" height="100%">
+            <tr>
+                <td style="width:35%;">
+                    <div style="width:100%;">
+                        <div class="mini-toolbar">
+                            <div labelField="true" label="类型：" id="sttpcountrys" name="sttpcountrys" class="mini-checkboxlist" onvaluechanged="onCheckValueChanged" repeatItems="5" repeatLayout="flow" value="" textField="text" valueField="id"></div>
+
+                        </div>
+                    </div>
+                    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px);">
+                        <div id="grid1" class="mini-datagrid" style="width: 90%;" allowalternating="true" multiSelect="true" showFilterRow="true"
+                             borderstyle="border-right:0;" idfield="id" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" resultAsData="true" showPager="false" ondrawcell="onGriddrawcell">
+                            <div property="columns">
+                                <div type="checkcolumn"></div>
+                                <div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>
+                                <div field="stcd" headeralign="center" align="center" allowsort="true">
+                                    站码
+                                </div>
+                                <div field="stnm" headeralign="center" align="center" allowsort="true">
+                                    站名
+                                    <input id="STNMFilter" property="filter" class="mini-textbox" style="width:100%;"
+                                           onvaluechanged="onFilterChanged" />
+                                </div>
+                                <div field="stzz" headeralign="center" align="center" allowsort="true">
+                                    水位站
+                                </div>
+                                <div field="stpp" headeralign="center" align="center" allowsort="true">
+                                    雨量站
+                                </div>
+                                <div field="stdp" headeralign="center" align="center" allowsort="true">
+                                    泵站
+                                </div>
+                                <div field="stdd" headeralign="center" align="center" allowsort="true">
+                                    闸站
+                                </div>
+                                <div field="stmm" headeralign="center" align="center" allowsort="true">
+                                    气象站
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td style="width:100px;text-align:center;">
+                  <a class="mini-button" id="addbtn" style="padding:5px; font-size:16px;" onclick="SavaQU()" plain="false">保存</a> 
+                </td>
+                <td>
+                    <div style="width:100%;">
+                        <div class="mini-toolbar">
+                            <div labelField="true" label="类型：" id="qucountrys" name="qucountrys" class="mini-checkboxlist" onvaluechanged="onQUValueChanged" repeatItems="5" repeatLayout="flow" value="" textField="text" valueField="id"></div>
+                        </div>
+                    </div>
+                    <div id="grid2" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);" allowalternating="true" multiSelect="true" showFilterRow="true"
+                         borderstyle="border-right:0;" idfield="id" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell" showPager="false" allowCellEdit="true"  allowCellSelect="true" cellEditAction="celldblclick" allowRowSelect="false" enableHotTrack="false">
+                        <div property="columns">
+                            <!--<div type="checkcolumn"></div>-->
+                            <div type="indexcolumn" width="30" headeralign="center" align="center">序号</div>
+                            <div field="stcd" headeralign="center" align="center" allowsort="true">
+                                站码
+                            </div>
+                            <div field="stnm" headeralign="center" align="center" allowsort="true">
+                                站名
+                                <input id="STNMQUFilter" property="filter" class="mini-textbox" style="width:100%;"
+                                       onvaluechanged="onQUFilterChanged" />
+                            </div>
+                            <!--<div field="STZZ" headeralign="center" align="center" allowsort="true">
+                                水位站
+                            </div>
+                            <div field="STPP" headeralign="center" align="center" allowsort="true">
+                                雨量站
+                            </div>
+                            <div field="STDP" headeralign="center" align="center" allowsort="true">
+                                泵站
+                            </div>
+                            <div field="STDD" headeralign="center" align="center" allowsort="true">
+                                闸站
+                            </div>
+                            <div field="STMM" headeralign="center" align="center" allowsort="true">
+                                气象站
+                            </div>-->    
+                            <div field="orderbyid" headeralign="center" align="center" allowsort="true">
+                                排序
+                                <input property="editor" class="mini-textbox" style="width:100%;" onvaluechanged="ONORDERBYID" />
+                            </div>
+                            <div name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                                基本操作
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var PathName = GetQueryString("PATHNAME");
+        var myData = [];
+        var tree = mini.get("tree1");
+        var grid = mini.get("grid1");
+        var grid2 = mini.get("grid2");
+        var countrys = [{ "id": "STZZ", "text": "水位站" }, { "id": "STPP", "text": "雨量站" }, { "id": "STDP", "text": "泵站" }, { "id": "STDD", "text": "闸站" }, { "id": "STMM", "text": "气象站" }];
+        var qucountrys = mini.get("qucountrys");
+        var sttpcountrys = mini.get("sttpcountrys");
+        qucountrys.setData(countrys);
+        sttpcountrys.setData(countrys);
+        qucountrys.setValue("STZZ,STPP,STDP,STDD,STMM");
+        sttpcountrys.setValue("STZZ,STPP,STDP,STDD,STMM");
+        $(function () {
+            search();
+        })
+        function TreeSel() {
+			app.post("SWZZ_RTSQ_ST_STBPRP_B_TREE/findResult",{},(data)=>{
+				JosnSel(data,"WATER_ST_STBPRP_B_QU_TREESel")
+			})
+		}
+        function ONORDERBYID(e) { 
+            var editor = e.sender;
+            var rows = grid2.getEditorOwnerRow(editor);
+            rows["orberbyid"] = e.value;
+			app.post("SWZZ_RTSQ_ST_STBPRP_B_QU/modify",rows,(data)=>{
+				JosnSel(data,"WATER_ST_STBPRP_B_QUUpdate")
+			})
+        }
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "WATER_ST_STBPRP_B_QU_TREESel") {
+                tree.loadList(ResultData.data, "id", "pid");
+                if ($.data(myData, "ID") != null) {
+                    tree.setValue($.data(myData, "ID"));
+                } else {
+                    tree.select(0);
+                    var node = tree.getSelected();
+					console.log(node)
+                    $.data(myData, "ID", node.id);
+                    $.data(myData, "PID", node.pid);
+                }
+                STTPSel();
+                QUSel();
+            } else if (typeID == "WATER_ST_STBPRP_B_QU_TREEDel") {
+                search();
+            } else if (typeID == "WATER_ST_STBPRP_B_STTPSel") {
+                if ($.data(myData, "STTPDATA") == null) {
+                    $.data(myData, "STTPDATA", ResultData.data);
+                }
+                grid.setData(ResultData.data);
+
+                if ($.data(myData, "QUDATA") != null) {
+                    var tempData = $.data(myData, "QUDATA");
+                    if (tempData.length > 0) {
+                        for (quNum = 0; quNum < tempData.length; quNum++) {
+                            var tempSTCD = tempData[quNum].stcd;
+                            var gridtemp = grid.findRow(function (row) {
+                                if (row.stcd == tempSTCD)
+                                    return true;
+                            });
+                            grid.removeRow(gridtemp);
+                        }
+                    }
+                }
+
+            } else if (typeID == "WATER_ST_STBPRP_B_QUDel") {
+                STTPSel();
+                QUSel();
+            } else if (typeID == "WATER_ST_STBPRP_B_QUSel") {
+                var tempData = ResultData.data;
+                $.data(myData, "QUDATA", ResultData.data);
+                if (tempData.length > 0) {
+                    for (quNum = 0; quNum < tempData.length; quNum++) {
+                        var tempSTCD = tempData[quNum].stcd;
+                        var gridtemp = grid.findRow(function (row) {
+                            if (row.stcd == tempSTCD)
+                                return true;
+                        });
+                        grid.removeRow(gridtemp);
+                    }
+                }
+                PageServerFill(grid2, ResultData);
+            } else if (typeID == "WATER_ST_STBPRP_B_QUPL") {
+                QUSel();
+            } else if (typeID == "WATER_ST_STBPRP_B_QUUpdate") {
+                showTips(ResultData.Message);
+                QUSel();
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid2.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function onCheckValueChanged(e) {
+
+            STTPSel();
+        }
+        function onQUValueChanged() { 
+            var tempQU = qucountrys.getValue();
+            //多条件组合过滤
+            var _STZZ = "2";
+            if (tempQU.lastIndexOf("STZZ") > -1) {
+                _STZZ = "1";
+            }
+            var _STPP = "2";
+            if (tempQU.lastIndexOf("STPP") > -1) {
+                _STPP = "1";
+            } 
+            var _STDP = "2";
+            if (tempQU.lastIndexOf("STDP") > -1) {
+                _STDP = "1";
+            } var _STDD = "2";
+            if (tempQU.lastIndexOf("STDD") > -1) {
+                _STDD  = "1";
+            } var _STMM = "2";
+            if (tempQU.lastIndexOf("STMM") > -1) {
+                _STMM = "1";
+            }
+            grid2.filter(function (row) { 
+                //name
+                var r1 = true;
+                if (_STZZ) {
+                    r1 = String(row.stzz).toLowerCase().indexOf(_STZZ) != -1;
+                } 
+                var r2 = true;
+                if (_STPP) {
+                    r2 = String(row.stpp).toLowerCase().indexOf(_STPP) != -1;
+                } 
+                var r3 = true;
+                if (_STDP) {
+                    r3 = String(row.stdp).toLowerCase().indexOf(_STDP) != -1;
+                }
+                var r4 = true;
+                if (_STDD) {
+                    r4 = String(row.stdd).toLowerCase().indexOf(_STDD) != -1;
+                }
+                var r5 = true;
+                if (_STMM) {
+                    r5 = String(row.stnm).toLowerCase().indexOf(_STMM) != -1;
+                } 
+
+                return r1 || r2 || r3 || r4 || r5;
+            });
+        }
+        function PageFillData(pageIndex, pageSize) {
+            //查询方法
+            if ($.data(myData, "PID") != null) {
+                var strWhere = { "PID": $.data(myData, "ID") };
+				app.post("SWZZ_RTSQ_ST_STBPRP_B_QU/findResult",{},(data)=>{
+					var filterdata = data.data.filter(m=>m.pid == $.data(myData, "ID"));
+					data.totle = filterdata.lenght;
+					data.data = filterdata;
+					JosnSel(data,"WATER_ST_STBPRP_B_QUSel")
+				})
+            }
+
+        }
+
+        function QUSel() {
+            grid2.loading("加载数据中，请稍后......");
+            setTimeout(function () { PageFillData(0, 15); }, 100);
+        }
+        function search() {
+            TreeSel();
+        }
+        function STTPSel() {
+            var strWhere = "{ \"ISSTATUS\": \"1\" ";
+            var tempData = sttpcountrys.getData();
+            var tempCount = sttpcountrys.getCount();
+            var tempSTTP = sttpcountrys.getValue(); 
+            if (tempSTTP != "") {
+                if (tempCount > 0) {
+                    for (sttpNum = 0; sttpNum < tempCount; sttpNum++) {
+                        var _sttp = tempData[sttpNum].id;
+                        if (tempSTTP.lastIndexOf(_sttp) > -1) {
+                            strWhere += ",\"" + _sttp + "\": \"1\"";
+                        } else {
+                            strWhere += ",\"" + _sttp + "\": \"2\"";
+                        }
+                    }
+                }
+            } else {
+                strWhere = "{ ";
+            }
+            
+            strWhere += "}";
+			console.log(JSON.parse(strWhere))
+			strWhere = JSON.parse(strWhere);
+			app.post("SWZZ_RTSQ_ST_STBPRP_B_STTP/findResult",{},(data)=>{
+				var filterData = data.data.filter(m=>{
+					return m.stmm == strWhere.STMM && m.stdd == strWhere.STDD && m.stdp == strWhere.STDP &&
+					m.stzz == strWhere.STZZ && m.isstatus == strWhere.ISSTATUS && m.stpp == strWhere.STPP 
+				})
+				data.total = filterData.length;
+				data.data = filterData;
+				JosnSel(data,"WATER_ST_STBPRP_B_STTPSel")
+			})
+        }
+        function onSelectNode(e) {
+            if (e.node) {
+                var strPID = e.node.pid;
+                $.data(myData, "ID", e.node.id);
+                $.data(myData, "PID", strPID);
+            }
+            //search();
+            STTPSel();
+            QUSel();
+        }
+        function addZiData() {
+            $.data(myData, "ADDDATA", "ZI");
+            addMenuData();
+        }
+        function addMenuData() {
+            if ($.data(myData, "ADDDATA") == "ZI") {
+                var node = tree.getValue($.data(myData, "ID"));
+                var nodes = tree.getChildNodes(node);
+                addData('PID@' + $.data(myData, "ID") + ',ORDERBYID@' + (nodes.length + 1) + ',PATHNAME@' + PathName, 'System/RTSQ_ST_STBPRP_B_QU_TREE_Edit.html', '增加(子节点)', '600px', '340px', 'true')
+            } else if ($.data(myData, "ADDDATA") == "FU") {
+                var tempPid = "";
+                if ($.data(myData, "PID") == "-1") {
+                    tempPid = $.data(myData, "ID");
+                } else {
+                    tempPid = $.data(myData, "PID");
+                }
+                var node = tree.getNode(tempPid);
+                var nodes = tree.getChildNodes(node);
+                addData('PID@' + $.data(myData, "PID") + ',' + ',ORDERBYID@' + (nodes.length + 1) + ',PATHNAME@' + PathName, 'System/RTSQ_ST_STBPRP_B_QU_TREE_Edit.html', '增加(节点)', '600px', '340px', 'true')
+            }
+        }
+        function addFuData() {
+            $.data(myData, "ADDDATA", "FU");
+            addMenuData();
+        }
+        function edit() {
+            editData('ID@' + $.data(myData, "ID"), 'System/RTSQ_ST_STBPRP_B_QU_TREE_Edit.html', '编辑(节点)', '600px', '340px', 'true')
+        }
+        function delTree() {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        var strWhere = { "stcd": $.data(myData, "ID") };
+						app.post("SWZZ_RTSQ_ST_STBPRP_B_TREE/remove",strWhere,(data)=>{
+							JosnSel(data,"WATER_ST_STBPRP_B_QU_TREEDel")
+						})
+					}
+                });
+        }
+    </script>
+
+    <script type="text/javascript">
+
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '<img style="cursor:pointer;" onclick="Del(\'' + record.id + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除配置站点" />&nbsp;';
+            return s;
+        }
+        function Del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        var strWhere = { "stcd": objID };
+						app.post("SWZZ_RTSQ_ST_STBPRP_B_QU/remove",strWhere,(data)=>{
+							JosnSel(data,"WATER_ST_STBPRP_B_QUDel")
+						})
+					}
+				});
+        }
+
+        function SavaQU() {
+            var items = grid.getSelecteds();
+            if ($.data(myData, "ID") == null) {
+                mini.alert("请选择需要配置节点");
+                return;
+            } 
+            var orderCount = grid2.getData().length+2;
+            var strMsg = "";
+            if (items.length > 0) {
+                for (num = 0; num < items.length; num++) {
+                    strMsg += "{\"id\":\"" + GetTableID("", "") + "\",\"stcd\":\"" + items[num].stcd + "\",\"stnm\":\"" + items[num].stnm + "\",\"pid\":\"" + $.data(myData, "ID") + "\",\"orderbyid\":\"" + (Number(orderCount) + num) + "\"},";
+                }
+            }
+            if (strMsg.length > 0) {
+                strMsg = strMsg.substring(0, strMsg.length-1);
+            }
+			var param = eval("(" + "[" + strMsg + "]" + ")");
+			app.post("SWZZ_RTSQ_ST_STBPRP_B_QU/batchResultI",param,(data)=>{
+				JosnSel(data,"WATER_ST_STBPRP_B_QUPL")
+			})
+        }
+        //鼠标移动上去的提示信息。
+        function onGriddrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            var record = e.record;
+
+            //超链接任务
+            if (field == "stzz") {
+                var s = '';
+                if (record.stzz == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            } else if (field == "stnm") {
+                var s = '<a title="' + value + '"  href="JavaScript:Trans(\'' + record.stcd + '\',\'' + record.stnm + '\')">' + value + '</a>';
+                e.cellHtml = s;
+            }
+            if (field == "stpp") {
+                var s = '';
+                if (record.stpp == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "stdp") {
+                var s = '';
+                if (record.stdp == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "stdd") {
+                var s = '';
+                if (record.stdd == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "stmm") {
+                var s = '';
+
+                if (record.stmm == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+        }
+        function Trans(stcd, stnm) {
+            var stime = new Date().format("yyyy/MM/dd 08:00:00");
+            var etime = new Date().format("yyyy/MM/dd HH:00:00");
+
+            openChart("../DanZhan/DanZHanSel.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime + "&TYPENAME=水位", stnm + "站点自定义配置", stcd);
+        }
+
+
+        //鼠标移动上去的提示信息。
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            var record = e.record;
+            var strJson = $.data(myData, "STTPDATA"); 
+            var temp = strJson.filter(function (e) {
+                return e.stcd == record.stcd;
+            }); 
+            //超链接任务
+            console.log(temp.length + "@@@@@@@@@@@" + record.stnm +"--====="+ record.stzz)
+            if (temp.length == 0) {
+                return;
+            } 
+            if (field == "stzz") {
+                var s = '';
+                record.stzz = temp[0].stzz;
+                if (temp[0].stzz == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            } else if (field == "stnm") {
+                console.log(field);
+
+                var s = '<a title="' + value + '"  href="JavaScript:Trans(\'' + record.stcd + '\',\'' + record.stnm + '\')">' + value + '</a>';
+                console.log(s);
+                e.cellHtml = s;
+            }
+            if (field == "stpp") {
+                var s = '';
+                record.stpp = temp[0].stpp;
+                if (temp[0].stpp == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "stdp") {
+                var s = '';
+                record.stdp = temp[0].stdp;
+                if (temp[0].stdp == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "stdd") {
+                var s = '';
+                record.stdd = temp[0].stdd;
+                if (temp[0].stdd == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s;
+            }
+            if (field == "stmm") {
+                var s = '';
+                record.stmm = temp[0].stmm;
+                if (temp[0].stmm == "1") {
+                    s = "是";
+                } else {
+                    s = "否";
+                }
+                e.cellHtml = s; 
+            }
+        }
+    </script>
+    <script type="text/javascript">
+
+        function onFilterChanged(e) {
+            var namebox = mini.get("STNMFilter");
+            var name = namebox.getValue().toLowerCase();
+            grid.deselectAll();
+            //多条件组合过滤
+            grid.filter(function (row) {
+
+                //name
+                var r1 = true;
+                if (name) {
+                    r1 = String(row.stnm).toLowerCase().indexOf(name) != -1;
+                }
+                var r2 = true;
+                if (name) {
+                    r2 = String(row.stcd).toLowerCase().indexOf(name) != -1;
+                }
+                return r1 || r2;
+            });
+        }
+
+
+        function onQUFilterChanged(e) {
+            var namebox = mini.get("STNMQUFilter");
+            var name = namebox.getValue().toLowerCase();
+            //多条件组合过滤
+            grid2.filter(function (row) { 
+                //name
+                var r1 = true;
+                if (name) {
+                    r1 = String(row.stnm).toLowerCase().indexOf(name) != -1;
+                }
+                var r2 = true;
+                if (name) {
+                    r2 = String(row.stcd).toLowerCase().indexOf(name) != -1;
+                }
+                return r1;
+            });
+        }
+
+    </script>
+</body>
+</html>

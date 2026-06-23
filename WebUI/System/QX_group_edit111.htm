@@ -1,0 +1,231 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>用户组管理权限配置</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<script src="../Common/boot.js" type="text/javascript"></script> 
+    <link href="../style/demo.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body{
+            margin:0;padding:0;border:0;width:100%;height:100%;overflow:hidden;
+        }    
+        .function-item 
+        {
+            margin-left:5px;
+            margin-right:5px;
+        }
+        .function-item input
+        {
+            vertical-align:bottom;
+        }
+    </style>
+</head>
+<body class="contentbody">
+        <div style="padding:5px;height:90%;width:99%;align:center;">
+            <div id="treegrid1" class="mini-treegrid" style="height:100%;width:100%;border:0;padding:5px;"     
+            treeColumn="name" idField="QX_ID" parentField="QX_PARENT" showTreeIcon="true" resultAsTree="false" 
+            expandOnLoad="false" showCheckBox="true" checkRecursive="false"
+            ondrawcell="ondrawcell" onnodecheck="onnodeselect" allowAlternating="true"
+             >
+                <div property="columns">
+                    <div type="indexcolumn" width="60" headerStyle="height:30px">序号</div>
+                    <div name="name" field="QX_NAME"  width="30%"  >模块名称</div>
+                    <div field="MANAGEMENT" width="100%">权限</div>
+                </div>
+           </div>
+       </div>
+    <div style="padding-top:5px;" align="center"> <a id="save" style="margin-right:20px;"  class="mini-button" iconCls="icon-save" id="save" onclick="saveData()" plain="false">保存</a>
+    <a id="delbtn" class="mini-button" iconCls="icon-cancel" onclick="CloseWindow('cancel')">取消</a>
+    </div>
+
+   
+<!--
+ url="functiontree.txt"-->
+
+<script type="text/javascript">
+    mini.parse();
+    var tree = mini.get("treegrid1");
+    
+    ////////////////////
+    //标准方法接口定义
+    var key = "";
+
+    var strID = "";
+    function SetData(data) {
+        if (data.action == "edit") {
+            key = data.id;
+            $.ajax({
+                url: "QX_group_edit.aspx?method=LoadData",
+                data: { id: key }, //id为模块id，key为角色id
+                type: "post",
+                success: function (text) {
+                    var data = eval(text);
+                    tree.loadList(data, "QX_ID", "QX_PARENT");
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].MANAGEMENT != null && data[i].MANAGEMENT.toString() != "") {
+                            strID += data[i].QX_ID + ",";
+                        }
+                    }
+                    tree.setValue(strID);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    mini.alert(jqXHR.responseText);
+                }
+            });
+        }
+    }
+
+    //var getValue = tree.getValue(); //弹出的时候取选中的文本框值
+    function onnodeselect(e) {
+        var tree = e.sender;          //树对象
+        var node = e.node;           //节点对象
+        var checked = e.checked; //改变之前
+        var qx_id = node.QX_ID+",";
+        if (!checked) {
+            node.MANAGEMENT = "addbtn，delbtn，editbtn，savebtn，searchbtn，";
+            strID += qx_id;
+        }
+        else {
+            node.MANAGEMENT = "";
+            strID = strID.replace(new RegExp(qx_id, "gm"), "");
+        }
+    }
+    function ondrawcell(e) {
+        var tree = e.sender, //获得树
+            node=e.node,
+            record = e.record,
+            column = e.column,
+            field = e.field,
+            id = record[tree.getIdField()],
+            pid = record[tree.getParentField()],
+            funs = record.MANAGEMENT;
+        function createCheckboxs(funs) {
+            var arr = new Array();
+            if (funs) arr = funs.toString().split("，"); 
+            if (funs) {
+//                if (pid == "-1") { 
+//                    return "";
+//                } else {
+                    if (arr.length>5) {
+                    strID = strID + id + ",";
+                    //tree.setValue(strID);
+                    //tree.checkNode(node);
+                    //}
+
+                    var html = "";
+                    var html1 = '<label class="function-item"><input type="checkbox" id="addbtn" onclick=checkFunc("' + id + '","addbtn",this.checked) />增加</label>';
+                    var html2 = '<label class="function-item"><input type="checkbox" id="delbtn" onclick=checkFunc("' + id + '","delbtn",this.checked) />删除</label>';
+                    var html3 = '<label class="function-item"><input type="checkbox" id="editbtn" onclick=checkFunc("' + id + '","editbtn",this.checked) />编辑</label>';
+                    var html4 = '<label class="function-item"><input type="checkbox" id="savebtn" onclick=checkFunc("' + id + '","savebtn",this.checked) />保存</label>';
+                    var html5 = '<label class="function-item"><input type="checkbox" id="searchbtn" onclick=checkFunc("' + id + '","searchbtn",this.checked) />查找</label>';
+                   
+                    for (var i = 0; i < arr.length; i++) {
+                        var fn = arr[i];
+                        if (fn == "addbtn") {
+                            html1 = '<label class="function-item"><input type="checkbox" checked="checked" id="addbtn" onclick=checkFunc("' + id + '","addbtn",this.checked) />增加</label>';
+                        };
+                        if (fn == "delbtn") {
+                            html2 = '<label class="function-item"><input type="checkbox" checked="checked" id="delbtn" onclick=checkFunc("' + id + '","delbtn",this.checked) />删除</label>';
+                        };
+                        if (fn == "editbtn") {
+                            html3 = '<label class="function-item"><input type="checkbox" checked="checked" id="editbtn" onclick=checkFunc("' + id + '","editbtn",this.checked) />编辑</label>';
+                        };
+                        if (fn == "savebtn") {
+                            html4 = '<label class="function-item"><input type="checkbox" checked="checked" id="savebtn" onclick=checkFunc("' + id + '","savebtn",this.checked) />保存</label>';
+                        };
+                        if (fn == "searchbtn") {
+                            html5 = '<label class="function-item"><input type="checkbox" checked="checked" id="searchbtn" onclick=checkFunc("' + id + '","searchbtn",this.checked) />查找</label>';
+                        };
+                    }
+                     
+                    return html1 + html2 + html3 + html4 + html5;
+                }
+            } else { 
+                //没有数据，不显示权限
+            }
+    }
+        if (field == 'MANAGEMENT') {
+            e.cellHtml = createCheckboxs(funs); 
+        }
+    }
+     
+    var strMukuai = "";
+    function checkFunc(id, action, tt) {
+        //点击单个时，保存按钮失效
+        //mini.get("save").setVisible(false);
+
+        //tt.toString()==true就插入，插入时后面加个','，false就替换,替换时将逗号也替换掉
+        //先查询
+        $.ajax({
+            url: "QX_group_edit.aspx?method=selectDataid",
+            data: { id: id, qx_id: key }, //id为模块id，key为角色id
+            type: "post",
+            success: function (mokuai) {
+                if (tt.toString() == "false") {//就把ation的值replace为空
+                    strMukuai = mokuai.replace(action + "，", "");
+                } else { //增加为","+action
+                    mokuai.replace("，" + action, "");
+                    strMukuai = mokuai + "，" + action;
+                }
+                $.ajax({
+                    url: "QX_group_edit.aspx?method=UpdateQX_enable",
+                    data: { data: strMukuai, id: id, qx_id: key }, //id为模块id，key为角色id
+                    type: "post",
+                    success: function (text) {
+                        if (strMukuai == "")
+                        { tree.reload(); }
+
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        mini.alert(jqXHR.responseText);
+                    }
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                mini.alert(jqXHR.responseText);
+            }
+        });
+    }
+
+    //保存
+    function saveData() {
+        var qx_ids = strID; //tree.getValue(true);
+        //alert(qx_ids);
+        if (!qx_ids) {
+            mini.alert("没有可以保存的数据！");
+            tree.reload();
+            return;
+        }
+        tree.loading("保存中，请稍后......");
+        $.ajax({
+            url: "QX_group_edit.aspx?method=SaveQX_enable",
+            data: { data: qx_ids, id: key },
+            type: "post",
+            success: function (text) {
+                CloseWindow("save");
+                //tree.load();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                mini.alert(jqXHR.responseText);
+            }
+        });
+        
+
+    }
+
+    //关闭窗体
+    function CloseWindow(action) {
+        if (action == "close" && tree.isChanged()) {
+            if (confirm("数据被修改了，是否先保存？")) {
+                return false;
+            }
+        }
+        if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+        else window.close();
+    }
+
+
+</script>
+</body>
+</html>

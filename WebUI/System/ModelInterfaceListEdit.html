@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>模型接口服务编辑</title>
+    <script src="../Common/Scripts/md5.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="GridView" id='GridView1' style=' background-color: White; width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center"  class="CssTitle">
+                    接口管理
+                    <input id="mb_ID" name="mb_ID" class="mini-textbox Span90" style="display:none;" />
+                </td>
+            </tr>
+            <tr id="tr1">
+
+                <td class="lie1" align="right">
+                    名称：
+                </td>
+                <td class="lie2">
+                    <input id="mb_NAME" name="mb_NAME" class="mini-textbox Span90" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    方法名：
+                </td>
+                <td class="lie2">
+                    <input id="mb_METHODNAME" name="mb_METHODNAME" class="mini-textbox Span90" required="true" />
+                </td>
+            </tr>
+            <tr>
+
+                <td class="lie1" align="right">
+                    功能：
+                </td>
+                <td class="lie2">
+                    <input id="mb_FUNCTION" name=mb_FUNCTION"  class="mini-combobox" style="width: 208px;" showNullItem="false"
+                           textField="TEXT" valueField="ID" />
+                </td>
+                <td class="lie1" align="right">
+                   编写人：
+                </td>
+                <td class="lie2">
+                    <input id="mb_MANAGER" name="mb_MANAGER" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            
+
+            <tr>
+                <td class="lie1" align="right">
+                    路径：
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="mb_PATH" name="mb_PATH" class="mini-textbox Span90" />
+                </td>
+                
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    参数：
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="mb_PARA" name="mb_PARA" class="mini-textbox Span90" />
+                </td>
+                
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    参数说明：
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="mb_PARANOTE" name="mb_PARANOTE" class="mini-textbox Span90" />
+                </td>
+                
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注：
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="mb_NOTE" name="mb_NOTE" class="mini-textbox Span90" />
+                </td>
+                
+            </tr>
+
+            <tr>
+                <td colspan="4" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <a class="mini-button" onclick="onOk" style="width:60px;margin-right:20px;">确认</a>
+                    <a class="mini-button" onclick="onCancel" style="width:60px;">取消</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        var arr = [{ ID: "0", TEXT: "查询" }, { ID: "1", TEXT: "修改" }, { ID: "2", TEXT: "删除"}];
+        mini.get("mb_FUNCTION").setData(arr);
+        //标准方法接口定义
+        function SetData(data) {
+            $.data(myData, "action", data.action);
+            var _type = data.TYPE;
+            if (data.action == "edit") {
+                mini.get("mb_ID").setValue(data.ID);
+                var strWhere = { "stcd": data.ID };
+                //GetJosns("MODE_ES_MBMANAGESel", strWhere, "Sel");
+				app.post("SWZZ_MODE_ES_MBMANAGE/findResult",strWhere,(data)=>{
+					JosnSel(data,"Sel")
+				})
+            } else if (data.action == "new") {
+                var strID = GetTableID();
+                mini.get("mb_ID").setValue(strID);
+                mini.get("mb_MANAGER").setValue(GetCookie("LOGINNAME"));
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var o = data.data[0];
+                    //FromSetData(o);
+					mini.get("mb_ID").setValue(o.mb_ID);
+					mini.get("mb_NAME").setValue(o.mb_NAME);
+					mini.get("mb_METHODNAME").setValue(o.mb_METHODNAME);
+					mini.get("mb_FUNCTION").setValue(o.mb_FUNCTION);
+					mini.get("mb_PATH").setValue(o.mb_PATH);
+					mini.get("mb_MANAGER").setValue(o.mb_MANAGER);
+					mini.get("mb_PARA").setValue(o.mb_PARA);
+					mini.get("mb_PARANOTE").setValue(o.mb_PARANOTE);
+					mini.get("mb_NOTE").setValue(o.mb_NOTE);
+                }
+            }
+            else if (typeID == "Update") {
+                mini.alert(data.message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            }
+            else if (typeID == "Add") {
+                mini.alert(data.message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            } else if (typeID == "MODE_ES_MBMANAGESel") {
+                
+
+            }
+            mini.unmask(document.body);
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+        function onOk(e) {
+            //保存数据
+            var mb_function = "";
+            if (mini.get("mb_FUNCTION").getText() == "查询") {
+                mb_function = "0";
+            }
+            else if (mini.get("mb_FUNCTION").getText() == "修改") {
+                mb_function = "1";
+            }
+            else if (mini.get("mb_FUNCTION").getText() == "删除") {
+                mb_function = "2";
+            }
+            var strWhere = {
+                "mb_ID": mini.get("mb_ID").getValue(),
+                "mb_NAME": mini.get("mb_NAME").getValue(),
+                "mb_METHODNAME": mini.get("mb_METHODNAME").getValue(),
+                "mb_FUNCTION": mb_function,
+                "mb_PATH": mini.get("mb_PATH").getValue(),
+                "mb_MANAGER": mini.get("mb_MANAGER").getValue(),
+                "mb_PARA": mini.get("mb_PARA").getValue(),
+                "mb_PARANOTE": mini.get("mb_PARANOTE").getValue(),
+                "mb_NOTE": mini.get("mb_NOTE").getValue()
+            };
+			mini.mask({
+			    el: document.body,
+			    cls: 'mini-mask-loading',
+			    html: '加载中...'
+			});
+            //GetJosns("MODE_ES_MBMANAGEUpdate", strWhere, "MODE_ES_MBMANAGESel");
+			if ($.data(myData, "action") == "new") {
+			    app.post("SWZZ_MODE_ES_MBMANAGE/add",strWhere,(data)=>{
+			    	JosnSel(data,"Add")
+			    })
+			} else {
+			    app.post("SWZZ_MODE_ES_MBMANAGE/modify",strWhere,(data)=>{
+					JosnSel(data,"Update")
+				})
+			}
+			
+
+        }
+
+        function OnSava() {
+            form.validate();
+            if (form.isValid() == false)
+                return;
+            var objSate = $.data(myData, "action");
+            if (objSate == "edit") {
+                var strId = mini.get("mb_ID").getValue();
+            }
+            else {
+                var strId = GetTableID();
+                mini.get("mb_ID").setValue(strId);
+            }
+            var strWhere = form.getData(true, true);
+            
+            if (objSate == "edit") {
+                GetJosns("MODE_ES_MBMANAGEUpdate", strWhere, "Update");
+            }
+            else {
+                GetJosns("MODE_ES_MBMANAGEAdd", strWhere, "Add");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="上海市水文预报调度一体化平台（一期）">
+    <meta name="keywords" content="上海市水文预报调度一体化平台（一期）">
+    <meta http-equiv="imagetoolbar" content="no">
+    <meta property="wb:webmaster" content="10fd28588b2f9686">
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne">
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>上海市水文预报调度一体化平台（一期）</title>
+    <script type="text/javascript" src="Common/Scripts/echarts.min.js"></script>
+    <script type="text/javascript" src="Common/boot.js"></script>
+    <link href="arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="arcgis_js_api/myJs/style/index.css?ver=1.0.1" rel="stylesheet" type="text/css" />
+    <script src="arcgis_js_api/myJs/map.js" type="text/javascript"></script>
+    <style type="text/css">
+        .mini-splitter-handler {
+            display: none;
+        }
+
+        .fa {
+            /*padding-left: 20px;*/
+            padding-left: 20px;
+            font-size: 16px;
+            float: left;
+            padding-right: 10px;
+        }
+
+        .lihover .fa {
+            /*padding-left: 15px;*/
+        }
+        .maplist ul li div {
+            /*width: 100px;*/
+        }
+
+        .mini-tabs-scrollCt {
+            border: 0px !important;
+        }
+
+        .mini-splitter-pane2 {
+            width: 0px !important;
+            display: none;
+        }
+
+        .mini-tabs-body {
+            background: #ededed;
+        }
+
+            .mini-tabs-body iframe {
+                padding: 5px 5px 5px 5px;
+            }
+
+        .mini-tabs-bodys, mini-tabs-table {
+            width: 99.9% !important;
+        }
+
+        .mini-splitter .mini-splitter-pane1 {
+            width: 99.9% !important;
+        }
+
+        .collapse-btn {
+            -webkit-box-flex: 0;
+            -ms-flex: 0 0 60px;
+            flex: 0 0 60px;
+            width: 100%;
+            height: 60px;
+            line-height: 60px;
+            color: #409eff;
+            text-align: center;
+        }
+
+        .cursor-pointer {
+            cursor: pointer !important;
+        }
+        .mini-tabs-table {
+            width: 100%;
+        }
+        .activeP{
+            color:red;
+        }
+        .menua {
+            text-decoration: none;
+            display: block;
+            width: 50px;
+            /* height: 40px; */
+            text-align: center;
+            /*float: left;*/
+            margin-top: 1px;
+        }
+    </style>
+</head>
+<script type="text/javascript">
+    mini.parse();
+    var _GlobalTab = null;
+    var _GlobalIndexName = "";
+    var _GlobalIndexUrl = "";
+    //debugger;
+    var myData = [];
+    $(function () {
+        $.data(myData, "SpanShouWen", true);
+        var mokui = GetQueryString("menu");
+        $.data(myData, "MENU", mokui);
+        if (mokui == "NO038") {
+            $("#PreeBox").css("display", "block");
+            $("#TLDiv").css("bottom", "60px");
+        } else {
+            $("#PreeBox").css("display", "none");
+            $("#TLDiv").css("bottom", "10px");
+        }
+        var strURL = GetQueryString("URL");
+        var strQX_NAME = GetQueryString("QX_NAME");
+        if (strURL != null) {
+            var menulist = [{ "QX_ID": new Date().format("yyyyMMddHHmmss"), "QX_PARENT": "", "QX_NAME": strQX_NAME, "QX_MENU": mokui + "00", "QX_URL": strURL, "QX_ORDERID": 1, "QX_SYS": "NO12", "QX_ICON": "11100" }];
+            LeftMenu(menulist, "");
+        } else {
+            var postParam = { "QX_SYS": "NO12", "QX_MENU": mokui, "GROUPID": GetCookie("GROUPID") };
+            //GetJosns("QX_MAINSel", postParam, "QX_MAINSel");
+			console.log(mokui);
+			app.post("SWZZ_DATA_qx_main/findResult",{},(data)=>{
+				var result = data;
+				var dataTwo = result.data.filter(m=>{
+					return m.qx_SYS == "NO12" && m.qx_MENU.indexOf(mokui) > -1;
+				})
+				app.post("SWZZ_DATA_qx_enable/findResult",{},(data)=>{
+					var mokuaiList = data.data.filter(m=>m.qx_ID == GetCookie("GROUPID")).map(m=>m.qx_MOKUAI);
+					result.data = dataTwo.filter(m=>mokuaiList.contains(m.qx_ID));
+					result.total = result.data.length;
+					JosnSel(result,"QX_MAINSel");
+				})
+			})
+        }
+
+    });
+    function JosnSel(data, typeID) {
+        if (typeID == "QX_MAINSel") {
+            var menulist;
+            var strID = ""; 
+            if (data.total > 0) {
+				data.data.sort((a,b)=>{
+					return a.qx_ORDERID - b.qx_ORDERID;
+				})
+                if (data.total > 1) {
+                    strID = data.data[0].qx_ID;
+                    menulist = SetValueJson(data.data, "qx_PARENT", data.data[0].qx_PARENT); 
+                } else {
+                    if (data.total > 0) {
+                        strID = data.data[0].qx_PARENT;
+                        menulist = data.data;
+                        $(".maplist").hide();
+                        $("#mainTabs").css({ "width": "100%", "margin-left": "0px" });
+                    }
+                }
+				console.log(menulist);
+                if (menulist.length > 0) {
+                    LeftMenu(menulist, strID);
+                }
+            }
+
+        }
+    }
+    //获取有没有子类
+    function getChildrens(menulist,qx_id) {
+        var menulistTemp= menulist.filter(function (ex) {
+            return ex.qx_PARENT==qx_id;
+        });
+        return menulistTemp;
+    }
+   function LeftMenu(menulist, qx_id) {
+        var $li;
+        var $div;
+        var menuIndex = 0;
+        for (var i = 0; i < menulist.length; i++) {
+            var item = menulist[i];
+			//console.log(item);
+            //00表示一级菜单
+            // if (item.QX_MENU.toString().substr(item.QX_MENU.toString().length - 2) == "00") {
+            if (item.qx_PARENT == qx_id) {
+                menuIndex++;
+
+                var menulistChid=getChildrens(menulist, item.qx_ID);
+				//console.log(menulistChid)
+
+                var str = "";
+                if (item.qx_URL != null && item.qx_URL.replace(/\s+/g, "") != "") {
+                    var tempURL = item.qx_URL;
+                    str = "onclick=\"addTab('" + item.qx_NAME + "', '" + tempURL + "')\"";
+                    if (_GlobalIndexName == "") {
+                        _GlobalIndexName = item.qx_NAME;
+                        _GlobalIndexUrl = item.qx_URL;
+                    }
+                }
+                var strI=""
+                if (menulistChid.length > 0) {//有子类
+                    strI ='<i class="fa fa-chevron-down" style="font-size:15px;color:#909399;position: absolute;right:5px;top:12px;"></i>';
+                }
+                if (i == 0) {
+                    $li = $("<li class=\"lihover\" style=\"position: relative;\" " + str + "></li>"); 
+					 if (isNaN(item.qx_ICON) == false) {
+                         $li.append($("<a class=\"menua\"> <img class=\"liimg\" src=\"arcgis_js_api/myJs/images/menu/menu" + item.qx_ICON + "@.png\"></img></a>"));
+                    } else {
+                         $li.append($("<a class=\"menua\"> <i class=\"fa faMenu " + item.qx_ICON + "\"></i></a>"));
+                    }
+                }
+                else {
+                    $li = $("<li " + str + "></li>"); 
+					 if (isNaN(item.qx_ICON) == false) {
+                         $li.append($("<a class=\"menua\"> <img class=\"liimg\" src=\"arcgis_js_api/myJs/images/menu/menu" + item.qx_ICON + ".png\"></img></a>"));
+                    } else {
+                         $li.append($("<a class=\"menua\"><i class=\"fa faMenu " + item.qx_ICON + "\"></i></a>"));
+                    }
+                }
+                var qx_nameStr = item.qx_NAME;
+                $li.append($("<span>" + qx_nameStr + "</span>"));
+                $li.append(strI);
+                //var str = menulist[i + 1].QX_MENU.toString().substr(menulist[i + 1].QX_MENU.toString().length - 2);
+                //if (i == menulist.length - 1 || str== "00") {
+
+                //}
+                //else {
+                //    $div = $("<div  class=\"active\"></div>");
+                //    $li.append($div);
+                //}
+                
+                if (menulistChid.length > 0) {
+                    if (i == 0) {
+                        $div = $("<div></div>");
+                    } else {
+                        $div = $("<div  class=\"active\"></div>");
+                    }
+                    
+                    $li.append($div);
+                }
+                $("#leftTree").append($li);
+            }
+            else {
+                var tempURL = item.qx_URL;
+                if (item.qx_URL.lastIndexOf("http") > -1) {
+                    var $p = $("<p class=\"children\" onclick=\"window.parent.OpenTab('fa-warning', '" + item.qx_NAME + "','" + tempURL + "')\">" + item.qx_NAME + "</p>");
+                } else {
+                    var $p = $("<p class=\"children\" onclick=\"addTab('" + item.qx_NAME + "', '" + tempURL + "')\">" + item.qx_NAME + "</p>");
+                }
+                if (_GlobalIndexName == "") {
+                    _GlobalIndexName = item.qx_NAME;
+                    _GlobalIndexUrl = item.qx_URL;
+                }
+                $div.append($p);
+            }
+        }
+        addTab(_GlobalIndexName, _GlobalIndexUrl);
+        doInit();
+    }
+    
+    function ImgClick(objID, objMSG) { 
+        $("#" + objID + ">.TextTri").html(objMSG);
+    }
+    function TITLEClick(objID, objMSG) {
+        $("#" + objID + ">.TextTitle").html(objMSG);
+    }
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]); return null;
+    }
+
+    function addUrl(title, url) {
+        if (url != "") {
+            addTab(title, url);
+        }
+    }
+    function addTab(str, url) {
+        var tabs = mini.get("mainTabs");
+        var tab = tabs.getTab(str);
+        if (str == "台风路径") {
+            window.open(url);
+        }
+  //      else if (url.lastIndexOf('map.html') > -1)
+		//{
+		//	window.parent.OpenTab('',str,url);
+  //      }
+        else if (url.lastIndexOf('http://') > -1)
+		{
+			window.parent.OpenHref(url);
+		}
+        else if (tab && url == tab.url) {
+            tabs.activeTab(tab);
+			tabs.reloadTab (tab);
+        }
+        else { 
+            tab = { title: str, name: str, url: url, showCloseButton: true };
+            tab = tabs.addTab(tab);
+            tab.ondestroy = onTabDestroy;
+            tabs.activeTab(tab); 
+        }
+
+        try {
+            if (tab.title == "雨情监视" || tab.title == "气象雨情(实)") {
+                var iframeTab = tabs.getTabIFrameEl(tab);
+                if (iframeTab) {
+                    iframeTab.contentWindow.RainfallChange();
+                }
+            } else {
+                myMapImageLayer.setVisibility(false);
+            }
+        } catch (ex) { }
+
+
+        if ($.data(myData, "MENU") == "NO038") {
+            $.data(myData, "TAB", tab);
+        }
+    }
+    function OpenTab(_iconCls, _text, _url) {
+        window.parent.OpenTab(_iconCls, _text, _url);
+        //var agg = { id: GetTableID(), iconCls: "mini-tab-icon mini-iconfont MenuIcoColor menu-icon fa " + _iconCls, text: _text, url: _url };
+        //activeTab(agg);
+    }
+    function activeTab(item) {
+        var tabs = mini.get("mainTabs");
+        var tab = tabs.getTab(item.id);
+        if (!tab) {
+            tab = { name: item.id, title: item.text, url: item.url, iconCls: item.iconCls, showCloseButton: true };
+            tab = tabs.addTab(tab);
+        }
+        tabs.activeTab(tab);
+    }
+    function onTabDestroy(e) {
+        //此时窗口还没被销毁
+        var tabs = e.sender;
+        var iframe = tabs.getTabIFrameEl(e.tab);
+        if (iframe) {
+            doFunc(iframe.contentWindow._destroy);
+            doFunc(iframe.contentWindow._hide);
+        }
+    }
+    function onTabChange(e) {
+        var tabs = e.sender;
+        //把之前的图层清理
+        if (_GlobalTab != null) {
+            var befiframe = tabs.getTabIFrameEl(_GlobalTab);
+            if (befiframe) {
+                doFunc(befiframe.contentWindow._hide);
+            }
+        }
+        //显示之后的图层
+        var iframe = tabs.getTabIFrameEl(tabs.getActiveTab());
+        if (iframe) {
+            doFunc(iframe.contentWindow.ShowPage);
+            doFunc(iframe.contentWindow._show);
+        }
+
+        _GlobalTab = tabs.getActiveTab();
+        if (_GlobalTab != null) {
+            var _url = _GlobalTab.url;
+            if (_url.lastIndexOf("MapElement") > -1) {
+                _url = _url.substring(_url.length - 2);
+                var myAgg = [];
+                myAgg.push(_url.replace("=", ""));
+                if (myAgg[0] == "13") {
+                    setTimeout(function () {
+                        ParentClick(myAgg);
+                    }, 2000);
+                } else {
+                    ParentClick(myAgg);
+                }
+            } else if (_url.lastIndexOf("MapHD") > -1) {
+                //var myAgg = ["18", "19", "20", "21", "22", "23", "24", "25"];
+                var myAgg = ["21"];
+                ParentClick(myAgg);
+            } else if (_url.lastIndexOf("qx/") > -1) {
+                doFunc(iframe.contentWindow.TimeShowYT);
+            }
+        }
+
+    }
+    //判断该方法是否存在,存在就调用方法
+    function doFunc(func) {
+        if (typeof (func) == "function") {
+            func();
+        }
+    }
+    function CloseInfoElement() {
+        if (info != null) {
+            info.clear();
+        }
+    }
+
+    function SpanShouWen() {
+        var temp = GetObj("ShouWen").checked;
+        if (temp == true) {
+            $(".switchery").removeClass("shouwenTrue");
+            $(".switchery").addClass("shouwenFalse");
+            $(".MapText").addClass("none");
+            GetObj("ShouWen").checked = "";
+
+
+        } else {
+            $(".switchery").removeClass("shouwenFalse");
+            $(".switchery").addClass("shouwenTrue");
+            $(".MapText").removeClass("none");
+            GetObj("ShouWen").checked = "checked";
+
+        }
+    }
+
+    function SpanItem() {
+        var temp = GetObj("ShouWen").checked;
+        if (temp == true) {
+            $("#roadnet").removeClass("checked");
+            $(".MapText").addClass("none");
+            GetObj("ShouWen").checked = "";
+        } else {
+            $("#roadnet").addClass("checked");
+            $(".MapText").removeClass("none");
+            GetObj("ShouWen").checked = "checked";
+        }
+    }
+
+
+    //返回是否显示标注
+    function SpanBiaoZhu() {
+        return GetObj("ShouWen").checked;
+    }
+</script>
+<script type="text/javascript">
+    function openMenu() {
+        var mapWidth = $(".maplist").css("width");
+        if (mapWidth == "200px") {
+            $("#mainTabs").css("width","calc(100% - 60px)");
+            $("#mainTabs").css("margin-left", "60px");
+
+            $(".maplist").css("width", "60px");
+            $("#leftTree li span").css("display", "none");
+			$("#leftTree li div").each(function(){
+			$(this).addClass("active");
+			});
+			
+			$("#leftTree li .fa-chevron-down").css("display", "none");
+            $(".cursor-pointer i").removeClass("fa fa-outdent");
+            $(".cursor-pointer i").addClass("fa fa-indent");
+        } else {
+            $("#mainTabs").css("width", "calc(100% - 200px)");
+            $("#mainTabs").css("margin-left", "200px");
+
+            $(".maplist").css("width", "200px");
+            $("#leftTree li span").css("display", "block");
+			$("#leftTree li .fa-chevron-down").css("display", "block");
+			//$("#leftTree li div").css("display", "block");
+			$("#leftTree .lihover div").removeClass("active");
+            $(".cursor-pointer i").removeClass("fa fa-indent");
+            $(".cursor-pointer i").addClass("fa fa-outdent");
+        }
+    }
+</script>
+<body>
+    <div class="maplist" style="z-index: 2; display: block;width:200px;position:absolute;background-color: white;">
+        <div class="collapse-btn">
+            <span class="cursor-pointer" onclick="openMenu()">
+                <i class="fa fa-outdent" style="cursor:pointer;padding:0px;float:none;" title="收缩"></i>
+            </span>
+        </div>
+        <ul id="leftTree" style="width: 100%; height: 100%;" showtreeicon="false" idfield="id"
+            resultastree="false" showtreelines="false" showexpandbuttons="false" onnodeselect="onNodeSelect"></ul>
+    </div>
+    <div id="spliterDiv" class="mini-splitter" style="width: 100%; height: 100%;">
+        <div id="divLeft" showCollapseButton="false" style="border: none;" size="100%">
+            <div id="mainTabs" class="mini-tabs" activeindex="0" style="width: calc(100% - 200px);height: 100%;margin-left:200px;"
+                 plain="false" showheader="false" onactivechanged="onTabChange">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

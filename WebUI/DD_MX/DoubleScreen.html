@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>多方案双屏对比分析</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/myJs/parentIndex.js"></script>
+
+    <link href="../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
+
+    <script src="../Common/Scripts/modelHelperApi.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 20px;
+        }
+
+        .colorL p {
+            width: 55px;
+            margin: 0px auto;
+            margin-top: -4px;
+        }
+
+        .colorSpan {
+            display: inline-block;
+            width: 20px;
+            height: 30px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mapDiv" style="position:absolute;left:0;width:100%;height:calc(100% - 37px);padding:20px 5px 20px 20px;">
+        <div id="faTitle" style="position:absolute;left:75px;z-index:1;color:white;    color: white;
+    font-size: 16px;
+    background: #017de4;
+    margin-top: 6px;
+    padding: 5px 10px;">
+
+        </div>
+        <div style="position:absolute;left:20px;z-index:1;background:rgba(255,255,255,.8);
+        margin:5px;-webkit-border-radius: 5px;
+    border-radius: 5px;display:block;z-index:1;width: 40px;
+    height: 35px;
+    text-align: center;cursor:pointer;
+    line-height: 40px;"
+            title="方案选择" onclick="openFaMenu('falistChoose')">
+            <i class="fa faMenu fa-list" style="font-size:20px;"></i>
+        </div>
+        <div id="falistChoose" style="position:absolute;left:20px;top:56px; z-index:1;background:rgba(255,255,255,.8);
+        margin:5px;-webkit-border-radius: 5px;
+    border-radius: 5px;display:block;z-index:1;display:none;">
+            <div style="padding:8px 5px;">
+                方案选择：
+                <input id="STCD" name="STCD" class="mini-combobox" style="width:250px;" textfield="dd_NAME" valuefield="dd_ID"
+                    allowinput="true" onvaluechanged="onSTCDChanged" />
+            </div>
+        </div>
+    </div>
+    <div id="mapdemo" style="position:absolute;left:50%;width:50%;height:calc(100% - 37px);padding:20px 20px 20px 5px;display:none;">
+        <div id="faTitle2" style="position:absolute;left:65px;z-index:1;color:white;    color: white;
+    font-size: 16px;
+    background: #017de4;
+    margin-top: 6px;
+    padding: 5px 10px;">
+
+        </div>
+        <div style="position:absolute;left:0px;z-index:1;background:rgba(255,255,255,.8);
+        margin:5px;-webkit-border-radius: 5px;left:10px;
+    border-radius: 5px;display:block;z-index:1;width: 40px;
+    height: 35px;
+    text-align: center;cursor:pointer;
+    line-height: 40px;"
+            title="方案选择" onclick="openFaMenu('falistChoose2')">
+            <i class="fa faMenu fa-list" style="font-size:20px;"></i>
+        </div>
+        <div id="falistChoose2" style="position:absolute;z-index:1;background:rgba(255,255,255,.8);margin:5px;-webkit-border-radius: 5px;
+    border-radius: 5px;display:block;z-index:1;left:10px;top:56px;display:none;">
+            <div style="padding:8px 5px;">
+                方案选择：
+                <input id="STCD1" name="STCD1" class="mini-combobox" style="width:250px;" textfield="dd_NAME"
+                    valuefield="dd_ID" allowinput="true" onvaluechanged="onSTCDChanged" />
+            </div>
+        </div>
+    </div>
+    <div id="SSTTL" style="
+    background:#ffffff;position:absolute;left:calc(50% - 37px);bottom:55px;height: 395px;
+    border: 1px solid #cecbcb;
+    width: 75px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;display:block;z-index:1;">
+        <div class="colorL">
+            <p><span class="colorSpan" style="background-color:#EF0004"></span><span class="colorSpanValue">4.00</span></p>
+            <p><span class="colorSpan" style="background-color:#EF0088"></span><span class="colorSpanValue">3.80</span></p>
+            <p><span class="colorSpan" style="background-color:#000087"></span><span class="colorSpanValue">3.60</span></p>
+            <p><span class="colorSpan" style="background-color:#0000D0"></span><span class="colorSpanValue">3.40</span></p>
+            <p><span class="colorSpan" style="background-color:#2424FF"></span><span class="colorSpanValue">3.20</span></p>
+            <p><span class="colorSpan" style="background-color:#6363FF"></span><span class="colorSpanValue">3.00</span></p>
+            <p><span class="colorSpan" style="background-color:#9797FF"></span><span class="colorSpanValue">2.80</span></p>
+            <p><span class="colorSpan" style="background-color:#0098C6"></span><span class="colorSpanValue">2.60</span></p>
+            <p><span class="colorSpan" style="background-color:#00B8EF"></span><span class="colorSpanValue">2.40</span></p>
+            <p><span class="colorSpan" style="background-color:#2FCFFF"></span><span class="colorSpanValue">2.20</span></p>
+            <p><span class="colorSpan" style="background-color:#82E2FF"></span><span class="colorSpanValue">2.00</span></p>
+            <p><span class="colorSpan" style="background-color:#C1F1FF"></span><span class="colorSpanValue">0.00</span></p>
+        </div>
+    </div>
+    <!--时间轴开始-->
+    <div class="box1" id="PreeBox" style="position:absolute;width:80%;z-index:1; left:10%; bottom:10px;">
+        <div id="progressTime_control" onclick="progressTimeControl(this)" title="开始" style="background-image: url(&quot;../Common/Scripts/Progress/img/play.png&quot;);"></div>
+        <div class="progressTime" id="progressTime" style="z-index: 9; width:95%; ">
+            <div>
+                <p id="startTime" style=" float:left;margin-left:33px;opacity: 0;display: none;"></p>
+                <p id="endTime" style=" float:right;margin-right:33px;opacity: 0;display: none;"></p>
+            </div>
+            <div class="time_slot"></div>
+            <div id="progressTime_concent">
+                <div id="scrollBarBox">
+                    <div id="scrollBar">
+                        <div id="scroll_Track" style="width: 128.472px;"></div>
+                        <div id="scroll_Thumb" style="margin-left: 128.472px;">周日 30 - 13:00</div>
+                    </div>
+                </div>
+                <div class="timecode" style="display: none; left: 135px;">23:00</div>
+                <div style="width:90%; margin-left: auto;margin-right: auto;">
+                    <div style="width:300px;float:right;margin-right:-110px;margin-top:-8px">
+                        <p id="TimeSpeed" style="float:left;margin-right:40px;display:none">×1</p>
+                        <p style="float:right" id="scrollBarTxt"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var _ID = GetQueryString("ID");
+        var toggleMap, map;
+        var typeName = "水位";
+        var myData = [];
+        $(function () {
+            BreakLayerLoad();
+            require(["esri/config", "esri/tasks/GeometryService"], function (esriConfig, GeometryService) {
+                esriConfig.defaults.geometryService = new GeometryService("https://sampleserver6.arcgisonline.com/arcgis/rest/services/Geometry/GeometryServer");
+            });
+            require(
+                [
+                    "esri/map",
+                    "esri/geometry/Extent",
+                    "esri/layers/MapImageLayer",
+                    "esri/layers/MapImage",
+                    "esri/layers/ArcGISDynamicMapServiceLayer",
+                    "esri/layers/ArcGISTiledMapServiceLayer",
+                    "esri/layers/WebTiledLayer",
+                    "esri/layers/GraphicsLayer",
+                    "esri/toolbars/draw",
+                    "esri/InfoTemplate",
+                    "esri/tasks/QueryTask",
+                    "esri/graphic",
+                    "esri/layers/FeatureLayer",
+                    "myJs/MapText",
+                    "esri/geometry/webMercatorUtils",
+                    "esri/geometry/Point", "esri/SpatialReference",
+                    "esri/dijit/Measurement", "dojo/dom", "esri/units", "myJs/TDTMercatorLayer",
+                    "myJs/TDTLayer", "myJs/TDTImgLayer", "myJs/TDTNoteLayer", "myJs/TDTDXTLayer", "myJs/TDTRiverLayer",
+                    "myJs/GoogleImgLayer", "myJs/GoogleDxtLayer", "myJs/GoogleVecLayer", "myJs/shswOneMapServer",
+                    "dojo/domReady!"
+                ], function (Map, Extent, MapImageLayer, MapImage, ArcGISDynamicMapServiceLayer, ArcGISTiledMapServiceLayer, WebTiledLayer, GraphicsLayer,
+                    Draw, InfoTemplate, QueryTask, Graphic, FeatureLayer, MapText, webMercatorUtils, Point, SpatialReference, Measurement,
+                    dom, Units, TDTMercatorLayer, TDTLayer, TDTImgLayer, TDTNoteLayer, TDTDXTLayer, TDTRiverLayer, GoogleImgLayer,
+                    GoogleDxtLayer, GoogleVecLayer, shswOneMapServer, ImageParameters) {
+                    map = new Map("mapDiv", {
+                        logo: false,
+                        slider: false, //放大缩小按钮
+                        zoom: 10,
+                        maxZoom: 18,
+                        //minZoom: 5
+                        showLabels: true,
+                        center: [1301.505898, -12657.422868],
+                        spatialReference: { "wkid": 3857 }
+                    });
+                    toggleMap = new Map("mapdemo", {
+                        logo: false,
+                        slider: false, //放大缩小按钮
+                        zoom: 10,
+                        maxZoom: 18,
+                        //minZoom: 5
+                        showLabels: true,
+                        center: [1301.505898, -12657.422868],
+                        spatialReference: { "wkid": 3857 }
+                    });
+                    //地形图
+                    // var tdtimg = new TDTImgLayer("img", { visible: true });
+                    // map.addLayer(tdtimg);
+                    // var tdtimg2 = new TDTImgLayer("img", { visible: true });
+                    // toggleMap.addLayer(tdtimg2);
+
+                    var shswOneMapServerLayer = new shswOneMapServer("shsw_OneMapServer", { visible: true });
+                    map.addLayer(shswOneMapServerLayer);
+
+                    var shswOneMapServerLayer2 = new shswOneMapServer("shsw_OneMapServer", { visible: true });
+                    toggleMap.addLayer(shswOneMapServerLayer2);
+
+
+                    map.on("zoom-end", function () {
+                        toggleMap.setExtent(map.extent);
+                    });
+                    map.on("mouse-up", function () {
+                        toggleMap.setExtent(map.extent);
+                    });
+                    toggleMap.on("zoom-end", function () {
+                        map.setExtent(toggleMap.extent);
+                    });
+                    toggleMap.on("mouse-up", function () {
+                        map.setExtent(toggleMap.extent);
+                    });
+
+                    loadLayer();
+
+                    map.on("mouse-move", Location);
+                    function Location(evt) {
+                        var mp = evt.mapPoint;
+                        $("#locationSpan").html(mp.x.toFixed(6) + "," + mp.y.toFixed(6));
+                    };
+                    //鼠标点击显示图层信息
+                });
+        });
+        var layer_hw, layer_hw2, countyLayer1, countyLayer2;
+        var isComp = 0;
+        function loadLayer() {
+            //var swzzModerRiverUrl = "http://36.155.90.4:6080/arcgis/rest/services/SHSWZZModeRiver/MapServer";
+            //var url = swzzModerRiverUrl;
+            //layer_hw = new esri.layers.FeatureLayer(url + "/0", {
+            //    //注意这里的mode一定要指定MODE_SNAPSHOT，否则每次放大或缩小或者是平移都会执行FeatureLayer的update-end操作
+            //    mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
+            //    //输出所有属性
+            //    outFields: ["*"],
+            //});
+            //layer_hw2 = new esri.layers.FeatureLayer(url + "/0", {
+            //    //注意这里的mode一定要指定MODE_SNAPSHOT，否则每次放大或缩小或者是平移都会执行FeatureLayer的update-end操作
+            //    mode: esri.layers.FeatureLayer.MODE_SNAPSHOT,
+            //    //输出所有属性
+            //    outFields: ["*"],
+            //});
+
+            addMapLayer();
+        }
+
+
+        //查询结果换颜色
+        function addMapLayer() {
+            layer_hw = new esri.layers.GraphicsLayer();
+            layer_hw2 = new esri.layers.GraphicsLayer();
+            var colors = ["#82E2FF", "#0000FF", "#FFA500", "#FF0000",];
+            var colors2 = ["#82E2FF", "#0000FF", "#FFA500", "#FF0000"];
+            //countyLayer1.clear();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol",
+                "dojo/_base/lang",
+                "esri/geometry/Polygon",
+                "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, lang, Polygon) {
+                    //console.error(layer_hw.graphics.length);
+                    var dataLJ = [];
+                    //读取json文件
+                    $.get(
+                        "../Common/SHSWZZModeRiver2000.json",//json路径
+                        lang.hitch(this, function (data, status) {
+                            if (status === "success") {
+                                var features = data.features;
+                                // console.error(features);
+                                features.forEach(function (feature) {
+                                    var allrings = feature.geometry.coordinates;
+                                    var polygon = new Polygon(allrings);
+                                    var properties = feature.properties;
+                                    var hd_id = properties.ID;
+                                    var dm = properties["起始断面序"];
+                                    var colorStr = colors[0];
+                                    var fillColorStr = colors2[0];
+                                    var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                        new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                            new Color(colorStr), 2), new Color(fillColorStr)
+                                    );
+                                    var g3 = new Graphic(polygon, fs);
+                                    g3.attributes = properties;
+                                    layer_hw.add(g3);
+
+                                    var g4 = new Graphic(polygon, fs);
+                                    g4.attributes = properties;
+                                    layer_hw2.add(g4);
+                                }, this);
+
+                                //添加图层
+                                map.addLayer(layer_hw);
+                                toggleMap.addLayer(layer_hw2);
+
+                                countyLayer1 = new esri.layers.GraphicsLayer();
+                                map.addLayer(countyLayer1);
+
+                                countyLayer2 = new esri.layers.GraphicsLayer();
+                                toggleMap.addLayer(countyLayer2);
+                                countyLayer1.on("click", function (e) {
+                                    var graphic = e.graphic;
+                                    var attributes = graphic.attributes;
+                                    trans(attributes);
+                                });
+                                countyLayer2.on("click", function (e) {
+                                    var graphic = e.graphic;
+                                    var attributes = graphic.attributes;
+                                    trans2(attributes);
+                                });
+                                //layer_hw.on("update-end", function () {
+                                //    if (isComp == 0) {
+                                //        gridLoad();
+                                //        isComp++;
+                                //    }
+                                //});
+                                gridLoad();
+                            }
+                        }),
+                        "json"
+                    );
+
+                });
+        }
+
+
+        function BreakLayerLoad() {
+            //GetJosns("MODE_DD_SOLUTIONSel", { "DD_MIND": _ID }, "Sel");
+            app.post("SWZZ_MODE_DD_SOLUTION/findResult", { pattem: _ID }, (data) => {
+                JosnSel(data, "Sel");
+            })
+        }
+        function gridLoad() {
+            var data = $.data(myData, "faList");
+            mini.get("STCD").setData(data);
+            mini.get("STCD").select(0);
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            //console.log(nodes);
+            $("#faTitle").html(nodes.dd_NAME);
+            var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date(convertToDate(nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            if (data.length > 1) {
+                //多个方案
+                mini.get("STCD1").setData(data);
+                mini.get("STCD1").select(1);
+                _stcd = mini.get("STCD1");
+                nodes = _stcd.getSelected();
+                $("#faTitle2").html(nodes.dd_NAME);
+            }
+            YBClick(time, etime);
+        }
+        function SetMapData(time) {
+            //alert(time);
+            time = new Date(time).format("yyyy/MM/dd HH:mm:ss");
+            $.data(myData, "time", time);
+            SetSDE();
+            setTimeout(function () {
+                SetSDE2();
+            }, 800);
+        }
+        function YBClick(objSTM, objETM) {
+            _DayNum = 24;
+            ScrollBar.value = 0;
+            SetProgressTime(null, objSTM, objETM);
+            progressTimeStop();
+        }
+        function SetSDE() {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            //alert(nodes.DD_ID);
+            var time = $.data(myData, "time");
+            modeGetResultAllModelByTime(time, nodes.dd_FOR, "TF_SetSDENew");
+        }
+        function SetSDE2() {
+            var _stcd = mini.get("STCD1");
+            var nodes = _stcd.getSelected();
+            var time = $.data(myData, "time");
+            modeGetResultAllModelByTime(time, nodes.dd_FOR, "TF_SetSDENew2");
+        }
+        //查询结果换颜色
+        function queryComplete(result) {
+            var colors = ["#C1F1FF", "#82E2FF", "#2FCFFF", "#00B8EF", "#0098C6", "#9797FF", "#6363FF", "#2424FF", "#0000D0", "#0000D0", "#000087", "#EF0088", "#EF0004"];
+            var colors2 = ["#C1F1FF", "#82E2FF", "#2FCFFF", "#00B8EF", "#0098C6", "#9797FF", "#6363FF", "#2424FF", "#0000D0", "#0000D0", "#000087", "#EF0088", "#EF0004"];;
+            countyLayer1.clear();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol) {
+                //console.error(layer_hw.graphics.length);
+                for (var s = 0; s < layer_hw.graphics.length; s++) {
+                    var gra = layer_hw.graphics[s];
+                    var hd_id = gra.attributes.ID;
+                    var dm = gra.attributes["起始断面序"];
+                    if(result[hd_id] == undefined){
+                        continue;
+                    }
+                    var arr = result[hd_id].sections;
+                    if (arr.length > 0) {
+                        var ZVALUE = Number(arr[dm].Z.toFixed(2));
+                        var color = getRiverSZColor("水位",ZVALUE);
+                        if (color != undefined) {
+                            var colorStr = colors[color];
+                            var fillColorStr = colors2[color];
+                            var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                    new Color(colorStr), 2), new Color(fillColorStr)
+                            );
+                            var g3 = new Graphic(gra.geometry, fs);
+                            var item=gra.attributes;
+                            item.HDNAME=gra.attributes["名称"];
+                            item.DMNUM=dm;
+                            g3.attributes =item;
+                            countyLayer1.add(g3);
+                        }
+                    }
+                }
+            });
+        }
+        function getRiverSZColor(str, sw) {
+            sw = Math.abs(sw);
+            var valueStr1 = "0,2,2.2,2.4,2.6,2.8,3.0,3.2,3.4,3.6,3.8,4,100000";
+            var valueStr2 = "1,2,3,4,5,6";
+            var valueStr3 = "0.0,2.0,4.0,4.8,5.6,6.4,7.2,8.0,8.8,9.6";
+            var valueStr4 = "0.0,3.0,5.0,7.0,9.0,10.5,13.0,14.5,16.0,17.5";
+            var valueStr5 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+            var valueStr6 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+            var valueStr7 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+            var valueStr8 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+            var valueStr9 = "0.0,5.0,10.0,20.0,30.0,40.0,60.0,80,100,150,200,300,100000";
+            var valueStr10 = "0.0,0.4,0.8,1.2,1.6,2.0,2.4,2.6,2.8,3.0";
+
+            var strValue = valueStr1;
+            switch (str) {
+                case "水位": strValue = valueStr1; break;//0.3-4
+                case "BOD5": strValue = valueStr2; break;//0-1
+                case "溶解氧": strValue = valueStr3; break;//0-0.3
+                case "COD": strValue = valueStr4; break;//0.001-0.04
+                case "总磷": strValue = valueStr5; break;//0.01
+                case "总氮": strValue = valueStr6; break;//0.01-2
+                case "叶绿素": strValue = valueStr7; break;//0-1.5
+                case "氨氮": strValue = valueStr8; break;//0-0.1
+                case "流量": strValue = valueStr9; break;//0-0.1
+                case "突发污染物浓度": strValue = valueStr10; break;//0-0.1
+            }
+
+            var strArr = strValue.split(',');
+            var color = 0;
+            var iscolor = true;
+            for (var i = 0; i < strArr.length; i++) {
+                var a1 = Math.abs(parseFloat(strArr[i]));
+                // console.error('a1', a1);
+                if (sw < a1) {
+                    color = i;
+                    iscolor = false;
+                    break;
+                }
+            }
+            if (iscolor) {
+                color = 10;
+            }
+            //color--;
+            return color;
+        }
+        //查询结果换颜色
+        function queryComplete2(result) {
+            var colors = ["#C1F1FF", "#82E2FF", "#2FCFFF", "#00B8EF", "#0098C6", "#9797FF", "#6363FF", "#2424FF", "#0000D0", "#0000D0", "#000087", "#EF0088", "#EF0004"];
+            var colors2 = ["#C1F1FF", "#82E2FF", "#2FCFFF", "#00B8EF", "#0098C6", "#9797FF", "#6363FF", "#2424FF", "#0000D0", "#0000D0", "#000087", "#EF0088", "#EF0004"];;
+            countyLayer2.clear();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol) {
+                //console.error(layer_hw2.graphics.length);
+                for (var s = 0; s < layer_hw2.graphics.length; s++) {
+                    var gra = layer_hw2.graphics[s];
+                    var hd_id = gra.attributes.ID;
+                    var dm = gra.attributes["起始断面序"];
+                    var gra = layer_hw.graphics[s];
+                    var hd_id = gra.attributes.ID;
+                    var dm = gra.attributes["起始断面序"];
+                    var arr = result[hd_id].sections;
+                    if (arr.length > 0) {
+                        var ZVALUE = Number(arr[dm].Z.toFixed(2));
+                        var color = getRiverSZColor("水位",ZVALUE);
+                        if (color != undefined) {
+                            var colorStr = colors[color];
+                            var fillColorStr = colors2[color];
+                            var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                    new Color(colorStr), 2), new Color(fillColorStr)
+                            );
+                            var g3 = new Graphic(gra.geometry, fs);
+                            var item=gra.attributes;
+                            item.HDNAME=gra.attributes["名称"];
+                            item.DMNUM=dm;
+                            g3.attributes =item;
+                            countyLayer2.add(g3);
+                        }
+                    }
+                }
+            });
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                $.data(myData, "faList", data.data);
+                var total = data.total;
+                if (total > 1) {
+                    //多个方案
+                    $("#mapDiv").css("width", "50%");
+                    $("#mapdemo").show();
+                } else {
+                    $("#mapdemo").hide();
+                }
+            }
+            else if (typeID == "TF_SetSDENew") {
+                if(data.result!=undefined){
+                    //画颜色
+                    queryComplete(data.result);
+                }                
+            }
+            else if (typeID == "TF_SetSDENew2") {
+                if(data.result!=undefined){
+                    //画颜色
+                    queryComplete2(data.result);
+                }
+            }
+        }
+        function onSTCDChanged(e) {
+            var id = e.sender.id;
+            var _stcd = mini.get(id);
+            var nodes = _stcd.getSelected();
+            var time = new Date(nodes.dd_TM).format("yyyy/MM/dd HH:mm:ss");
+            $.data(myData, "time", time);
+            if (id == "STCD") {
+                $("#faTitle").html(nodes.dd_NAME);
+                SetSDE();
+            } else {
+                $("#faTitle2").html(nodes.dd_NAME);
+                SetSDE2();
+            }
+        }
+        function trans(feat) {
+            var typeName = "水位";
+            var strPathName = "黄浦江水系预报模型三期";
+            var hd_name = feat.HDNAME;
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date(convertToDate(nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            var url = "./DanZhan/YBSZLine.html?stcd=" + feat.ID + "&stnm=" + hd_name
+                + "&PLAN_N=" + nodes.DD_ID + "&typeName=" + typeName + "&dm_id=" + feat.DMNUM
+                + "&strPathName=" + strPathName + "&stime=" + time + "&etime=" + etime+"&taskID="+nodes.dd_FOR;
+            //查看计算成果
+            openChart(url, hd_name, hd_name);
+        }
+        function trans2(feat) {
+            var typeName = "水位";
+            var strPathName = "黄浦江水系预报模型三期";
+            var hd_name = feat.HDNAME;
+            var _stcd = mini.get("STCD1");
+            var nodes = _stcd.getSelected();
+            var time = new Date(convertToDate(nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date(convertToDate(nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            var url = "./DanZhan/YBSZLine.html?stcd=" + feat.ID + "&stnm=" + hd_name
+                + "&PLAN_N=" + nodes.DD_ID + "&typeName=" + typeName + "&dm_id=" + feat.DMNUM
+                + "&strPathName=" + strPathName + "&stime=" + time + "&etime=" + etime+"&taskID="+nodes.dd_FOR;
+            //查看计算成果
+            openChart(url, hd_name, hd_name);
+        }
+        function openFaMenu(menu) {
+            var display = $("#" + menu).css("display");
+            if (display == "none") {
+                $("#" + menu).show();
+            } else {
+                $("#" + menu).hide();
+            }
+        }
+    </script>
+</body>
+
+</html>

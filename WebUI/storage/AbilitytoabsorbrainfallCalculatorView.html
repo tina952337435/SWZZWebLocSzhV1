@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .mini-toolbar {
+            border: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="height:50%;width:100%;" id="zpDiv">
+        <div class="mini-toolbar" style="padding-right: 20px; ">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 80%;">
+                    </td>
+                    <td align="right">
+                        <div class="bootstrap-switch ">
+                            <div class="bootstrap-switch-container">
+                                <!--<span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit0')" id="switch0"><i class="fa fa-adjust"></i></span>-->
+                                <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'chartZP','zpDiv')" id="switch1"><i
+                                        class="fa fa-line-chart"></i></span>
+                                <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'grid1','zpDiv')" id="switch2"><i
+                                        class="fa fa-table"></i></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="height:calc(100% - 40px);;width:100%;" id="chartZP">
+        </div>
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height:calc(100% - 40px);display:none;" allowalternating="true" sizeList="[15,20,30,50,100,500,1000]"
+            pageSize="50" showPager="false" showsummaryrow="true" idfield="STCD" allowresize="false" 
+            showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" sortMode="client">
+            <div property="columns">
+                <div field="MEMO" width="150" align="center" headeralign="center" allowSort="true">
+                        重现期
+                </div>
+                <div field="DRP" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="1" dataType="float"
+                    summarytype="max">
+                    雨量(mm)
+                </div>
+                <div field="CVALUE" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2" dataType="float"
+                    summarytype="max">
+                    最大净增平均水位(m)
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="height:50%;width:100%;" id="wpDiv">
+        <div class="mini-toolbar" style="padding-right: 20px; ">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 80%;">
+                    </td>
+                    <td align="right">
+                        <div class="bootstrap-switch ">
+                            <div class="bootstrap-switch-container">
+                                <!--<span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit0')" id="switch0"><i class="fa fa-adjust"></i></span>-->
+                                <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'chartWP','wpDiv')" id="switch3"><i
+                                        class="fa fa-line-chart"></i></span>
+                                <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'grid2','wpDiv')" id="switch4"><i
+                                        class="fa fa-table"></i></span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div style="height:calc(100% - 40px);width:100%;" id="chartWP">
+        </div>
+        <div id="grid2" class="mini-datagrid" style="width: 100%; height:calc(100% - 40px);display:none;" allowalternating="true" sizeList="[15,20,30,50,100,500,1000]"
+            pageSize="50" showPager="false" showsummaryrow="true" idfield="STCD" allowresize="false" 
+            showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" sortMode="client">
+            <div property="columns">
+                <div field="MEMO" width="150" align="center" headeralign="center" allowSort="true">
+                        重现期
+                </div>
+                <div field="DRP" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2" dataType="float"
+                    summarytype="max">
+                    雨量(mm)
+                </div>
+                <div field="CVALUE" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2" dataType="float"
+                    summarytype="max">
+                    最大净增槽蓄容量(百万方)
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var BID = GetQueryString('BID');
+        var SCWTYPE = GetQueryString('SCWTYPE');
+        var TYPE = GetQueryString('TYPE');
+        var grid1=mini.get('grid1');
+        var grid2=mini.get('grid2');
+        $(function () {
+            search();
+        });
+        function SetData() {
+
+        }
+        function OnBoot(objID, objFit,parentID) {
+            $("#"+parentID+" .switch").removeClass("bootstrap-switch-handle-on");
+            $("#"+parentID+" .switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            if (objID == "switch1") {
+                $("#chartZP").show();
+                $("#grid1").hide();
+            }
+            if (objID == "switch2") {
+                $("#grid1").show();
+                $("#chartZP").hide();
+            }
+            if (objID == "switch3") {
+                $("#chartWP").show();
+                $("#grid2").hide();
+            }
+            if (objID == "switch4") {
+                $("#grid2").show();
+                $("#chartWP").hide();
+            }
+        }
+        function search() {
+            var strWhere = {
+                NOTE: "1",
+                BID: BID,
+                // CTYPE:"净增水位降雨量"
+            };
+            GetJosns("STORAGE_ST_ABILITYTOABSORBRAINFALL_RSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                console.error(data);
+                var dataX = [], dataY = [], dataXXL = [], dataYXL = [];
+                for (var num = 0; num < data.data.length; num++) {
+                    var item = data.data[num];
+                    if (item.CTYPE == "净增水位降雨量") {
+                        dataX.push(item.CVALUE);
+                        dataY.push(item.DRP);
+                    }
+                    if (item.CTYPE == "净增槽蓄容量降雨量") {
+                        dataXXL.push(item.CVALUE);
+                        dataYXL.push(item.DRP);
+                    }
+                }
+                var titleText = SCWTYPE + "嘉宝北片" + TYPE + "设计方案Z~P曲线";
+                var xName = "最大净增平均水位(m)";
+                chartNHXNew('chartZP', dataX, dataY, titleText, xName);
+                titleText = SCWTYPE + "嘉宝北片" + TYPE + "设计方案W~P曲线";
+                xName = "最大净增槽蓄容量(百万方)";
+                chartNHXNew('chartWP', dataXXL, dataYXL, titleText, xName);
+                var dataSW=data.data.filter(function(e){
+                    return e.CTYPE == "净增水位降雨量";
+                });
+                grid1.setData(dataSW);
+                var dataXRL=data.data.filter(function(e){
+                    return e.CTYPE == "净增槽蓄容量降雨量";
+                });
+                grid2.setData(dataXRL);
+            }
+        }
+        function chartNHXNew(ChartName, dataX, dataY, titleText, xName) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            option = {
+                title: {
+                    text: titleText,
+                    textStyle: {
+                        color: '#414C59',
+                    },
+                    // subtext: subtext,
+                    subtextStyle: {
+                        color: '#497DBB',
+                        fontSize: 16,
+                        fontWeight: 'normal'
+                    },
+                    left: 'center',
+                    top: 5
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data: ['水面面积', '蓄量'],
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 13
+                    },
+                    x: '70%',
+                    y: '5%'
+                },
+                xAxis: {
+                    name: xName,
+                    nameLocation: 'center',
+                    nameTextStyle: {
+                        padding: [15, 0],
+                        fontSize: 13,
+                    },
+                    data: dataX,
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return Number(v).toFixed(1);
+                        }
+                    },
+                },
+                yAxis: [
+                    {
+                        name: "降雨量(mm)",
+                        nameLocation: 'center',
+                        nameTextStyle: {
+                            padding: [40, 0],
+                            fontSize: 13,
+                        },
+                        min: function (e) {
+                            return e.min - 1;
+                        },
+                        max: function (e) {
+                            return e.max + 5;
+                        },
+                        // 坐标刻度线
+                        axisTick: {
+                            show: true,
+                            lineStyle: {
+                                type: 'solid', //y轴分割线类型
+                                color: 'rgba(102,102,102,0.9)',
+                                // width: 2.5,
+                            },
+                        },
+                        // 坐标 轴线
+                        axisLine: {
+                            show: true,
+                            lineStyle: {
+                                type: 'solid',
+                                // color: 'rgba(66, 192, 255, .3)',
+                                color: 'rgba(102,102,102,0.9)',
+                                // width: 2.5
+                                // color: 'red'
+                            },
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                type: 'dashed'
+                            }
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                    },
+                ],
+                series: [
+                    {
+                        name: '雨量',
+                        type: 'line',
+                        yAxisIndex: 0,
+                        smooth: true,
+                        symbol: 'circle',
+                        color: '#5B9BD5',//#497DBB
+                        lineStyle: {
+                            //type: 'dashed'
+                        },
+                        data: dataY,
+                        label: {
+                            show: false,
+                            fontSize: 16,
+                        },
+                    },
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

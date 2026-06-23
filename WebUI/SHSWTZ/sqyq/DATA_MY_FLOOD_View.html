@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>时间设定管理</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1' style=' background-color: White; width: 95%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    梅雨时间
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始时间：
+                </td>
+                <td class="lie2 View" id="STM">
+                    &nbsp;
+                </td>
+                <td class="lie1" align="right">
+                    结束时间：
+                </td>
+                <td class="lie2 View" id="ETM">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注：
+                </td>
+                <td class="lie2 View" id="NOTE" colspan="3">
+                    &nbsp; 
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    汛期时间
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始时间：
+                </td>
+                <td class="lie2 View" id="XQ_STM">
+                    &nbsp;
+                </td>
+                <td class="lie1" align="right">
+                    结束时间：
+                </td>
+                <td class="lie2 View" id="XQ_ETM">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注：
+                </td>
+                <td class="lie2 View" id="XQ_NOTE" colspan="3">
+                    &nbsp;
+                </td> 
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        //标准方法接口定义
+        function SetData(data) {
+            if (data.action == "look") {
+                var strWhere = { "YEAR": data.YEAR };
+                GetJosns("FLOODTIDEDATA_MY_FLOODSel", strWhere, "Sel");
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var o = data.data.filter(function (e) {
+                        return e.TYPEID == "MY";
+                    });  
+                    $("#STM").html(convertToDate(o[0].STM).format("yyyy-MM-dd"));
+                    $("#ETM").html(convertToDate(o[0].ETM).format("yyyy-MM-dd"));
+                    $("#NOTE").html(o[0].NOTE);
+                    o = data.data.filter(function (e) {
+                        return e.TYPEID == "RX";
+                    });  
+                    $("#XQ_STM").html(convertToDate(o[0].STM).format("yyyy-MM-dd"));
+                    $("#XQ_ETM").html(convertToDate(o[0].ETM).format("yyyy-MM-dd"));
+                    $("#XQ_NOTE").html(o[0].NOTE); 
+                }
+            }
+        }
+    </script>
+</body>
+</html>

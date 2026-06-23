@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>用户管理</title>
+    <!-- <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> -->
+    <link href="../Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /* overflow: hidden; */
+            font-size: 12px;
+            background-color: white;
+        }
+
+        .table1 tr td:nth-child(odd) {
+            width: 8%;
+        }
+
+        .table1 tr td:nth-child(even) {
+            width: 12%;
+        }
+    </style>
+
+    <style>
+        .uploader {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            cursor: default;
+            padding: 0;
+            margin: 10px 0px;
+            /*-moz-box-shadow:0px 0px 5px #ddd;
+    -webkit-box-shadow:0px 0px 5px #ddd;*/
+            /*box-shadow:0px 0px 5px #ddd;*/
+
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+        }
+
+        .filename {
+            float: left;
+            display: inline-block;
+            outline: 0 none;
+            height: 32px;
+            width: 350px;
+            margin: 0;
+            padding: 8px 10px;
+            overflow: hidden;
+            cursor: default;
+            border: 1px solid;
+            /*border-right:0;*/
+            font: 9pt/100% Arial, Helvetica, sans-serif;
+            color: #777;
+            text-shadow: 1px 1px 0px #fff;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            -moz-border-radius: 5px 0px 0px 5px;
+            -webkit-border-radius: 5px 0px 0px 5px;
+            border-radius: 5px 0px 0px 5px;
+            background: #f5f5f5;
+            background: -moz-linear-gradient(top, #fafafa 0%, #eee 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fafafa), color-stop(100%, #f5f5f5));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fafafa', endColorstr='#f5f5f5', GradientType=0);
+            border-color: #ccc;
+            -moz-box-shadow: 0px 0px 1px #fff inset;
+            -webkit-box-shadow: 0px 0px 1px #fff inset;
+            box-shadow: 0px 0px 1px #fff inset;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        .button {
+            float: left;
+            height: 32px;
+            display: inline-block;
+            outline: 0 none;
+            padding: 8px 12px;
+            margin: 0;
+            cursor: pointer;
+            border: 1px solid;
+            font: bold 9pt/100% Arial, Helvetica, sans-serif;
+
+            -moz-border-radius: 0px 5px 5px 0px;
+            -webkit-border-radius: 0px 5px 5px 0px;
+            border-radius: 0px 5px 5px 0px;
+
+            -moz-box-shadow: 0px 0px 1px #fff inset;
+            -webkit-box-shadow: 0px 0px 1px #fff inset;
+            box-shadow: 0px 0px 1px #fff inset;
+        }
+
+
+        .uploader input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            height: 30px;
+            cursor: pointer;
+            filter: alpha(opacity=0);
+            -moz-opacity: 0;
+            -khtml-opacity: 0;
+            opacity: 0;
+        }
+
+        input[type=button]::-moz-focus-inner {
+            padding: 0;
+            border: 0 none;
+            -moz-box-sizing: content-box;
+        }
+
+        input[type=button]::-webkit-focus-inner {
+            padding: 0;
+            border: 0 none;
+            -webkit-box-sizing: content-box;
+        }
+
+        input[type=text]::-moz-focus-inner {
+            padding: 0;
+            border: 0 none;
+            -moz-box-sizing: content-box;
+        }
+
+        input[type=text]::-webkit-focus-inner {
+            padding: 0;
+            border: 0 none;
+            -webkit-box-sizing: content-box;
+        }
+
+        /* White Color Scheme ------------------------ */
+
+        .white .button {
+            color: #555;
+            text-shadow: 1px 1px 0px #fff;
+            background: #ddd;
+            background: -moz-linear-gradient(top, #eeeeee 0%, #dddddd 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #eeeeee), color-stop(100%, #dddddd));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd', GradientType=0);
+            border-color: #ccc;
+        }
+
+        .white:hover .button {
+            background: #eee;
+            background: -moz-linear-gradient(top, #dddddd 0%, #eeeeee 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #dddddd), color-stop(100%, #eeeeee));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#eeeeee', GradientType=0);
+        }
+
+        /* Blue Color Scheme ------------------------ */
+
+        .blue .button {
+            color: #fff;
+            text-shadow: 1px 1px 0px #09365f;
+            background: #064884;
+            background: -moz-linear-gradient(top, #3b75b4 0%, #064884 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #3b75b4), color-stop(100%, #064884));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3b75b4', endColorstr='#064884', GradientType=0);
+            border-color: #09365f;
+        }
+
+        .blue:hover .button {
+            background: #3b75b4;
+            background: -moz-linear-gradient(top, #064884 0%, #3b75b4 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #064884), color-stop(100%, #3b75b4));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#064884', endColorstr='#3b75b4', GradientType=0);
+        }
+
+        /* Green Color Scheme ------------------------ */
+
+        .green .button {
+            color: #fff;
+            text-shadow: 1px 1px 0px #6b7735;
+            background: #7d8f33;
+            background: -moz-linear-gradient(top, #93aa4c 0%, #7d8f33 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #93aa4c), color-stop(100%, #7d8f33));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#93aa4c', endColorstr='#7d8f33', GradientType=0);
+            border-color: #6b7735;
+        }
+
+        .green:hover .button {
+            background: #93aa4c;
+            background: -moz-linear-gradient(top, #7d8f33 0%, #93aa4c 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #7d8f33), color-stop(100%, #93aa4c));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#7d8f33', endColorstr='#93aa4c', GradientType=0);
+        }
+
+        /* Red Color Scheme ------------------------ */
+
+        .red .button {
+            color: #fff;
+            text-shadow: 1px 1px 0px #7e0238;
+            background: #90013f;
+            background: -moz-linear-gradient(top, #b42364 0%, #90013f 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #b42364), color-stop(100%, #90013f));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#b42364', endColorstr='#90013f', GradientType=0);
+            border-color: #7e0238;
+        }
+
+        .red:hover .button {
+            background: #b42364;
+            background: -moz-linear-gradient(top, #90013f 0%, #b42364 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #90013f), color-stop(100%, #b42364));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#90013f', endColorstr='#b42364', GradientType=0);
+        }
+
+        /* Orange Color Scheme ------------------------ */
+
+        .orange .button {
+            color: #fff;
+            text-shadow: 1px 1px 0px #c04501;
+            background: #d54d01;
+            background: -moz-linear-gradient(top, #f86c1f 0%, #d54d01 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #f86c1f), color-stop(100%, #d54d01));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f86c1f', endColorstr='#d54d01', GradientType=0);
+            border-color: #c04501;
+        }
+
+        .orange:hover .button {
+            background: #f86c1f;
+            background: -moz-linear-gradient(top, #d54d01 0%, #f86c1f 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d54d01), color-stop(100%, #f86c1f));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d54d01', endColorstr='#f86c1f', GradientType=0);
+        }
+
+        /* Black Color Scheme ------------------------ */
+
+        .black .button {
+            color: #fff;
+            text-shadow: 1px 1px 0px #111111;
+            background: #222222;
+            background: -moz-linear-gradient(top, #444444 0%, #222222 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #444444), color-stop(100%, #222222));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#444444', endColorstr='#222222', GradientType=0);
+            border-color: #111111;
+        }
+
+        .black:hover .button {
+            background: #444444;
+            background: -moz-linear-gradient(top, #222222 0%, #444444 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #222222), color-stop(100%, #444444));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#222222', endColorstr='#444444', GradientType=0);
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <div class="row">
+        <div class="col-md-3" style="text-align: right;line-height: 70px;font-size: 23px;">文件上报</div>
+        <div class="col-md-6 uploader blue" style="text-align: left;width: auto;">
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="uploader blue">
+                    <input type="text" class="filename" readonly="readonly" style="border-right:1px solid;" />
+                    <input type="button" name="file" class="button" value="选择文件" />
+                    <input type="file" name="Fdata" size="30" accept=".mmt" />
+                </div>
+                <input type="text" name="filetype" value="Fdata" style="display: none;" />
+                <input type="text" id="PATHNAME" name="PATHNAME" value="多普勒测验" style="display: none;" />
+                <input type="text" id="PDFTOTIF" name="PDFTOTIF" value="false" style="display: none;" />
+                <input type="text" id="fetch" name="fetch" value="true" style="display: none;" />
+            </form>
+        </div>
+        <div class="col-md-3" style="text-align: left;line-height: 70px;font-size: 23px;">
+            <button type="button" class="btn btn-success" onclick="ajaxFileUpload()">读取文件</button>
+        </div>
+    </div>
+    <div id="form1" style="text-align: center;">
+
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1'
+            style=' background-color: White; width: 98%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="12" align="center" class="CssTitle">
+                    <span id="HeadTitle">
+
+                    </span>
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>日期
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="SPT" name="SPT" class="mini-datepicker Span90" nullValue="null" format="yyyy-MM-dd"
+                        timeFormat="HH:mm:ss" showTime="false" showOkButton="false" showClearButton="false" />
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>天气
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="WTH" name="WTH" class="mini-textbox Span90" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    风力风向
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="WNDPWR" name="WNDPWR" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>测量测次
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="MSQMT" name="MSQMT" class="mini-textbox Span90" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    测船
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="CSHIP" name="CSHIP" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    计算机名
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="PC" name="PC" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>开始时间
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="BGMD" name="BGMD" class="mini-datepicker Span90" nullValue="null"
+                        format="yyyy-MM-dd HH:mm" timeFormat="HH:mm" showTime="true" showOkButton="false"
+                        showClearButton="false" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>结束时间
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="EDMD" name="EDMD" class="mini-datepicker Span90" nullValue="null"
+                        format="yyyy-MM-dd HH:mm" timeFormat="HH:mm" showTime="true" showOkButton="false"
+                        showClearButton="false" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>平均时间
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="AVGMD" name="AVGMD" class="mini-textbox Span90" required="true" />
+                </td>
+
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    流速仪型号
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="EPTP" name="EPTP" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    固件版本
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="FVERSION" name="FVERSION" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    软件版本
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="SVERSION" name="SVERSION" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    GPS型号
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="GPSPTP" name="GPSPTP" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    罗盘型号
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="CPTP" name="CPTP" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    指标流速
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="XIV" name="XIV" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    数据文件路径
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="DPATH" name="DPATH" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    配置文件名称
+                </td>
+                <td class="lie2" colspan="4">
+                    <input id="PNAME" name="PNAME" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    探头入水深
+                </td>
+                <td class="lie2">
+                    <input id="DEPTH" name="DEPTH" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    设置的盲区
+                </td>
+                <td class="lie2">
+                    <input id="BASET" name="BASET" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    深度单元尺寸
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="UNITSIZE" name="UNITSIZE" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    深度单元个数
+                </td>
+                <td class="lie2">
+                    <input id="UNITNUM" name="UNITNUM" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    含盐度
+                </td>
+                <td class="lie2">
+                    <input id="SALINITY" name="SALINITY" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    水跟踪脉冲数
+                </td>
+                <td class="lie2">
+                    <input id="WATERNUM" name="WATERNUM" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    底跟踪脉冲数
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="BOTTOMNUM" name="BOTTOMNUM" class="mini-textbox Span90" />
+                </td>
+                <td class="lie1" align="right">
+                    幂指数
+                </td>
+                <td class="lie2">
+                    <input id="POWEREXP" name="POWEREXP" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2" class="lie1" align="right">测回</td>
+                <td rowspan="2" class="lie1" align="right">航向</td>
+                <td colspan="2" class="lie1" align="right">水边记录（m）</td>
+                <td rowspan="2" colspan="2" class="lie1" align="right">数据文件名</td>
+                <td rowspan="2" class="lie1" align="right">半测回流量（m3/s）</td>
+                <td rowspan="2" class="lie1" align="right">测回平均流量（m3/s）</td>
+                <td rowspan="2" class="lie1" align="right">备注</td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">L</td>
+                <td class="lie1" align="right">R</td>
+            </tr>
+            <tr>
+                <td rowspan="2">一</td>
+                <td>
+                    <input id="CCOURSE1" name="CCOURSE1" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="CLRECORD1" name="CLRECORD1" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="CRRECORD1" name="CRRECORD1" class="mini-textbox Span90" />
+                </td>
+                <td colspan="2">
+                    <input id="CFILENAME1" name="CFILENAME1" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="CTGTQ1" name="CTGTQ1" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td rowspan="2">
+                    <input id="CTAVGQ" name="CTAVGQ" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td rowspan="2">
+                    <input id="CNOTE" name="CNOTE" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="CCOURSE2" name="CCOURSE2" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="CLRECORD2" name="CLRECORD2" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="CRRECORD2" name="CRRECORD2" class="mini-textbox Span90" />
+                </td>
+                <td colspan="2">
+                    <input id="CFILENAME2" name="CFILENAME2" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="CTGTQ2" name="CTGTQ2" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2">二</td>
+                <td>
+                    <input id="HCOURSE1" name="HCOURSE1" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="HLRECORD1" name="HLRECORD1" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="HRRECORD1" name="HRRECORD1" class="mini-textbox Span90" />
+                </td>
+                <td colspan="2">
+                    <input id="HFILENAME1" name="HFILENAME1" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="HTGTQ1" name="HTGTQ1" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td rowspan="2">
+                    <input id="HTAVGQ" name="HTAVGQ" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td rowspan="2">
+                    <input id="HNOTE" name="HNOTE" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="HCOURSE2" name="HCOURSE2" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="HLRECORD2" name="HLRECORD2" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="HRRECORD2" name="HRRECORD2" class="mini-textbox Span90" />
+                </td>
+                <td colspan="2">
+                    <input id="HFILENAME2" name="HFILENAME2" class="mini-textbox Span90" />
+                </td>
+                <td>
+                    <input id="HTGTQ2" name="HTGTQ2" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr></tr>
+            <tr>
+                <td colspan="12" align="center" class="CssTitle">
+                    测验结果
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" rowspan="2">
+                    测验项目
+                </td>
+                <td class="lie1" colspan="6">
+                    测回
+                </td>
+                <td class="lie1" rowspan="2" colspan="2">
+                    测次平均
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" colspan="3">往测</td>
+                <td class="lie1" colspan="3">返测</td>
+            </tr>
+            <tr>
+                <td class="lie1"><span class="FontColor">*</span>断面流量（m3/s）</td>
+                <td colspan="3">
+                    <input id="RTFLOW" name="RTFLOW" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td colspan="3">
+                    <input id="RRFLOW" name="RRFLOW" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGFLOW" name="RAVGFLOW" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1">断面面积（m3/s））</td>
+                <td colspan="3">
+                    <input id="RTAREA" name="RTAREA" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="3">
+                    <input id="RRAREA" name="RRAREA" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGAREA" name="RAVGAREA" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1">平均流速（m3/s）</td>
+                <td colspan="3">
+                    <input id="RTPIV" name="RTPIV" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="3">
+                    <input id="RRPIV" name="RRPIV" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGPIV" name="RAVGPIV" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1"><span class="FontColor">*</span>最大流速（m3/s）</td>
+                <td colspan="3">
+                    <input id="RTMIV" name="RTMIV" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td colspan="3">
+                    <input id="RRMIV" name="RRMIV" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGMIV" name="RAVGMIV" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1">平均水深（m3/s）</td>
+                <td colspan="3">
+                    <input id="RTPDEPTH" name="RTPDEPTH" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="3">
+                    <input id="RRPDEPTH" name="RRPDEPTH" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGPDEPTH" name="RAVGPDEPTH" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1">最大水深（m3/s）</td>
+                <td colspan="3">
+                    <input id="RTMDEPTH" name="RTMDEPTH" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="3">
+                    <input id="RRMDEPTH" name="RRMDEPTH" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGMDEPTH" name="RAVGMDEPTH" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1">水面宽（m3/s）</td>
+                <td colspan="3">
+                    <input id="RTSMK" name="RTSMK" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="3">
+                    <input id="RRSMK" name="RRSMK" class="mini-textbox Span90" vtype="float" />
+                </td>
+                <td colspan="2">
+                    <input id="RAVGSMK" name="RAVGSMK" class="mini-textbox Span90" vtype="float" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>开始水位
+                </td>
+                <td class="lie2">
+                    <input id="BGZ" name="BGZ" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>结束水位
+                </td>
+                <td class="lie2">
+                    <input id="EDZ" name="EDZ" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>平均水位
+                </td>
+                <td class="lie2" colspan="2">
+                    <input id="AVGZ" name="AVGZ" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>水尺读数
+                </td>
+                <td class="lie2">
+                    <input id="DRAFT" name="DRAFT" class="mini-textbox Span90" vtype="float" required="true" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注
+                </td>
+                <td class="lie2" colspan="12">
+                    <textarea id="NT" name="NT" rows="50" style="width: 100%; height: 100px;" class="mini-textarea"
+                        emptytext="请输入备注"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td style="border:0px" colspan="3">操作记录：<input id="OWEN" name="OWEN" class="mini-textbox"
+                        style="width:150px;" /></td>
+                <td style="border:0px" colspan="2">现场审查：<input id="EXAMINE" name="EXAMINE" class="mini-textbox"
+                        style="width:150px;" /></td>
+                <td style="border:0px" colspan="3">审定：<input id="AUTHORIZE" name="AUTHORIZE" class="mini-textbox"
+                        style="width:150px;" /></td>
+            </tr>
+            <tr>
+                <td colspan="8" class="lie2" align="center"
+                    style="text-align:center;height:50px;line-height:50px;border: 0px; ">
+                    <button type="button" class="btn btn-warning" onclick="onSavaOk()" id="ZCSava">暂存</button>
+                    <button type="button" class="btn btn-primary" onclick="onOk()">保存</button>
+                    <button type="button" class="btn btn-default" onclick="onCancel()">取消</button>
+                    <input id="LCD" name="LCD" class="mini-Hidden" />
+                    <input id="STCD" name="STCD" class="mini-Hidden" />
+                    <input id="STNM" name="STNM" class="mini-Hidden" />
+
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        //标准方法接口定义
+        function SetData(data) {
+            $.data(myData, "action", data);
+            var strTitle = '<span style="padding-right: 10px;">';
+            strTitle += data.STNM;
+            strTitle += '</span>';
+            strTitle += data.HEADTITLE;
+            $("#HeadTitle").html(strTitle)
+            mini.get("OWEN").setValue(GetCookie("LOGINNAME"))
+            var tms = new Date();
+            mini.get("SPT").setValue(tms.format("yyyy-MM-dd"));
+
+            $("input[type=file]").change(function () {
+                $(this).parents(".uploader").find(".filename").val($(this).val());
+
+            });
+
+
+            if (data.action == "edit") {
+                mini.get("LCD").setValue(data.ID);
+                app.get("/doppler/selectList?ID=" + data.ID, {}, function (res) {
+                    JosnSel(res, "Sel");
+                })
+
+            } else {
+                var strID = UUID(19, 16);
+                mini.get("LCD").setValue(strID);
+                mini.get("STCD").setValue(data.STCD);
+                mini.get("STNM").setValue(data.STNM);
+            }
+
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var item = mini.decode(data.data[0]);
+                    FromSetData(item);
+                    $("#ZCSava").show();
+                    if (item.savastate != undefined) {
+                        if (item.savastate == "1") {
+                            $("#ZCSava").hide();
+                        }
+                    }
+                }
+            } else if (typeID == "Update") {
+                mini.alert(data.message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            } else if (typeID == "Add") {
+                mini.alert(data.message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            }
+            mini.unmask(document.body);
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+
+        function onOk() {
+            form.validate();
+            if (form.isValid() == false)
+                return;
+
+            SavaData("1");
+        }
+
+        function onSavaOk() {
+            SavaData("0");
+        }
+
+        function SavaData(savastate) {
+            var myAction = $.data(myData, "action");
+            var objSate = myAction.action;
+            if (strId == "") {
+                var strId = UUID(19, 16);
+                mini.get("LCD").setValue(strId);
+            }
+            var strWhere = form.getData(true, true);
+            strWhere["AUTOTM"] = new Date().format("yyyy-MM-dd HH:mm:ss");
+            if (mini.get("SPT").getFormValue() != "") {
+                strWhere["SPT"] = mini.get("SPT").getFormValue() + " 00:00:00";
+            }
+            if (mini.get("BGMD").getFormValue() != "") {
+                strWhere["BGMD"] = mini.get("BGMD").getFormValue() + ":00";
+            }
+            if (mini.get("EDMD").getFormValue() != "") {
+                strWhere["EDMD"] = mini.get("EDMD").getFormValue() + ":00";
+            }
+            strWhere["SAVASTATE"] = savastate;
+            strWhere = JavaInsertUpdate(strWhere);
+
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+
+            if (objSate == "edit") {
+                app.post("/doppler/updateOne", strWhere, function (res) {
+                    JosnSel(res, "Update");
+                })
+            } else {
+                app.post("/doppler/insertOne", strWhere, function (res) {
+                    JosnSel(res, "Add");
+                })
+            }
+        }
+    </script>
+    <script>
+        function ajaxFileUpload() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据上传中...'
+            });
+            setTimeout(function () {
+                FileUpload()
+            }, 100);
+        }
+
+        function FileUpload() {
+
+            var formData = new FormData($('#uploadForm')[0]);
+            // var tm = mini.get("TM").getFormValue();
+            var postParam = {};
+            // postParam["wd_ID"] = UUID(19, 16);
+            // postParam["wd_TYPE"] = GetObj("PATHNAME").value;
+            // postParam["wd_OWEN"] = GetCookie("LOGINNAME");
+            // postParam["wd_TIME"] = mini.get("TM").getFormValue() + " 00:00:00";
+            // postParam["wd_TYPE"] = GetObj("PATHNAME").value;
+            $.ajax({
+                type: 'post',
+                url: baseurl + "/common/fileUpload",
+                data: formData,
+                dataType: 'json',
+                cache: false,
+                async: false,
+                processData: false,
+                contentType: false,
+            }).success(function (data) {
+                // alert(data);
+                console.warn(data)
+                if(data.total>0){
+                    var item = mini.decode(data.data[0]["fetch"])
+                    console.log(item)
+                }
+               
+                
+            }).error(function (evt) {
+                //alert("上传失败"); 
+                console.error(evt)
+
+                var item = mini.decode(evt.responseText)
+                // var result = item["data"][0];
+                // postParam["wd_PDF"] = result["filepdfName"];
+                // postParam["wd_FILE"] = result["fileName"];
+                console.log(item)
+            });
+
+
+            mini.unmask(document.body);
+
+        }
+    </script>
+</body>
+
+</html>

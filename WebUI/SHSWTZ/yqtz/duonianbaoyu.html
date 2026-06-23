@@ -1,0 +1,606 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多年暴雨级别对比分析</title>
+    <script src="/Common/boot.js?ver=1.0.1" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .mini-panel-border, .mini-grid-border {
+            border: 0px !important;
+        }
+
+        .btn {
+            padding: 4px 12px;
+            position: absolute;
+            left: 360px;
+            top: 8px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+            /*width: 340px;*/
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+
+        .mini-button {
+            position: absolute;
+            left: 430px;
+            top: 6px;
+        }
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            /*padding-top: 10px;*/
+            padding-bottom: 5px;
+            width: 100% !important;
+        }
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width: 100px !important;
+            height: 34px;
+            font: 14px/34px "arial";
+            text-align: center;
+        }
+
+        .onlytab li:nth-child(2) {
+            border-left: 0px;
+        }
+
+        .onlytab li:nth-child(3) {
+            border-left: 0px;
+        }
+
+        .onlytab li:nth-child(4) {
+            border-left: 0px;
+        }
+        .sysList {
+            margin-top: 25px;
+            color: gray;
+            margin-left: 0%;
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+            top: 95px;
+            left: 357px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+            padding: 10px;
+        }
+
+        .sysList table td {
+            padding: 10px 3px 0px 3px;
+            /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+        }
+
+        #sysList table td {
+            padding: 10px 3px 10px 3px !important;
+        }
+
+        .sysList table td span {
+            line-height: 20px;
+        }
+        .dailog_divOperation {
+            display: -webkit-flex;
+            display: flex;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 3px 2px;
+            justify-content: flex-end;
+            float: right;
+            height: 36px;
+        }
+
+        .btn_span {
+            padding: 6px 10px;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: normal;
+            -moz-user-select: -moz-none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            color: #fff;
+            background: #4D96DF;
+        }
+        /* line 104, ../sass/dialog.scss */
+        .dailog_divOperation .btn_span:first-child {
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 4px 12px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:260px;float:left;height:100%; margin-right: 5px;background: white;padding: 10px 10px;">
+        <ul id="tree1" class="mini-tree" style="width:100%;height:100%;padding:5px;"
+            showTreeIcon="true" textField="NAME"
+            idField="ID" expandOnNodeClick="true" onnodeselect="onSelectNode" expandOnLoad="2"></ul>
+    </div>
+    <div style="width:calc(100% - 265px);float:right;height:100%;background: white;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <div style="float:right;color:red;margin-right:10px;">
+                    <ul style="list-style:none;color:gray;">
+                        <li style="height:30px;"> 注：暴雨、大暴雨和特大暴雨相互不包含</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;级别选择：</div>
+                <!--position: absolute;left: 345px;-->
+                <ul class="ui-choose choose-type-right" id="choseGrade">
+                    <li class="selected" style="width: 90px;">
+                        <span name="全部">全部</span>
+                    </li>
+                    <li style="width: 90px;">
+                        <span name="RUO">暴雨</span>
+                    </li>
+                    <li style="width: 90px;">
+                        <span name="ZHONG">大暴雨</span>
+                    </li>
+                    <li style="width: 90px;">
+                        <span name="QIANG">特大暴雨</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;时间选择：</div>
+                <ul class="onlytab" id="onlytab2" style="">
+                    <!-- onlyliHover 默认选择小时累计 -->
+                    <li id="TitleLiYear" onclick="OnClickTitle2(this.id,'全年')" class="onlyli onlyliHover start" style="width: 60px !important;">全年</li>
+                    <li id="TitleLimonth" onclick="OnClickTitle2(this.id,'各月')" class="onlyli" style="width: 60px !important;">各月</li>
+                    <li id="TitleLibefore" onclick="OnClickTitle2(this.id,'汛前')" class="onlyli" style="width: 60px !important;">汛前</li>
+                    <li id="TitleLidoing" onclick="OnClickTitle2(this.id,'汛期')" class="onlyli" style="width: 60px !important;">汛期</li>
+                    <li id="TitleLiafter" onclick="OnClickTitle2(this.id,'汛后')" class="onlyli end" style="width: 60px !important;">汛后</li>
+                </ul>
+
+                <div id="sysList" class="sysList" hidden="hidden" style="z-index:99;width:240px;">
+                    <div class="title_dailog"> <span id="titleType">汛期</span>月份选择</div>
+                    <table>
+                        <tr>
+                            <td>
+                                起：<input id="comboStart" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="1" />
+                            </td>
+                            <td>
+                                止：<input id="comboEnd" class="mini-combobox" style="width:70px;" textField="text" valueField="id" allowInput="true" value="12" />
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="dailog_divOperation">
+                        <span class="btn_span" data-name="确定" onclick="XunOK()">确定</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-info" onclick="search()" style="">统计</button>
+            <a class="mini-button" onclick="Exp()" style="">导出报表</a>
+        </div>
+        <div id="BY_charts" style="height:350px;width:100%;margin:0px 0%;background:white;"></div>
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 490px);height: -moz-calc(100% - 490px);height: calc(100% - 490px);overflow-y:auto;" allowalternating="true"
+             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+             showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+            <div property="columns">
+                <!-- allowsort="true" 表格中列名数据排序 注在上面的div中要添加sortmode="client" -->
+                <div type="indexcolumn" headeralign="center" align="center" width="50">序号</div>
+                <div width="20%" field="YEAR" headeralign="center" align="center" allowsort="true">
+                    年份
+                </div>
+                <!-- dataType="float":表示小数点  decimalPlaces="1"：小数点的位数 -->
+                <div width="20%" field="QIANG" headeralign="center" align="center" allowsort="true">
+                    特大暴雨
+                </div>
+                <div width="20%" field="ZHONG" headeralign="center" align="center" allowsort="true">
+                    大暴雨
+                </div>
+                <div width="20%" field="RUO" headeralign="center" align="center" allowsort="true">
+                    暴雨
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        mini.parse();
+        var myData = [];
+        var tree = mini.get("tree1");
+        var grid = mini.get("grid1");
+        var dataMonth = [];
+        $(function () {
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = _year - 10;
+            GetObj("endYear").value = _year - 1;
+            $.data(myData, "MTYPE", "");
+            searchStation();
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+            $('#choseGrade li').click(function () {
+                var f = this;
+                $('#choseGrade li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var grade = $(this).find("span").attr("name");
+                if (grade == "全部") {
+                    grade = null;
+                }
+                $.data(myData, "GRADE", grade);
+                bindTable();
+            });
+            for (var m = 1; m <= 12; m++) {
+                dataMonth.push({ id: m, text: m });
+            }
+            mini.get('comboStart').setData(dataMonth);
+            mini.get('comboEnd').setData(dataMonth);
+        });
+        function searchStation() {
+            var strWhere = { STTP: "PP", TYPE: "雨量" };
+            GetJosns("REPRESENTATIVESTATIONS", strWhere, "Sel");
+        }
+        function loadTree(data) {
+            var dataResult = [];
+            dataResult.push({ ID: "310000", NAME: "全市", PID: "-1" });
+            var dataTempC = groupBy(data, "COUNTIES");
+            dataResult.push({ ID: "1", NAME: "行政分区", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "1" });
+            });
+            var dataTempW = groupBy(data, "WATERAREA");
+            dataResult.push({ ID: "2", NAME: "水利片区", PID: "-1" });
+            dataTempW.forEach(function (item) {
+                dataResult.push({ ID: item[0].WATERAREAID, NAME: item[0].WATERAREA, PID: "2" });
+            });
+            dataResult.push({ ID: "3", NAME: "32个代表站", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                for (var num = 0; num < item.length; num++) {
+                    dataResult.push({ ID: item[num].STCD, NAME: item[num].STNM, PID: "3" });
+                }
+            });
+            tree.loadList(dataResult, "ID", "PID");
+            tree.select(0);
+        }
+        function search() {
+            var YEARS = [];
+            var startYear = Number( GetObj("startYear").value);
+            var endYear = Number(GetObj("endYear").value);
+            for (var num = startYear; num <= endYear; num++) {
+                YEARS.push(num.toFixed(0));
+            }
+            $.data(myData, "YEARS", YEARS);
+            var node = tree.getSelectedNode();
+            var sMonth = mini.get('comboStart').getValue();
+            var eMonth = mini.get('comboEnd').getValue();
+            var strWhere = {
+                STCD: node.ID,
+                YEARS: YEARS.join(','),
+                SMONTH: sMonth,
+                EMONTH: eMonth
+            };
+            GetJosns("duonianbaoyuGradeNum", strWhere, "SelNum");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                loadTree(data.data);
+                //search();
+            }
+            else if (typeID == "SelNum") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "data", dataResult);
+                bindTable();
+            }
+        }
+        function bindTable() {
+            var dataResult = $.data(myData, "data");
+            var grade = $.data(myData, "GRADE");
+            var columns = [];
+            columns.push({ field: "YEAR", header: "年份", headerAlign: "center", align: "center", allowSort: true });
+            if (grade == null) {
+                columns.push({ field: "QIANG", header: "特大暴雨", headerAlign: "center", align: "center", allowSort: true });
+                columns.push({ field: "ZHONG", header: "大暴雨", headerAlign: "center", align: "center", allowSort: true });
+                columns.push({ field: "RUO", header: "暴雨", headerAlign: "center", align: "center", allowSort: true });
+            }
+            else if (grade == "RUO") {
+                columns.push({ field: "RUO", header: "暴雨", headerAlign: "center", align: "center", allowSort: true });
+            }
+            else if (grade == "ZHONG") {
+                columns.push({ field: "ZHONG", header: "大暴雨", headerAlign: "center", align: "center", allowSort: true });
+            }
+            else if (grade == "QIANG") {
+                columns.push({ field: "QIANG", header: "特大暴雨", headerAlign: "center", align: "center", allowSort: true });
+            }
+            columns.push({ field: "TOTAL", header: "总数", headerAlign: "center", align: "center", allowSort: true });
+            grid.set({ columns: columns});
+            grid.setData(dataResult);
+            loadChart(dataResult);
+        }
+        function onSelectNode(e) {
+            search();
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            var column = e.column;
+            
+            if (field == "QIANG" || field == "ZHONG" || field == "RUO") {
+                var node = tree.getSelectedNode();
+                var STCD = node.ID;
+                var YEAR = record.YEAR;
+                var STIME = YEAR + "-01-01 00:00:00";
+                var ETIME = YEAR + "-12-31 23:59:59";
+                var NAME = node.NAME;
+                var TYPE = column.header.replaceAll(" ", "").replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "");
+                var strTitle = NAME + YEAR + "年" + TYPE;
+                var str = "<a onclick='lookData(\"STCD@" + STCD + ",STIME@" + STIME + ",ETIME@" + ETIME + ",TYPE@" + TYPE+"\",\"/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html\",\"" + strTitle + "\",\"50%\",565,\"true\")' style='cursor:pointer;'>" + value + "</a>";
+                if (value == undefined) {
+                    str = "-";
+                }
+                if (Number(value) == 0) {
+                    str = 0;
+                }
+                e.cellHtml = str;
+            }
+            if (field == "TOTAL") {
+                var node = tree.getSelectedNode();
+                var STCD = node.ID;
+                var YEAR = record.YEAR;
+                var STIME = YEAR + "-01-01 00:00:00";
+                var ETIME = YEAR + "-12-31 23:59:59";
+                var NAME = node.NAME;
+                var TYPE = null;
+                var strTitle = NAME + YEAR + "年" + TYPE;
+                var str = "<a onclick='lookData(\"STCD@" + STCD + ",STIME@" + STIME + ",ETIME@" + ETIME + ",TYPE@" + TYPE + "\",\"/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html\",\"" + strTitle + "\",\"50%\",565,\"true\")' style='cursor:pointer;'>" + value + "</a>";
+                if (value == undefined) {
+                    str = "-";
+                }
+                if (Number(value) == 0) {
+                    str = 0;
+                }
+                e.cellHtml = str;
+            }
+        }
+        function onSTCDChanged(e) {
+            search();
+        }
+        // ul li 选择切换行政分区和水利分区
+        function OnClickTitle2(objID, objPathName) {//选择类型
+            $("#sysList").css("display", "block");
+            var only = $("#onlytab2 .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            var left = 215;
+            var titleType = "汛期";
+            var sMonth = 5, eMonth = 10;
+            if (objID == "TitleLiYear") {
+                sMonth = 1;
+                eMonth = 12;
+                titleType = "";
+                $("#sysList").css("display", "none");
+            }
+            else if (objID == "TitleLimonth") {
+                sMonth = 1;
+                eMonth = 1;
+                left = 95;
+                titleType = sMonth+"月";
+            }
+            else if (objID == "TitleLibefore") {
+                sMonth = 1;
+                eMonth = 4;
+                left = 155;
+                titleType = "汛前";
+            }
+            else if (objID == "TitleLidoing") {
+                sMonth = 5;
+                eMonth = 10;
+                left = 215;
+                titleType = "汛期";
+            }
+            else if (objID == "TitleLiafter") {
+                sMonth = 11;
+                eMonth = 12;
+                left = 275;
+                titleType = "汛后";
+            }
+            $.data(myData, "MTYPE", titleType);
+            mini.get('comboStart').setValue(sMonth);
+            mini.get('comboEnd').setValue(eMonth);
+            $("#titleType").html(titleType);
+            $("#sysList").css("left", left + "px");
+            if (objID == "TitleLiYear") {
+                search();
+            }
+            //var isDisplay = $("#sysList").css("display");
+            //if (isDisplay == "none") {
+            //    $("#sysList").css("display", "block");
+            //} else {
+            //    $("#sysList").css("display", "none");
+            //}
+        }
+        function loadChart(data) {
+            Chart('BY_charts', data);
+        }
+        function Chart(chartName, data) {
+            var grade = $.data(myData, "GRADE");
+            var AData = ['特大暴雨', '大暴雨', '暴雨'];
+            if (grade == "RUO") {
+                AData = ['暴雨'];
+            }
+            else if (grade == "ZHONG") {
+                AData = ['大暴雨'];
+            }
+            else if (grade == "QIANG") {
+                AData = ['特大暴雨'];
+            }
+            var node = tree.getSelectedNode();
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var legendData = $.data(myData, "YEARS");
+            option = {
+                title: {
+                    left: 'center',
+                    text: node.NAME + '多年' + $.data(myData, "MTYPE")+'暴雨级别频次对比'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    //axisPointer: {
+                    //    type: 'shadow'
+                    //}
+                },
+                // 更改图例默认颜色(依次应用)
+                color: ['#26A0D2', '#44CB90', '#EFBB43', '#E63D45', '#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"],
+                // color: ['#009BC2', '#FFC000', '#00C54E', '#FF2600'],
+                // color: ['#7ea8ee', '#91CC75', '#FAC858', '#EE6666'],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    //left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: legendData
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: AData,//'特大暴雨', '大暴雨', '暴雨']
+                },
+                yAxis: {
+                    name: "暴雨级别频次（次）",
+                    type: 'value',
+                    min: 0,
+                    splitNumber: 4,
+                    max: function (e) {
+                        return e.max + 5;
+                    }
+                },
+                series: function () {
+                    var serie = [];
+                    for (var num = 0; num < data.length; num++) {
+                        var YData = [data[num].QIANG, data[num].ZHONG, data[num].RUO];
+                        if (grade != null) {
+                            YData = [data[num][grade]];
+                        }
+                        var item = {
+                            name: data[num].YEAR,
+                            type: 'bar',
+                            // barGap: '0%',
+                            barWidth: 20,
+                            data: YData,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,  //开启显示
+                                        formatter: '{c}',  //显示数值
+                                        position: 'top',
+                                        textStyle: { //数值样式
+                                            fontSize: 10
+                                        }
+                                    }
+                                }
+                            }
+                        };
+                        serie.push(item);
+                    }
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var node = tree.getSelectedNode();
+            var name = node.NAME + "多年暴雨级别对比";
+            ExportExcel(name, columns, data);
+        }
+        function XunOK() {
+            $("#sysList").css("display", "none");
+            var sMonth=mini.get('comboStart').getValue();
+            var eMonth = mini.get('comboEnd').getValue();
+            if (sMonth == eMonth) {
+                eMonth = sMonth + 1;
+            }
+            search();
+        }
+    </script>
+</body>
+</html>

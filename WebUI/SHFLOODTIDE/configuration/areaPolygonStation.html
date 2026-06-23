@@ -1,0 +1,193 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <link href="/arcgis_js_api/myJs/style/map.css?ver=0" rel="stylesheet" type="text/css" />
+    <script src="/arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="/arcgis_js_api/myJs/bj.js?ver=1" type="text/javascript"></script>
+    <script src="/arcgis_js_api/myJs/mapIndex.js?ver=1.0.9" type="text/javascript"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 15px;
+        }
+
+        .colorL p {
+            width: 55px;
+            margin: 0px auto;
+            margin-top: -4px;
+        }
+
+        .colorSpan {
+            display: inline-block;
+            width: 15px;
+            height: 25px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+        position: absolute">
+    </div>
+
+    <div id="SSTTL_TZ" style="background:#ffffff;position:absolute;right:10px;top:30%;height:185px;
+    border: 1px solid #cecbcb;
+    width:65px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;padding: 0px 5px;display:none;">
+        <div class="colorL">
+            <p><span class="colorSpan" style="background-color:#FCCD03"></span><span class="colorSpanValue">255</span></p>
+            <p><span class="colorSpan" style="background-color:#E9D620"></span><span class="colorSpanValue">245</span></p>
+            <p><span class="colorSpan" style="background-color:#D4E03E"></span><span class="colorSpanValue">235</span></p>
+            <p><span class="colorSpan" style="background-color:#C1EB5D"></span><span class="colorSpanValue">225</span></p>
+            <p><span class="colorSpan" style="background-color:#ACF57A"></span><span class="colorSpanValue">215</span></p>
+            <p><span class="colorSpan" style="background-color:#99FF99"></span><span class="colorSpanValue">205</span></p>
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        var labels = new Array();
+        var layer_hw;
+        var countyLayer1;
+        var _globallevel = 5;
+        var labels = new Array();
+        var stype = GetQueryString('STYPE');
+        $(function () {
+            if (stype == null) {
+                stype = 1;
+            }
+            $.data(myData, "STYPE", stype);
+            setTimeout(function () {
+                countyLayer1 = CreateLayer("Area_Layer1");
+                map.setZoom(8);
+                loadLayer();
+                loadBase();
+            }, 800);
+
+
+        });
+        function loadBase() {
+            var strWhere = { STTP: "PP"};
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_STBPRP_BSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                addMarker(data.data);
+            }
+        }
+        var layer_hw;
+        function loadLayer() {
+            MapRainfallStation();
+            //require(
+            //    ["esri/layers/FeatureLayer", "esri/layers/GraphicsLayer", "esri/layers/ArcGISDynamicMapServiceLayer"],
+            //    function (FeatureLayer, GraphicsLayer, ArcGISDynamicMapServiceLayer) {
+            //        var url = 'http://36.155.90.4:6080/arcgis/rest/services/SHTysonPolygonCountyStation/MapServer';
+            //        layer_hw = new ArcGISDynamicMapServiceLayer(url, { id: "SHTysonPolygonCountyStation", visible: true });
+            //        map.addLayer(layer_hw);
+            //    });
+        }
+        function MapRainfallStation() {
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/_base/lang",
+                "esri/geometry/Polygon",
+                "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, lang, Polygon) {
+                    $.get(
+                        "/Common/代表站泰森多边形.json",//json路径
+                        lang.hitch(this, function (data, status) {
+                            if (status === "success") {
+                                //countyLayer1.clear();
+                                var features = data.features;
+                                features.forEach(function (feature) {
+                                    var allrings = feature.geometry.coordinates;
+                                    var polygon = new Polygon(allrings);
+                                    var gra = feature.properties;
+                                    var mc = gra.STNM;
+                                    var stcd = gra.STCD;
+                                    var colorStr = "#ACF57A";
+                                    var fillColorStr = [172, 245, 122, 0.6];
+                                    var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                        new dojo.Color(colorStr), 1),
+                                        new dojo.Color(fillColorStr));
+                                    var g3 = new Graphic(polygon, lineSymbol);
+                                    countyLayer1.add(g3);
+                                }, this);
+                            }
+                        }),
+                        "json"
+                    );
+                });
+        }
+
+        function addMarker(data) {
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, Font) {
+                var maxNum = 0, minNum = 1000000000;
+                for (var num = 0; num < data.length; num++) {
+                    var NUM = data[num].BYNUMBER;
+                    var item = { STNM: data[num].STNM, "LGTD": data[num].LGTD, "LTTD": data[num].LTTD};
+                    var textStr = data[num].STNM 
+                    var point = new Point({ "x": data[num].LGTD, "y": data[num].LTTD, "spatialReference": { "wkid": 4326 } });
+                    var font = new Font("13px", Font.STYLE_NORMAL, Font.VARIANT_NORMAL,
+                        null);
+                    var textSymbol = new TextSymbol(
+                        textStr,
+                        font,
+                        new Color("black")
+                    );
+                    var labelPointGraphic = new Graphic(point, textSymbol);
+                    countyLayer1.add(labelPointGraphic);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

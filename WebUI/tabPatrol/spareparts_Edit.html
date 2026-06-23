@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1'
+            style=' background-color: White; width: 95%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    设备预警管理
+                    <input id="ID" name="ID" class="mini-textbox Span90" style="display:none;" />
+                    <input id="MENTID" name="MENTID" class="mini-textbox Span90" style="display:none;" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>测站名称：
+                </td>
+                <td class="lie2">
+                    <input id="GCList" name="GCList" class="mini-combobox  " textField="stnm" valueField="stcd"
+                        style="width:90%" required="true"/>
+                </td>
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>设备名称
+                </td>
+                <td class="lie2">
+                    <input id="SPANAME" name="SPANAME" class="mini-textbox Span90" required="true" />
+                </td>
+
+            </tr>
+            <tr>
+                    <td class="lie1" align="right">
+                            购置日期
+                        </td>
+                        <td class="lie2">
+                            <input id="SPATIME" name="SPATIME" class="mini-datepicker Span90" format="yyyy-MM-dd"
+                                timeFormat="H:mm:ss" showTime="false" vtype="date:yyyy-MM-dd" />
+                        </td>
+                <td class="lie1" align="right">
+                    使用寿命(月))
+                </td>
+                <td class="lie2">
+                    <input id="SPADANWEI" name="SPADANWEI" class="mini-textbox Span90" />
+                </td> 
+            </tr>
+            <tr>
+                    <td class="lie1" align="right">
+                            起始日期
+                        </td>
+                        <td class="lie2">
+                            <input id="SPAEJCTM" name="SPAEJCTM" class="mini-datepicker Span90" format="yyyy-MM-dd"
+                                timeFormat="H:mm:ss" showTime="false" vtype="date:yyyy-MM-dd" />
+                        </td>
+                    <td class="lie1" align="right">
+                        到期日期
+                    </td>
+                    <td class="lie2">
+                        <input id="SPAETM" name="SPAETM" class="mini-datepicker Span90" format="yyyy-MM-dd"
+                            timeFormat="H:mm:ss" showTime="false" vtype="date:yyyy-MM-dd" />
+                    </td>
+    
+                </tr>
+                <tr>
+                 
+                    <td class="lie1" align="right">
+                        负责人
+                    </td>
+                    <td class="lie2" colspan="3">
+                        <input id="SPAOWEN" name="SPAOWEN" class="mini-textbox Span90" />
+                    </td>
+                </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    设备描述
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="SPADESCRIBE" name="SPADESCRIBE" style="height: 80px;" class="mini-textarea Span90" />
+                </td>
+            </tr>
+
+            <tr>
+                <td class="lie1" align="right">
+                    备注
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="SPANOTE" name="SPANOTE" style="height: 100px;" class="mini-textarea Span90" />
+                </td>
+            </tr>
+           
+
+            <tr>
+                <td colspan="4" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <button type="button" class="btn btn-primary" onclick="onOk()">保存</button>
+                    <button type="button" class="btn btn-default" onclick="onCancel()">取消</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        var gcList = mini.get("GCList");
+
+        //标准方法接口定义
+        function SetData(data) {
+            $("#SpanTitle").html(data.WD_TYPE);
+            $.data(myData, "WD_TYPE", data.WD_TYPE);
+            $.data(myData, "action", data);
+            mini.get("MENTID").setValue(data.MENTID);
+            $.data(myData, "currentMENTID", data.MENTID);
+            queryItems();
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var o = mini.decode(data.data[0]);
+                FromSetData(o);
+
+                gcList.setValue(o.proid);
+                // gcList.disable();
+            } else if (typeID == "Update") {
+                if (data.total > 0) {
+                    showTips(data.message);
+                    CloseWindow("save");
+                } else {
+                    onOk();
+                }
+            } else if (typeID == "DATA_ITEM_STCDSel") {
+                gcList.setData(data.data);
+                var myAction = $.data(myData, "action");
+                if (myAction.action == "edit") {
+                    var strWhere = {
+                        "id": myAction.ID
+                    };
+                    app.get("/spareparts/selectList", strWhere, function (res) {
+                        JosnSel(res, "Sel");
+                    })
+
+                } else {
+                    var curDate = new Date();
+                    mini.get("SPAOWEN").setValue(GetCookie("LOGINNAME"));
+                    mini.get("SPATIME").setValue(curDate.format("yyyy-MM-dd"));
+                    mini.get("SPAETM").setValue(addDateMonth(curDate.format("yyyy-MM-dd"), 12));
+                    mini.get("SPAEJCTM").setValue(curDate.format("yyyy-MM-dd"));
+                    mini.get("ID").setValue(UUID(19, 16));
+                }
+            }
+        }
+
+        function queryItems() {
+            app.get("/stStbprpB/selectList", {}, function (res) {
+                JosnSel(res, "DATA_ITEM_STCDSel");
+            })
+        }
+
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+
+        function onOk(e) {
+            //保存数据
+            form.validate();
+            if (form.isValid() == false)
+                return;
+            var objSate = $.data(myData, "action").action;
+            var strWhere = form.getData(true, true);
+            strWhere["SPAETM"] = mini.get("SPAETM").getFormValue() + " 00:00:00";
+            strWhere["SPAEJCTM"] = mini.get("SPAEJCTM").getFormValue() + " 00:00:00";
+            strWhere["SPATIME"] = mini.get("SPATIME").getFormValue() + " 00:00:00";
+            strWhere["PROID"] = gcList.getValue();
+            strWhere["PRONAME"] = gcList.getText();
+            strWhere = JavaInsertUpdate(strWhere);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+
+           
+            if (objSate == "edit") {
+                app.post("/spareparts/updateOne", strWhere, function (res) {
+                    JosnSel(res, "Update");
+                })
+
+            } else {
+                app.post("/spareparts/insertOne", strWhere, function (res) {
+                    JosnSel(res, "Update");
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>图例选择</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%; 
+            font-size: 12px;
+            background: #f1f2f6;
+            color: #434a54;
+            font-size: 12px;
+            font-family: Microsoft YaHei,SimHei,Verdana,Arial,sans-serif;
+        }
+
+        .lie2 {
+            width: 80%;
+        } 
+    </style>
+</head>
+<body class="contentbody">
+    <div style="line-height:50px;height:50px; position:fixed;left:25px;top:20px;">
+        <a class="mini-button" onclick="onOK()" style="width:100px;margin-right:20px; padding:10px;font-size:20px;">确认</a>
+        <div>已选择：
+            <i class="fa" id="BtnI" style="font-size:25px;color:red;"></i>
+        </div>
+    </div>
+    <div style="background: #fff;border-radius: 5px 5px 0 0;margin: 0 auto;width: 1240px;">
+
+        <div id="myDiv">
+
+            <table cellpadding="0" cellspacing="0" border="0" style="height:100%;border:1px solid #EFEFEF;">
+                <tr>
+                    <td style="width:20px;">
+                        <input type="radio" id="radio1" name="myradio" value="11" />
+                    </td>
+                    <td style="width:50px;">
+                        <span style="border-radius: 50%;    height: 40px;    width: 40px;    display: inline-block;    background: #238ff9;      vertical-align: top;">
+                            <span style="display: block;    color: #FFFFFF;    height: 40px;    line-height: 40px;    text-align: center">
+                                <i class="fa fa-gear" style="font-size:20px;"></i>
+                            </span>
+                        </span>
+                    </td>
+                    <td style="width:20px; margin-left:100px;">
+                        <input type="radio" id="radio1" name="myradio" />
+                    </td>
+                    <td style="width:50px;">
+                        <span style="border-radius: 50%;    height: 40px;    width: 40px;    display: inline-block;    background: #238ff9;      vertical-align: top;">
+                            <span style="display: block;    color: #FFFFFF;    height: 40px;    line-height: 40px;    text-align: center">
+                                <i class="fa fa-gear" style="font-size:20px;"></i>
+                            </span>
+                        </span>
+                    </td>
+                    <td style="width:20px;">
+                        <input type="radio" id="radio1" name="myradio" checked="checked" />
+                    </td>
+                    <td style="width:50px;">
+                        <span style="border-radius: 50%;    height: 40px;    width: 40px;    display: inline-block;    background: #238ff9;      vertical-align: top;">
+                            <span style="display: block;    color: #FFFFFF;    height: 40px;    line-height: 40px;    text-align: center">
+                                <i class="fa fa-gear" style="font-size:20px;"></i>
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        $(function () {
+            //GetJosns("DATA_MYICONSel", {}, "Sel");
+			app.post("SWZZ_DATA_myicon/findResult",{},(data)=>{
+				JosnSel(data,"Sel")
+			})
+        })
+
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "Sel") {
+                var strMsg = ' <table cellpadding="0" cellspacing="0" border="0" style="height:100%;border:1px solid #EFEFEF;">';
+                if (ResultData.total > 0) { 
+                    for (num = 0; num < ResultData.total; num++) {
+                        var NumLength = 0;
+                        strMsg += ' <tr>';
+                        for (ii = 0; ii < 18; ii++) {
+                            if (num <= ResultData.total - 1) {
+                                strMsg += ' <td style="width:20px;height:62px;line-height:62px;">';
+                                if (num == 0) {
+                                    OnChan(ResultData.data[num].classname);
+                                    strMsg += ' <input type="radio" id="radio' + num + '"  name="myradio" checked="checked" value="' + ResultData.data[num].classname + '" onchange="OnChan(\'' + ResultData.data[num].classname + '\')" />';
+                                } else {
+                                    strMsg += ' <input type="radio" id="radio' + num + '"  name="myradio" value="' + ResultData.data[num].classname + '" onchange="OnChan(\'' + ResultData.data[num].classname + '\')" />';
+                                }
+                                strMsg += '</td>';
+                                strMsg += '<td style="width:50px;height:62px;line-height:62px;">';
+                                strMsg += '<span style="border-radius: 50%;    height: 40px;    width: 40px;    display: inline-block;    background: #238ff9;      vertical-align: top;">';
+                                strMsg += '<span style="display: block;    color: #FFFFFF;    height: 40px;    line-height: 40px;    text-align: center" >';//onclick="removeRow(' + ResultData.data[num].ID + ')"
+                                strMsg += '<i class="fa ' + ResultData.data[num].classname + '" style="font-size:20px;"></i>';
+                                strMsg += '</span>';
+                                strMsg += ' </span>';
+                                strMsg += '</td>';
+                                num++;
+                            }
+
+                        }
+                        strMsg += '</tr>';
+                    }
+                }
+                strMsg += ' </table> ';
+                $("#myDiv").html(strMsg);
+
+            } else if (typeID == "DATA_MYICONDel") {
+                showTips("删除成功");
+                app.post("SWZZ_DATA_myicon/findResult",{},(data)=>{
+                	JosnSel(data,"Sel")
+                })
+            }
+        }
+        //删除
+        function removeRow(objID) { 
+            var strWhere = { stcd: objID };
+            //GetJosns("DATA_MYICONDel", strWhere, "DATA_MYICONDel"); 
+			app.post("SWZZ_DATA_myicon/remove",{},(data)=>{
+				JosnSel(data,"DATA_MYICONDel")
+			})
+        }
+        function OnChan(objClass) { 
+            if ($.data(myData, "BtnClass") != undefined) {
+                $("#BtnI").removeClass($.data(myData, "BtnClass"));
+            }
+            $("#BtnI").addClass(objClass);
+            $.data(myData, "BtnClass", objClass);
+        }
+        function GetData() {
+            var items = document.getElementsByTagName("input");
+            var strMsg = "";
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type == "radio" && items[i].checked) {
+                    strMsg = items[i].value;
+                }
+            }
+            return strMsg;
+        }
+
+        function onOK() {
+            CloseWindow("ok");
+        }
+
+        function onClose() {
+            CloseWindow("close");
+        }
+
+        function CloseWindow(action) {
+            if (window.CloseOwnerWindow) {
+                return window.CloseOwnerWindow(action);
+            } else {
+                window.close();
+            }
+        }
+    </script>
+</body>
+</html>

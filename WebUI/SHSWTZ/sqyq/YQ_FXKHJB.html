@@ -1,0 +1,344 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+
+        .classColor {
+            font-size: 14px;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .mini-grid-rows-view {
+            overflow: auto;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div showcollapsebutton="true" style="width: 100%; height: 100%;">
+        <div class="mini-toolbar" style="padding-top: 5px;">
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 100%;">
+                        <span style="float:left;">
+                            <!--站点：--><input id="STCD" name="STCD" class="mini-combobox" style="width: 120px;display:none;"
+                                             textfield="STNM" valuefield="STCD" showNullItem="false" emptytext="请选择..." />
+                            &nbsp;&nbsp;
+                            开始时间：<input id="stime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+                            结束时间：<input id="etime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;
+                            台风名称：&nbsp;
+                            <input id="TFNAME" name="TFNAME" class="mini-combobox" style="width:150px;"
+                                   textField="TFNAME" valueField="STATUS" allowInput="true"
+                                   onvaluechanged="onvaluechangedTF" />
+                        </span>
+                        <span id="rbl" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical" style="float:left; display:none;"
+                              textField="text" valueField="id" value="DAY" data="[{'id':'HOUR','text':'小时'},{'id':'DAY','text':'日'}]"></span>
+                        <span style="float:left;">
+                            <input type="hidden" id="HidType" />
+                            <a id="searchbtn" class="mini-button" onclick="search()">统计</a>
+                            <a id="expButton" class="mini-button" onclick="Exp()" style="display:none;">导出</a>
+                        </span>
+                        <span id="divMX" style="    padding: 10px;line-height: 30px;color: red;font-size: 14px;">
+
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div><!--showFilterRow="true" summaryPosition="top"-->
+        <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 38px);height: -moz-calc(100% - 38px);height: calc(100% - 38px);">
+            <div id="grid1" class="mini-datagrid" style="width:100%;height:100%;" allowAlternating="true" showEmptyText="无数据"
+                 showSummaryRow="true" allowResize="true" ondrawsummarycell="onDrawSummaryCell" showpager="false"
+                 borderStyle="border-right:0;" idField="STCD" sortMode="client" sizeList="[15,20,30,50]" pageSize="50" ondrawcell="ondrawcell">
+                <div property="columns">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        mini.get("STCD").select(0);
+         var rbl = mini.get("rbl");
+         var myData = [];
+        onload = function () {
+            $("#expButton").hide();            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {                $("#expButton").show();            }
+            //初始化事件控件
+            var Now = new Date();
+            //mini.get("stime").setValue(Now.format("yyyy-MM-01 08:00"))
+            mini.get("stime").setValue(addDayDate(Now.format("yyyy-MM-dd"), -2) + " 08:00");
+            mini.get("etime").setValue(AddHourDate(Now.format("yyyy-MM-dd HH:00"), 1));
+
+            var treeid = GetQueryString("TREEID");
+            $.data(myData, "TREEID", treeid);
+            searchZT();
+            search();
+        }
+        function searchZT() {
+            var strWhere = {
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTISel", strWhere, "SelZT");
+        }
+        function onvaluechangedTF(e) {
+            var value = e.value;
+            var selected = mini.get("TFNAME").getSelected();
+            var stm = convertToDate(selected.STM).format("yyyy-MM-dd");
+            var etm = convertToDate(selected.ETM).format("yyyy-MM-dd");
+            mini.get("stime").setValue(stm);
+            mini.get("etime").setValue(etm);
+            search();
+        }
+         function onDrawSummaryCell(e) {
+             var result = e.result;
+             var grid = e.sender;
+             //服务端汇总计算
+             var JSONArray = $.data(myData, "JSONArray");
+             for (var item in JSONArray) {
+                 if (e.field == "STNM") {
+                     var s = "<span style='color:Brown;'>";
+                     //s += "<div class='classColor' style='color:#18CF5D;'>累计值</div>";
+                     s += "<div class='classColor' style='color:#FF0000;'>平均值</div>";
+                     //s += "<div class='classColor' style='color:#FF0000;'>最大时间</div>";
+                     //s += "<div class='classColor' style='color:black;'>最小值</div>";
+                     //s += "<div class='classColor' style='color:black;'>最小时间</div>";
+                     s += "</span>";
+                     e.cellHtml = s;
+                 } else if (e.field == "RVNM") {
+                      e.cellHtml = "";
+                 } else if (e.field == item) {
+                     var s = "<span style='color:Brown;'>";
+                     //s += "<div class='classColor' style='color:#18CF5D;'>" + Number($.data(myData, "SUM_" + item)).toFixed(1) + "</div>";
+                     s += "<div class='classColor' style='color:#FF0000;'>" + Number($.data(myData, "AVG_" + item)).toFixed(1) + "</div>";
+                     //s += "<div class='classColor' style='color:#FF0000;'>" +  $.data(myData, "MAXTM_" + item)  + "</div>";
+                     //s += "<div class='classColor' style='color:black;'>" + Number($.data(myData, "MIN_" + item)).toFixed(1) + "</div>";
+                     //s += "<div class='classColor' style='color:black;'>" +  $.data(myData, "MINTM_" + item)  + "</div>";
+                     s += "</span>";
+                     e.cellHtml = s;
+                 }
+             }
+         }
+
+         function fillDataDANZHAN(pageIndex, pageSize, dataResult, gridView) {
+
+             var data = dataResult.data, totalCount = dataResult.total;
+             var tempDay = rbl.getValue();
+
+             if (dataResult.total > 0) {
+                 var JSONArray = $.data(myData, "JSONArray");
+                 for (var item in JSONArray) {
+                     var _avg = 0;
+                     var _maxData = -99999, maxTM;
+                     var _minData = 99999, minTM;
+                     for (num = 0; num < dataResult.total; num++) {
+                         //console.log("item====" + data[num][item]);
+                         var tempData = data[num][item];
+                         if (data[num][item] == undefined) {
+                             tempData = 0;
+                         } else {
+                             tempData = Number(tempData);
+                         }
+
+                         _avg += tempData;
+                         //if (_maxData < tempData) {
+                         //    _maxData = tempData;
+                         //    if (tempDay == "DAY") {
+                         //        maxTM = new Date(data[num].TM).format("yyyy/MM/dd");
+                         //    } else {
+                         //        maxTM = new Date(data[num].TM).format("MM/dd HH:mm");
+                         //    }
+                         //}
+                         //if (_minData > tempData) {
+                         //    _minData = tempData;
+                         //    if(tempDay == "DAY") {
+                         //        minTM = new Date(data[num].TM).format("yyyy/MM/dd");
+                         //    } else {
+                         //        minTM = new Date(data[num].TM).format("MM/dd HH:mm");
+                         //    }
+                         //}
+
+                     }
+                     var tempAVG = (_avg / dataResult.total).toFixed(2);
+                     var tempSum = _avg.toFixed(2);
+                     $.data(myData, "SUM_" + item, tempSum);
+                     $.data(myData, "AVG_" + item, tempAVG);
+                 }
+             }
+             var arr = [];
+             var start = pageIndex * pageSize, end = start + pageSize;
+             for (var i = start, l = end; i < l; i++) {
+                 var record = data[i];
+                 if (!record) continue;
+                 arr.push(record);
+             }
+
+             gridView.setTotalCount(totalCount);
+             gridView.setPageIndex(pageIndex);
+             gridView.setPageSize(pageSize);
+
+             gridView.setData(arr);
+         }
+         function JosnSel(data, typeID) {
+             if (typeID == "STCD") {
+                 mini.get("STCD").setData(data.data);
+                 mini.get("STCD").select(0);
+
+             } else if (typeID == "Sel") {
+                 var strJson = data.data;
+                 //{"TM":"","YQ63202212":"仙蠡桥","YQ63202104":"陈墅","YQ63202107":"犊山闸","YQ63202108":"直湖港","YQ63202106":"洛社","YQ63204250":"甘露","YQ63202210":"江阴","YQ63202105":"青阳","YQ63202101":"定波闸","YQ63202209":"宜兴","YQ63202211":"横山水库","YQ63202208":"大浦口","FLAG":"0"}
+                 var temTM = "";
+                 var ColoumnsName = "";
+                 //ColoumnsName = "\"RVNM\":\"河湖库名称\",";
+                 ColoumnsName += "\"STNM\":\"站名\",";
+                 ColoumnsName += "\"ZT_RAIN\":\"昨日雨量(mm)\",";
+                 ColoumnsName += "\"JR_RAIN\":\"今日雨量(mm)\",";
+                 ColoumnsName += "\"SUM_RAIN\":\"过程雨量(mm)\",";
+                 ColoumnsName += "\"MY_RAIN\":\"梅雨雨量(mm)\",";
+                 ColoumnsName += "\"RX_RAIN\":\"汛期雨量(mm)\",";
+                 if (ColoumnsName.length > 0) {
+                     ColoumnsName = ColoumnsName.substring(0, ColoumnsName.length - 1);
+                 }
+                 ColoumnsName = "{" + ColoumnsName + "}";
+                 $.data(myData, "JSONArray", JSON.parse(ColoumnsName));
+
+                 SetColumns(JSON.parse(ColoumnsName), grid);
+                 //grid.frozenColumns(0, 1);
+                 //var temData = SetValueDataJson(data.data, "FLAG", "0");
+                 dataResult = data;
+                 fillDataDANZHAN(0, grid.getPageSize(), dataResult, grid);
+             }
+             else if (typeID == "FLOODTIDEDATA_MY_FLOODSel") {
+                 var strMsg = "",strMsg2="";
+                 if (data.total > 0) {
+                     var temp = data.data.filter(function (e) {
+                         return e.TYPEID == "MY";
+                     });
+                     if (temp.length > 0) {
+                         strMsg += "梅雨时间：" + convertToDate(temp[0].STM).format("yyyy年MM月dd日") + "~" + convertToDate(temp[0].ETM).format("yyyy年MM月dd日");
+                     } else {
+                         strMsg += "梅雨时间：";
+                     }
+                     var temp2 = data.data.filter(function (e) {
+                         return e.TYPEID == "RX";
+                     });
+                     if (temp2.length > 0) {
+                         strMsg2 += "汛期时间：" + convertToDate(temp2[0].STM).format("yyyy年MM月dd日") + "~" + convertToDate(temp2[0].ETM).format("yyyy年MM月dd日");
+                     } else {
+                         strMsg2 += "汛期时间：";
+                     }
+                 } else {
+                     strMsg += "梅雨时间：";
+
+                     strMsg2 += "汛期时间：";
+
+                 }
+                 strMsg = "<span  style='cursor: pointer;'>" + strMsg + "</span>";
+                 //<a style=\"margin-left: 10px;\" class=\"mini-button\" onclick=\"addData('TYPEID@MY,TITLE@梅雨时间设定管理', '/TJFX/DATA_MY_FLOOD_Edit.html', '梅雨时间设定管理', '40%', '55%', 'true')\">时间设定</a>
+                 strMsg += "<span  style='cursor: pointer;color:blue; margin-left: 20px;'>" + strMsg2 + "</span></span>";
+                 //<a style=\"margin-left: 10px;\" class=\"mini-button\" onclick=\"addData('TYPEID@RX,TITLE@汛期时间设定管理', '/TJFX/DATA_MY_FLOOD_Edit.html', '汛期时间设定管理', '40%', '55%', 'true')\">时间设定</a>
+                 $("#divMX").html("注：" + strMsg);
+                 mini.parse();
+
+             }
+             else if (typeID == "SelZT") {
+                 var dataResult = data.data.filter(function (e) {
+                     e.TFNAME = e.STATUS + "" + e.TITLE;
+                     return e.STM != null;
+                 });
+                 mini.get("TFNAME").setData(dataResult);
+             }
+         }
+
+        function Exp() {
+            var name = mini.get("stime").getFormValue()+ "-" + mini.get("etime").getFormValue()+   "雨情分析";
+            //ExportExcel(name); 
+			var data = grid.data;
+            var columns = grid.columns;
+            ExportExcel(name, columns, data);
+        }
+         function search() {
+
+             GetJosns("FLOODTIDEDATA_MY_FLOODSel", { "YEAR": new Date(mini.get("etime").getFormValue()).format("yyyy") }, "FLOODTIDEDATA_MY_FLOODSel");
+             PageFillData(0, grid.pageSize);
+         }
+
+         function PageFillData(pageIndex, pageSize) {
+             var Startime = mini.get("stime").getFormValue()+" 00:00:00";
+             var Endtime = mini.get("etime").getFormValue() + " 23:59:59";
+             if (Startime > Endtime) {
+                 mini.alert("请确认起止日期次序是否正确（中止日期至少是起始日期的次日）！");
+                 return false;
+             }
+             grid.loading("数据加载中......");
+             var tempDay = rbl.getValue();
+             //if (tempDay != "DAY") {
+             //    tempDay = "";
+             //}
+             var strWhere = {
+                 STIME: Startime,
+                 ETIME: Endtime,
+                 TREEID: $.data(myData, "TREEID"),
+                 DAYHOUR: tempDay
+                 //,
+                 //PageIndex: pageIndex,
+                 //PageSize: pageSize
+             };
+
+             GetJosns("WATER_INFO_PPTN_Sel", strWhere, "Sel");
+         }
+
+
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            //PageFillData(pageIndex, pageSize);
+            fillDataDANZHAN(pageIndex, pageSize, dataResult, grid);
+        });
+        //鼠标移动上去的提示信息。
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+
+            //超链接任务
+            if (field == "STNM") {
+                var tempSTM = mini.get("stime").getFormValue() + " 00:00:00";
+                var tempETM = mini.get("etime").getFormValue() +" "+ new Date().format("HH:mm:ss");
+				 tempSTM = mini.get("stime").getFormValue()+" 00:00:00";
+                 tempETM = mini.get("etime").getFormValue() + " 23:59:59";
+
+                var s = "<a title=\"" + value + "\" href=\"javascript:Trans('" + row.STCD + "','" + row.STNM + "','" + tempSTM + "','" + tempETM + "')\">" + value + "</a>";
+                e.cellHtml = s;
+            }   else {
+                if (field != "STNM" && field != "RVNM") {
+                    if (value != undefined) {
+                        e.cellHtml = Number(value).toFixed(1);
+                    }
+                }
+            }
+        }
+
+        function Trans(stcd, stnm, stime, etime) {
+            WindowsOpen("DanZhan/YQLine.html?STCD=" + stcd + "&STNM=" + (stnm) + "&STIME=" + stime + "&ETIME=" + etime + "&TYPENAME=降雨过程", stnm + "雨量柱状图", stcd);
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,778 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <!--<script src="../Common/Scripts/poulic_charts.js" type="text/javascript"></script>-->
+    <style>
+        .mini-grid-summaryRow div {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow table {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+
+        .mini-grid-summaryRow tr td span {
+            color: #000 !important;
+            line-height: 25px;
+            font-weight: 400 !important;
+        }
+
+        .label {
+            height: 30px;
+            line-height: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--页面载入显示-->
+    <div id="dataLoad" class="load">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img src="../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 80%;">
+
+                    <span style="float:left;">
+                        &nbsp;&nbsp; 开始时间：&nbsp;
+                        <input id="STIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:mm"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        结束时间：&nbsp;
+                        <input id="ETIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:mm"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                    </span>
+                    <span id="rbl" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical"
+                        style="float:left;display:none;" textField="text" valueField="id" value="minute" data="[{'id':'minute','text':'实时'},{'id':'hour','text':'小时'},{'id':'day','text':'日'}]"></span>
+                    <span style="float:left;">
+                        <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+                        <a class="mini-button" onclick="doExport()">导出</a>
+                    </span>
+                </td>
+                <td align="right">
+                    <div class="bootstrap-switch ">
+                        <div class="bootstrap-switch-container">
+                            <!--<span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit0')" id="switch0"><i class="fa fa-adjust"></i></span>-->
+                            <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i
+                                    class="fa fa-line-chart"></i></span>
+                            <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i
+                                    class="fa fa-table"></i></span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 36px);height: -moz-calc(100% - 36px);height: calc(100% - 36px);">
+
+        <div id="fit1" class="fit" style="float:left;width:100%;">
+            <div id="Chart" style="width:100%; height:430px; text-align: center">
+            </div>
+            <table style="margin: 0 auto;width: 50%;">
+                <tr>
+                    <td style="color: #000; " align="right">
+                        水位最高：
+                    </td>
+                    <td style="color:  #000;" align="left">
+                        <span id="maxUpz"></span>，<span id="maxUpTime"></span>
+                    </td>
+                    <td style="color:  #000; " align="right">
+                        水位最低：
+                    </td>
+                    <td style="color:  #000;" align="left">
+                        <span id="minUpz"></span>，<span id="minUpTime"></span>
+                    </td>
+                </tr>
+                <tr style="display:none;">
+                    <td style="color: #000;" align="right">
+                        闸下最高：
+                    </td>
+                    <td style="color:#000;" align="left">
+                        <span id="maxDown"></span>，<span id="maxDownTime"></span>
+                    </td>
+                    <td style="color:#000;" align="right">
+                        闸下最低：
+                    </td>
+                    <td style="color:#000;" align="left">
+                        <span id="minDown"></span>，<span id="minDownTime"></span>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <div id="fit2" class="fit" style="height:430px;float:left;width:50%;">
+            <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;" allowalternating="true" sizeList="[15,20,30,50,100,500,1000]"
+                pageSize="50" showPager="false" showsummaryrow="true" idfield="STCD" allowresize="false" ondrawcell="ondrawcell"
+                showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" sortMode="client" ondrawsummarycell="onDrawSummaryCell">
+                <div property="columns">
+                    <div field="tm" width="150" align="center" headeralign="center" allowSort="true">
+                        时间
+                    </div>
+                    <div field="upz" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2"
+                        dataType="float" summarytype="max">
+                        上游(m)
+                    </div>
+                    <div field="dwz" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2"
+                        dataType="float" summarytype="max">
+                        下游(m)
+                    </div>
+                    <!--<div field="wrz" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2" dataType="float">
+                        警戒水位(m)
+                    </div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var stcd = GetQueryString("stcd");
+        var stnm = GetQueryString("stnm");
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+        var grid = mini.get("grid1");
+        var rbl = mini.get("rbl");
+        rbl.on("valuechanged", function (e) {
+            btnSearch();
+        });
+
+        function doExport(name) {
+            var data = grid.data;
+            ExportExcel(data, grid, stnm + "水情");
+        }
+        $(function () {
+            $("#fit2").hide();
+            var tm = new Date();
+            if (stime == null) {
+                stime = addDayDate(tm, -6) + " " + tm.format("HH:mm")
+            } else {
+                stime = new Date(stime.replaceAll("-", "/")).format("yyyy/MM/dd HH:mm:ss")
+            }
+            if (etime == null) {
+                etime = addDayDate(tm, -6) + " " + tm.format("HH:mm")
+            } else {
+                etime = formatDate(etime).format("yyyy/MM/dd HH:mm:ss")
+            }
+            if (formatDate(stime) > formatDate(tm.format("yyyy/MM/dd HH:mm:ss"))) {
+                stime = addDayDate(stime, -1) + " 08:00:00"
+            }
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+            BreakLayerLoad();
+        });
+
+        function btnSearch() {
+            $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
+            setTimeout('BreakLayerLoad()', 100);
+            //BreakLayerLoad();
+        }
+
+        function BreakLayerLoad() {
+            var startDate = mini.get("STIME").getFormValue();
+            var endDate = mini.get("ETIME").getFormValue();
+            var d1 = formatDate(startDate);
+            var d2 = formatDate(endDate);
+
+            var strWhere={
+                "stcd": stcd,
+                "pathname": "Minute",
+                "stime": d1.format("yyyy-MM-dd HH:mm:ss"),
+                "etime": d2.format("yyyy-MM-dd HH:mm:ss"),
+                "datasource": ""
+            }
+            app.post("/GetWaterViewNew/selectListByHis", strWhere, (data) => {
+                JosnSel(data, "Sel")
+            });
+        }
+
+        var dataResult;
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                if (data.total > 0) {
+                    //$("#dataShow").hide();
+                } else {
+                    noData();
+                    //$("#Chart").html("<h1 style=\"text-align:center;padding-top:18%;\">暂无数据</h1>");
+                    //$("#dataShow").show();
+                }
+                var tt = data.data.filter(function (e) {
+                    return Number(e.dwz) > 0;
+                })
+                $.data(myData, "DWZTT", tt.length);
+                var ColoumnsName = { "indexcolumn": "序号", "tm": "时间" };
+                if (tt.length > 0) {
+                    ColoumnsName["upz"] = "上游水位(m)@";
+                    ColoumnsName["dwz"] = "下游水位(m)@";
+                } else {
+                    ColoumnsName["upz"] = "水位(m)@";
+                }
+                ColoumnsName["wrz"] = "警戒水位(m)";
+                ColoumnsName["grz"] = "保证水位(m)";
+
+                SetSummaryColumns(ColoumnsName, grid)
+
+                // console.error('dataResult.data',dataResult.data);
+                grid.setData(dataResult.data);
+                JsonLineChart(dataResult);
+                $("#dataShow").hide();
+                $("#dataLoad").hide();
+            }
+        }
+        function noData() {
+            $("#maxUpz").html("无");
+            $("#maxUpTime").html("无");
+            $("#minUpz").html("无");
+            $("#minUpTime").html("无");
+            $("#maxDown").html("无");
+            $("#maxDownTime").html("无");
+            $("#minDown").html("无");
+            $("#minDownTime").html("无");
+        }
+        function JsonLineChart(strJson) {
+            var strData = "";
+            var _XData = [];
+            if (strJson.data.length > 0) {
+                var SWMAX = -9999, SWMIN = 9999, XYMAX = -9999, XYMIN = 9999;
+                var SWMAXTM = "", SWMINTM = "", XYMAXTM = "", XYMINTM = "";
+                for (var num = strJson.data.length-1; num>=0; num--) {
+                    if (strJson.data[num].upz != "" && strJson.data[num].upz != null) {
+                        if (SWMAX < parseFloat(strJson.data[num].upz)) {
+                            SWMAX = parseFloat(strJson.data[num].upz).toFixed(2);
+                            SWMAXTM = new Date(strJson.data[num].tm).format("MM/dd HH:mm");
+                        }
+                        if (SWMIN > parseFloat(strJson.data[num].upz)) {
+                            SWMIN = parseFloat(strJson.data[num].upz).toFixed(2);
+                            SWMINTM = new Date(strJson.data[num].tm).format("MM/dd HH:mm");
+                        }
+                    }
+                    if (strJson.data[num].dwz != "" && strJson.data[num].dwz != null) {
+                        if (XYMAX < parseFloat(strJson.data[num].dwz)) {
+                            XYMAX = parseFloat(strJson.data[num].dwz).toFixed(2);
+                            XYMAXTM = new Date(strJson.data[num].tm).format("MM/dd HH:mm");
+                        }
+                        if (XYMIN > parseFloat(strJson.data[num].dwz)) {
+                            XYMIN = parseFloat(strJson.data[num].dwz).toFixed(2);
+                            XYMINTM = new Date(strJson.data[num].tm).format("MM/dd HH:mm");
+                        }
+                    }
+                    var upz = strJson.data[num].upz == undefined ? null : Number(strJson.data[num].upz).toFixed(2);
+                    var dwz = strJson.data[num].dwz == undefined ? null : Number(strJson.data[num].dwz).toFixed(2);
+                    if (stcd == "63201999") {
+                        var _fhkz = null, _dsxz = null;
+                        var strTM = new Date(strJson.data[num].tm);
+                        if (strTM > new Date(strTM.format("yyyy/04/01 00:00:00")) && strTM <= new Date(strTM.format("yyyy/06/15 23:59:59"))) {
+                            _fhkz = 3.10;
+                            _dsxz = 3.00;
+                        } else if (strTM >= new Date(strTM.format("yyyy/06/16 00:00:00")) && strTM <= new Date(strTM.format("yyyy/07/20 23:59:59"))) {
+                            for (numII = 0; numII < 36; numII++) {
+                                if (numII == 0) {
+                                    _fhkz = (3.10 + Number((3.5 - 3.1) / 36) * numII).toFixed(2);
+                                    _dsxz = (3.00 + Number((3.3 - 3.0) / 36) * numII).toFixed(2);
+                                } else {
+                                    if (strTM.format("yyyy/MM/dd") == addDayDate(strTM.format("yyyy/06/16"), numII)) {
+                                        _fhkz = (3.10 + Number((3.5 - 3.1) / 36) * numII).toFixed(2);
+                                        _dsxz = (3.00 + Number((3.3 - 3.0) / 36) * numII).toFixed(2);
+                                    }
+                                }
+                            }
+
+                        } else if (strTM >= new Date(strTM.format("yyyy/03/16 00:00:00")) && strTM <= new Date(strTM.format("yyyy/03/31 23:59:59"))) {
+                            for (numII = 0; numII < 17; numII++) {
+                                if (numII == 0) {
+                                    _fhkz = (3.50 - Number((3.5 - 3.1) / 17) * numII).toFixed(2);
+                                    _dsxz = (3.30 - Number((3.3 - 3.0) / 17) * numII).toFixed(2);
+                                } else {
+                                    if (strTM.format("yyyy/MM/dd") == addDayDate(strTM.format("yyyy/03/16"), numII)) {
+                                        _fhkz = (3.50 - Number((3.5 - 3.1) / 17) * numII).toFixed(2);
+                                        _dsxz = (3.30 - Number((3.3 - 3.0) / 17) * numII).toFixed(2);
+                                    }
+                                }
+                            }
+
+                        } else {
+                            _fhkz = 3.50;
+                            _dsxz = 3.30;
+                        }
+                        _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, "FHKZ": _fhkz, "DSXZ": _dsxz });
+                    } else if (stcd == "63202211") {//横山水库
+                        var _fhkz = null;
+                        var strTM = new Date(strJson.data[num].tm);
+                        if (strTM > new Date(strTM.format("yyyy/06/11 00:00:00")) && strTM <= new Date(strTM.format("yyyy/08/31 23:59:59"))) {
+                            _fhkz = 34.00;
+                        } else if (strTM >= new Date(strTM.format("yyyy/06/01 00:00:00")) && strTM <= new Date(strTM.format("yyyy/06/10 23:59:59"))) {
+                            for (numII = 0; numII < 10; numII++) {
+                                if (numII == 0) {
+                                    _fhkz = (35.0 - 0.1 * numII).toFixed(2);
+                                } else {
+                                    if (strTM.format("yyyy/MM/dd") == addDayDate(strTM.format("yyyy/06/01"), numII)) {
+                                        _fhkz = (35.0 - 0.1 * numII).toFixed(2);
+                                    }
+                                }
+                            }
+
+                        } else if (strTM >= new Date(strTM.format("yyyy/09/01 00:00:00")) && strTM <= new Date(strTM.format("yyyy/09/30 23:59:59"))) {
+                            for (numII = 0; numII < 10; numII++) {
+                                if (numII == 0) {
+                                    _fhkz = (34.00 + 0.1 * numII).toFixed(2);
+                                } else {
+                                    if (strTM.format("yyyy/MM/dd") == addDayDate(strTM.format("yyyy/09/01"), numII)) {
+                                        _fhkz = (34.00 + 0.1 * numII).toFixed(2);
+                                    }
+                                }
+                            }
+
+                        } else {
+                            _fhkz = 35.00;
+                        }
+                        _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, "XXSW": _fhkz });
+
+                    } else if (stcd == "63202438") {
+                        var _fhkz = null;
+                        var strTM = new Date(strJson.data[num].tm);
+                        if (strTM > new Date(strTM.format("yyyy/06/11 00:00:00")) && strTM <= new Date(strTM.format("yyyy/08/31 23:59:59"))) {
+                            _fhkz = 37.3;
+                        } else if (strTM >= new Date(strTM.format("yyyy/06/01 00:00:00")) && strTM <= new Date(strTM.format("yyyy/06/10 23:59:59"))) {
+                            for (numII = 0; numII < 10; numII++) {
+                                if (numII == 0) {
+                                    _fhkz = (38.3 - 0.1 * numII).toFixed(2);
+                                } else {
+                                    if (strTM.format("yyyy/MM/dd") == addDayDate(strTM.format("yyyy/06/01"), numII)) {
+                                        _fhkz = (38.3 - 0.1 * numII).toFixed(2);
+                                    }
+                                }
+                            }
+
+                        } else if (strTM >= new Date(strTM.format("yyyy/09/01 00:00:00")) && strTM <= new Date(strTM.format("yyyy/09/30 23:59:59"))) {
+                            for (numII = 0; numII < 10; numII++) {
+                                if (numII == 0) {
+                                    _fhkz = (37.3 + 0.1 * numII).toFixed(2);
+                                } else {
+                                    if (strTM.format("yyyy/MM/dd") == addDayDate(strTM.format("yyyy/09/01"), numII)) {
+                                        _fhkz = (37.3 + 0.1 * numII).toFixed(2);
+                                    }
+                                }
+                            }
+
+                        } else {
+                            _fhkz = 38.3;
+                        }
+                        _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, "XXSW": _fhkz });
+
+                    } else {
+                        _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, grz: strJson.data[num].grz });
+                    }
+                }
+                GetObj("maxUpz").innerHTML = SWMAX == -9999 ? "-" : SWMAX + "m";
+                GetObj("maxUpTime").innerHTML = SWMAXTM;
+                GetObj("minUpz").innerHTML = SWMIN == 9999 ? "-" : SWMIN + "m";
+                GetObj("minUpTime").innerHTML = SWMINTM;
+                GetObj("maxDown").innerHTML = XYMAX == -9999 ? "-" : XYMAX + "m";
+                GetObj("maxDownTime").innerHTML = XYMAXTM;
+                GetObj("minDown").innerHTML = XYMIN == 9999 ? "-" : XYMIN + "m";
+                GetObj("minDownTime").innerHTML = XYMINTM;
+            }
+            //绘制数据说明
+            var strNote = '[{"name": "时间","codename": "tm","tableV":"1","isShow":true,"width":"40%"}';
+            var LineColor = ['#0000FF', '#00FF00', '#ff0909', '#FFA500'];
+
+            if ($.data(myData, "DWZTT") > 0) {
+                strNote += ',{"name": "上游水位","codename": "upz","tableV":"1","isShow":true,"width":"20%"}';
+                strNote += ',{"name": "下游水位","codename": "dwz","tableV":"1","isShow":true,"width":"20%"}';
+
+                LineColor = ['#0000FF', '#00FF00', '#FFA500', '#ff0909'];
+            } else {
+                strNote += ',{"name": "水位","codename": "upz","tableV":"1","isShow":true,"width":"20%"}';
+
+                LineColor = ['#0000FF', '#FFA500', '#ff0909', '#00FF00'];
+            }
+            //if (stcd == "63201999") {
+            //    strNote += ',{"name": "防洪控制水位","codename": "FHKZ","tableV":"1","isShow":true,"width":"20%"}';
+            //    strNote += ',{"name": "调水限制水位","codename": "DSXZ","tableV":"1","isShow":true,"width":"20%"}';
+            //    strNote += ',{"name": "警戒水位","codename": "wrz","tableV":"1","isShow":false,"width":"20%"}';
+            //} else if (stcd == "63202211") {
+            //    strNote += ',{"name": "警戒水位","codename": "XXSW","tableV":"1","isShow":true,"width":"20%"}';
+            //}
+            //else if (stcd == "63202438") {
+            //    strNote += ',{"name": "警戒水位","codename": "XXSW","tableV":"1","isShow":true,"width":"20%"}';
+            //} else {
+            strNote += ',{"name": "警戒水位","codename": "wrz","tableV":"1","isShow":false,"width":"20%"}';
+            strNote += ',{"name": "保证水位","codename": "grz","tableV":"1","isShow":false,"width":"20%"}';
+            //}
+            strNote += ']';
+            //绘制过程线颜色设置
+            //var jsonData = sortObjectArray(_XData, ['tm'], 'asc');
+            var jsonData = _XData;
+            $.data(myData, "jsonData", jsonData);
+            $.data(myData, "strNote", eval('(' + strNote + ')'));
+            $.data(myData, "LineColor", LineColor);
+            //绘制图形
+            chartSW("Chart", jsonData, eval('(' + strNote + ')'), LineColor, "水位");
+
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+
+        //统计水位
+        function onDrawSummaryCell(e) {
+            var value = e.value;
+            if ($.data(myData, "DWZTT") > 0) {
+                if (e.field == "upz") {
+                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">上游最高: " + value + "m</span>" : e.cellHtml = "<span  style=\"color:red;font-weight:bold;\">上游最高: 无</span>";
+                }
+                if (e.field == "dwz") {
+                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">下游最高: " + value + "m</span>" : e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">下游最高: 无</span>";
+                }
+            } else {
+                if (e.field == "upz") {
+                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">水位最高: " + Number(value).toFixed(2) + "m</span>" : e.cellHtml = "<span  style=\"color:red;font-weight:bold;\">水位最高: 无</span>";
+                }
+            }
+
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (Number(row.wrz) > 0 && Number(row.upz) > Number(row.wrz)) {
+                e.cellStyle = "color:#FFA500";
+            }
+            if (Number(row.grz) > 0 && Number(row.upz) > Number(row.grz)) {
+                e.cellStyle = "color:red";
+            }
+            if (field == "tm") {
+                e.cellHtml = new Date(value).format("yyyy-MM-dd HH:mm:ss");
+            } else if (field == "wrz") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            } else if (field == "upz") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            } else if (field == "dwz") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            } else if (field == "grz") {
+                if (value != undefined) {
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            }
+        }
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            //$(".fit").css("display", "none");
+            //$("#" + objFit).css("display", "block");
+            if (objID == "switch0") {
+                $("#fit1").css("width", "50%");
+                $("#fit2").css("width", "50%");
+                $("#Chart").css("width", "550px");
+                alert(objID)
+                chartSW("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "水位");
+                $(".fit").hide();
+                $("#fit1").show();
+                $("#fit2").show();
+            } else if (objID == "switch1") {
+                $("#" + objFit).css("width", "100%");
+                //$("#Chart").css("width", "100%");
+                chartSW("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "水位");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            } else {
+                $("#" + objFit).css("width", "100%");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            }
+            //BreakLayerLoad();
+        }
+    </script>
+    <script type="text/javascript">
+
+        /* 过程线绘制 过程线 水位
+         * ChartName画图控件名称
+         * dataS数据对象，数据格式json
+         * strNote数据说明，数据类型数组，数据格式
+         * json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示过程线
+         * [
+         * {"name": "时间","codename": "tm","tableV":"1","isShow":true},
+         * {"name": "闸上水位","codename": "upz","tableV":"1","isShow":true},
+         * {"name": "闸下水位","codename": "dwz","tableV":"1","isShow":true},
+         * {"name": "警戒水位","codename": "wrz","tableV":"0","isShow":false}
+         * ]
+         */
+        function chartSW(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            //echarts.init(document.getElementById('quxian'), 'macarons');
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var ShowSelected = {};
+            var m = new Array();
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(new Date(value[value1.codename].replaceAll("-","/")).format("MM-dd HH:mm")); //加入时间集合
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            //获得最大值最小值
+            //var max_min=GetSort(chartValue);
+            var option = {
+                //backgroundColor: '#100E19',
+                noDataLoadingOption: {
+                    text: '暂无数据',
+                    effect: 'bubble',
+                    effectOption: {
+                        effect: {
+                            n: 0 //气泡个数为0
+                        }
+                    },
+                    textStyle: {
+                        fontSize: 30,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    },
+                    selected: ShowSelected
+                    //selected: {
+                    //    '警戒水位': false
+                    //}
+
+                }, grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartTM,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1, //这里是为了突出显示加上的
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            }
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.min - (jiangenew - jiange) / 200;
+                            }
+                            else {
+                                return value.min - (jiangenew - jiange - 1) / 200;
+                            }
+
+
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.max + (jiangenew - jiange) / 200;
+                            }
+                            else {
+                                return value.max + (jiangenew - jiange + 1) / 200;
+                            }
+
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+                        if (max_min_Name != "" & max_min_Name == chartName[j]) {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                connectNulls: true,
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                smooth: true,
+                                symbol: 'none',
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                connectNulls: true,
+                                smooth: true,
+                                symbol: 'none',
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+            if (m.length == 0) {
+                if ($.data(myData, "ChartID") != null) {
+                    $("#" + $.data(myData, "ChartID")).show();
+                } else {
+                    var $li = "";
+                    $.data(myData, "ChartID", new Date().format("yyyyMMddHH"));
+
+                    $li = "<div id='" + $.data(myData, "ChartID") + "'>\ <span  class='b threefont' style='letter-spacing:-2px;position: absolute;top: 40%;font-size: 30px;color:#ddd'>暂无数据</span>\ </div>";
+                    $('#' + ChartName).append($li);
+                }
+
+            } else {
+                $("#" + $.data(myData, "ChartID")).hide();
+            }
+        }
+
+    </script>
+</body>
+
+</html>

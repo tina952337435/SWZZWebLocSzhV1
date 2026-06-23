@@ -1,0 +1,297 @@
+
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>巡检内容配置管理</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+		<!-- <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" /> -->
+    <script src="..../Common/boot.js" type="text/javascript"></script> 
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            margin: 0;
+            overflow: visible;
+        }
+		.mini-grid-rows-view{
+					overflow: hidden;
+				}
+				legend {
+				    display: block;
+				    -webkit-padding-start: 2px;
+				    -webkit-padding-end: 2px;
+				    border-width: initial;
+				    border-style: none;
+				    border-color: initial;
+				    border-image: initial;
+				}
+				.btn {
+				    display: inline-block;
+				    padding: 6px 12px;
+				    margin-bottom: 0;
+				    font-size: 14px;
+				    font-weight: 400;
+				    line-height: 1.42857143;
+				    text-align: center;
+				    white-space: nowrap;
+				    vertical-align: middle;
+				    -ms-touch-action: manipulation;
+				    touch-action: manipulation;
+				    cursor: pointer;
+				    -webkit-user-select: none;
+				    -moz-user-select: none;
+				    -ms-user-select: none;
+				    user-select: none;
+				    background-image: none;
+				    border: 1px solid transparent;
+				    border-radius: 4px;
+				}
+				.btn-info {
+				    color: #fff;
+				    background-color: #5bc0de;
+				    border-color: #46b8da;
+				}
+				.btn-danger {
+				    color: #fff;
+				    background-color: #d9534f;
+				    border-color: #d43f3a;
+				}
+				.btn-primary {
+				    color: #fff;
+				    background-color: #3291F9;
+				    border-color: #3291F9;
+				}
+				.btn-warning {
+				    color: #fff;
+				    background-color: #f0ad4e;
+				    border-color: #eea236;
+				}
+    </style>
+</head>
+<body class="contentbody">
+    <div style="width:100%;">
+        <div class="mini-toolbar" style=" margin-bottom:1px;">
+                <div class="myrow">
+            <table style="width:100%;">
+                <tr>
+                    <td style="width:100%;">
+                        关键字：  
+                        <input id="key" class="mini-textbox" emptytext="请输入关键字" style="height:25px;width:200px;" onenter="onKeyEnter" />   &nbsp;
+                    	<button type="button" class="btn btn-primary" onclick="search()">查询</button>
+                    						
+                                        </td>
+                                        <td style="white-space:nowrap;">
+                    						<button type="button" class="btn btn-info" onclick="search()">刷新</button>
+                    						<span class="separator"></span>
+                    						<button type="button" class="btn btn-danger" onclick="remove()">删除</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    </div>
+    <!--allowAlternating="true"隔行换色，showVGridLines =false竖线 showHGridLines横线  headerStyle头样式 cellStyle=列样式 -->
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 100px);height: -moz-calc(100% - 100px);height: calc(100% - 100px);">
+        <div id="treegrid1" class="mini-treegrid" style="width:100%;height:85%;background-color:#FFF;"
+             showtreeicon="true"
+             treecolumn="taskname" idfield="qx_ID" parentfield="qx_PARENT" resultastree="false"
+             allowresize="true" expandonload="true" allowresize="true" showvgridlines="false" ondrawcell="ondrawcell">
+            <div property="columns">
+                <!--<div type="indexcolumn" width="5%" headerstyle="height:30px" cellstyle="height:25px" headeralign="center" allowsort="true"></div>-->
+                <div name="taskname" field="jc_NAME" width="30%" headerstyle="height:30px" cellstyle="height:25px" cellstyle="height:30px;width:30%;" headeralign="center" allowsort="true">检查内容</div>
+                <div field="jc_TYPE"   width="10%" headerstyle="height:30px;" cellstyle="height:25px;width:10%;" headeralign="center" align="center" allowsort="true">情况</div>
+                <div field="jc_CONTENT"  width="30%" headerstyle="height:30px;" cellstyle="height:25px;width:30%;" headeralign="center" align="center" allowsort="true">备注</div>
+                <div field="orderby" width="10%" headerstyle="height:30px;" cellstyle="height:25px;width:10%;" headeralign="center" align="center" allowsort="true">排序</div>
+            </div>
+        </div>
+        <fieldset style="width:99%;border:solid 1px #aaa;position:relative;background-color:#FFF;margin: 0 auto;">
+            <legend>检查内容编辑</legend>
+            <div id="editForm1" style="padding:5px; ">
+                <div class="mini-toolbar">
+                    <table style="width:100%">
+                        <tr>
+                            <td align="right" style="width: 80px">检查编号：</td>
+                            <td align="left" style="width: 12%"> 
+                                <input id="id" name="id" class="mini-textbox" emptytext="请输入编号" required="true" readonly style="width:50%;"/>
+                                <input type="checkbox" onchange="OnQx_ID()" id="CBQX_ID" title="" />是否分类
+                            </td>
+                            <td align="right" style="width: 80px">检查内容：</td>
+                            <td align="left" style="width: 12%"><input id="jc_NAME" name="jc_NAME" class="mini-textbox Span90" /></td>
+                            <td align="right">情况：</td>
+                            <td align="left" style="width: 12%">
+                                <input id="jc_TYPE" name="jc_TYPE" class="mini-combobox Span90" textField="name" valueField="note" emptyText="请选择..."
+                                 value=""   allowInput="true" showNullItem="true" nullItemText="请选择..."/>
+                            </td>
+                            <td align="right" style="width: 80px">备注：</td>
+                            <td align="left" style="width: 12%"><input id="jc_CONTENT" name="jc_CONTENT" class="mini-textbox Span90" /></td>
+                            <td align="right" style="width: 80px">排序：</td>
+                            <td align="left" style="width: 12%"><input id="orderby" name="orderby" class="mini-textbox Span90" /></td>
+                            <td align="right">
+                               <button type="button" class="btn btn-primary" onclick="saveData()">修改</button>
+                              <button type="button" class="btn btn-warning" onclick="addData()">添加</button>
+                             <input id="PATHNAME" class="mini-textbox" name="PATHNAME" value="" style="width:80px;display:none;" /> 
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </fieldset>
+    </div> 
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        var myData=[];
+        //绑定表单
+        var grid = mini.get("treegrid1");
+        var db = new mini.DataBinding();
+        db.bindForm("editForm1", grid);
+        var PathName= GetQueryString("PATHNAME"); 
+        $(function () {  
+            var strWhere = {};
+            strWhere["pathname"]="情况"; 
+            app.get("/xcSystypeS/selectList", strWhere, function (res) {
+                JosnSel(res, "jc_TYPE");
+            })
+        })
+
+
+        function JosnSel(resultdata, typeID) {
+            if (typeID == "Sel") {
+                var tree = mini.get("treegrid1");
+                tree.loadList(resultdata.data, "id", "pid")
+            }
+            else if (typeID == "SAVE") {
+                showTips(resultdata.message)
+                if (resultdata.total > 0) { 
+                    search();
+                    GetObj("CBQX_ID").checked == false;
+                }
+            } else if (typeID == "Del") {
+                showTips(resultdata.message)
+                if (resultdata.total > 0) {
+                    search();
+                }
+            }else if(typeID=="jc_TYPE"){
+                mini.get("jc_TYPE").setData(resultdata.data);
+                search();
+            }
+        }
+        function saveData() {
+            var data = grid.getChanges();
+            var json = mini.encode(data);
+            if (json == "[]") {
+                mini.alert("未对数据进行修改！");
+                return;
+            }
+            grid.loading("保存中，请稍后......");
+
+          
+            var strWhere = {
+                "id": mini.get("id").getValue(),
+                "jc_NAME": mini.get("jc_NAME").getValue(),
+                "jc_CONTENT": mini.get("jc_CONTENT").getValue(),
+                "jc_TYPE": mini.get("jc_TYPE").getValue(),
+                "orderby": mini.get("orderby").getValue(),
+                "pathname": PathName,
+                "showhide": "是"
+            };  
+            app.post("/itemConfig/updateOne", strWhere, function (res) {
+                JosnSel(res, "SAVE");
+            })
+        }
+
+        function addData() {
+            var data = grid.getChanges();
+            var json = mini.encode(data);
+			  var PARENT_ID = mini.get("id").getValue();
+            if (json == "[]"&&PARENT_ID!="-1") {
+                mini.alert("没有可以添加的数据！");
+                return;
+            }
+            grid.loading("保存中，请稍后......"); 
+            var strID = UUID(19,16); 
+            if (PARENT_ID == "-1") {
+				if(data.length>0){
+					PARENT_ID = data[0].pid;
+				}
+            }
+            var strWhere = { 
+                "id": strID,
+                "pid": PARENT_ID,
+                "jc_NAME": mini.get("jc_NAME").getValue(), 
+                "jc_CONTENT": mini.get("jc_CONTENT").getValue(),
+                "jc_TYPE": mini.get("jc_TYPE").getValue(),
+                "orderby": mini.get("orderby").getValue(),
+                "pathname":PathName,
+                "showhide": "是"
+            };  
+            app.post("/itemConfig/insertOne", strWhere, function (res) {
+                JosnSel(res, "SAVE");
+            })
+        }
+
+        //鼠标移动上去的提示信息。
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if (field == "qx_ICON") {
+                var s = '';
+                if (value == "" || value == "暂定图片") {
+                    s = '<i class="fa fa-desktop" style="font-size:18px;margin-top:5px;"></a>';
+                } else {
+                    s = '<i class="fa ' + value + '" style="font-size:18px;margin-top:5px;"></a>';
+                }
+                e.cellHtml = s;
+            }
+        }
+
+
+        //删除
+        function remove() {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        var value =  mini.get("id").getValue();
+                        if (value == "") {
+                            mini.alert("请选择删除行！");
+                            return;
+                        }
+                        grid.loading("执行删除中，请稍后......"); 
+                        app.get("/itemConfig/deleteOne?stcd="+value, {}, function (res) {
+                            JosnSel(res, "Del");
+                        })
+                    }
+                    else {
+                        //alert("不删除!");
+                    }
+                }
+            );
+        }
+
+        function OnQx_ID() {
+            if (GetObj("CBQX_ID").checked == true) {
+                GetObj("CBQX_ID").alt = mini.get("id").getValue();
+                mini.get("id").setValue("-1");
+            } else {
+                GetObj("CBQX_ID").title = "-1";
+                mini.get("id").setValue(GetObj("CBQX_ID").alt);
+            }
+        }
+        //查询
+        function search() {
+            var key = mini.get("key").getValue(); 
+            app.get("/itemConfig/selectList?pathname="+PathName+"&key="+key, {}, function (res) {
+                JosnSel(res, "Sel");
+            })
+        }
+    </script>
+    </div>
+</body>
+</html>

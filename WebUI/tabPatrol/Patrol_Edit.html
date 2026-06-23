@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title></title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /* overflow: hidden; */
+            font-size: 12px;
+        }
+
+        #TITLE table td {
+            border: 0px;
+        }
+
+        .col-lg-1,
+        .col-lg-10,
+        .col-lg-11,
+        .col-lg-12,
+        .col-lg-2,
+        .col-lg-3,
+        .col-lg-4,
+        .col-lg-5,
+        .col-lg-6,
+        .col-lg-7,
+        .col-lg-8,
+        .col-lg-9,
+        .col-md-1,
+        .col-md-10,
+        .col-md-11,
+        .col-md-12,
+        .col-md-2,
+        .col-md-3,
+        .col-md-4,
+        .col-md-5,
+        .col-md-6,
+        .col-md-7,
+        .col-md-8,
+        .col-md-9,
+        .col-sm-1,
+        .col-sm-10,
+        .col-sm-11,
+        .col-sm-12,
+        .col-sm-2,
+        .col-sm-3,
+        .col-sm-4,
+        .col-sm-5,
+        .col-sm-6,
+        .col-sm-7,
+        .col-sm-8,
+        .col-sm-9,
+        .col-xs-1,
+        .col-xs-10,
+        .col-xs-11,
+        .col-xs-12,
+        .col-xs-2,
+        .col-xs-3,
+        .col-xs-4,
+        .col-xs-5,
+        .col-xs-6,
+        .col-xs-7,
+        .col-xs-8,
+        .col-xs-9 {
+            position: relative;
+            min-height: 1px;
+            padding-right: 0px;
+            padding-left: 0px;
+        }
+
+        .tableView {
+            margin: 20px auto;
+        }
+
+        .tableView tr td {
+            position: relative;
+            width: auto !important;
+        }
+
+        .widthinput {
+            width: 120px !important;
+        }
+
+        .RadBtn {
+            margin: 0 auto;
+            border: 0px !important;
+        }
+
+        .RadBtn table {
+            margin: 0 auto;
+            border: 0px !important;
+        }
+
+        .RadBtn tr td {
+            border: 0px !important;
+        }
+        .mini-checkboxlist-td{
+            width: auto !important;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1'
+            style=' background-color: White; width: 95%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    <span id="HeadTitle">
+
+                    </span>
+                    <input id="ID" name="ID" class="mini-Hidden" />
+                    <input id="STCD" name="STCD" class="mini-Hidden" />
+                    <input id="STNM" name="STNM" class="mini-Hidden" />
+                    <input id="PATHNAME" name="PATHNAME" class="mini-Hidden" />
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    维护单位：
+                </td>
+                <td class="lie2" colspan="3">
+                    <div id="TITLE" name="TITLE" class="mini-checkboxlist" repeatItems="3" repeatLayout="table"
+                        textField="name" valueField="name" value="" style="width: 100% !important;">
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    日期：
+                </td>
+                <td class="lie2">
+                    <input id="TM" name="TM" class="mini-datepicker Span90" nullValue="null" format="yyyy-MM-dd"
+                        timeFormat="H:mm:ss" showTime="false" showOkButton="false" showClearButton="false" />
+                </td>
+                <td class="lie1" align="right">
+                    维护人员：
+                </td>
+                <td class="lie2">
+                    <input id="OWEN" name="OWEN" class="mini-textbox Span90" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="left">
+                    <div class="form-group">
+                        <label for="name" style="margin-top: 10px;margin-left: 30px;">第一次水位校核</label>
+                        <div class="container">
+                            <div class="row" style="line-height: 60px;">
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        读取时间：
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="SCTM1" name="SCTM1" class="mini-datepicker" style="width:150px"
+                                            nullValue="null" format="yyyy-MM-dd HH:mm" timeFormat="HH:mm"
+                                            showTime="true" showOkButton="false" showClearButton="false" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        <label class="FontColor ">*</label>水尺读数：
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="SCR1" name="SCR1" class="mini-textbox widthinput" required="true" vtype="float"/>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        <label class="FontColor ">*</label>水尺水位：
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="SCZ1" name="SCZ1" class="mini-textbox widthinput" required="true" vtype="float"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-7 text-right">
+                                        <label class="FontColor ">*</label>水位计水位：
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input id="SWZ1" name="SWZ1" class="mini-textbox widthinput" required="true" vtype="float"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-3 text-right">
+                                            水位计修改时间：
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input id="SWTM1" name="SWTM1" class="mini-datepicker"
+                                                style="width:150px;margin-left: 5px;" onvaluechanged="onValueChanged"
+                                                nullValue="null" format="yyyy-MM-dd HH:mm" timeFormat="HH:mm"
+                                                showTime="true" showOkButton="false" showClearButton="false" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="col-md-3 text-right">
+                                        水尺零点高程：
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input id="SCG1" name="SCG1" class="mini-textbox widthinput" vtype="float"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name" style="margin-top: 10px;margin-left: 30px;">第二次水位校核</label>
+                        <div class="container">
+                            <div class="row" style="line-height: 60px;">
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        读取时间：
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="SCTM2" name="SCTM2" class="mini-datepicker" style="width:150px"
+                                            nullValue="null" format="yyyy-MM-dd HH:mm" timeFormat="HH:mm"
+                                            showTime="true" showOkButton="false" showClearButton="false" />
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        <label class="FontColor ">*</label>水尺读数：
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="SCR2" name="SCR2" class="mini-textbox Span90" required="true" vtype="float"/>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        <label class="FontColor ">*</label>水尺水位：
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="SCZ2" name="SCZ2" class="mini-textbox Span90" required="true" vtype="float"/>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-7 text-right">
+                                        <label class="FontColor ">*</label>水位计水位：
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input id="SWZ2" name="SWZ2" class="mini-textbox Span90" required="true" vtype="float"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-3 text-right">
+                                            水位计修改时间：
+                                        </div>
+                                        <div class="col-md-9">
+                                            <input id="SWTM2" name="SWTM2" class="mini-datepicker"
+                                                style="width:150px;margin-left: 5px;" onvaluechanged="onValueChanged"
+                                                nullValue="null" format="yyyy-MM-dd HH:mm" timeFormat="HH:mm"
+                                                showTime="true" showOkButton="false" showClearButton="false" />
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="col-md-3 text-right">
+                                        水尺零点高程：
+                                    </div>
+                                    <div class="col-md-9">
+                                        <input id="SCG2" name="SCG2" class="mini-textbox"  vtype="float"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <div class="row" id='tableView1'>
+                        <table cellspacing='0' cellpadding='0' border='0' class="tableView"
+                            style=' background-color: White; width: 95%; border-collapse: collapse;position: relative;'>
+                            <tr>
+                                <td class="lie1" style="width: 15% !important;">
+                                    分类
+                                </td>
+                                <td class="lie1" style="width: 25% !important;">
+                                    明细
+                                </td>
+                                <td class="lie1" style="width: 18% !important;">
+                                    情况
+                                </td>
+                                <td class="lie1" style="width: 25% !important;">
+                                    明细
+                                </td>
+                                <td class="lie1" style="width: 18% !important;">
+                                    情况
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    情况记录：
+                </td>
+                <td class="lie2" colspan="3">
+                    <textarea id="NT" name="NT" rows="50" style="width: 100%; height: 180px;" class="mini-textarea"
+                        emptytext="请输入情况记录"></textarea>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <button type="button" class="btn btn-warning" onclick="onSavaOk()" id="ZCSava">暂存</button>
+                    <button type="button" class="btn btn-primary" onclick="onOk()">保存</button>
+                    <button type="button" class="btn btn-default" onclick="onCancel()">取消</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        //标准方法接口定义
+        function SetData(data) {
+            $.data(myData, "action", data);
+            var strTitle = '<span style="padding-right: 10px;">';
+            strTitle += data.STNM;
+            strTitle += '</span>';
+            strTitle += data.HEADTITLE;
+            $("#HeadTitle").html(strTitle)
+            mini.get("OWEN").setValue(GetCookie("LOGINNAME"))
+            var tms = new Date();
+            mini.get("TM").setValue(tms.format("yyyy-MM-dd"));
+            mini.get("SCTM1").setValue(tms.format("yyyy-MM-dd HH:mm"));
+            mini.get("SCTM2").setValue(tms.format("yyyy-MM-dd HH:mm"));
+            mini.get("SWTM1").setValue(tms.format("yyyy-MM-dd HH:mm"));
+            mini.get("SWTM2").setValue(tms.format("yyyy-MM-dd HH:mm"));
+            if (data.action == "edit") {
+                mini.get("ID").setValue(data.ID);
+                var strWhere = {
+                    "ID": data.ID
+                };
+                var postParam = {};
+                    postParam["pathname"] = data.PATHNAME;
+                    postParam["stcd"] = data.STCD;
+                    postParam["systype"] = "维护单位";
+                    postParam["itemid"] =  data.ID;
+                    app.get("/itemZhuanti/ViewConfig", postParam, function (res) {
+                        JosnSel(res, "Sel");
+                    })
+            } else if (data.action == "new") {
+                var strID = UUID(19, 16);
+                mini.get("ID").setValue(strID);
+                mini.get("STCD").setValue(data.STCD);
+                mini.get("STNM").setValue(data.STNM);
+                mini.get("PATHNAME").setValue(data.PATHNAME);
+
+
+                var postParam = {};
+                    postParam["pathname"] = data.PATHNAME;
+                    postParam["stcd"] = data.STCD;
+                    postParam["systype"] = "维护单位";
+                    app.get("/itemZhuanti/ViewConfig", postParam, function (res) {
+                        JosnSel(res, "维护单位");
+                    })
+            }
+        }
+        function onSavaOk(){
+            SavaData("0");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var strJson = data.data;
+                if (data.total > 0) {
+                    infoData(strJson);
+                }
+            } else if (typeID == "Update") {
+                showTips(data.Message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            } else if (typeID == "Add") {
+                showTips(data.message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            } else if (typeID == "维护单位") {
+                var strJson = data.data;
+                infoData(strJson);
+            }
+            mini.unmask(document.body);
+        }
+        function infoData(strJson){  
+                mini.get("TITLE").setData(strJson.xcSystypeSPList);
+                mini.get("TITLE").selectAll();
+                if (strJson.stStbprpBList != undefined) {
+                    mini.get("SCG1").setValue(strJson.stStbprpBList[0]["dtmel"])
+                    mini.get("SCG2").setValue(strJson.stStbprpBList[0]["dtmel"])
+                }
+                var result = strJson.itemConfigList;
+                if (result != null) {
+                    setHtml(result,strJson.zhuantiDetailList);
+                }
+                if(strJson.zhuantiList!=null){
+                    var item=mini.decode(strJson.zhuantiList[0]);  
+                       FromSetData(item);
+                       $("#ZCSava").show(); 
+                       if(item.savastate!=undefined){
+                            if(item.savastate=="1"){
+                                $("#ZCSava").hide();
+                            } 
+                       }
+                }
+                if(strJson.zhuantiZList!=null){
+                    var item= strJson.zhuantiZList;
+                    if(item.length>0){
+                        for(num=0;num<item.length;num++){
+                            var strWhere=item[num];
+                            if(strWhere["cknum"]==1){
+                                if(strWhere["SCTM"]!=undefined){
+                                    mini.get("SCTM1").setValue(formatDate(strWhere["SCTM"]).format("yyyy-MM-dd HH:mm"))
+                                }
+                                mini.get("SCR1").setValue(strWhere["scr"])
+                                mini.get("SCZ1").setValue(strWhere["scz"])
+                                mini.get("SWZ1").setValue(strWhere["swz"])
+                                if(strWhere["swtm"]!=undefined){
+                                    mini.get("SWTM1").setValue(formatDate(strWhere["swtm"]).format("yyyy-MM-dd HH:mm"))
+                                }
+                                mini.get("SCG1").setValue(strWhere["scg"]) 
+
+                            }else{
+                                if(strWhere["SCTM"]!=undefined){
+                                mini.get("SCTM2").setValue(formatDate(strWhere["SCTM"]).format("yyyy-MM-dd HH:mm"))
+                                }
+                                mini.get("SCR2").setValue(strWhere["scr"])
+                                mini.get("SCZ2").setValue(strWhere["scz"])
+                                mini.get("SWZ2").setValue(strWhere["swz"])
+                                if(strWhere["swtm"]!=undefined){
+                                mini.get("SWTM2").setValue(formatDate(strWhere["swtm"]).format("yyyy-MM-dd HH:mm"))
+                            }
+                                mini.get("SCG2").setValue(strWhere["scg"]) 
+                            }
+                        }
+                    }  
+                }
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+
+        function onOk(e) {
+            //保存数据
+            form.validate();
+            if (form.isValid() == false)
+                return;
+            var objSate = $.data(myData, "action");
+            SavaData("1");
+
+        }
+        function SavaData(savastate){
+            var strId = mini.get("ID").getValue();
+
+if (strId == "") {
+    var strId = UUID(19, 16);
+    mini.get("ID").setValue(strId);
+}
+
+var strWhere = form.getData(true, true); 
+mini.mask({
+    el: document.body,
+    cls: 'mini-mask-loading',
+    html: '加载中...'
+});
+
+var postParam = {};
+var strITEM = {
+    "id": mini.get("ID").getValue(),
+    "stcd": mini.get("STCD").getValue(),
+    "stnm": mini.get("STNM").getValue(),
+    "owen": mini.get("OWEN").getValue(),
+    "tm": mini.get("TM").getFormValue(),
+    "title": mini.get("TITLE").getValue(),
+    "nt": mini.get("NT").getValue(),
+    "pathname": mini.get("PATHNAME").getValue(),
+    "savastate":savastate,
+    "personname":GetCookie("LOGINNAME"),
+    "personid":GetCookie("USERID"),
+    "autotm":new Date().format("yyyy-MM-dd HH:mm:ss")
+};
+var strZhuanTi = [];
+strZhuanTi.push(strITEM);
+var strZhuanTiZ = [];
+
+strITEM = {
+    "tcd": UUID(19, 16),
+    "sctm": mini.get("SCTM1").getFormValue()+":00",
+    "scr": mini.get("SCR1").getValue(),
+    "scz": mini.get("SCZ1").getValue(),
+    "scg": mini.get("SCG1").getValue(),
+    "swtm": mini.get("SWTM1").getFormValue()+":00",
+    "swz": mini.get("SWZ1").getValue(),
+    "itemid": mini.get("ID").getValue(),
+    "cknum": "1"
+};
+strZhuanTiZ.push(strITEM);
+
+strITEM = {
+    "tcd": UUID(19, 16),
+    "sctm": mini.get("SCTM2").getFormValue()+":00",
+    "scr": mini.get("SCR2").getValue(),
+    "scz": mini.get("SCZ2").getValue(),
+    "scg": mini.get("SCG2").getValue(),
+    "swtm": mini.get("SWTM2").getFormValue()+":00",
+    "swz": mini.get("SWZ2").getValue(),
+    "itemid": mini.get("ID").getValue(),
+    "cknum": "2"
+};
+strZhuanTiZ.push(strITEM);
+
+var strZhuanTiDetail = [];
+var item = $(".RadBtn");
+var allConfig = $.data(myData, "ITEM_CONFIG");
+if (item.length > 0) {
+    for (num = 0; num < item.length; num++) {
+        var _detailID = item[num] 
+        var node = mini.get(_detailID.id).getSelected(); 
+        console.warn(node)
+        // var _tempConfig = allConfig.filter(function (res) {
+        //     return res["id"] == _detailID.id;
+        // })
+        strITEM = {
+            "id": UUID(19, 16),
+            "zt_ID": _detailID.id,
+            "problem": "",
+            "explains":node.jc_NAME,
+            "meet": node.text,
+            "gzflag": node.id,
+            "orderby":node.orderby,
+            "tm": new Date().format("yyyy-MM-dd HH:mm:ss"),
+            "itemid": mini.get("ID").getValue(),
+            "state": "0"
+        };
+        if ($.data(myData, "problem" + _detailID.id) != undefined) {
+            strITEM["problem"] = $.data(myData, "problem" + _detailID.id);
+        }
+        // if (_tempConfig.length > 0) {
+        //     strITEM["explains"] = _tempConfig[0]["jc_name"];
+        //     strITEM["orderby"] = _tempConfig[0]["orderby"];
+        // }
+        if (node.id != "0") {
+            strITEM["state"] = "1";
+        }
+        strZhuanTiDetail.push(strITEM);
+    }
+}
+
+
+postParam["itemZhuanTi"] = JSON.stringify(strZhuanTi);
+postParam["itemZhuanTiZ"] = JSON.stringify(strZhuanTiZ);
+postParam["itemZhuanTiDetail"] = JSON.stringify(strZhuanTiDetail);
+app.post("/itemZhuanti/PATROLREPORT", postParam, function (res) {
+    JosnSel(res, "Add");
+})
+        }
+
+        function onDeptChanged(res) {
+            var val = res.value;
+            console.error(val);
+            var strID = mini.get("ID").getValue();
+            console.log(strID);
+            var detailID = res.sender.id;
+            var detailName = res.sender["llo11"]["jc_NAME"];
+            console.log(detailID);
+            console.log(detailName);
+            if(val!=0){
+               // addData('', '/GC/jianchaPic.html?ITEM_DETAILID=' + itemID + '&PATHNAME=' + TYPE2 + '&NAMES=' + JC_NAME + "&STAUES=0", '新增' + JC_NAME + '管理', '1000', '800', 'true');
+
+                  mini.open({
+                    url: "tabPatrol/Patrol_Pic.html?PID="+detailID+"&PATHNAME="+strID+"&STAUES=0&NAMES="+detailName,
+                    iconCls: "icon-look",
+                    title: "待选择人员列表",
+                    width: "60%",
+                    height: "580",
+                    showCloseButton: true,   //显示关闭按钮
+                    showMaxButton: true,     //显示最大化按钮
+                    showModal: true,         //显示遮罩
+                    onload: function () {
+
+                    },
+                    ondestroy: function (action) {
+                        if (action == "ok") {
+                            var iframe = this.getIFrameEl();
+                            var data = iframe.contentWindow.GetData();
+                            console.warn(data); 
+                            $.data(myData, "problem" + detailID,data);
+                        }
+                    }
+                })
+
+            }
+        }
+
+        function setHtml(strJson,strResult) { 
+            $.data(myData, "ITEM_CONFIG", strJson);
+            var strMsg = '';
+            strMsg = '<table cellspacing="0" cellpadding="0" border="0" class="tableView" ';
+            strMsg += ' style="background-color: White; width: 95%; border-collapse: collapse;position: relative;">';
+            strMsg += ' <tr>';
+            strMsg += '    <td  class="lie1" style="width: 15% !important;">';
+            strMsg += '         分类';
+            strMsg += '    </td>';
+            strMsg += '      <td  class="lie1" style="width: 25% !important;">';
+            strMsg += '            明细';
+            strMsg += '     </td>';
+            strMsg += '  <td  class="lie1" style="width: 18% !important;">';
+            strMsg += '            情况';
+            strMsg += '   </td>';
+            strMsg += '   <td  class="lie1" style="width: 25% !important;">';
+            strMsg += '        明细';
+            strMsg += '  </td>';
+            strMsg += '  <td  class="lie1" style="width: 18% !important;">';
+            strMsg += '          情况';
+            strMsg += '   </td>';
+            strMsg += '  </tr>';
+            if (strJson.length > 0) {
+                // var allJson=groupBy(strJson,"pid");
+                var allJson = strJson.filter(function (res) {
+                    return res["pid"] == "-1";
+                })
+                var fuItem = sortObjectArray(allJson, ['orderby'], 'asc');
+                if (fuItem.length > 0) {
+                    for (num = 0; num < fuItem.length; num++) {
+                        strMsg += '  <tr>';
+                        var tempItem = strJson.filter(function (ext) {
+                            return ext["pid"] == fuItem[num]["id"];
+                        });
+                        var numCount = Math.ceil(tempItem.length / 2);
+                        strMsg += '     <td rowspan="' + numCount + '">';
+                        strMsg += fuItem[num]["jc_NAME"];
+                        strMsg += '   </td>';
+                        if (tempItem.length > 0) {
+                            for (numII = 0; numII < tempItem.length; numII++) {
+                                if (numII > 0) {
+                                    strMsg += '  <tr>';
+                                }
+                                strMsg += '     <td>';
+                                strMsg += tempItem[numII]["jc_NAME"];
+                                strMsg += '   </td>';
+                                strMsg += '     <td>';
+                                var strData = "[";
+                                var strValue = "";
+                                if (tempItem[numII]["jc_TYPE"] != undefined) {
+                                    var jcType = tempItem[numII]["jc_TYPE"].split('、');
+                                    for (nm = 0; nm < jcType.length; nm++) {
+                                        if (nm == 0) {
+                                            strValue = jcType[nm];
+                                            strValue = nm;
+                                            strData += "{'id':'" + nm + "','text':'" + jcType[nm] + "','jc_NAME':'"+tempItem[numII]["jc_NAME"]+"','orderby':'"+tempItem[numII]["orderby"]+"'}";
+                                        } else {
+                                            strData += ",{'id':'" + nm + "','text':'" + jcType[nm] + "','jc_NAME':'"+tempItem[numII]["jc_NAME"]+"','orderby':'"+tempItem[numII]["orderby"]+"'}";
+                                        }
+                                    }
+                                }
+                                if(strResult!=null){
+                                    var _item=strResult.filter(function(res){
+                                        return res["zt_ID"]==tempItem[numII]["id"];
+                                    })
+                                    if(_item.length>0){
+                                        strValue=_item[0]["gzflag"];
+                                        if(_item[0]["problem"+tempItem[numII]["id"]]!=undefined) 
+                                        $.data(myData, "problem" + tempItem[numII]["id"],_item[0]["problem"+tempItem[numII]["id"]]);
+                                    }
+                                }
+                                strData += "]";
+                                var tempMsg = "";
+                                tempMsg +=
+                                    '     <div id="' + tempItem[numII]["id"] + '" name="' + tempItem[numII]["id"] +
+                                    '" class="mini-radiobuttonlist RadBtn" repeatItems="1" repeatLayout="table" repeatDirection="vertical"';
+                                tempMsg += '  textField="text" valueField="id" value="' + strValue + '" data="' +
+                                    strData + '" onvaluechanged="onDeptChanged">';
+                                tempMsg += ' </div>   ';
+                                strMsg += tempMsg;
+                                strMsg += '   </td>';
+                                numII++;
+                                if (numII < (tempItem.length)) {
+                                    strMsg += '     <td>';
+                                    strMsg += tempItem[numII]["jc_NAME"];
+                                    strMsg += '   </td>';
+                                    strMsg += '     <td>';
+                                    var strData2 = "[";
+                                    var strValue2 = "";
+                                    if (tempItem[numII]["jc_TYPE"] != undefined) {
+                                        var jcType2 = tempItem[numII]["jc_TYPE"].split('、');
+                                        for (nm = 0; nm < jcType2.length; nm++) {
+                                            if (nm == 0) {
+                                                strValue2 = jcType2[nm];
+                                                strValue2 = nm;
+                                                strData2 += "{'id':'" + nm + "','text':'" + jcType2[nm] + "','jc_NAME':'"+tempItem[numII]["jc_NAME"]+"','orderby':'"+tempItem[numII]["orderby"]+"'}";
+                                            } else {
+                                                strData2 += ",{'id':'" + nm + "','text':'" + jcType2[nm] +"','jc_NAME':'"+tempItem[numII]["jc_NAME"]+"','orderby':'"+tempItem[numII]["orderby"]+"'}";
+                                            }
+                                        }
+                                    }
+                                    if(strResult!=null){
+                                    var _item2=strResult.filter(function(res){
+                                        return res["zt_ID"]==tempItem[numII]["id"];
+                                    })
+                                    if(_item2.length>0){
+                                        strValue2=_item2[0]["gzflag"];
+                                        if(_item2[0]["problem"+tempItem[numII]["id"]]!=undefined) 
+                                        $.data(myData, "problem" + tempItem[numII]["id"],_item2[0]["problem"+tempItem[numII]["id"]]);
+                                    }
+                                }
+                                    strData2 += "]";
+                                    strMsg +=
+                                        '     <div id="' + tempItem[numII]["id"] + '" name="' + tempItem[numII]["id"] +
+                                        '" class="mini-radiobuttonlist RadBtn" repeatItems="1" repeatLayout="table" repeatDirection="vertical"';
+                                    strMsg += '  textField="text" valueField="id" value="' + strValue2 + '" data="' +
+                                        strData2 + '" onvaluechanged="onDeptChanged">';
+                                    strMsg += ' </div>   ';
+
+                                    strMsg += '   </td>';
+                                } else {
+                                    strMsg += '     <td colspan="2">';
+                                    strMsg += '   </td>';
+                                }
+
+                                strMsg += ' </tr> ';
+                            }
+                        } else {
+                            strMsg += ' </tr> ';
+                        }
+
+
+
+                    }
+                }
+            }
+
+            strMsg += '   </table>';
+            $("#tableView1").html(strMsg);
+            mini.parse();
+        }
+    </script>
+</body>
+
+</html>

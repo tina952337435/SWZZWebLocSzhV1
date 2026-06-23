@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/modelHelperApi.js"></script>
+    <link href="../Common/miniui/res/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+    <title>调度方案记录管理</title>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+        .lie2 {
+            width: 80%;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1' style=' background-color: White; width: 99%; border-collapse: collapse;'>
+            <tr>
+                <td class="lie1" align="right">
+                    方案名称
+                </td>
+                <td class="lie2">
+                    <input id="DD_NAME" name="DD_NAME" class="mini-textbox Span80" required="true" />
+                    <span style="font-weight:600">(****方案)</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    创建人
+                </td>
+                <td class="lie2">
+                    <input id="DD_BY" name="DD_BY" class="mini-textbox Span80" required="true" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    起调时间
+                </td>
+                <td class="lie2">
+                    <input id="DD_TM" name="DD_TM" class="mini-textbox Span80" readonly="readonly" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    最后编辑时间
+                </td>
+                <td class="lie2">
+                    <input id="DD_CARRYTM" name="DD_CARRYTM" class="mini-textbox Span80" readonly="readonly" />
+                </td>
+            <tr>
+                <td class="lie1" align="right">
+                    备注
+                </td>
+                <td class="lie2">
+                    <textarea id="DD_NOTE" name="DD_NOTE" rows="30" style="width:80%; height:150px;" class="mini-textarea"
+                        emptytext="请输入备注"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <a class="mini-button" onclick="onOk" style="width:60px;margin-right:20px;">保存</a>
+                    <a class="mini-button" onclick="onCancel" style="width:60px;">关闭</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        var editType = "";
+        $(function(){
+
+        });
+        function SetData(data) {
+            if (data.action == "edit") {
+                editType = data.action;
+                var s_where = { ID: data.ID };
+                GetJosns("MODE_DD_SOLUTIONSel", s_where, "DDSel");
+            } else {
+                editType="add";
+                $.data(myData, "stime", data.STIME)
+                $.data(myData, "etime", data.ETIME)
+                var _type = data.TYPE;
+                $.data(myData, "TYPE", _type);
+                $.data(myData, "DD_EVALUE", data.DD_EVALUE);
+                $.data(myData, "DD_ID", data.DD_ID);
+                $.data(myData, "taskID", data.taskID);
+                $.data(myData, "ModeJYDan", data.ModeJYDan);
+                
+                mini.get("DD_TM").setValue(new Date(data.STIME.replaceAll("-", "/")).format("yyyy/MM/dd HH:mm:ss"));
+                var tm = new Date();
+                mini.get("DD_CARRYTM").setValue(tm.format("yyyy/MM/dd HH:mm:ss"));
+                mini.get("DD_BY").setValue(GetCookie("LOGINNAME"));
+                //获取主图形输出项
+                modelGetPresetResultInfoList();
+                //方案名称
+                getFANAME();
+            }
+        }
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "PLAdd") {
+                if (editType != "edit") {//修改时不去调用模型了
+                    mini.unmask(document.body);
+                    DelCookie("FA_ID");
+                    localStorage.removeItem("DD_ID");
+                    setTimeout(() => {
+                        //调用父页面的方法
+                        top["win"].OpenHref($.data(myData, "ID"), $.data(myData, "DD_ID"));
+                        setTimeout(function () {
+                            CloseWindow("cancel");
+                        }, 200);
+                    }, 100);
+                }
+            }
+             else if (typeID == "MODE_ES_ZHANDIANDATASel") {
+                getFANAME(ResultData.data);
+            } else if (typeID == "DDSel") {
+                if (ResultData.total > 0) {
+                    var o = mini.decode(ResultData.data[0]);
+                    $.data(myData, "DD_ID", o.DD_ID);
+                    $.data(myData, "stime", o.DD_TM);
+                    $.data(myData, "etime", o.DD_CHECKBY);
+                    $.data(myData, "DD_EVALUE", o.DD_EVALUE);
+                    mini.get("DD_NAME").setValue(o.DD_NAME);
+                    mini.get("DD_BY").setValue(o.DD_BY);
+                    var dd_tm = mini.formatDate(o.DD_TM, "yyyy-MM-dd HH:mm:ss");
+                    mini.get("DD_TM").setValue(dd_tm);
+                    var dd_carrytm = mini.formatDate(o.DD_CARRYTM, "yyyy-MM-dd HH:mm:ss");
+                    mini.get('DD_CARRYTM').setValue(dd_carrytm);
+                    mini.get("DD_NOTE").setValue(o.DD_NOTE);
+                    console.error(o);
+                    // FromSetData(o);
+                }
+            }
+            else if (typeID == 'GetPresetResultInfoList') {
+                $.data(myData, 'zhuData', ResultData.data);
+            }
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+        function getModelResult(dd_id) {
+            //获取模型的成果
+            var zhuData = $.data(myData, 'zhuData');
+            var stime = $.data(myData, "stime");
+            var etime = $.data(myData, "etime");
+            var taskID = $.data(myData, "taskID");
+            var bdms_predictSql=[];
+            for (var num = 0; num < zhuData.length; num++) {
+                var id = zhuData[num].id;
+                var dataType = zhuData[num].type;
+                var stcd = zhuData[num].stcd;
+                stcd=stcd!=""?stcd.replace('.',''):id;
+                var strWhere = {
+                    "version": 1,
+                    "api": "GetResultPresetByTimePeriod",
+                    "id": id,//主图形编号
+                    "startTM": stime,
+                    "endTM": etime,
+                    "taskID": taskID
+                }
+                GetJosnsModeNew("", strWhere,false,function (res) {
+                    console.error(id, stcd, res);
+                    var data = res.data;
+                    if (data != undefined && data != null) {
+                        var vals = data.vals;
+                        var times = data.times;
+                        if (times != undefined && times != null) {
+                            for (var _index = 0; _index < times.length; _index++) {
+                                var _tm = new Date(times[_index]);
+                                var _data = Number(vals[_index]);
+                                var pREDICT = {};
+                                if (dataType == 1) {//水位，取五分钟的数据
+                                    pREDICT.ID = GetTableID();
+                                    pREDICT.USERID = mini.get("DD_BY").getValue();
+                                    pREDICT.STCD = stcd;
+                                    pREDICT.YMDHM = _tm.format("yyyy-MM-dd HH:mm:ss");
+                                    pREDICT.PLAN_N = dd_id;
+                                    pREDICT.DATA_TYPE = dataType;
+                                    pREDICT.DATA = _data.toFixed(2);
+                                    bdms_predictSql.push(pREDICT);
+                                }
+                                else {//其他取一小时一个数据
+                                    if (_tm.getMinutes() == 0) {
+                                        if (dataType == 15 || dataType == 14) {//水面积和蓄量需要转单位：万m³转百万m³，平方米转平方公里
+                                            _data = _data / 1000000;
+                                        }
+                                        pREDICT.ID = GetTableID();
+                                        pREDICT.USERID = mini.get("DD_BY").getValue();
+                                        pREDICT.STCD = stcd;
+                                        pREDICT.YMDHM = _tm.format("yyyy-MM-dd HH:mm:ss");
+                                        pREDICT.PLAN_N = dd_id;
+                                        pREDICT.DATA_TYPE = dataType;
+                                        pREDICT.DATA = _data.toFixed(2);
+                                        bdms_predictSql.push(pREDICT);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            return bdms_predictSql;
+        }
+        function onOk(e) {
+            //保存数据
+            form.validate();
+            if (form.isValid() == false)
+                return;
+            //var strWhere = form.getData(true, true);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据保存中...'
+            });
+            var isGetCookieDD_ID=false;
+            var _dd_id = "";
+            if (editType == "edit") {
+                _dd_id = $.data(myData, "DD_ID");
+            } else {
+                var _dd_id = $.data(myData, "DD_ID");
+                isGetCookieDD_ID=false;
+                if (_dd_id == null || _dd_id == "") {
+                    isGetCookieDD_ID=false;
+                    _dd_id = GetTableID();
+                }
+            }
+            $.data(myData, "DD_ID", _dd_id);
+            $.data(myData, "ID", _dd_id);
+            var ms = new Date($.data(myData, "etime")).getTime() - new Date(mini.get("DD_TM").getValue()).getTime();
+            if (ms < 0) return 0;
+            var hour = Math.floor(ms / 1000 / 60 / 60);
+            setTimeout(() => {
+                var bdms_predictSql = getModelResult(_dd_id);
+                // var bdms_predictSqlNew=[];
+                // bdms_predictSqlNew.push(bdms_predictSql[0]);
+                var bdms_predictSqlStr = JSON.stringify(bdms_predictSql);
+                console.error(bdms_predictSql.length);
+                // console.error(bdms_predictSqlStr);
+                var ddobj={
+                    "id": _dd_id,
+                    "dd_ID": _dd_id,
+                    "dd_NAME": mini.get("DD_NAME").getValue(),
+                    "dd_BY": mini.get("DD_BY").getValue(),
+                    "dd_TM": new Date(mini.get("DD_TM").getValue()).format('yyyy-MM-dd HH:mm:ss'),
+                    "dd_CARRYTM":new Date( mini.get("DD_CARRYTM").getValue()).format('yyyy-MM-dd HH:mm:ss'),
+                    "dd_NOTE": mini.get("DD_NOTE").getValue(),
+                    "typeid": $.data(myData, "TYPE"),
+                    "dd_EVALUE": $.data(myData, "DD_EVALUE"),
+                    "dd_CHECKBY": new Date($.data(myData, "etime")).format('yyyy-MM-dd HH:mm:ss'),
+                    "dd_STANA": hour,
+                    // "dd_DISTRIBY":"100",
+                    "dd_FOR":$.data(myData, "taskID")
+                }
+                var s_where = {
+                    solutionid:_dd_id,
+                    isGetCookieDD_ID:isGetCookieDD_ID,
+                    bdms_predictSqlStr:bdms_predictSqlStr,//成果
+                    ddobj:ddobj
+                };
+                app.post("SWZZ_MODE_ES_ZHANDIANDATA/FH_inset_ModifyApi",s_where,function(res){
+                    JosnSel(res,"PLAdd");
+                });
+            }, 500);
+        }
+
+        //获取方案名称
+        function getFANAME() {
+            var title = new Date($.data(myData, "stime").replaceAll("-", "/")).format("yyyyMMddHH") + "水情预报";
+            if ($.data(myData, "ModeJYDan") != ""&&$.data(myData, "ModeJYDan") != null&&$.data(myData, "ModeJYDan") !=undefined) {
+                title += "(" + $.data(myData, "ModeJYDan") + ")";
+            }
+            mini.get("DD_NAME").setValue(title);
+        }
+    </script>
+</body>
+
+</html>

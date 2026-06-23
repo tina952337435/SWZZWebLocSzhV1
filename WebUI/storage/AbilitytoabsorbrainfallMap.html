@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <!--<script src="/Common/Scripts/echartsNew.js"></script>-->
+
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <link href="/arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="/arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="/arcgis_js_api/myJs/parentIndex.js"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/jquery.min.js"></script>
+    <!--高版本下拉框无法使用-->
+    <script src="/arcgis_js_api/myJs/bj.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/myJs/mapIndex.js?ver=1" type="text/javascript"></script>
+    <script src="/arcgis_js_api/myJs/CommonTool.js" type="text/javascript"></script>
+
+    <link href="/arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="/arcgis_js_api/myJs/style/map.css" rel="stylesheet" type="text/css" />
+
+    <link href="/Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/Scripts/Progress/indexProgress.js"></script>
+
+    <script src="/Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+
+    <script src="/Common/Scripts/modelHelperApi.js"></script>
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 10px;
+        }
+
+        .colorL p {
+            width: 55px;
+            margin: 0px auto;
+            margin-top: -4px;
+        }
+
+        .colorSpan {
+            display: inline-block;
+            width: 15px;
+            height: 25px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+
+        #swzzModerRiverCenterLine_layer path,
+        #swzzModerRiverCenterLine_layer polyline {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1;
+        }
+
+        #swzzModerRiverCenterLine_layer path,
+        #swzzModerRiverCenterLine_layerpolyline {
+            stroke-width: 2;
+        }
+
+        #rightMenu ul {
+            list-style: none;
+        }
+
+        #rightMenu ul li {
+            background: white;
+            border-radius: 15px 0px 0px 15px;
+            height: 35px;
+            line-height: 35px;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .textSpan {
+            font-size: 16px;
+            font-weight: 550;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute"></div>
+
+    <div style="position:absolute;left:calc(50% - 125px);top:10px;">
+        <!-- 方案选择： -->
+        <input id="faCom" class="mini-combobox" valueField="DD_ID" textField="DD_NAME" style="height: 25px;width:250px;"
+            onvaluechanged="onSTCDChanged" />
+    </div>
+
+    <div id='rightMenu' style="position:absolute;right:10px;top:20px;width: 240px;">
+        <ul>
+            <li>当前水位：<span id="spanSW" class='textSpan'>2.72</span>m</li>
+            <li>当前蓄量：<span id="spanXL" class='textSpan'>130.66</span>百万方</li>
+            <li>剩余蓄量(警戒)：<span id="spanWRZSYXL" class='textSpan'>130.66</span>百万方</li>
+            <li>剩余蓄量(保证)：<span id="spanGRZSYXL" class='textSpan'>130.66</span>百万方</li>
+            <li>水面积：<span id="spanSMJ" class='textSpan'>52.08</span>k㎡</li>
+            <li>纳雨量(警戒)：<span id="spanWRZYL" class='textSpan'></span>mm</li>
+            <li>纳雨量(保证)：<span id="spanGRZYL" class='textSpan'></span>mm</li>
+        </ul>
+    </div>
+
+    <div id="SSTTL" style="background: rgb(255, 255, 255); position: absolute; right: 10px; bottom: 20px; height: 205px; border: 1px solid rgb(206, 203, 203); width: 55px; border-radius: 5px; box-shadow: rgb(136, 136, 136) 5px 5px 5px; padding: 0px 5px;">
+        <div class="colorL">
+            <p><span class="colorSpan" style="background-color:#A6F28E"></span><span class="colorSpanValue">200</span></p>
+            <p><span class="colorSpan" style="background-color:#007B00"></span><span class="colorSpanValue">100</span></p>
+            <p><span class="colorSpan" style="background-color:#3DBCF9"></span><span class="colorSpanValue">80</span></p>
+            <p><span class="colorSpan" style="background-color:#0000F9"></span><span class="colorSpanValue">50</span></p>
+            <p><span class="colorSpan" style="background-color:#ed9708"></span><span class="colorSpanValue">30</span></p>
+            <p><span class="colorSpan" style="background-color:#ed1808"></span><span class="colorSpanValue">10</span></p>
+            <p><span class="colorSpan" style="background-color:#970202"></span><span class="colorSpanValue">0</span></p>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var faCom = mini.get("faCom");
+        var countyLayer1;
+        $(function () {
+            setTimeout(() => {
+                setZOOM(9);
+                dyCenter(121.307411, 31.373422);
+                countyLayer1 = CreateLayer("swzzAreaMode_Layer1");
+                search();
+            }, 500);
+        });
+        function search() {
+            var strWhere = { DD_DISTRIBY: 100 };
+            GetJosns("MODE_DD_SOLUTIONSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                faCom.setData(data.data);
+                faCom.select(0);
+                var selected = faCom.getSelected();
+                var dd_tm = convertToDate(selected.DD_TM).format('yyyy-MM-dd HH:mm:ss');
+                $.data(myData, "stime", dd_tm);
+                modelGetRainReceivingCapacity();
+                onLoadAllData();
+            }
+            else if (typeID == 'GetRainReceivingCapacity') {
+                var info = data.info;
+                if (info.code == -1) {
+                    alert(info.msg);
+                    mini.unmask(document.body);
+                } else {
+                    var capcity = data['1744830552'].capcity;
+                    $.data(myData, "capcityData", capcity);
+                    $('#spanWRZYL').html(Number(capcity[0].capcity).toFixed(1));
+                    $('#spanGRZYL').html(Number(capcity[1].capcity).toFixed(1));
+                    MapRainfallArea(capcity[1].capcity);
+                }
+            }
+            else if (typeID == "MODE_BDMS_PREDICTSelMORE") {
+                var item = {};
+                item.tm = $.data(myData, "time");
+                var bdmsData = data.data;
+                bdmsData.filter(function (res) {
+                    if (res.DATA_TYPE == '19') {
+                        item.upz = res.DATA;
+                    }
+                    if (res.DATA_TYPE == '15') {
+                        item.cxl = res.DATA;
+                    }
+                    if (res.DATA_TYPE == '14') {
+                        item.area = res.DATA;
+                    }
+                });
+                $("#spanSW").html(item.upz);
+                $("#spanSMJ").html(item.area);
+                $("#spanXL").html(item.cxl);
+                if (item.cxl != undefined) {
+                    var syxl = (192.62 - Number(item.cxl)).toFixed(2);
+                    $("#spanGRZSYXL").html(syxl);
+                    syxl = (154.47 - Number(item.cxl)).toFixed(2);
+                    $("#spanWRZSYXL").html(syxl);
+                }
+            }
+        }
+        function onSTCDChanged(e) {
+            var nodes = faCom.getSelected();
+            var dd_tm = new Date(convertToDate(nodes.DD_TM)).format('yyyy-MM-dd HH:mm:ss');
+            $.data(myData, "time", dd_tm);
+            modelGetRainReceivingCapacity();
+            onLoadAllData();
+        }
+        function onLoadAllData() {
+            var dd_tm = $.data(myData, "time");
+            var DD_ID = faCom.getValue();
+            var strParam = {
+                "PLAN_N": DD_ID,
+                "STIME": dd_tm,
+                "ETIME": dd_tm,
+                "STCD": "81459,81460,81461", //平均水位，蓄量，水面积
+                "DATA_TYPE": "14,15,19"
+            };
+            GetJosns("MODE_BDMS_PREDICTSelMORE", strParam, "MODE_BDMS_PREDICTSelMORE");
+        }
+
+        var labels = new Array();
+        var _globallevel = 5;
+        function MapRainfallArea(drp) {
+            countyLayer1.clear();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/geometry/Polygon", "dojo/_base/lang", "esri/symbols/Font",
+                "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol
+                , Polygon, lang, Font) {
+                    _destroy();
+                    $.get(
+                        "/Common/SHSWZZArea.json",//json路径
+                        lang.hitch(this, function (data, status) {
+
+                            if (status === "success") {
+                                var features = data.features;
+                                features.forEach(function (feature) {
+                                    var allrings = feature.geometry.coordinates;
+                                    var gra = feature.properties;
+                                    var mc = gra.name;
+
+                                    var ndrp = drp;
+                                    if (mc != "嘉宝北片") {
+                                        ndrp = 0;
+                                    }
+                                    // console.error(mc, ndrp);
+                                    var center = [];
+                                    center = getJWD(mc);
+                                    var cls = "  waterText";
+                                    var textStr = "";
+                                    textStr += "纳雨量：" + parseFloat(ndrp).toFixed(1) + "mm";
+                                    var point = new Point({
+                                        "x": center[0],
+                                        "y": center[1],
+                                        "spatialReference": {
+                                            "wkid": 4326
+                                        }
+                                    });
+                                    var _align = "bottom";
+                                    if (textStr == "") {
+                                        textStr = "—";
+                                    }
+                                    if (ndrp > 0) {
+                                        var label = new MapText(map, point, null, textStr, _globallevel, _align, cls, 12);
+                                        labels.push(label);
+                                    }
+                                    var colorStr = getAreaColor(ndrp, "");
+
+                                    if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                        var fillColorStr = getAreaColor(ndrp, "fill");
+                                        var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                                new Color(colorStr), 2), new Color(fillColorStr)
+                                        );
+                                        var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                            new dojo.Color(colorStr), 1),
+                                            new dojo.Color(fillColorStr));
+
+                                        var area = new Polygon(feature.geometry.coordinates);
+                                        var g3 = new Graphic(area, lineSymbol);
+                                        g3.attributes = null;
+                                        countyLayer1.add(g3);
+                                    }
+
+                                    var point = new Point({ "x": center[0], "y": center[1], "spatialReference": { "wkid": 4326 } });
+                                    var font = new Font("14px", Font.STYLE_NORMAL, Font.VARIANT_NORMAL,
+                                        Font.WEIGHT_BOLDER);
+                                    var textSymbol = new TextSymbol(
+                                        mc,
+                                        font,
+                                        new Color("black")
+                                    );
+
+                                    var labelPointGraphic = new Graphic(point, textSymbol);
+                                    countyLayer1.add(labelPointGraphic);
+
+                                }, this);
+                            }
+                        }),
+                        "json"
+                    );
+
+                });
+        }
+        function getAreaColor(zValue, type) {
+            var color = "#ffffff";
+            var colorTM = [255, 255, 255, 0];
+            var colors = ["#970202", "#ed1808", "#ed9708", "#0000F9", "#3DBCF9", "#007B00", "#A6F28E"];
+            var opt=0.65;
+            var colorsTM = [
+                [151, 2, 2, opt],
+                [237, 24, 8, opt],
+                [237, 151, 8, opt],
+                [0, 0, 249, opt],
+                [61, 188, 249, opt],
+                [0, 123, 0, opt],
+                [166, 242, 142, opt]
+            ];
+            if (zValue > 0 && zValue <= 10) {
+                color = colors[0];
+                colorTM = colorsTM[0];
+            }
+            else if (zValue > 10 && zValue <= 30) {
+                color = colors[1];
+                colorTM = colorsTM[1];
+            }
+            else if (zValue > 30 && zValue <= 50) {
+                color = colors[2];
+                colorTM = colorsTM[2];
+            }
+            else if (zValue > 50 && zValue <= 80) {
+                color = colors[3];
+                colorTM = colorsTM[3];
+            }
+            else if (zValue > 80 && zValue <= 100) {
+                color = colors[4];
+                colorTM = colorsTM[4];
+            }
+            else if (zValue > 100 && zValue <= 200) {
+                color = colors[5];
+                colorTM = colorsTM[5];
+            }
+            else if (zValue > 200) {
+                color = colors[6];
+                colorTM = colorsTM[6];
+            }
+            if (type == "fill") {
+                return colorTM;
+            } else {
+                return color;
+            }
+        }
+        function getJWD(name) {
+            var center = [];
+            switch (name) {
+                case "嘉宝北片":
+                    center = [121.307411, 31.373422];
+                    break;
+                case "蕴南片":
+                    center = [121.472206, 31.296518];
+                    break;
+                case "中心片":
+                    center = [121.446114, 31.217554];
+                    break;
+                case "淀北片":
+                    center = [121.358909, 31.176699];
+                    break;
+                case "青松片":
+                    center = [121.202355, 31.113184];
+                    break;
+                case "淀南片":
+                    center = [121.402855, 31.054819];
+                    break;
+                case "浦东片":
+                    center = [121.698799, 31.034906];
+                    break;
+                case "太北片":
+                    center = [120.972328, 31.047266];
+                    break;
+                case "太南片":
+                    center = [121.059532, 30.989588];
+                    break;
+                case "浦南西片":
+                    center = [121.080818, 30.894831];
+                    break;
+                case "浦南东":
+                    center = [121.282005, 30.838526];
+                    break;
+                case "商榻片":
+                    center = [120.903173, 31.117128];
+                    break;
+                case "浦东片浦东新区":
+                    center = [121.700859, 31.080569];
+                    break;
+                case "浦东片奉贤区":
+                    center = [121.534691, 30.891055];
+                    break;
+                case "浦南东片":
+                    center = [121.292991, 30.818270];
+                    break;
+
+                case "青松片松江区":
+                    center = [121.222954, 31.032504];
+                    break;
+                case "浦东片闵行区":
+                    center = [121.512718, 31.048983];
+                    break;
+                case "青松片青浦区":
+                    center = [121.136436, 31.154727];
+                    break;
+                default:
+
+            }
+            return center;
+        }
+    </script>
+</body>
+
+</html>

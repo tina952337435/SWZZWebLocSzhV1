@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div style="height:100%;width:100%;margin:auto;margin-top:2px;">
+        <div class="mini-toolbar">
+            <table style="width: 98%;">
+                <tr>
+                    <td style="width: 100%;">
+                        &nbsp;&nbsp;
+                        开始日期:&nbsp;<input id="stime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        结束日期:&nbsp;<input id="etime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        <a id="A3" class="mini-button" onclick="search()">查询</a>
+                    </td>
+                    <td style="white-space: nowrap;"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 38px);height: -moz-calc(100% - 38px);height: calc(100% - 38px);">
+            <div id="grid1" class="mini-datagrid" allowalternating="true" style="width:100%;height:100%;"
+                 borderstyle="border-right:0;" idfield="id" sortmode="client" sizelist="[15,20,30,50]" pagesize="20" ondrawcell="ondrawcell">
+                <div property="columns">
+                    <div type="indexcolumn" headeralign="center" align="center" width="50">序号</div>
+                    <div field="sender" width="100" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="center" allowsort="true">
+                        发送人
+                    </div>
+                    <div field="time" width="150" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="center" allowsort="true" dateformat="yyyy-MM-dd HH:mm:ss">
+                        发送时间
+                    </div>
+                    <div field="accepter" width="100" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="center" allowsort="true">
+                        接收者
+                    </div>
+                    <div field="phone" width="100" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="center" allowsort="true">
+                        接收者电话
+                    </div>
+                    <div field="content" width="40%" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="left" allowsort="true">
+                        内容
+                    </div>
+                    <div field="typeid" width="100" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="center" allowsort="true" numberformat="#,0">
+                        短信类型
+                    </div>
+                    <div field="flag" width="100" headerstyle="height:30px;" cellstyle="height:25px"
+                         headeralign="center" align="center" allowsort="true" numberformat="#,0">
+                        短信状态
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        $(function () {
+            mini.get("stime").setValue(formatDate(addDayDate(new Date().format("yyyy-MM-dd"), -365)).format("yyyy-M-dd 08:00:00"));
+            mini.get("etime").setValue(new Date().format("yyyy-M-dd 08:00:00"));
+            search();
+        });
+        function search() {
+            PageFillData(1, 15);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            var strWhere = {
+                startdate: mini.get("stime").getFormValue() + " 00:00:00",
+                enddate: mini.get("etime").getFormValue() + " 23:59:59",
+                pagesize: pageSize,
+                pageindex: pageIndex
+            };
+            //GetJosns("DATA_SMSSel", strWhere, "DATA_SMSSel");
+			app.post("SWZZ_DATA_sms/findResult",strWhere,(data)=>{
+				JosnSel(data,"DATA_SMSSel")
+			})
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "DATA_SMSSel") {
+                PageServerFill(grid, data);
+                mini.unmask(document.body);
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field == "TIME") {
+                var s = new Date(new Date(value)).format("yyyy-MM-dd HH:mm:ss");
+                e.cellHtml = s;
+            }
+        }
+    </script>
+</body>
+</html>

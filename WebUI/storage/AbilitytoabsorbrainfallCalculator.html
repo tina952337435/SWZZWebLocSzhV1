@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .mini-toolbar{
+            border:0px;
+        }
+        .searchTitle {
+            width: 105px;
+            float: left;
+            text-align:right;
+            padding-right: 10px;
+        }
+        .searchContext {
+    height: 40px;
+    line-height: 40px;
+}
+    </style>
+</head>
+
+<body>
+    <div class="mini-toolbar">
+        <div class="searchContext">
+            <div class="searchTitle">类型：</div>
+            <ul class="ui-choose choose-type-right" id="choseType">
+                <li>
+                    <span name="最大24h">最大24h</span>
+                </li>
+                <li>
+                    <span name="最大1d">最大1d</span>
+                </li>
+                <li>
+                    <span name="最大3d">最大3d</span>
+                </li>
+            </ul>
+        </div>
+        <div class="searchContext">
+            <div class="searchTitle">设计雨型：</div>
+            <ul class="ui-choose choose-type-right" id="rainType">
+                <li>
+                    <span name="“菲特”">“菲特”</span>
+                </li>
+                <li>
+                    <span name="“麦莎”">“麦莎”</span>
+                </li>
+            </ul>
+        </div>
+        <div class="searchContext">
+            <div class="searchTitle">设计水(潮)位：</div>
+            <ul class="ui-choose choose-type-right" id="tideType">
+                <li>
+                    <span name="“菲特”台风">“菲特”台风</span>
+                </li>
+                <li>
+                    <span name="“烟花”台风">“烟花”台风</span>
+                </li>
+                <li>
+                    <span name="“9711”台风">“9711”台风</span>
+                </li>
+            </ul>
+        </div>
+        <div class="searchContext">
+            <div class="searchTitle">调度方案：</div>
+            <ul class="ui-choose choose-type-right" id="ddfaType">
+            </ul>
+        </div>
+
+        <div class="searchContext">
+            <div class="searchTitle">当前水位：</div><input id="UpzText" class="mini-textbox" emptytext="请输入水位" style="height: 25px;width: 150px;" />
+            <div style="display:none;">
+                &nbsp;&nbsp;&nbsp;&nbsp;设计雨型：<input id="jycomb" class="mini-combobox" style="width:130px;" textField="text"
+                    valueField="text" showNullItem="true" />
+                &nbsp;&nbsp;&nbsp;&nbsp;设计水(潮)位：<input id="scwcomb" class="mini-combobox" style="width:130px;" textField="text"
+                    valueField="text" showNullItem="true" />
+                &nbsp;&nbsp;&nbsp;&nbsp;调度方案：<input id="ddfacomb" class="mini-combobox" style="width:130px;" textField="text"
+                    valueField="text" showNullItem="true" />
+            </div>
+            &nbsp;&nbsp;<a class="mini-button" onclick="getRainFall()">快速估算</a>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: calc(100% - 220px);margin-top:10px;"
+        allowalternating="true" borderstyle="border-right:0;" showpager="false" showemptytext="true" emptytext="暂无数据"
+        alwaysshowemptytext="true" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="30" headeralign="center" align="center">序号</div>
+            <div field="TYPE" width="60" align="center" headeralign="center" allowsort="false">类型</div>
+            <div field="JYTYPE" width="120" align="center" headeralign="center" allowsort="false">设计雨型</div>
+            <div field="SCWTYPE" width="120" align="center" headeralign="center" allowsort="false">设计水(潮)位</div>
+            <div field="DDFATYPE" width="120" align="center" headeralign="center" allowsort="false">调度方案</div>
+            <div field="WRZ" width="120" align="center" headeralign="center" allowsort="false">警戒水位(幅度)</div>
+            <div field="WRZDRP" width="120" align="center" headeralign="center" allowsort="false" decimalPlaces="1"
+                dataType="float">纳雨量(警戒)</div>
+            <div field="GRZ" width="120" align="center" headeralign="center" allowsort="false">保证水位(幅度)</div>
+            <div field="GRZDRP" width="120" align="center" headeralign="center" allowsort="false" decimalPlaces="1"
+                dataType="float">纳雨量(保证)</div>
+            <div field="action" name="action" width="8%" headeralign="center" align="center" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get('grid1');
+        var jycomb = mini.get('jycomb');
+        var scwcomb = mini.get('scwcomb');
+        var ddfacomb = mini.get('ddfacomb');
+        var wrz = 3.15, grz = 3.87;
+        $(function () {
+            saveCVALUE();
+            $.data(myData, "choseType", "");
+            var jyArr = [
+                { text: "“菲特”" },
+                { text: "“麦莎”" }
+            ];
+            var swcArr = [
+                { text: "“菲特”台风" },
+                { text: "“烟花”台风" },
+                { text: "“9711”台风" }
+            ];
+            var ddfaArr = [
+                // { text: "日常调度" },
+                // { text: "蓝色预警" },
+                // { text: "黄色预警" },
+                { text: "橙色预警" },
+                // { text: "红色预警" },
+                // { text: "预降2.5m" },
+                // { text: "预降2.4m" },
+                // { text: "预降2.3m" },
+                // { text: "预降2.2m" },
+                // { text: "预降2.1m" },
+                // { text: "预降2m" },
+                // { text: "预降1.9m" },
+                // { text: "预降1.8m" }
+            ];
+            jycomb.setData(jyArr);
+            scwcomb.setData(swcArr);
+            ddfacomb.setData(ddfaArr);
+            //获取当前水位
+            modelGetResultPresetByTimePeriod();
+            var gcHtml="";
+            for (var num = 0; num < ddfaArr.length; num++) {
+                if (ddfaArr[num].text != "") {
+                    gcHtml += '<li style="width:100px;">';
+                    gcHtml += '<span name="' + ddfaArr[num].text + '">' + ddfaArr[num].text + '</span>';
+                    gcHtml += '</li>';
+                }
+            }
+            $("#ddfaType").html(gcHtml);
+
+            $("#choseType li").click(function (e) {
+                var f = this;
+                $('#choseType li').each(function (index, item) {
+                    var cls="";
+                    if(this == f){
+                        cls="selected";
+                        if(this.className=="selected"){
+                            cls="";
+                        }
+                    }
+                    this.className = cls;
+                });
+                var htmlStr = $(this).find("span").html();
+                if( $(this).attr("class")==""){
+                    htmlStr="";
+                }
+                $.data(myData, "choseType", htmlStr);
+            });
+            $("#rainType li").click(function (e) {
+                var f = this;
+                $('#rainType li').each(function (index, item) {
+                    var cls="";
+                    if(this == f){
+                        cls="selected";
+                        if(this.className=="selected"){
+                            cls="";
+                        }
+                    }
+                    this.className = cls;
+                });
+                var htmlStr = $(this).find("span").html();
+                if( $(this).attr("class")==""){
+                    htmlStr="";
+                }
+                $.data(myData, "rainType", htmlStr);
+            });
+            $("#tideType li").click(function (e) {
+                var f = this;
+                $('#tideType li').each(function (index, item) {
+                    var cls="";
+                    if(this == f){
+                        cls="selected";
+                        if(this.className=="selected"){
+                            cls="";
+                        }
+                    }
+                    this.className = cls;
+                });
+                var htmlStr = $(this).find("span").html();
+                if( $(this).attr("class")==""){
+                    htmlStr="";
+                }
+                $.data(myData, "tideType", htmlStr);
+            });
+            $("#ddfaType li").click(function (e) {
+                var f = this;
+                $('#ddfaType li').each(function (index, item) {
+                    var cls="";
+                    if(this == f){
+                        cls="selected";
+                        if(this.className=="selected"){
+                            cls="";
+                        }
+                    }
+                    this.className = cls;
+                });
+                var htmlStr = $(this).find("span").html();
+                if( $(this).attr("class")==""){
+                    htmlStr="";
+                }
+                $.data(myData, "ddfaType", htmlStr);
+            });
+        });
+
+        function modelGetResultPresetByTimePeriod() {
+            var idArr = "81459".split(',');//嘉宝北片平均计算水位81459
+            var curDate = new Date().format('yyyy-MM-dd HH:mm:ss');
+            var stime = AddHourDate(curDate, -1).replaceAll('/', '-');
+            var etime = AddHourDate(curDate, 1).replaceAll('/', '-');
+            var id = idArr[0];
+            var isHaveData = false;
+            var msg = "";
+            var strWhere = {
+                "version": 1,
+                "api": "GetResultPresetByTimePeriod",
+                "id": id,//主图形编号
+                "startTM": stime,
+                "endTM": etime,
+                "taskID": "00000000000000000000000000000000"
+            }
+            app.postAsync("", strWhere, function (res) {
+                var info = res.info;
+                if (!info.success) {
+                    isHaveData = false;
+                    msg = (info.msg);
+                } else {
+                    isHaveData=true;
+                    $.data(myData, "swdata", res.data);
+                }
+            });
+            var upz = 2.67;
+            if (isHaveData) {
+                var dataSW = $.data(myData, "swdata");
+                var times = dataSW.times;
+                var valsSW = dataSW.vals;
+				if(valsSW.length>0){
+				upz =Number(valsSW[valsSW.length - 1]).toFixed(2);
+				}
+            }
+            mini.get("UpzText").setValue(upz);
+
+            getRainFall();
+        }
+        function getRainFall() {
+            var wrzCha = wrz - Number(mini.get('UpzText').getValue());
+            var grzCha = grz - Number(mini.get('UpzText').getValue());
+            var strWhere = {
+                WRZCHA: wrzCha.toFixed(2),
+                GRZCHA: grzCha.toFixed(2),
+                TYPE: $.data(myData, "choseType"),
+                JYTYPE: $.data(myData, "rainType"),
+                SCWTYPE: $.data(myData, "tideType"),
+                DDFATYPE:$.data(myData, "ddfaType"),
+                CTYPE: "净增水位降雨量",
+                AREA: "嘉宝北片"
+            };
+            GetJosns("STORAGE_ST_ABILITYTOABSORBRAINFALL_BCalculator", strWhere, "SelRain");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SelRain") {
+                $.data(myData, "data", data.data);
+                bindData();
+            }
+        }
+        function bindData() {
+            var data = $.data(myData, "data");
+            for (var num = 0; num < data.length; num++) {
+                var wrzcha = Number(mini.get('UpzText').getValue()) - 3.15;
+                data[num].WRZ = 3.15 + "(" + wrzcha.toFixed(2) + ")";
+                var grzcha = Number(mini.get('UpzText').getValue()) - 3.87;
+                data[num].GRZ = 3.87 + "(" + grzcha.toFixed(2) + ")";
+            }
+            grid.setData(data);
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "action") {
+                var DD_EVALUE = record.DD_EVALUE;
+                var s = "";
+                s += '<img style="cursor:pointer;" onclick="OpenHref(\'' + record.ID + '\',\'' + record.TYPE + '\',\'' + record.SCWTYPE + '\')" src="/Common/miniui/themes/icons/look.gif" title="查看最大净增平均水位和雨量关系"/>&nbsp;'
+                e.cellHtml = s;
+            }
+        }
+        function OpenHref(ID, TYPE, SCWTYPE) {
+            var url = "/storage/AbilitytoabsorbrainfallCalculatorView.html?BID=" + ID + "&TYPE=" + TYPE + "&SCWTYPE=" + SCWTYPE;
+            var name = SCWTYPE + "" + TYPE + "设计暴雨";
+            var _width = '60%', _height = '65%';
+            lookData('', url, name, _width, _height, false);
+        }
+        function saveCVALUE() {
+            //菲特最大24h
+            var upzdrpArr = [{ "DRP": "133.3", "UPZ": "0.42" }, { "DRP": "168.6", "UPZ": "0.73" }, { "DRP": "202.9", "UPZ": "1.03" }, { "DRP": "248.4", "UPZ": "1.35" }, { "DRP": "282.7", "UPZ": "1.59" }];
+            //菲特最大1d
+            upzdrpArr = [{ "DRP": "87.8", "UPZ": "0.00 " }, { "DRP": "126.5", "UPZ": "0.33 " }, { "DRP": "152.5", "UPZ": "0.57 " }, { "DRP": "177.1", "UPZ": "0.79 " }, { "DRP": "208.4", "UPZ": "1.05 " }, { "DRP": "231.4", "UPZ": "1.21" }];
+            //菲特最大3d
+            upzdrpArr = [
+                { "DRP": "118.2", "UPZ": "0.07 " },
+                { "DRP": "169.5", "UPZ": "0.49 " },
+                { "DRP": "204.7", "UPZ": "0.76 " },
+                { "DRP": "238.4", "UPZ": "1.00 " },
+                { "DRP": "281.5", "UPZ": "1.28 " },
+                { "DRP": "313.3", "UPZ": "1.47 " },
+            ]
+            //烟花最大24h
+            upzdrpArr = [
+                { "DRP": "133.3", "UPZ": "0.62 " },
+                { "DRP": "168.6", "UPZ": "0.91 " },
+                { "DRP": "202.9", "UPZ": "1.17 " },
+                { "DRP": "248.4", "UPZ": "1.49 " },
+                { "DRP": "282.7", "UPZ": "1.71 " },
+            ];
+            //烟花最大1d
+            upzdrpArr = [
+                { "DRP": "87.8", "UPZ": "0.06" },
+                { "DRP": "126.5", "UPZ": "0.42" },
+                { "DRP": "152.5", "UPZ": "0.65" },
+                { "DRP": "177.1", "UPZ": "0.85" },
+                { "DRP": "208.4", "UPZ": "1.07" },
+                { "DRP": "231.4", "UPZ": "1.22 " },
+
+            ]
+            //烟花最大3d
+            upzdrpArr = [
+                { "DRP": "118.2", "UPZ": "0.18" },
+                { "DRP": "169.5", "UPZ": "0.6" },
+                { "DRP": "204.7", "UPZ": "0.86" },
+                { "DRP": "238.4", "UPZ": "1.09" },
+                { "DRP": "281.5", "UPZ": "1.37" },
+                { "DRP": "313.3", "UPZ": "1.56 " },
+            ];
+            //9711最大24h
+            upzdrpArr = [
+                { "DRP": "133.3", "UPZ": "0.52" },
+                { "DRP": "168.6", "UPZ": "0.84" },
+                { "DRP": "202.9", "UPZ": "1.12" },
+                { "DRP": "248.4", "UPZ": "1.46" },
+                { "DRP": "282.7", "UPZ": "1.69 " },
+            ];
+            //9711最大1d
+            upzdrpArr = [
+                { "DRP": "87.8", "UPZ": "0.01 " },
+                { "DRP": "126.5", "UPZ": "0.30 " },
+                { "DRP": "152.5", "UPZ": "0.50 " },
+                { "DRP": "177.1", "UPZ": "0.68 " },
+                { "DRP": "208.4", "UPZ": "0.90 " },
+                { "DRP": "231.4", "UPZ": "1.32 " },
+
+            ];
+            //9711最大3d
+            upzdrpArr = [
+                { "DRP": "118.2", "UPZ": "0.09 " },
+                { "DRP": "169.5", "UPZ": "0.52 " },
+                { "DRP": "204.7", "UPZ": "0.79 " },
+                { "DRP": "238.4", "UPZ": "1.00 " },
+                { "DRP": "281.5", "UPZ": "1.27 " },
+                { "DRP": "313.3", "UPZ": "1.47 " },
+
+            ];
+            //菲特最大24:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "133.3", "UPZ": "21.88 " },
+                { "DRP": "168.6", "UPZ": "38.49 " },
+                { "DRP": "202.9", "UPZ": "54.34 " },
+                { "DRP": "248.4", "UPZ": "71.82 " },
+                { "DRP": "282.7", "UPZ": "84.99 " },
+            ];
+            //菲特最大1d:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "87.8", "UPZ": "0.00 " },
+                { "DRP": "126.5", "UPZ": "17.31 " },
+                { "DRP": "152.5", "UPZ": "30.13 " },
+                { "DRP": "177.1", "UPZ": "41.81 " },
+                { "DRP": "208.4", "UPZ": "55.50 " },
+                { "DRP": "231.4", "UPZ": "64.22  " },
+
+            ]
+            //菲特最大3d:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "118.2", "UPZ": "3.58 " },
+                { "DRP": "169.5", "UPZ": "25.72 " },
+                { "DRP": "204.7", "UPZ": "39.84 " },
+                { "DRP": "238.4", "UPZ": "52.85 " },
+                { "DRP": "281.5", "UPZ": "67.94 " },
+                { "DRP": "313.3", "UPZ": "78.12 " },
+
+            ]
+            //烟花最大24h:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "133.3", "UPZ": "32.77 " },
+                { "DRP": "168.6", "UPZ": "48.18 " },
+                { "DRP": "202.9", "UPZ": "62.07 " },
+                { "DRP": "248.4", "UPZ": "79.41 " },
+                { "DRP": "282.7", "UPZ": "91.74 " },
+            ];
+            //烟花最大1d:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "87.8", "UPZ": "2.94" },
+                { "DRP": "126.5", "UPZ": "21.87" },
+                { "DRP": "152.5", "UPZ": "33.95" },
+                { "DRP": "177.1", "UPZ": "44.53" },
+                { "DRP": "208.4", "UPZ": "56.67" },
+                { "DRP": "231.4", "UPZ": "64.92 " },
+            ];
+            //烟花最大3d:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "118.2", "UPZ": "9.11" },
+                { "DRP": "169.5", "UPZ": "31.6" },
+                { "DRP": "204.7", "UPZ": "45.55" },
+                { "DRP": "238.4", "UPZ": "57.77" },
+                { "DRP": "281.5", "UPZ": "72.92" },
+                { "DRP": "313.3", "UPZ": "83.20 " },
+            ];
+            //9711最大24h:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "133.3", "UPZ": "27.05" },
+                { "DRP": "168.6", "UPZ": "44.26" },
+                { "DRP": "202.9", "UPZ": "59.43" },
+                { "DRP": "248.4", "UPZ": "77.83" },
+                { "DRP": "282.7", "UPZ": "90.69" },
+            ]
+            //9711最大1d:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "87.8", "UPZ": "0.28 " },
+                { "DRP": "126.5", "UPZ": "15.48 " },
+                { "DRP": "152.5", "UPZ": "26.07 " },
+                { "DRP": "177.1", "UPZ": "35.65 " },
+                { "DRP": "208.4", "UPZ": "47.44 " },
+                { "DRP": "231.4", "UPZ": "64.10 " },
+
+            ];
+            //9711最大3d:净增槽蓄容量
+            upzdrpArr = [
+                { "DRP": "118.2", "UPZ": "4.66 " },
+                { "DRP": "169.5", "UPZ": "27.10 " },
+                { "DRP": "204.7", "UPZ": "41.36 " },
+                { "DRP": "238.4", "UPZ": "53.05 " },
+                { "DRP": "281.5", "UPZ": "67.60 " },
+                { "DRP": "313.3", "UPZ": "78.10  " },
+            ]
+            
+            upzdrpArr = [{"UPZ":"","DRP":""},{"UPZ":"-3.0","DRP":"0"},{"UPZ":"-2.5","DRP":"38"},{"UPZ":"-2.0","DRP":"78"},{"UPZ":"-1.5","DRP":"134"},{"UPZ":"-1.0","DRP":"199"},{"UPZ":"-0.5","DRP":"266"},{"UPZ":"0.0","DRP":"339"},{"UPZ":"0.5","DRP":"420"},{"UPZ":"1.0","DRP":"505"},{"UPZ":"1.5","DRP":"598"},{"UPZ":"2.0","DRP":"693"},{"UPZ":"2.5","DRP":"791"},{"UPZ":"3.0","DRP":"892"},{"UPZ":"3.3","DRP":"952"}];
+            upzdrpArr=[{"UPZ":"-1.5","DRP":"0"},{"UPZ":"-1.0","DRP":"1200"},{"UPZ":"-0.5","DRP":"2500"},{"UPZ":"0.0","DRP":"4000"},{"UPZ":"0.5","DRP":"5600"},{"UPZ":"1.0","DRP":"7200"},{"UPZ":"1.5","DRP":"9000"},{"UPZ":"2.0","DRP":"11000"},{"UPZ":"2.5","DRP":"12900"},{"UPZ":"3.0","DRP":"15000"},{"UPZ":"3.5","DRP":"17200"},{"UPZ":"4.0","DRP":"19500"},{"UPZ":"4.5","DRP":"21800"},{"UPZ":"5.0","DRP":"24200"},{"UPZ":"5.5","DRP":"26600"},{"UPZ":"6.0","DRP":"28900"},{"UPZ":"6.5","DRP":"31400"},{"UPZ":"7.0","DRP":"33800"}];
+            upzdrpArr=[{"UPZ":"0.5","DRP":"0"},{"UPZ":"1.0","DRP":"27"},{"UPZ":"1.5","DRP":"78"},{"UPZ":"2.0","DRP":"127"},{"UPZ":"2.5","DRP":"181"},{"UPZ":"3.0","DRP":"237"},{"UPZ":"3.5","DRP":"296"},{"UPZ":"4.0","DRP":"357"},{"UPZ":"4.5","DRP":"420"},{"UPZ":"5.0","DRP":"484"},{"UPZ":"5.5","DRP":"549"},{"UPZ":"6.0","DRP":"615"},{"UPZ":"6.5","DRP":"681"},{"UPZ":"7.0","DRP":"748"},{"UPZ":"7.5","DRP":"815"},{"UPZ":"8.1","DRP":"894"}];
+
+
+            //菲特雨型+烟花潮位最大24h:净增水位降雨量：2024022301
+            upzdrpArr = [
+                { "DRP": "133.3", "UPZ": "0.565" },
+                { "DRP": "168.6", "UPZ": "0.832" },
+                { "DRP": "202.9", "UPZ": "1.09" },
+                { "DRP": "248.4", "UPZ": "1.396" },
+                { "DRP": "282.7", "UPZ": "1.624" }
+            ]
+
+            //菲特雨型+烟花潮位最大24h:净增槽蓄容量降雨量：2024022301
+            //upzdrpArr=[{"DRP":"133.3","UPZ":"29.61 "},{"DRP":"168.6","UPZ":"43.82 "},{"DRP":"202.9","UPZ":"57.73 "},{"DRP":"248.4","UPZ":"74.28 "},{"DRP":"282.7","UPZ":"86.76"}];
+
+            //菲特雨型+烟花潮位最大1d:净增槽蓄容量降雨量：2024022302
+            //upzdrpArr=[{"DRP":"126.5","UPZ":"26.57 "},{"DRP":"152.5","UPZ":"37.98 "},{"DRP":"177.1","UPZ":"48.60 "},{"DRP":"208.4","UPZ":"61.27 "},{"DRP":"231.4","UPZ":"70.21"}];
+            
+            //菲特雨型+烟花潮位最大1d:净增水位降雨量：2024022302
+            //upzdrpArr=[{"DRP":"126.5","UPZ":"0.51 "},{"DRP":"152.5","UPZ":"0.72 "},{"DRP":"177.1","UPZ":"0.92 "},{"DRP":"208.4","UPZ":"1.16 "},{"DRP":"231.4","UPZ":"1.32"}];
+            
+            //菲特雨型+烟花潮位最大3d:净增水位降雨量：2024022303
+            //upzdrpArr=[{"DRP":"169.5","UPZ":"0.61 "},{"DRP":"204.7","UPZ":"0.84 "},{"DRP":"238.4","UPZ":"1.05 "},{"DRP":"281.5","UPZ":"1.32 "},{"DRP":"313.3","UPZ":"1.51"}];
+            
+            
+            //菲特雨型+烟花潮位最大3d:净增槽蓄容量降雨量：2024022303
+            //upzdrpArr=[{"DRP":"169.5","UPZ":"31.90 "},{"DRP":"204.7","UPZ":"44.15 "},{"DRP":"238.4","UPZ":"55.70 "},{"DRP":"281.5","UPZ":"70.05 "},{"DRP":"313.3","UPZ":"80.67"}];
+
+            //菲特雨型+9711潮位最大24h:净增槽蓄容量降雨量：2024022304
+            //upzdrpArr=[{"DRP":"133.3","UPZ":"25.44 "},{"DRP":"168.6","UPZ":"41.90 "},{"DRP":"202.9","UPZ":"57.02 "},{"DRP":"248.4","UPZ":"74.45 "},{"DRP":"282.7","UPZ":"87.15"}];
+
+            //菲特雨型+9711潮位最大24h:净增水位降雨量：2024022304
+            //upzdrpArr=[{"DRP":"133.3","UPZ":"0.49 "},{"DRP":"168.6","UPZ":"0.80 "},{"DRP":"202.9","UPZ":"1.08 "},{"DRP":"248.4","UPZ":"1.40 "},{"DRP":"282.7","UPZ":"1.63"}];
+
+            //菲特雨型+9711潮位最大1d:净增水位降雨量：2024022305
+            //upzdrpArr=[{"DRP":"126.5","UPZ":"0.34 "},{"DRP":"152.5","UPZ":"0.58 "},{"DRP":"177.1","UPZ":"0.78 "},{"DRP":"208.4","UPZ":"1.01 "},{"DRP":"231.4","UPZ":"1.17"}];
+           
+           //菲特雨型+9711潮位最大1d:净增槽蓄容量降雨量：2024022305
+            //upzdrpArr=[{"DRP":"126.5","UPZ":"17.55 "},{"DRP":"152.5","UPZ":"30.15 "},{"DRP":"177.1","UPZ":"41.00 "},{"DRP":"208.4","UPZ":"53.60 "},{"DRP":"231.4","UPZ":"61.86"}];
+           
+
+            //菲特雨型+9711潮位最大3d:净增槽蓄容量降雨量：2024022306
+            //upzdrpArr=[{"DRP":"169.5","UPZ":"25.60 "},{"DRP":"204.7","UPZ":"39.04 "},{"DRP":"238.4","UPZ":"51.02 "},{"DRP":"281.5","UPZ":"65.26 "},{"DRP":"313.3","UPZ":"74.78"}];
+
+
+            //菲特雨型+9711潮位最大3d:净增水位降雨量：2024022306
+            //upzdrpArr=[{"DRP":"169.5","UPZ":"0.49 "},{"DRP":"204.7","UPZ":"0.74 "},{"DRP":"238.4","UPZ":"0.97 "},{"DRP":"281.5","UPZ":"1.23 "},{"DRP":"313.3","UPZ":"1.41"}];
+
+
+            //麦莎雨型+菲特潮位最大24h:净增水位降雨量：2024022307
+            //upzdrpArr=[{"DRP":"133.3","UPZ":"0.40 "},{"DRP":"168.6","UPZ":"0.73 "},{"DRP":"202.9","UPZ":"0.97 "},{"DRP":"248.4","UPZ":"1.29 "},{"DRP":"282.7","UPZ":"1.52"}];
+
+
+            //麦莎雨型+菲特潮位最大24h:净增槽蓄容量降雨量：2024022307
+            //upzdrpArr=[{"DRP":"133.3","UPZ":"20.99 "},{"DRP":"168.6","UPZ":"38.53 "},{"DRP":"202.9","UPZ":"51.34 "},{"DRP":"248.4","UPZ":"68.50 "},{"DRP":"282.7","UPZ":"80.91"}];
+
+
+            //麦莎雨型+菲特潮位最大1d:净增槽蓄容量降雨量：2024022308
+            //upzdrpArr=[{"DRP":"126.5","UPZ":"17.47 "},{"DRP":"152.5","UPZ":"29.14 "},{"DRP":"177.1","UPZ":"39.42 "},{"DRP":"208.4","UPZ":"51.39 "},{"DRP":"231.4","UPZ":"59.35"}];
+
+
+            //麦莎雨型+菲特潮位最大1d:净增水位降雨量：2024022308
+            //upzdrpArr=[{"DRP":"126.5","UPZ":"0.34 "},{"DRP":"152.5","UPZ":"0.56 "},{"DRP":"177.1","UPZ":"0.75 "},{"DRP":"208.4","UPZ":"0.97 "},{"DRP":"231.4","UPZ":"1.12"}];
+            
+
+            //麦莎雨型+菲特潮位最大3d:净增水位降雨量：2024022309
+            //upzdrpArr=[{"DRP":"169.5","UPZ":"0.42 "},{"DRP":"204.7","UPZ":"0.68 "},{"DRP":"238.4","UPZ":"0.91 "},{"DRP":"281.5","UPZ":"1.18 "},{"DRP":"313.3","UPZ":"1.36"}];
+            
+
+            //麦莎雨型+菲特潮位最大3d:净增槽蓄容量降雨量：2024022309
+            //upzdrpArr=[{"DRP":"169.5","UPZ":"21.67 "},{"DRP":"204.7","UPZ":"35.55 "},{"DRP":"238.4","UPZ":"47.96 "},{"DRP":"281.5","UPZ":"62.42 "},{"DRP":"313.3","UPZ":"72.43"}];
+
+
+            var BID = "2024022301";
+            var CTYPE = "净增水位降雨量";
+            // CTYPE = "净增槽蓄容量降雨量";
+            var upzVal = 100;//水位0.01一个数
+            upzVal = 100;//槽蓄容量0.1一个数
+            var idstr = "";//xljz
+            var data = [];
+
+            STCD="62701470";
+            for (var num = 0; num < upzdrpArr.length; num++) {
+                var svalue = Number(upzdrpArr[num].UPZ);
+                var sdrp = Number(upzdrpArr[num].DRP);
+                var cvalue = svalue;
+                var drp = sdrp;
+                if (num < upzdrpArr.length - 1) {
+                    var id = BID + "" + num + idstr + "0";
+                    var item = {
+                        //STCD:STCD,//水位
+                        ID: id,//蓄量
+                        BID: BID,//蓄量
+                        CTYPE: CTYPE,//蓄量
+                        CVALUE: cvalue,
+                        DRP: drp,
+                        NOTE: "1"
+                    };
+                    data.push(item);
+
+                    var evalue = Number(upzdrpArr[num + 1].UPZ);
+                    var edrp = Number(upzdrpArr[num + 1].DRP);
+                    var minutes = evalue - svalue;//相差
+                    minutes = minutes * upzVal;
+                    var chaValue = evalue - svalue;
+                    var avgValue = chaValue / minutes;//每一纷加多少
+
+                    var chaDrp = edrp - sdrp;
+                    var avgDrp = chaDrp / minutes;
+
+                    for (var _num = 1; _num < minutes; _num++) {
+                        id = BID + "" + num + idstr + _num;
+                        cvalue = (svalue + (_num * avgValue)).toFixed(2);
+                        drp = Number(sdrp + (_num * avgDrp)).toFixed(2);
+                        var item = {
+                            //STCD:STCD,//水位
+                            ID: id,//蓄量
+                            BID: BID,//蓄量
+                            CTYPE: CTYPE,//蓄量
+                            CVALUE: cvalue,
+                            DRP: drp
+                        };
+                        data.push(item);
+                    }
+                }
+                else {
+                    var id = BID + "" + num + idstr + "0";
+                    var item = {
+                        //STCD:STCD,//水位
+                        ID: id,//蓄量
+                        BID: BID,//蓄量
+                        CTYPE: CTYPE,//蓄量
+                        CVALUE: cvalue,
+                        DRP: drp,
+                        NOTE: "1"//蓄量
+                    };
+                    data.push(item);
+                }
+
+            }
+            // console.error(JSON.stringify(data));
+            
+            var  strWhere={
+                UPDATE:false,
+                LISTMODE:JSON.stringify(data)
+            };
+            GetJosns("STORAGE_ST_ABILITYTOABSORBRAINFALL_RPL", strWhere, "PLAdd");
+        }
+    </script>
+</body>
+
+</html>

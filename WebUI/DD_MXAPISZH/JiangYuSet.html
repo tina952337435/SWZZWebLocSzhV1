@@ -1,0 +1,904 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+    <meta name="renderer" content="webkit" />
+    <meta name="renderer" content="ie-stand" />
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <!--<script src="../Common/Scripts/CopyExcel.js"></script>-->
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+
+    <!-- 新版模型接口调用js文件 -->
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.1"></script>
+    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
+
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <title>边界条件</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+			background:#fff;
+        }
+
+        .mini-grid-vscroll {
+            display: none;
+        }
+        /*弹出框表头*/
+        .mini-panel-header {
+            background: #277DF1 !important;
+            color: white !important;
+            height: 35px;
+            border-radius: 5px 5px 0px 0px;
+        }
+
+        .mini-panel-border {
+            border: 0px !important;
+        }
+
+        .mini-grid-summaryCell {
+            line-height: 35px;
+            text-align: center;
+            color: blue;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width: 100%;">
+        <div style="width: 100%;height:80px;margin: 0px auto;text-align: center;">
+            <div class="pointsRule">
+                <ul id="list">
+                    <li style="z-index:5;" id="one" onclick="ClickFirst()"><a><span>1.依据时间设定</span><i></i></a></li>
+                    <li style="z-index:4" id="two" onclick="ClickSecond()"><a><em class="before"></em><span>2.预报降雨输入</span><i></i></a></li>
+                    <li style="z-index:3" id="three" onclick="ClickThird()"><a><em class="before"></em><span>3.边界条件输入</span><i></i></a></li>
+                    <li style="z-index:2" id="four" onclick="ClickFourth()"><a><em class="before"></em><span>4.工程调度</span><i></i></a></li>
+                    <li style="z-index:1" id="five" onclick="ClickFifth()"><a><em class="before"></em><span>5.预测结果</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div style="height:calc(100% - 160px);width:96%;margin:0px auto;">
+        <div style="width:100%;">
+            <div class="mini-toolbar" style="line-height:47px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                    <tr>
+                        <td style="font-size:14px;"></td>
+                        <td>
+                            &nbsp;<span style="width: 5px;height: 17px;margin-top: 15px;background-color: #0C52C4;vertical-align: top;display: inline-block;float:left;">&nbsp;</span><span style="float:left;">&nbsp;</span>降雨预报&nbsp;&nbsp;
+                            <ul class="ui-choose choose-type-right" id="choseMNLX">
+                                <li class="selected" onclick="FQDATAQXSJ()">
+                                    <span>上海气象预报</span>
+                                </li>
+                                 <li onclick="SELECT_AVGRain()">
+                                    <span>中央气象预报</span>
+                                </li>
+                                <li onclick="clicklnmn1('sysList')">
+                                    <span id="sjjy">设计暴雨</span>
+                                    <div id="sysList" class="sysList" style="z-index:99;width:177px;background: white;MARGIN-LEFT: -17PX;float:left;border: 1px solid #ddd;display:none;">
+                                        <ul id="tree1" class="mini-tree" style="width:100%;padding:5px;"
+                                            showTreeIcon="true" textField="title" idField="id"  parentField="pid"
+                                            expandOnNodeClick="true" expandOnLoad="true"></ul>
+                                    </div>
+                                    <div>
+                                        <div id="barList" style="z-index:99;background: white;position: relative;margin-left: 160px;width:1100px;height:600px; display:none;border:#d2d2d2 1px solid;box-shadow: 0px 0px 1px 1px rgba(151, 141, 141, 0.5);border-radius:5px;">
+                                            <div class="mini-panel-header">
+                                                <span style="float:left;margin-left:10px;">设计降雨选择</span>
+                                                <span class="mini-icon mini-iconfont fa mini-tools-close" style=" width: 15px;height: 15px;overflow: hidden;cursor: pointer;float: right;margin-top: 9px;margin-right: 10px;" onclick="closeDiv()"></span>
+                                            </div>
+                                            <div style="height:30px;color:black;">
+                                                操作说明：点击过程线某点作为计算起始时间，提取对应过程雨量。
+                                            </div>
+                                            <div style="float:left;width:20%;height:calc(100% - 70px);overflow-y:hidden;border: 1px solid #ddd;color:black;margin-left:0.2%;">
+                                                <div style="padding-left:5px; color:black;border-bottom: 1px solid #ddd;text-align: left;
+    font-size: 16px;">站点列表：</div>
+                                                <ul id="tree2" class="mini-tree" style="width:100%;padding:5px;height:100%;overflow-y:scroll;"
+                                                    showTreeIcon="true" textField="zhanname" idField="zhanid"
+                                                    expandOnNodeClick="true"></ul>
+                                            </div>
+                                            <div id="danzhanBar" style="float:right;width:79%;height:calc(100% - 70px);border: 1px solid #ddd;margin-right:0.2%;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li onclick="FQDATAExel()">
+                                    <span>降雨导入</span>
+                                </li>
+                            </ul>
+                        </td>
+                        <td width="50px" align="center"><span class="separator"></span></td>
+                        <td>
+                            <div id="RbRain" name="RbRain" style="float:left;" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical"
+                                 textField="text" valueField="id" value="hour" data="[{ id: 'day',  text: '日数据' },{ id: 'hour', text: '小时数据' }]">
+                            </div>
+                            <div style="float:left;margin-top: 2px;">(单位：mm)</div>
+                        </td>
+                    </tr>
+                </table>
+                <div style="float:left;display:none;">
+                    <input id="combo1" class="mini-combobox" style="width:150px;" textField="text" valueField="id"
+                           onvaluechanged="onvaluechangedJY" />
+                </div>
+                <div style="clear:both;"></div>
+            </div>
+        </div>
+        <div class="mini-fit">
+            <div id="gridJY" class="mini-datagrid" style="width: 100%; height:100%;z-index: 0;" ondrawcell="ondrawcell"
+                 allowalternating="true" allowcellselect="true" allowcelledit="true" showpager="false" 
+                 showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showFilterRow="true"
+                 showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" cellEditAction="celldblclick" 
+                > <!--headerContextMenu="#headerMenu"-->
+            </div>
+        </div>
+
+        <ul id="headerMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen" onitemclick="onItemClick">
+            <li name="before">复制前一列</li>
+            <li name="after">复制后一列</li>
+        </ul>
+    </div>
+    <div style="height:50px;line-height:50px;">
+        <div style="text-align: center; ">
+            <a class="mini-button" onclick="up_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">上一步</a>
+            <a class="mini-button" onclick="next_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">下一步</a>
+
+        </div>
+    </div>
+    <style type="text/css">
+        .mini-tab-active {
+            background: #3291f9;
+            border-color: #3291f9;
+            color: #fff;
+        }
+    </style>
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("gridJY");
+        var tree = mini.get("tree1");
+        var tree2 = mini.get("tree2");
+        var localDD_ID = "";
+        $(function () {
+            localDD_ID = $.data(myData, "DD_ID");
+            if (localDD_ID == null || localDD_ID == "" || localDD_ID == undefined) {
+                localDD_ID = "0";
+            }
+
+            $.data(myData,"ModeJYDan","上海气象台");
+            var jyDanwei = [{ id: "1", text: "中国气象局" }, { id: "4", text: "上海气象台" }, { id: "2", text: "日本" }, { id: "6", text: "欧洲" }, { id: "9", text: "人工修正" }];
+            mini.get("combo1").setData(jyDanwei);
+            mini.get("combo1").select(0);
+
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            OnLoad();
+            GridColum();
+
+            app.post("SWZZ_MODE_ES_RAINFALL_TREE/findResult", {}, function(res){
+                JosnSel(res,"MODE_ES_RAINFALL_TREESel");
+            });
+
+
+
+            zhanLoadData();
+            //GetJosns("UPDATA_MODEZHAND", {}, "UPDATA_MODEZHAND");
+        });
+        function GridColum() {
+            //GetJosns("FH_JosnHtml_JiangYu", {}, "GridColum");
+            //15片
+            // ModeZhanGridColum("0");
+            //134片
+            ModeZhanGridColumJY("0");
+        }
+        var rbl = mini.get("RbRain");
+        rbl.on("valuechanged", function (e) {
+            onLoadData();
+        });
+        function methodJY(field, fieldText) {
+            var s_where = "";
+            var DayHour = "day";
+            try {X
+                DayHour = mini.get("RbRain").getValue();
+            } catch (e) {
+            }
+            var s_where = { 
+                "zhanData": fieldText, 
+                "zhanID": field, 
+                "dayhour": DayHour, 
+                "solutionid": localDD_ID 
+            };
+            // 15片
+            // app.post("/SWZZ_MODE_ES_ZHANDIANDATA/FH_modify_batchJY",s_where,function(res){
+            //     JosnSel(res,"UpdataInput");
+            // });
+            // 134片
+            app.post("/SWZZ_MODE_ES_ZHANDIANDATA/FH_modify_batchJY134",s_where,function(res){
+                JosnSel(res,"UpdataInput");
+            });
+        }
+        function onLoadData() {
+            var s_where = {
+                "datatype": "0",
+                "dayhour": mini.get("RbRain").getValue(),
+                "solutionid": localDD_ID
+            }
+            //15个片区
+            // app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", s_where, function(res){
+            //     JosnSel(res,"Sel");
+            // });
+            //134个片区
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBindJY", s_where, function(res){
+                JosnSel(res,"Sel");
+            });
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = mini.decode(data.data);
+                grid.setData(dataResult);
+                //new CopyExcel(grid);        //Excel互操作插件
+                mini.unmask(document.body);
+            }
+            else if (typeID == "GridColum") {
+                var dataResult = mini.decode(data.data);
+                var item = {
+                    field: "action", header: "统一操作", headerAlign: "center", align: "center", filter: { "type": "textbox", "onValueChanged": "onFilterChangedQuan", "emptyText": "全流域批量输入" }
+                };
+                dataResult.columns.push(item);
+                $.data(myData, "columns", dataResult.columns);
+                grid.set(dataResult);
+                onLoadData();
+                var strHtml = '<li name="before">复制前一列</li><li name = "after">复制后一列</li>';
+                for (var num = 1; num < $.data(myData, "columns").length - 1; num++) {
+                    strHtml += '<li name="header' + $.data(myData, "columns")[num].field + '">' + $.data(myData, "columns")[num].header + '</li>';
+                }
+                //var headerMenu = document.getElementById("headerMenu");
+                //headerMenu.innerHTML = strHtml;
+                //mini.parse();
+            }
+            else if (typeID == "MODE_ES_RAINFALL_TREESel") {
+                tree.loadList(data.data, "id", "pid");
+
+            }
+            else if (typeID == "MODE_ES_ZHANDIANSel") {
+                tree2.setData(data.data);
+                tree2.select(0);
+            }
+            else if (typeID == "MODE_ES_RAINFALLSel") {
+                var strNote = [];
+                var item = { "name": "时间", "codename": "tm", "tableV": "1", "isShow": true, "width": "30%" };
+                strNote.push(item);
+                item = { "name": "降雨量", "codename": "drp", "tableV": "1", "isShow": true, "width": "30%" };
+                strNote.push(item);
+                //绘制过程线颜色设置
+                var LineColor = ['#3398DB', '#FF0000', '#00FF00', '#FFA500'];
+                chartYL("danzhanBar", data.data, strNote, LineColor, "雨量(mm)");
+            }
+            else if (typeID == "UpdataInput") {
+                ShowMsg(data.message);
+                onLoadData();
+                //更新完降雨之后需要给工程指定调度方案
+            }
+            else if (typeID == "updateButton") {
+                if (data.total == 0) {
+                    ShowMsg("无降雨数据！");
+                } else {
+                    ShowMsg(data.message);
+                    onLoadData();
+                    //更新完降雨之后需要给工程指定调度方案
+                }
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Designrainfall") {
+                $('#sysList').hide();
+                $('#barList').hide();
+                onLoadData();
+                //更新完降雨之后需要给工程指定调度方案
+            }
+            else if (typeID == "saveExcelData") {
+                ShowMsg(data.Message);
+                mini.unmask(document.body);
+                url = "ShuiWei.html";
+                Next_Click(url);
+            }
+        }
+
+        //鼠标移动上去的提示信息。
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if (field == "TM") {
+
+            } else if (field == "action") {
+                var s = '<input id="fullValue" name=\'' + e.row.TM + '\' type="input" style="width:80px;height:20px;border:1px solid #8BA0BC;" onblur="onfull(\'' + e.row.TM + '\',this)"/> ';
+                e.cellHtml = s;
+            }else {
+                var s = "";
+                if (value != undefined) {
+                    s = Number(value).toFixed(1);
+                }
+                e.cellHtml = s;
+            }
+        }
+        function onvaluechangedJY(objID,type) {
+            $(".onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '操作中，请稍等...'
+            });
+            var strWhere={ 
+                ST: $.data(myData, "stime"), 
+                ET: $.data(myData, "etime"), 
+                SOLUTIONID: localDD_ID, 
+                JYDATATYPE: type 
+            };
+            GetJosns("updateJYYBBY", strWhere, "UpdataInput");
+        }
+        function onfull(tm, obj) {
+            var DayHour = mini.get("RbRain").getValue();
+            var hms=new Date($.data(myData, "stime")).format("HH:mm:ss");
+			tm = new Date(tm).format("yyyy-MM-dd HH:mm:ss") ;
+			if(DayHour=="day"){
+			  tm = new Date(tm).format("yyyy-MM-dd") + " " + hms;
+			}
+			
+            //alert(tm);
+            var value = obj.value;
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            if (value == "") {
+                return;
+            }
+            var columns = $.data(myData, "columns");
+            var stcds = "";
+            for (var num = 0; num < columns.length; num++) {
+                var field = columns[num].field;
+                if (field == "TM" || field == "action") {
+
+                } else {
+                    stcds += field + ",";
+                }
+            }
+            if (stcds != "") {
+                stcds = stcds.substring(0, stcds.length - 1);
+            }
+            var strXZ = mini.get("RbRain").getValue();
+            var s_where = { 
+                "ZhanData": value, 
+                "DayHour": strXZ, 
+                "dd_id": localDD_ID, 
+                "ZhanID": stcds, 
+                "TM": tm 
+            };
+            GetJosns("update_byTM", s_where, "UpdataInput");
+        }
+        //累计
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var field = e.field;
+            var grid = e.sender;
+            var data = grid.getData();
+
+            //服务端汇总计算
+            if (field == "TM") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:blue;'>累计降雨量：</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+            //if (field != "TM" && field != "action") {
+            //    if (data.length > 0) {
+            //        var s = '';
+            //        var MaxZ = 0;
+            //        for (var num = 0; num < data.length; num++) {
+            //            var ybz = data[num][field];
+            //            var tm = data[num]["TM"];
+            //            if (ybz > MaxZ) {
+            //                s = Number(ybz).toFixed(2) + "<br>" + tm.format("MM-dd HH:mm");
+            //                MaxZ = ybz;
+            //            }
+            //        }
+            //        if (MaxZ == 0) {
+            //            s = '-'
+            //        }
+            //        e.cellHtml = s;
+            //    }
+            //}
+        }
+        //改变全流域降雨
+        function onFilterChangedQuan(e) {
+            var value = e.value;
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            var columns = $.data(myData, "columns");
+            var stcds = "";
+            for (var num = 0; num < columns.length; num++) {
+                var field = columns[num].field;
+                if (field == "TM" || field == "action") {
+
+                } else {
+                    stcds += field + ",";
+                }
+            }
+            if (stcds != "") {
+                stcds = stcds.substring(0, stcds.length - 1);
+            }
+            var strXZ = mini.get("RbRain").getValue();
+            var s_where = {
+                "zhanData": value,
+                "dayhour": strXZ,
+                "dd_id": localDD_ID,
+                "zhanID": stcds
+            };
+            app.post("/SWZZ_MODE_ES_ZHANDIANDATA/FH_modify_batchJYQuanJY", s_where,function(res){
+                JosnSel(res,"UpdataInput");
+            });
+        }
+        function onValueChanged(e) {
+            var strXZ = mini.get("RbRain").getValue();
+            var selected = grid.getSelected();
+            console.error(selected);
+            if (selected) {
+                var s_where = { 
+                    "zhanData": e.value, 
+                    "zhanTime": new Date(selected.TM).format("yyyy-MM-dd HH:mm:ss"), 
+                    "zhanID": e.sender.getName(), 
+                    "dayhour": strXZ,
+                    "solutionid":localDD_ID
+                }
+                app.post("/SWZZ_MODE_ES_ZHANDIANDATA/FH_ModifyMethodJY",s_where,function(res){
+                    JosnSel(res,"UpdataInput");
+                });
+            }
+        }
+        //用个全局变量存放当前点击列
+        var currentColumnIndex = 0;
+        function onBeforeOpen(e) {
+            //根据文本找到column的序号，有点问题的（比如header有相同部分什么）
+            var columns = grid.getColumns();
+            function findColumnIndex(field) {
+                for (var i = 0, l = columns.length; i < l; i++) {
+                    var column = columns[i];
+                    if (!column.field) continue;
+                    if (column.header.indexOf(field) != -1) return i;
+                }
+            }
+            //右键点击的表头元素的文本的前2个字符串（方便判断）
+            var text = e.htmlEvent.target.innerHTML;//.substr(0, 2);
+            //没有field的直接给0，比如序号列展开列之类的
+            currentColumnIndex = findColumnIndex(text) || 0;
+            
+            var menu = e.sender;
+            if (currentColumnIndex == 0 || currentColumnIndex==columns.length - 1) {
+                e.cancel = true;
+                //阻止浏览器默认右键菜单
+                e.htmlEvent.preventDefault();
+                return;
+            }
+            ////////////////////////////////
+            var beforeItem = mini.getbyName("before", menu);
+            var afterItem = mini.getbyName("after", menu);
+            beforeItem.show();
+            afterItem.show();
+            if (currentColumnIndex == 1) {
+                beforeItem.hide();
+            }
+            if (currentColumnIndex ==columns.length-2) {
+                afterItem.hide();
+            }
+        }
+        function onItemClick(e) {
+            if (currentColumnIndex == 0) return;
+            var field = grid.getColumn(currentColumnIndex).field;
+            var itemName = e.item.name;
+            var stcd = itemName;
+            if (itemName == "before") {
+                stcd = grid.getColumn(currentColumnIndex - 1).field;//默认取前一列
+            } else if (itemName == "after") {
+                stcd=grid.getColumn(currentColumnIndex + 1).field
+            }
+            QuickInputRain(stcd,field);
+        }
+        function QuickInputRain(stcd, field) {
+            var s_where = { stcd: stcd, field: field, SOLUTIONID: "0" };
+            GetJosns("FH_QuickInputRain", s_where, "updateInput");
+        }
+        function clicklnmn1(str) {
+            $('#' + str).show();
+        }
+        function FQDATAExel() {
+            $('#sysList').hide();
+            $('#barList').hide();
+            mini.open({
+                url: "../DD_MX/MXExcelDATA.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime")+ "&DD_ID=" + $.data(myData, "DD_ID"),
+                title: "降雨数据",
+                iconCls: "icon-add",
+                width: "70%",
+                height: "65%",
+                showCloseButton: true,   //显示关闭按钮
+                showMaxButton: true,     //显示最大化按钮
+                showModal: true,         //显示遮罩
+                onload: function () {
+                },
+                ondestroy: function (action) {
+                    onLoadData();
+                }
+            });
+        }
+        function FQDATAQXSJ() {
+            $.data(myData,"ModeJYDan","上海气象台");
+            var s_where = { 
+                startdate: $.data(myData, "stime"), 
+                enddate: $.data(myData, "etime"), 
+                solutionid: localDD_ID,
+                fdpr:"6,48"
+            };
+            app.post("/SWZZ_MODE_ES_ZHANDIAN/MODIFYJYYBBY", s_where, function(res){
+                JosnSel(res,"updateButton");
+            });
+        }
+        //徐汇降雨预报
+        function SELECT_AVGRain() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            $.data(myData,"ModeJYDan","中央气象台");
+            var s_where = { 
+                startdate: $.data(myData, "stime"), 
+                enddate: $.data(myData, "etime"), 
+                solutionid: localDD_ID 
+            };
+            app.post("/SWZZ_QXSJ_st_rnfl_f/MODIFYJYYBBYXH134", s_where, function(res){
+                JosnSel(res,"updateButton");
+            });
+        }
+        $('#choseMNLX li').click(function () {
+            var f = this;
+            $('#choseMNLX li').each(function () {
+                this.className = this == f ? 'selected' : '';
+            });
+        });
+        tree.on("nodeselect", function (e) {
+            var node = e.node;
+            var parentNode = tree.getParentNode(node);
+            var parentText = parentNode.id;
+            $('#barList').show();
+            $.data(myData, "treeID", node.id);
+            $.data(myData,"ModeJYDan", node.title);
+            var node2 = tree2.getSelectedNode(); 
+            treeLoadData(node.id, node2.zhanid);
+        });
+        function zhanLoadData() {
+            var s_where = { "pattem": "0"};
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", s_where,function(res){
+                JosnSel(res,"MODE_ES_ZHANDIANSel");
+            });
+        }
+        function treeLoadData(TYPE, stcd) {
+            var s_where = { "pattem": TYPE, "stcd": stcd};
+            app.post("SWZZ_MODE_ES_RAINFALL/findResult",s_where,function(res){
+                JosnSel(res,"MODE_ES_RAINFALLSel");
+            });
+        }
+        tree2.on("nodeselect", function (e) {
+            var node = e.node;
+            var ID = $.data(myData, "treeID");
+            if ($('#barList').css("display") == "block") {
+                treeLoadData(ID, node.zhanid);
+            }
+        });
+        function closeDiv() {
+            $("#barList").css("display","none");
+        }
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        var tm = new Date(value[value1.codename]).format("yyyy-MM-dd HH");
+                        chartTM.push(tm);
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                toolbox: {
+                    show: true,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: { show: false, type: ['line', 'bar'] },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom:40,
+                    top: 40,
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        scale: true,
+                        axisTick: {
+                            alignWithLabel: false
+                        },
+                        axisLabel: {
+                            //interval: 0,
+                            rotate: 40
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        //interval: 0,
+                        //  splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        min: 0,
+                        max: function (value) {
+                            return Number((value.max - (value.max % 5)) / 5 + 1).toFixed(0) * 5;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                //dataZoom: [
+                //    {
+                //        show: true,
+                //        realtime: true,
+                //        start: 0,
+                //        end: 20
+                //    },
+                //    {
+                //        type: 'inside',
+                //        realtime: true,
+                //        start: 0,
+                //        end: 20
+                //    }
+                //],
+                animation: false,
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        if (chartName[j] == "名称") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: '60%',
+                                //itemStyle: {
+                                //    borderWidth:3,
+                                //},
+                                //label: {
+                                //    normal: {
+                                //        show: true,
+                                //        position: 'top'
+                                //    }
+                                //},
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+            myChart.on('click', function (param) {
+                $(".mini-messagebox").hide();
+                $(".mini-widget-content").hide();
+                mini.confirm("是否选择数据？", "确定？",
+                    function (action) {
+                        if (action == "ok") {
+                            var name = param.name;
+                            var ID = $.data(myData, "treeID");
+                            var s_where = { 
+                                "TYPE": ID, 
+                                "TM": name + ":00:00",
+                                "SOLUTIONID":localDD_ID
+                            };
+                            GetJosns("Designrainfall", s_where, "Designrainfall");
+                        }
+                    }
+                );
+            });
+        }
+
+        function onSaveExcelData(data, dataTM) {
+            var json = mini.encode(dataTM);
+            var s_where = { "json": json,TYPE:"0" };
+            GetJosns("SaveExcelData", s_where, "saveExcelData");
+        }
+    </script>
+    <script type="text/javascript">
+        function OnLoad() {
+            var current1 = GetCookie("one");
+            var current2 = GetCookie("two");
+            var current3 = GetCookie("three");
+            var current4 = GetCookie("four");
+            var current5 = GetCookie("five");
+            //console.error(current1 + ":::" + current2 + ":::" + current3 + ":::" + current4);
+
+            if (current1 != null && current1 != "") {
+                $("#one").removeClass("gray");
+                $("#one").addClass("green");
+                $("#one").find('i').eq(0).removeClass("gray");
+                $("#one").find('i').eq(0).addClass("green");
+            } else {
+                $("#one").removeClass("orange");
+                $("#one").addClass("gray");
+                $("#one").find('i').eq(0).removeClass("orange");
+                $("#one").find('i').eq(0).addClass("gray");
+            }
+            if (current2 != null && current2 != "") {
+                $("#two").removeClass("gray");
+                $("#two").addClass("orange");
+                $("#two").find('i').eq(0).removeClass("gray");
+                $("#two").find('i').eq(0).addClass("orange");
+            } else {
+                $("#two").removeClass("green");
+                $("#two").addClass("gray");
+                $("#two").find('i').eq(0).removeClass("green");
+                $("#two").find('i').eq(0).addClass("gray");
+            }
+
+            if (current3 != null && current3 != "") {
+                $("#three").removeClass("gray");
+                $("#three").addClass("green");
+                $("#three").find('i').eq(0).removeClass("gray");
+                $("#three").find('i').eq(0).addClass("green");
+            } else {
+                $("#three").removeClass("green");
+                $("#three").addClass("gray");
+                $("#three").find('i').eq(0).removeClass("green");
+                $("#three").find('i').eq(0).addClass("gray");
+            }
+            if (current4 != null && current4 != "") {
+                $("#four").removeClass("gray");
+                $("#four").addClass("green");
+                $("#four").find('i').eq(0).removeClass("gray");
+                $("#four").find('i').eq(0).addClass("green");
+            } else {
+                $("#four").removeClass("green");
+                $("#four").addClass("gray");
+                $("#four").find('i').eq(0).removeClass("green");
+                $("#four").find('i').eq(0).addClass("gray");
+            }
+            if (current5 != null && current5 != "") {
+                $("#five").removeClass("gray");
+                $("#five").addClass("green");
+                $("#five").find('i').eq(0).removeClass("gray");
+                $("#five").find('i').eq(0).addClass("green");
+            } else {
+                $("#five").removeClass("green");
+                $("#five").addClass("gray");
+                $("#five").find('i').eq(0).removeClass("green");
+                $("#five").find('i').eq(0).addClass("gray");
+            }
+        }
+        function up_click() {
+            var url = "Initialization.html?current1=1&stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime");
+            Next_Click(url);
+        }
+        function next_click() {
+            //检查有没有excel输入
+            grid.commitEdit();
+            var dataTM = grid.getChanges(null, false);
+            var data = grid.getChanges("modified", true);
+            var json = mini.encode(data);
+            var jsonTM = mini.encode(dataTM);
+            SetCookie("three", "1", 1);
+            var url = "ShuiWei.html?stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "etime");
+            if (json != "[]") {
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '数据发生改变，正在处理 ，请稍等...'
+                });
+                //去更新数据库
+                onSaveExcelData(data, dataTM);
+            } else {
+                Next_Click(url);
+            }
+        }
+    </script>
+</body>
+</html>

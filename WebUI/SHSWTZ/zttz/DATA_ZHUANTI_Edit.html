@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style>
+        #form1 table tr td {
+            border: 1px solid #CFE5FB;
+            /*line-height: 44px;*/
+            height: 44px;
+        }
+
+        #form1 table tr td table tr td {
+            border: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div id="form1" style="width:100%;text-align:center; margin:0 auto;">
+        <table cellspacing='0' cellpadding='0' border='0' id='GridView1' style=' background-color: White; width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td align="right" class="lie1">专题名称</td>
+                <td align="left" colspan="5">
+                    <input id="RC_NAME" name="RC_NAME" class="mini-textbox Span90" required="true" />
+
+                    <input id="ID" name="ID" class="mini-hidden" />
+                    <input id="YQ_STCD" name="YQ_STCD" class="mini-hidden" />
+                    <input id="SQQ_STCD" name="SQQ_STCD" class="mini-hidden" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right" class="lie1">专题类型</td>
+                <td align="left" colspan="5">
+                    <div id="ZT_TYPE" name="ZT_TYPE" class="mini-radiobuttonlist"
+                         repeatitems="10" repeatlayout="table" onvaluechanged="ZT_TYPEonCLick"
+                         textfield="FZNAME" valuefield="FZNAME" style="float:left;">
+                    </div>
+                    <!--选择台风时需要关联台风编号-->
+                    <div style="float:left;line-height: 40px;height:100%;margin-left:40px;" id="gl_tfbh">
+                        关联台风：<input id="comboTF" class="mini-combobox" style="width:150px;"
+                                    textField="text" valueField="id" required="true" allowInput="true" />
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align="right" class="lie1">登陆时间</td>
+                <td align="left">
+                    <input id="ZT_SHENHE" name="ZT_SHENHE" class="mini-datepicker Span70" />
+                </td>
+                <td align="right" class="lie1">登陆强度</td>
+                <td align="left">
+                    <input id="SHIJIAN" name="SHIJIAN" class="mini-textbox Span70" />
+                </td>
+                <td align="right" class="lie1">登陆位置</td>
+                <td align="left"><input id="ADDRESS" name="ADDRESS" class="mini-textbox Span70" /></td>
+            </tr>
+            <!-- <tr>
+                <td align="right" class="lie1">
+                    影响上海日期
+                </td>
+                <td align="left">
+                    <input id="FD_TM" name="FD_TM" class="mini-datepicker Span70" />
+                </td>
+                <td align="right" class="lie1">登陆上海强度</td>
+                <td align="left" style="width:25% !important;" colspan="3">
+                    <input id="BUMEN" name="BUMEN" class="mini-textbox Span70" />
+                </td>
+            </tr> -->
+            <tr>
+                <td align="right" class="lie1">影响上海开始时间</td>
+                <td align="left">
+                    <input id="ZT_STIME" name="ZT_STIME" class="mini-datepicker Span70" />
+                </td>
+                <td align="right" class="lie1">影响上海结束时间</td>
+                <td align="left">
+                    <input id="ZT_ETIME" name="ZT_ETIME" class="mini-datepicker Span70" required="true" />
+                </td>
+                <td align="right" class="lie1">发布人</td>
+                <td align="left"><input id="RC_OWEN" name="RC_OWEN" class="mini-textbox Span70" required="true" /></td>
+            </tr>
+            <tr>
+                <td align="right" class="lie1">专题特征说明</td>
+                <td colspan="5" align="left">
+                    <input id="RC_CONTENT" name="RC_CONTENT" class="mini-textarea" style="width:90%; height:150px;" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right" class="lie1">专题降雨情况说明</td>
+                <td colspan="5" align="left">
+                    <input id="RC_TITLE2" name="RC_TITLE2" class="mini-textarea" style="width:90%; height:150px;" />
+                </td>
+            </tr>
+            <tr>
+                <td align="right" class="lie1">专题灾情情况说明</td>
+                <td colspan="5" align="left">
+                    <input id="RC_ZONGSHU" name="RC_ZONGSHU" class="mini-textarea" style="width:90%; height:150px;" />
+                </td>
+            </tr>
+            <tr>
+                <td colspan="6" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <a class="mini-button" onclick="onOk" style="width:60px;margin-right:20px;">保存</a>
+                    <a class="mini-button" onclick="onCancel" style="width:60px;">取消</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script>
+        mini.parse();
+        var myData = [];
+        var comboTF = mini.get("comboTF");
+        function SetData(data) {
+            var ID = data.ID;
+            $.data(myData, "ID", ID);
+            loadTFList();
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTI_TYPESel", { "FLAG": "3" }, "ZT_TYPE");//所属分类
+            search();
+        }
+        function search() {
+            var strWhere = { "ID": $.data(myData, "ID") };
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTISel", strWhere, "Sel");
+        }
+        function loadTFList() {
+            var strWhere = {};
+            GetJosns("TYPHOON_ZJ_TFSel", strWhere, "TFSel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var o = mini.decode(data.data[0]);
+                    FromSetData(o);
+                    mini.get("RC_NAME").setValue(o.TITLE);
+                    comboTF.setValue(o.STATUS);
+                    // mini.get("FD_TM").setValue(o.FD_TM);
+                    // mini.get("BUMEN").setValue(o.BUMEN);
+                    mini.get("ZT_STIME").setValue(o.STM);
+                    mini.get("ZT_ETIME").setValue(o.ETM);
+                    mini.get("ZT_SHENHE").setValue(o.SHENHE);
+                    mini.get("SHIJIAN").setValue(o.SHIJIAN);
+                    mini.get("ADDRESS").setValue(o.ADDRESS);
+                    mini.get("RC_OWEN").setValue(o.OWEN);
+                    mini.get("RC_CONTENT").setValue(o.NOTE);
+                    mini.get("RC_TITLE2").setValue(o.TITLE2);
+                    mini.get("RC_ZONGSHU").setValue(o.ZONGSHU);
+
+                    mini.get("ID").setValue(o.ID);
+                    mini.get("YQ_STCD").setValue(o.STCD);
+                    mini.get("SQQ_STCD").setValue(o.GCDD);
+                }
+            }
+            else if (typeID == "ZT_TYPE") {//所属分类
+                var _ZT_TYPE = mini.get("ZT_TYPE");
+                _ZT_TYPE.setData(data.data);
+                _ZT_TYPE.select(0);
+            }
+            else if (typeID == "TFSel") {
+                var data = data.data;
+                var dataResult = [];
+                for (var num = 0; num < data.length; num++) {
+                    dataResult.push({ id: data[num].ZJ_TFBH, text: data[num].ZJ_TFBH + data[num].ZJ_TFM });
+                }
+                comboTF.setData(dataResult);
+            }
+            else if (typeID == "AddData") {
+                ShowMsg(data.Message);
+            }
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+        function onOk(e) {
+            //保存数据
+            SavaData();
+
+        }
+        function SavaData() {
+            var _STCD = mini.get("SQQ_STCD").getValue();
+            var _FAYA = new Date(mini.get("ZT_STIME").getFormValue()).getFullYear();
+            var strTitle = mini.get("RC_NAME").getValue();
+            strTitle = strTitle.replaceAll("\"", "“");
+            var strWhere = {
+                "ID": mini.get("ID").getValue(),
+                "TITLE": strTitle,
+                "OWEN": mini.get("RC_OWEN").getValue(),
+                "CREATE_TM": new Date().format("yyyy-MM-dd HH:mm:ss"),
+                "NOTE": mini.get("RC_CONTENT").getValue(),
+                "TITLE2": mini.get("RC_TITLE2").getValue(),
+                "ZONGSHU": mini.get("RC_ZONGSHU").getValue(),
+                "TYPE": mini.get("ZT_TYPE").getValue(),
+                "STM": mini.get("ZT_STIME").getFormValue(),
+                "ETM": mini.get("ZT_ETIME").getFormValue(),
+                "SHENHE": mini.get("ZT_SHENHE").getFormValue(),
+                "FXKHJB": mini.get("YQ_STCD").getValue(),//雨情站点
+                "STCD": _STCD,//水情站点
+                "GCDD": mini.get("YQ_STCD").getValue(),
+                "STATUS": comboTF.getValue(),//关联台风编号
+                "FAYA": _FAYA,//年份
+                "SHIJIAN": mini.get("SHIJIAN").getValue(),
+                // "BUMEN": mini.get("BUMEN").getValue(),
+                // "FD_TM": mini.get("FD_TM").getFormValue(),
+                "ADDRESS": mini.get("ADDRESS").getFormValue()
+            }
+            GetJosns("SWZZ_FLOODTIDEDATA_ZHUANTIUpdate", strWhere, "AddData");
+        }
+    </script>
+</body>
+</html>

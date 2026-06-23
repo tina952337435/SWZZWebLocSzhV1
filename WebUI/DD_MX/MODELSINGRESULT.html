@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y:hidden;
+        }
+    </style>
+
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            &nbsp;&nbsp;&nbsp;方案：<input id="faCom" class="mini-combobox" valueField="dd_ID" textField="dd_NAME" 
+                                        style="height: 25px;width:250px;"
+                                        onvaluechanged="onvaluechanged" />
+        </div>
+    </div>
+    <div id="grid2" class="mini-datagrid" style="width:100%; height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);"
+         allowalternating="true"
+         borderstyle="border-right:0;" idfield="id" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showpager="false"
+         ondrawcell="ondrawcell">
+        <div property="columns">
+            <!--<div type="indexcolumn"></div>
+        <div field="HNNMBK" name="HNNMBK" headeralign="center" align="center" width="60">
+            分区
+        </div>-->
+            <div field="stnm" headeralign="center" align="center">
+                站点名称
+            </div>
+            <div field="maxz" headeralign="center" align="center" width="60">
+                最高水位(m)
+            </div>
+            <div field="maxtm" headeralign="center" align="center">
+                最高水位出现时间
+            </div>
+            <div field="durw" headeralign="center" align="center">
+                超警时长(小时)
+            </div>
+            <div field="wrz" headeralign="center" align="center">
+                警戒水位(m)
+            </div>
+            <div field="minz" headeralign="center" align="center" width="60">
+                最低水位(m)
+            </div>
+            <div field="mintm" headeralign="center" align="center">
+                最低水位出现时间
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var faCom = mini.get("faCom");
+        var grid = mini.get("grid2");
+        $(function () {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            //GetJosns("MODE_DD_SOLUTIONSel", {DD_STATUS:"1"}, "Sel");
+			app.post("SWZZ_MODE_DD_SOLUTION/findByDD_IDandDD_status",{dd_STATUS:"1"},(data)=>{
+				JosnSel(data,"Sel")
+			})
+        });
+        function onLoadAllData() {
+			app.post("SWZZ_MODE_ES_JISUANZHAN/findResult",{ "pattem": "1,2" },(data)=>{
+				JosnSel(data,"MODE_ES_JISUANZHANSel")
+			})
+        }
+
+        function onvaluechanged(e) {
+            onLoadAllData();
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+				data.data.sort((a,b)=>{
+					return new Date(b.dd_TM).getTime() - new Date(a.dd_TM).getTime();
+				})
+                faCom.setData(data.data);
+                faCom.select(0);
+                onLoadAllData();
+            }
+            else if (typeID == "WJ_MODELSINGRESULT") {
+				//console.log(data.data)
+                grid.setData(data.data);
+                mini.unmask(document.body);
+            }else if(typeID == "MODE_ES_JISUANZHANSel"){
+				var DD_ID = faCom.getValue();
+				var stcds = "";
+				for(var obj of data.data){
+					stcds = stcds + obj.stcd + ",";
+				}
+				var strParam = { "solutionid": DD_ID, "data_TYPE": "1","stcd": stcds};
+				//GetJosns("WJ_MODELSINGRESULT", strParam, "WJ_MODELSINGRESULT");
+				app.post("SWZZ_MODE_BDMS_PREDICT/WJ_MODELSINGRESULT",strParam,(data)=>{
+					JosnSel(data,"WJ_MODELSINGRESULT")
+				})
+			}
+        }
+        function ondrawcell(e) {
+            var record = e.record;
+            if (e.field == "maxtm" || e.field == "mintm") {
+                if (e.value != undefined) {
+                    e.cellHtml = new Date(new Date(e.value)).format("MM-dd HH:mm");
+                }
+            }
+            if (e.field == "maxz" || e.field == "minz") {
+                if (e.value != null && e.value != "") {
+                    e.cellHtml = parseFloat(e.value).toFixed(2);
+                } else {
+                    e.cellHtml = "-";
+                }
+            }
+            if (e.field == "maxz") {
+                //超警、超保
+                try {
+                    var wrz = parseFloat(record.wrz).toFixed(2);
+                    var grz = parseFloat(record.grz).toFixed(2);
+                    if (e.value >= wrz&&wrz>0) {
+                        e.cellStyle = "color:#FFA500;";
+                    }
+                    if (e.value >= grz&&grz>0) {
+                        e.cellStyle = "color:red;";
+                    }
+                } catch (e) {
+                }
+            }
+            if (e.field == "wrz") {
+                if (e.value != null && e.value != "") {
+                    e.cellHtml = parseFloat(e.value).toFixed(2);
+                } else {
+                    e.cellHtml = "-";
+                }
+            }
+
+            if (e.field == "durw") {
+                if (e.value == null || e.value == "" || e.value == 0) {
+                    e.cellHtml = "-";
+                } else {
+                    e.cellHtml = (e.value / 12).toFixed(1);
+                }
+            }
+            if (e.field == "stnm") {
+                var s = "<a title=\"" + e.value + "\" onclick=\"tans('" + e.value + "','" + record.stcd + "')\" style='cursor:pointer;'>" + e.value + "</a>";
+                e.cellHtml = s;
+            }
+            if (e.field == "xzdz") {
+                var s = e.value;
+                if (e.value == 0) {
+                    s = "-";
+                }
+                e.cellHtml = s;
+            }
+        }
+        function tans(stnm, stcd) {
+            var selected = faCom.getSelected();
+            var stime = selected.dd_TM;
+            stime = new Date(new Date(stime)).format("yyyy-MM-dd HH:mm:ss");
+            var etime = selected.dd_CHECKBY;
+            etime = new Date(new Date(etime)).format("yyyy-MM-dd HH:mm:ss");
+            var ZU_ID = selected.dd_MIND;
+            var DD_ID = faCom.getValue();
+            WindowsOpen("./DanZhan/YBSQLine.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime + "&PLAN_N=" + DD_ID + "&ZU_ID=" + ZU_ID, stnm + "水位过程线", "1100@630");
+        }
+    </script>
+</body>
+</html>

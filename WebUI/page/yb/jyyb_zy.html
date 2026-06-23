@@ -1,0 +1,444 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="../../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js?ver=1.0.2" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            width: 100% !important;
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 100px !important;
+                height: 30px;
+                font: 14px/30px "arial";
+                text-align: center;
+            }
+    </style>
+</head>
+<body  class="contentbody">
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <span class="label" style="width: 70px;line-height: 30px;color:black;font-size: 13px;
+            font-weight: 500;">预报时间：</span>
+            <input id="STIME" class="mini-datepicker" style="width:110px;" format="yyyy-MM-dd" onvaluechanged="onvaluechanged" /><!--ondrawdate="onDrawDate"-->
+            <!--<input id="HOUR" name="HOUR" class="mini-combobox" style="width:65px;" textfield="text" valuefield="id" allowinput="true" />-->
+            <!--<a class="mini-button" onclick="BreakLayerLoad()">查询</a>-->
+            <ul class="onlytab" id="onlytab2" style="width:120px !important;position:absolute;left:200px;top:0px;">
+                <li id="TitleLi08" onclick="OnClickTitle2(this.id,'08')" class="onlyli start" style="width: 60px !important;">8时</li>
+                <li id="TitleLi20" onclick="OnClickTitle2(this.id,'20')" class="onlyli end" style="width: 60px !important;">20时</li>
+            </ul>
+            &nbsp;&nbsp;<button type="button" class="btn btn-success" onclick="Exp()" id="expButton" style="margin-left:135px;display:none;">报表导出</button>
+            <ul class="onlytab" id="onlytab"></ul>
+        </div>
+    </div>
+    <div id="JY_charts" style="height:350px;width:100%;margin:0px auto;">
+
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 405px);height: -moz-calc(100% - 405px);height: calc(100% - 405px);" allowalternating="true"
+         borderstyle="border-right:0;" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+         ondrawcell="ondrawcell">
+        <div property="columns">
+            <div field="ftm" width="80" align="center" headeralign="center" allowsort="false">时间</div>
+            <div field="drp" width="60" align="center" headeralign="center" allowsort="false">雨量(mm)</div>
+            <div field="name" width="60" align="center" headeralign="center" allowsort="false">片区名称</div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var resultData = [];
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        window.onload = function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            loadQY();
+            var s_where = {
+                pattem: 48,
+            };
+			app.post("SWZZ_QXSJ_tz_ncfile/findResult",s_where,(data)=>{
+				JosnSel(data,"QXSJ_TZ_NCFILESel")
+			})
+        };
+
+        function loadQY() {
+            var s_where = {};
+			app.post("SWZZ_QXSJ_tz_watershed/findResult",s_where,(data)=>{
+				JosnSel(data,"QXSJ_TZ_WATERSHEDSel")
+			})
+        }
+
+        function BreakLayerLoad() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            var HOUR = $.data(myData, "HOUR");
+            //alert(HOUR);
+            var TM = mini.get("STIME").getFormValue() + " " + HOUR + ":00:00";
+			app.post("SWZZ_QXSJ_tz_watersheddata/findResult", { startdate: TM, enddate: TM, kwtxt: 48 }, (data) => {
+                var mobjdata = [];
+                data.data.filter(function(m) {
+                    var mobj=m;
+                    mobj.name = $("#onlytab .onlyliHover").html();
+                    if(m.keyid==$.data(myData, "objKeyid")){
+                        mobjdata.push(mobj);
+                    }
+                    return m.mkeyid==$.data(myData, "objKeyid");
+                });
+                mobjdata.sort((a, b) => {
+                    return new Date(a.ftm).getTime() - new Date(b.ftm).getTime();
+                })
+                data.data = mobjdata;
+                data.total = mobjdata.length;
+                console.log(data);
+                JosnSel(data, "Sel");
+                mini.unmask(document.body);
+            })
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "QXSJ_TZ_NCFILESel") {
+                if (data.total > 0) {
+                    $.data(myData, "solutionArr", data.data);
+                    var TM = new Date(convertToDate(data.data[0].tm)).format("yyyy-MM-dd");
+                    var HOUR = new Date(convertToDate(data.data[0].tm)).format("HH");
+                    $.data(myData, "HOUR", HOUR);
+                    var objID = "TitleLi" + HOUR;
+                    $("#onlytab2 .onlyli").removeClass("onlyliHover");
+                    $("#" + objID).addClass("onlyliHover");
+                    mini.get("STIME").setValue(TM);
+                } else {
+                    var TM = new Date().format("yyyy-MM-dd");
+                    mini.get("STIME").setValue(TM);
+                    $("#onlytab2 .onlyli").removeClass("onlyliHover");
+                    $("#TitleLi08").addClass("onlyliHover");
+                }
+                BreakLayerLoad();
+            }
+            else if (typeID == "Sel") {
+                $.data(myData, "DATA", data.data);
+                chartHtml();
+            }
+            else if (typeID == "QXSJ_TZ_WATERSHEDSel") {
+                var strHtml = "";
+                for (var num = 0; num < data.data.length; num++) {
+                    var css = "";
+                    if (num == 0) {
+                        css = "start onlyliHover";
+                        $.data(myData, "objKeyid",data.data[num].keyid);
+                    }
+                    if (num == data.data.length - 1) {
+                        css = "end";
+                    }
+					if(num == 0 && num == data.data.length - 1){
+						css = "start onlyliHover";
+					}
+                    strHtml += '<li id="TitleLi' + num + '" onclick="OnClickTitle(this.id,\'' + data.data[num].name + '\',\'' + data.data[num].keyid + '\')" class="onlyli ' + css + '">' + data.data[num].name + '</li>';
+                }
+                $("#onlytab").html(strHtml);
+				
+            } else if (typeID =="SelExcel") {
+                // var Hour = $.data(myData, "HOUR");
+                // var TM = new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日");
+                // var name = TM + Hour + "时水利片区降雨预报（未来48小时）";
+                // var dataResult = data.data;
+                // var columns = mini.decode(dataResult[0].columns);
+                // var datas = mini.decode(dataResult[0].data);
+                // ExportExcel(name, columns.columns, datas);
+				//console.log(data);
+				window.open(HuishuiApiUrl + "upLoad/" + data.data);
+            }
+        }
+        function getInfo() {
+            tableBind(resultData);
+        }
+        function tableBind(data) {
+            var dataResult = data;
+            grid.setData(dataResult);
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            rowIndex = e.rowIndex;
+            if (field == "ftm") {
+                e.cellHtml = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+            }
+        }
+
+        function onDrawDate(e) {
+            var date = e.date;
+            var solutionArr = $.data(myData, "solutionArr");
+            var tempResult = solutionArr.filter(function (ex) {
+                return new Date(date).format("yyyy/MM/dd") == new Date(convertToDate(ex.TM)).format("yyyy/MM/dd");
+            });
+            if (tempResult.length > 0) {
+                e.dateStyle = "background:#A8D9B6;"
+            } else {
+                //e.allowSelect = false;
+            }
+        }
+
+        function onvaluechanged(e) {
+            BreakLayerLoad();
+        }
+        function Exp() {
+            var Hour = $.data(myData, "HOUR");
+            var TM = mini.get("STIME").getFormValue() + " " + Hour + ":00:00";
+            //GetJosns("QXSJ_TZ_WATERSHEDDATAExcel", { "RLSTM": TM}, "SelExcel");
+			var Hour = $.data(myData, "HOUR");
+			var TM = new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日");
+			var name = TM + Hour + "时水利片区降雨预报（未来48小时）";
+			var objJson = JSON.stringify(grid.getData());
+			console.log(objJson);
+			// app.post("excelOperation/writeExcelServlet/swzzqxsj.Tz_watersheddataPojo",{ojbList:objJson,filename:name},(data)=>{
+			// 	JosnSel(data,"SelExcel");
+			// })
+            var data=grid.getData();
+            ExportExcel(data, grid, name);
+        }
+        function OnClickTitle(objID, objPathName,objKeyid) {//选择类型
+            var only = $("#onlytab .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            A_PathName = objPathName;
+            $.data(myData, "objKeyid", objKeyid);
+            $('#dataLoad').show();
+            setTimeout('BreakLayerLoad()', 1000);
+        }
+        function OnClickTitle2(objID, objPathName) {//选择类型
+            var only = $("#onlytab2 .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            $.data(myData, "HOUR", objPathName);
+            $('#dataLoad').show();
+            setTimeout('BreakLayerLoad()', 1000);
+        }
+        function chartHtml() {
+            var data = $.data(myData, "DATA");
+            var NAME = $("#onlytab .onlyliHover").html();
+			console.log(NAME)
+            resultData =data.filter(function (ex) {
+                return NAME == ex.name;
+            });;
+            //绘制过程线颜色设置
+            var LineColor = ['#3398DB', '#FF0000', '#00FF00', '#FFA500'];
+            var strNote = [];
+            var item = { "name": "时间", "codename": "ftm", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "降雨量", "codename": "drp", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            //绘制图形
+            chartYL("JY_charts", resultData, strNote, LineColor, "雨量");
+            getInfo();
+        }
+        /* 柱状图 雨量
+* ChartName画图控件名称
+* dataS数据对象，数据格式json
+* strNote数据说明，数据类型数组，数据格式
+* json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示
+*/
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        var tm = new Date(convertToDate(value[value1.codename])).format("M月d日H时")
+                        chartTM.push(tm); //加入时间集合
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    show:false,
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                toolbox: {
+                    show: false
+                },
+                //dataZoom: [
+                //    {
+                //        show: true,
+                //        realtime: true,
+                //        start: 0,
+                //        end: 35
+                //    },
+                //    {
+                //        type: 'inside',
+                //        realtime: true,
+                //        start: 0,
+                //        end: 35
+                //    }
+                //],
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: 20,
+                    top: 40,
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        },
+                        axisLabel: {
+                            //interval: 0,
+                            //rotate: 30
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        //interval: 0,
+                        //  splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        min: 0,
+                        max: function (value) {
+                            return Number(value.max) +10;
+                            //return Number((value.max - (value.max % 5)) / 5 + 1).toFixed(0) * 5;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        if (chartName[j] == "名称") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: '20',
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'top'
+                                    }
+                                },
+                                smooth: true
+                                //		           itemStyle: {normal: {
+                                //          	areaStyle: {type: 'default'},
+                                //				//颜色渐变设置
+                                //          	color:new echarts.graphic.LinearGradient(0,0,0,1,[{
+                                //          		offset:0,
+                                //          		color:'#050AE8'
+                                //          	},{
+                                //          		offset:1,
+                                //          		color:'#8688F4'
+                                //          	}])
+                                //          }},
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

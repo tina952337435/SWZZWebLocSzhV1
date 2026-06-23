@@ -1,0 +1,386 @@
+﻿<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!--STATUS OK-->
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>水情</title>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js?ver=0" type="text/javascript"></script>
+    <script src="Water.js?ver=1.1.1" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        .onlytab {
+            width: 90%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <!--水情信息-->
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden;">
+        <div class="right box" id="flexDemo" style="height: 40px;">
+            <div class="demo1" style="float: left;width:100%;">
+                <div class="inline">
+                    <div style="width: 100%; height: 35px; float: left;">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td>
+                                    <span class="label" style="width: 45px">时间：</span>
+                                </td>
+                                <td>
+                                    <input id="end" value="2017-01-01 12" class="mini-datepicker" style="width: 105px;"
+                                        format="yyyy-MM-dd" showtime="false" showOkButton="false"
+                                        showClearButton="false" />
+                                    <input id="endHour" class="mini-spinner" minValue="0" maxValue="23"
+                                        style="width:60px;" />
+                                </td>
+                                <td>
+                                    <a class="mini-button" style="margin-left: 10px" onclick="btnSearch()">
+                                        查询
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="inline" id="DivTitles">
+
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            水情 <span class="dwCss">(单位:m)</span>&nbsp;&nbsp;&nbsp;
+            <img title="导出表格" src="../../arcgis_js_api/myJs/images/xls.gif" onclick="exp('水情信息')" style="position: relative;
+                top: 5px; right: 15px; float: right; cursor: pointer;" />
+            <span style="    position: relative;right: 15px;float: right;display: none;">
+                <input id="thsq" name="thsq" class="mini-checkbox" onvaluechanged="onValueChanged2" />水势面
+            </span>
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 99%; height: 100%; margin: auto;" showpager="false"
+            idfield="STCD" allowresize="false" allowalternating="true" showemptytext="true" emptytext="暂无数据"
+            alwaysshowemptytext="true" sortmode="client" pagesize="50" ondrawcell="ondrawcell"
+            onselectionchanged="onSelectionChanged">
+            <div property="columns">
+                <div field="stnm" width="80" align="center" headeralign="center" allowsort="false">站名</div>
+                <div field="upz" width="100" align="center" headeralign="center" allowsort="true" decimalPlaces="2"
+                    dataType="float">水位</div>
+                <div field="wrz" width="50" align="center" headeralign="center" allowsort="true" decimalPlaces="2"
+                    dataType="float">警戒值</div>
+                <!--<div field="TM" width="100" align="center" headeralign="center" renderer="onTMRenderer" allowsort="true">
+                    时间
+                </div>-->
+
+            </div>
+        </div>
+    </div>
+</body>
+<script type="text/javascript">
+    ShowPage(); //map页面会调用
+    function ShowPage() {
+        openTL("sqtl");
+    }
+    var treeID = GetQueryString("TREEID");
+    if (treeID == null) {
+        treeID = "2020063009422050442";
+    }
+    mini.parse();
+    var myData = [];
+    //实例化表格对象
+    var grid = mini.get("grid1");
+    var now = new Date();
+    mini.get("end").setValue(now.format("yyyy/MM/dd"));
+    mini.get("endHour").setValue(now.getHours() + 1);
+    var tm = mini.get("end").getFormValue();
+    $(function () {
+        //setTimeout(function () {
+        //    var bjLayer = window.parent.bjLayer;
+        //    if (bjLayer != undefined) {
+        //        bjLayer.setVisibility(true);
+        //    }
+        //    var SHBJ = window.parent.SHBJ;
+        //    window.parent.addLine(SHBJ, bjLayer);
+        //}, 1500);
+        BreakLayerLoad();
+    });
+
+
+    var Rainfall = "";
+    function RainfallChange() {
+        if (Rainfall != "") {
+            JosnSel({
+                data: Rainfall
+            }, "Rainfall");
+        } else {
+            GetJosns("ST_WAS_SWLine", {
+                "VALUE_STR": RainfallStr
+            }, "Rainfall");
+        }
+    }
+
+    function onValueChanged2() {
+        //var Points = { xmin: mini.get("xmin").getValue(), ymin: mini.get("ymin").getValue(), xmax: mini.get("xmax").getValue(), ymax: mini.get("ymax").getValue() };
+
+        if (mini.get("thsq").checked == false) {
+            $(window.parent.document).find("#SSYQTTL").hide();
+            JosnSel({
+                data: Rainfall
+            }, "Rainfall");
+        } else {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '水位等值面加载中...'
+            });
+            $(window.parent.document).find("#SSYQTTL").show();
+            setTimeout(function () {
+                Rainfall = "";
+                RainfallChange();
+            }, 100);
+        }
+
+    }
+    function ondrawcell(e) {
+        var row = e.row,
+            column = e.column,
+            field = e.field,
+            value = e.value;
+        rowIndex = e.rowIndex;
+        var record = e.record;
+
+        //超链接任务
+        var s;
+        if (field == "stnm") {
+            s = '<a title="' + value + '"  href="JavaScript:Trans(\'' + record.STCD + '\',\'' + record.stnm + '\')">' + value +
+                '</a>';
+            e.cellHtml = s;
+        }
+    }
+
+    function Trans(stcd, stnm) {
+        var tm = mini.get("end").getFormValue() + " " + mini.get("endHour").getValue() + ":00:00";
+        var tempTM = new Date(tm.replaceAll("-", "/"));
+        var stime = "",
+            etime = "";
+        if (parseInt(new Date().format("HH")) < 8) {
+            stime = addDayDate(tempTM.format("yyyy/MM/dd"), -2) + " 08:00:00";
+        } else {
+            stime = addDayDate(tempTM.format("yyyy/MM/dd"), -1) + " 08:00:00";
+        }
+        etime = tempTM.format("yyyy/MM/dd HH:mm:ss");
+        // openChart("DanZhan/SQLine.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime +
+        //     "&TYPENAME=水位过程", stnm + "水位过程线", '1200@620');
+
+
+        openChart("DanZhan/DanZHanMain.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime +
+            "&TYPENAME=水位过程", stnm, '1200@620');
+    }
+
+    function tableBind(data) {
+        var dataResult = data;
+        grid.setData(dataResult);
+    }
+
+
+    // 分页填充细节处理
+    function fillData(pageIndex, pageSize, dataResult) {
+        var data = dataResult;
+        var totalCount = dataResult.length;
+        var arr = [];
+        var start = pageIndex * pageSize,
+            end = start + pageSize;
+        for (var i = start, l = end; i < l; i++) {
+            var record = data[i];
+            if (!record) continue;
+            arr.push(record);
+        }
+
+        grid.setTotalCount(totalCount);
+        grid.setPageIndex(pageIndex);
+        grid.setPageSize(pageSize);
+
+        grid.setData(arr);
+
+    }
+
+    function onSelectionChanged(e) {
+        var grid = e.sender;
+        var record = grid.getSelected();
+        if (record) {
+            loc(record.lgtd, record.lttd);
+        }
+    }
+
+    function BreakLayerLoad() {
+        mini.mask({
+            el: document.body,
+            cls: 'mini-mask-loading',
+            html: '加载中...'
+        });
+        var etime = mini.get("end").getFormValue() + " " + mini.get("endHour").getValue() + ":00:00";
+        var stime = new Date(AddHourDate(etime, -2)).format("yyyy-MM-dd HH:mm:ss");
+        strWhere = { "pid":"2026031114184492913-2,2026031114184492913-7,2026031114184492913-8",
+            "stime": stime, "etime": etime 
+        };
+        app.post("/GetWaterViewNew/queryBySWNew", strWhere, (data) => {
+            JosnSel(data, "Sel")
+        });
+    }
+    var resultData = [];
+
+    function JosnSel(ResultData, typeID) {
+        if (typeID == "Sel") {
+            if (ResultData.data != null) {
+                resultData = ResultData.data;
+            } else {
+                resultData = [];
+            }
+            getData();
+        }
+        else if (typeID == "Rainfall") {
+            var Points = {
+                xmin: "120.815295",
+                ymin: "30.665293",
+                xmax: "122.012805",
+                ymax: "31.511996"
+            };
+            Rainfall = ResultData.data;
+            MapRainfall(Points, mini.get("thsq").checked, ResultData.data);
+            mini.unmask(document.body);
+        }
+    }
+
+    function OnClickTitle(objID, treeid) {
+        var only = $(".onlyli").removeClass("onlyliHover");
+        $("#" + objID).addClass("onlyliHover");
+        $.data(myData, "TREEID", treeid);
+        setTimeout('BreakLayerLoad()', 1000);
+    }
+    RainfallStr = "";
+    function getData() {
+        var Lake1 = getTLObj("cb_waterCB").checked;
+        var Lake2 = getTLObj("cb_waterCJ").checked;
+        var Lake3 = getTLObj("cb_waterZC").checked;
+        var Lake4 = getTLObj("cb_waterQC").checked;
+
+        var sureCount = 0,
+            warnCount = 0,
+            zcCount = 0,
+            qcCount = 0;
+        var dt = resultData.filter(function (e) {
+            if (e.lgtd != undefined && e.lttd != undefined && e.upz != undefined) {
+
+                if (RainfallStr == "") {
+                    RainfallStr += e.lgtd + "," + e.lttd + "," + e.upz;
+                } else {
+                    RainfallStr += "|" + e.lgtd + "," + e.lttd + "," + e.upz;
+                }
+            }
+
+            var flag = false;
+            var state = "2";
+
+            if (e.GRZ != undefined) {
+                if (Number(e.upz) >= Number(e.GRZ)) {
+                    state = "0";
+                }
+            } else if (e.wrz != undefined) {
+                if (Number(e.upz) >= Number(e.wrz)) {
+                    state = "1";
+                }
+            } else if (e.upz == undefined || e.upz == null) {
+                state = "3";
+            }
+            if (state == "0") {
+                sureCount++;
+                if (Lake1) {
+                    flag = true;
+                }
+            }
+            if (state == "1") {
+                warnCount++;
+                if (Lake2) {
+
+                    flag = true;
+                }
+            }
+            if (state == "2") {
+                zcCount++;
+                if (Lake3) {
+
+                    flag = true;
+                }
+            }
+            if (state == "3") {
+                qcCount++;
+                if (Lake4) {
+                    flag = true;
+                }
+            }
+            return flag;
+        });
+        grid.setData(dt);
+        showRowPoint(grid);
+
+        getTLObj("waterCB").innerHTML = sureCount;
+        getTLObj("waterCJ").innerHTML = warnCount;
+        getTLObj("waterZC").innerHTML = zcCount;
+        getTLObj("waterQC").innerHTML = qcCount;
+        $.data(myData, "dt", dt);
+        addMark(dt);
+        if (mini.get("thsq").checked) {
+            Rainfall = "";
+            RainfallChange();
+        }
+        mini.unmask(document.body);
+    }
+
+    function tlChecked() {
+        getData();
+    }
+
+    function loc(lgtd, lttd) {
+        if (lgtd == undefined && lttd == undefined) {
+            window.parent.showTips("缺失经纬度");
+        } else {
+            dyCenter(lgtd, lttd);
+        }
+    }
+
+    function btnSearch() {
+        BreakLayerLoad();
+    }
+
+    function onTMRenderer(e) {
+        var value = e.value;
+        if (!value) {
+            return "—";
+        }
+        if (value !== "") {
+            return new Date(convertToDate(value)).format('MM-dd HH:mm');
+        }
+        return "—";
+    }
+
+    function exp(name) {
+        var data = grid.data;
+        ExportExcel(data, grid, name);
+    }
+</script>
+
+</html>

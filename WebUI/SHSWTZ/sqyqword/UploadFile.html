@@ -1,0 +1,246 @@
+﻿
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/bootstrap-fileinput/css/fileinput.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /*overflow: hidden;*/
+            font-size: 14px;
+        }
+
+        legend {
+            display: block;
+            -webkit-padding-start: 2px;
+            -webkit-padding-end: 2px;
+            border-width: initial;
+            border-style: none;
+            border-color: initial;
+            border-image: initial;
+            width: 10%;
+            font-size: 14px;
+        }
+
+        .lie1 {
+            width: 10%;
+        }
+
+        fieldset {
+            -webkit-padding-before: 0.35em;
+            -webkit-padding-start: 0.75em;
+            -webkit-padding-end: 0.75em;
+            -webkit-padding-after: 0.625em;
+        }
+
+        .file-preview {
+            border: 0px;
+        }
+
+        .btn-primary {
+            background-color: #3291F9;
+            border-color: #3291F9;
+        }
+
+            .btn-primary.active, .btn-primary:active, .btn-primary:active:hover, .btn-primary.focus, .btn-primary:focus, .btn-primary:hover {
+                color: white;
+                background-color: #007aff;
+                border-color: #007aff;
+            }
+
+        .btn-file {
+            margin-left: 17px;
+        }
+
+        .file-drop-zone-title {
+            color: #aaa;
+            font-size: 40px;
+            padding: 25px 10px;
+        }
+
+        .file-preview-other {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
+        .kv-upload-progress {
+            display: none;
+        }
+    </style>
+
+    <link href="../Common/bootstrap//css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <script src="../Common/bootstrap/js/bootstrap.min.js"></script>
+    <script src="../Common/bootstrap/js/moment-with-locales.js"></script>
+    <script src="../Common/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+
+</head>
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="GridView" id='GridView1' style=' background-color: White; width: 100%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="2" align="left" style="padding-left:5px;padding-bottom:10px;width:45%;" valign="top">
+                    <div id="editForm1" style="padding:5px;">
+                        <table style="width:100%;" class="table1">
+                            <tr>
+                                <td class="lie1" align="right">
+                                    文件信息
+                                </td>
+                                <td align="left" style="padding-left:10px;width:95%;" valign="top" colspan="3">
+                                    <div style="width:95%;position:relative;">
+                                        <div style="height:auto;overflow-x:auto;width:95%;">
+                                            <input type="file" name="Files" id="Files" multiple class="file-loading" />
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr align="center">
+                                <td colspan="2" class="lie2" align="center" style="text-align:center;height:30px;line-height:30px; ">
+                                    <button type="button" class="btn btn-primary" onclick="onOk()">确定</button>&nbsp;
+                                    <button type="button" class="btn btn-default" onclick="onCancel()">取消</button>&nbsp;
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script src="/Common/bootstrap-fileinput/js/fileinput.min.js" type="text/javascript"></script>
+    <script src="/Common/bootstrap-fileinput/js/fileinput_locale_zh.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        var form = new mini.Form("form1");
+        var gcList = mini.get("STCD");
+        var currentMENTID = "";
+        var PATHNAME = "";
+        //文件上传类型控制
+        var allowedFileExtensions = ['docx', 'doc', 'pdf', 'xlsx', 'xls', 'ppt', 'pptx'];
+        //标准方法接口定义
+        function SetData(data) {
+            var oFileInput = new FileInput();
+            oFileInput.Init("Files", ServerIP + "/json/reply/UOLOADFILE");
+
+            var QXID = data.QXID;
+            $.data(myData, "QXID", QXID);
+            PageFillData();
+        }
+        function PageFillData() {
+            var strWhere = {
+                XQKB_ID: $.data(myData, "QXID")
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTSel", strWhere, "Sel");
+        }
+
+        var dataResult;
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                $.data(myData, "dataResult", data.data);
+            }
+            else if (typeID == "Update") {
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            }
+            mini.unmask(document.body);
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+        function onOk(e) {
+            var data = $.data(myData, "dataResult");
+            var items = data[0];
+            items.XQKB_FILE = $.data(myData, "QXKB_FILENAME");
+            items.XQKB_TM = convertToDate(items.XQKB_TM).format("yyyy-MM-dd HH:mm:ss");
+            items.XQKB_STM = convertToDate(items.XQKB_STM).format("yyyy-MM-dd HH:mm:ss");
+            items.XQKB_ETM = convertToDate(items.XQKB_ETM).format("yyyy-MM-dd HH:mm:ss");
+            //保存数据
+            form.validate();
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTUpdate", items, "Update");
+        }
+        var FileInput = function () {
+            var oFile = new Object();
+            //初始化fileinput控件（第一次初始化）
+            oFile.Init = function (ctrlName, uploadUrl) {
+                var control = $('#' + ctrlName);
+                //初始化上传控件的样式
+                control.fileinput({
+                    language: 'zh', //设置语言
+                    uploadUrl: uploadUrl, //上传的地址
+                    allowedFileExtensions: allowedFileExtensions,//接收的文件后缀
+                    showClose: false,
+                    showUpload: true, //是否显示上传按钮
+                    showRemove: true, //是否显示删除按钮
+                    showCaption: false,//是否显示标题
+                    showUploadedThumbs: false,
+                    browseClass: "btn btn-primary", //按钮样式
+                    textEncoding: "UTF-8",
+                    dropZoneEnabled: true,//是否显示拖拽区域
+                    //minImageWidth: 50, //图片的最小宽度
+                    //minImageHeight: 50,//图片的最小高度
+                    //maxImageWidth: 1000,//图片的最大宽度
+                    //maxImageHeight: 1000,//图片的最大高度
+                    maxFileSize: 204800,//单位为kb，如果为0表示不限制文件大小
+                    //minFileCount: 0,
+                    maxFileCount: 100,
+                    enctype: 'multipart/form-data',
+                    validateInitialCount: true,
+                    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                    msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                    uploadExtraData: function (previewId, index) {   //额外参数的关键点
+                        var obj = {};
+                        obj.PATHNAME = "XQKB";
+                        obj.PDFTOTIF = true;
+                        return obj;
+                    }
+                });
+
+                var FileResult = [];
+                //导入文件上传完成之后的事件
+                $("#Files").on("fileuploaded", function (event, data, previewId, index) {
+                    var strResult = data.response.data;
+                    //console.error(strResult);
+                    //console.error(strResult[0].FILENAME);
+                    if (strResult == undefined) {
+                        return;
+                    }
+                    FileResult.push({ strResult });
+                    $.data(myData, "Result", FileResult);
+                    $.data(myData, "QXKB_FILENAME", strResult[0].FILEPATH);
+                    console.error($.data(myData, "QXKB_FILENAME"));
+                });
+                $("#Files").on("filebatchselected", function (event, data, previewId, index) {
+                    console.error(data);
+                    $(this).fileinput("upload");
+                });
+            }
+            return oFile;
+        };
+    </script>
+</body>
+</html>

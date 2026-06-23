@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+    <meta charset="utf-8">
+</head>
+<body style="height: 100%; margin: 0">
+    <div id="container" style="height: 100%"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4/dist/echarts.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl@1/dist/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat@1/dist/ecStat.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4/dist/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4/map/js/china.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4/map/js/world.js"></script>
+    <!-- <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=xfhhaTThl11qYVrqLZii6w8qE5ggnhrY&__ec_v__=20190126"></script> -->
+    <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts@4/dist/extension/bmap.min.js"></script> -->
+    <script type="text/javascript">
+        var ROOT_PATH = "http://127.0.0.1:8080/";
+        function buliudong() {
+            var dom = document.getElementById("container");
+            var myChart = echarts.init(dom);
+            var app = {};
+            option = null;
+
+            var CHUNK_COUNT = 32;
+
+            var dataCount = 0;
+
+            function fetchData(idx) {
+                
+
+
+                $.get(ROOT_PATH + '/Common/swzzModerRiverCenterLine.json', function (data) {
+                    var hStep = 300 / (data.features.length - 1);
+                    var _index = 0;
+                    var busLines = [].concat.apply([], data.features.map(function (busLine, idx) {
+                        var prevPt;
+                        var points = [];
+                        var coordinates = busLine.geometry.coordinates;
+                        var data = new Float64Array(coordinates.length);
+                        var off = 0;
+                        data[off++] = 2;
+                        for (var i = 0; i < coordinates.length; i++) {
+                            var pt = [coordinates[i][0], coordinates[i][1]];
+                            points.push(pt);
+                        }
+
+                        _index++;
+                        return {
+                            coords: points,
+                            lineStyle: {
+                                normal: {
+                                    color: '#01F2A5'
+                                }
+                            }
+                        };
+                    }));
+
+
+                    option = {
+                        progressive: 20000,
+                        backgroundColor: '#111',
+                        geo: {
+                            center: [121.394615, 31.088122],
+                            zoom: 360,
+                            map: 'world',
+                            roam: true,
+                            silent: true,
+                            itemStyle: {
+                                color: 'transparent',
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderWidth: 1
+                            }
+                        },
+                        series: [{
+                            type: 'lines',
+                            coordinateSystem: 'geo',
+                            blendMode: 'lighter',
+                            dimensions: ['value'],
+                            data: busLines,
+                            polyline: true,
+                            large: true,
+
+                            //lineStyle: {
+                            //    color: 'orange',
+                            //    width: 0.5,
+                            //    opacity: 1
+                            //}
+                        }]
+                    };
+
+
+                    if (option && typeof option === "object") {
+                        myChart.setOption(option, true);
+                    }
+
+                });
+
+
+            }
+
+
+
+            fetchData(0);
+        }
+        
+        buliudong();
+    </script>
+</body>
+</html>

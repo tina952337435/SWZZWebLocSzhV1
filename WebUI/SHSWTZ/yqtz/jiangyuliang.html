@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>降雨量排序(前十)</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+</head>
+<body>
+    <div id="JYL_charts" style="width:800px;height:500px;margin:0 auto"></div>
+    <script>
+        var stcd = "",stype="";
+        $(function () {
+            
+        });
+        function SetData(data) {
+            stcd = data.STCD;
+            stype = data.STYPE;
+            //if (stype == "1") {
+            //    stype = "HOUR";
+            //} else {
+            //    stype = "DAY";
+            //}
+            search();
+        }
+
+        function search() {
+            var strWhere = {
+                PageIndex:0,
+                PageSize: 10,
+                TYPE: stype,
+                STCD:stcd,
+            };
+            //GetJosns("RainstormRanking", strWhere, "Sel");
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINTOP100_RSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var strNote = [];
+                var item = { "name": "时间", "codename": "TM", "tableV": "1", "isShow": true, "width": "30%" };
+                strNote.push(item);
+                item = { "name": "降雨量", "codename": "DRP", "tableV": "1", "isShow": true, "width": "30%" };
+                strNote.push(item);
+                chartBar('JYL_charts', strNote, data.data);
+            }
+        }
+        function chartBar(chartName, strNote,data) {
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            var ShowSelected = {};
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(new Date(convertToDate(value[value1.codename])).format("yyyy-MM-dd HH:mm")); //加入时间集合 
+                    } else if (value1.name == "名称") {
+                        if (value[value1.codename] != undefined) {
+                            chartTM.push(value[value1.codename]);
+                        }
+                    } else if (value1.name == "时间名称") {
+                        chartTM.push(value[value1.codename]); //加入时间集合 
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            option = {
+                title: {
+                    top: '2%',
+                    left: 'center',
+                    text: '1978年至今',
+                    itemGap: 10,  //主副标题间距
+                    subtext: '降雨量排序(前十)'
+                },
+                subtextStyle: {
+                    color: '#CCCCCC',
+                    fontSize: 14,
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    // axisPointer: {
+                    //     type: 'shadow'
+                    // }
+                },
+                // 更改图例默认颜色(依次应用)
+                // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+                color: ['#3291f9'],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    orient: 'vertical',
+                    x: 'right',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    align: 'left', //可设定文字在图例右边
+                    // itemHeight: 10,
+                    // itemWidth: 10,
+                    padding: [10, -100, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: ['1978-至今'],
+                    containLabel: true
+                    // selected: {'1978-至今': false} //隐藏图例
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                calculable: true,
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true,
+                        show: false
+                    },
+                    boundaryGap: ['5%', '5%'],
+                    data: chartTM,
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 20 //角度顺时针计算
+                    }
+                },
+                yAxis: {
+                    name: "降雨量(mm)",
+                    type: 'value'
+                },
+                series:
+                    function () {
+                        var serie = [];
+
+                        for (var j = 0; j < chartName.length; j++) {
+                            if (chartName[j] == "时间" || chartName[j] == "名称" || chartName[j] == "时间名称") //调过时间字段
+                            {
+                                continue;
+                            }
+                            var chartValue = []; 	//声明过线value集合
+                            for (var i = 0; i < m.length; i++) {
+                                if (isNaN(m[i][j]) == false) {
+                                    chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                                } else {
+                                    chartValue.push(null); //循环价值
+                                }
+                            }
+
+                            var item = {
+                                name: '1978-至今',
+                                type: 'bar',
+                                // 相邻柱状之间的空隙
+                                // barGap: '0%',
+                                barWidth: 26,
+                                data: chartValue,
+                                itemStyle: {
+                                    normal: {
+                                        show: true,
+                                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                            offset: 0,
+                                            color: '#7ea8ee'
+                                        }, {
+                                            offset: 1,
+                                            color: '#2dc5fe'
+                                        }]),
+                                        barBorderRadius: [50, 50, 0, 0],
+                                        borderWidth: 0,
+                                        label: {
+                                            show: true,  //开启显示
+                                            formatter: '{c}',  //显示数值
+                                            position: 'top',
+                                            textStyle: { //数值样式
+                                                fontSize: 10
+                                            }
+                                        }
+                                    },
+                                    emphasis: {
+                                        shadowBlur: 15,
+                                        shadowColor: 'rgba(105,123, 214, 0.7)'
+                                    }
+                                }
+                            }
+                            serie.push(item);
+
+                        };
+                        return serie;
+                    }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

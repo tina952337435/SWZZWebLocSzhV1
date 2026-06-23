@@ -1,0 +1,195 @@
+﻿
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>单站数据比较</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .classColor {
+            font-size: 14px;
+            text-align: center;
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            站点选择： &nbsp;<input id="STCD" name="STCD" class="mini-combobox" style="width:150px;" textField="STNM" valueField="STCD" allowInput="false" />
+            &nbsp; &nbsp;
+            开始日期： &nbsp;<input id="STIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            &nbsp;&nbsp;<button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="display:none;">导出报表</button>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);" borderstyle="border-right:0;"
+         allowalternating="true" idfield="ID" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showSummaryRow="true"
+         ondrawcell="ondrawcell" ondrawsummarycell="onDrawSummaryCell">
+        <div property="columns">
+            <!--<div type="indexcolumn" headeralign="center" align="center" width="40">序号</div>
+            <div width="100" field="TM" headeralign="center" align="center" allowsort="true">
+                时间
+            </div>
+            <div width="120" field="NDDRP" headeralign="center" align="center" allowsort="true">
+                南大日雨量(mm)
+            </div>
+            <div width="120" field="DRP" headeralign="center" align="center" allowsort="true">
+                实测日雨量(mm)
+            </div>
+            <div width="150" field="DRPCHA" headeralign="center" align="center" allowsort="true">
+                雨量差值(mm)
+            </div>-->
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {                $("#expButton").show();            }
+            var tm = new Date();
+            //mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            //mini.get("ETIME").setValue(tm.format("yyyy-MM-dd"));
+            //默认加载数据
+            searchZhan();
+        });
+        var dataResult = null;
+        var myData = [];
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var Startime;
+            var Endtime;
+            if (mini.get("STIME").getFormValue() != "") {
+                Startime = mini.get("STIME").getFormValue() + " 00:00:00";
+            }
+            if (mini.get("ETIME").getFormValue() != "") {
+                Endtime = mini.get("ETIME").getFormValue() + " 23:59:59";
+            }
+
+            if (Startime > Endtime) {
+                mini.alert("请确认起止日期次序是否正确（终止日期至少是起始日期的次日）！");
+                return false;
+            }
+            STGRDColumn();
+            if (mini.get("STCD").getValue() == "310000") {
+                var strWhere = { "STIME": Startime, "ETIME": Endtime};
+                GetJosns("GRADRDAYDZTONGJI", strWhere, "GRADRDAYDZTONGJI");
+            } else {
+                //查询方法
+                var strWhere = { "STIME": Startime, "ETIME": Endtime, STCD: mini.get("STCD").getValue() };
+                GetJosns("SWZZ_FLOODTIDEDATA_ND_PPTN_RDAYDZTONGJI", strWhere, "Sel");
+            }
+        }
+        function searchZhan() {
+            var strWhere = { };
+            GetJosns("getNDSTNM", strWhere, "getNDSTNM");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    dataResult = data.data;
+                    $.data(myData, "JSONArray", dataResult);
+                    //dataResult.push({TM:"",});
+                    grid.setData(data.data);
+                }
+                mini.unmask(document.body);
+            }
+            else if (typeID == "getNDSTNM") {
+                var zhanData = data.data;
+                //zhanData.unshift({ STCD: "310000", STNM: "全市" });
+                mini.get("STCD").setData(zhanData);
+                mini.get("STCD").select(0);
+                //console.error(data.data);
+                search();
+            }
+            else if (typeID == "GRADRDAYDZTONGJI") {
+                grid.setData(data.data);
+                mini.unmask(document.body);
+            }
+        }
+        function ondrawcell(e) {
+        }
+        function onDrawSummaryCell(e) {
+            if (mini.get("STCD").getValue() != "310000") {
+                var result = e.result;
+                var grid = e.sender;
+                //服务端汇总计算
+                var JSONArray = grid.getData();
+                if (JSONArray.length > 0) {
+                    if (e.field == "TM") {
+                        var s = "<span style='color:Brown;'>";
+                        s += "<div class='classColor' style='color:red;margin:10px 0px;'>总共数量：" + JSONArray.length + "条</div>";
+                        s += "</span>";
+                        e.cellHtml = s;
+                    } else if (e.field == "DRPCHA") {
+                        var data = JSONArray.filter(function (e) {
+                            return e.DRPCHA != undefined;
+                        });
+
+                        var max = Math.max.apply(Math, data.map(function (o) { return o.ABSDRPCHA }));
+                        var dataTemp = data.filter(function (e) {
+                            return e.ABSDRPCHA == max;
+                        });
+                        var s = "<span style='color:Brown;'>";
+                        s += "<div class='classColor' style='color:red;margin:10px 0px;'>误差最大雨量：" + dataTemp[0].DRPCHA + "mm(" + dataTemp[0].TM + ")</div>";
+                        s += "</span>";
+                        e.cellHtml = s;
+                    }
+                }
+            }
+            
+            
+        }
+
+        function STGRDColumn() {
+            var createGrid = [];
+            if (mini.get("STCD").getValue() == "310000") {
+                createGrid.push({ field: "TOTAL", headerAlign: "center", align: "center", header: "总数量" });
+                createGrid.push({ field: "TOTAL1", headerAlign: "center", align: "center", header: "差值<=1mm" });
+                createGrid.push({ field: "TOTAL5", headerAlign: "center", align: "center", header: "差值<=5mm" });
+                createGrid.push({ field: "TOTAL10", headerAlign: "center", align: "center", header: "差值<=10mm" });
+                createGrid.push({ field: "TOTAL11", headerAlign: "center", align: "center", header: "差值>10mm" });
+            } else {
+                createGrid.push({ type: "indexcolumn", headerAlign: "center", align: "center", header: "序号" });
+                createGrid.push({ field: "TM", headerAlign: "center", align: "center", header: "时间" });
+                createGrid.push({ field: "NDDRP", headerAlign: "center", align: "center", header: "南大日雨量(mm)", decimalPlaces: "1", dataType: "float", allowsort: true});
+                createGrid.push({ field: "DRP", headerAlign: "center", align: "center", header: "实测日雨量(mm)", decimalPlaces: "1", dataType: "float", allowsort: true});
+                createGrid.push({ field: "DRPCHA", headerAlign: "center", align: "center", header: "雨量差值(mm)", decimalPlaces: "1", dataType: "float", allowsort:true});
+            }
+            grid.set({
+                columns: createGrid
+            });
+        }
+
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = "";
+            name += mini.get("STCD").getText() + "南大日雨量与实测日雨量误差统计";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+    </body>
+    </html>

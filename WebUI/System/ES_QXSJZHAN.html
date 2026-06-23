@@ -1,0 +1,220 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>预报降雨关联管理</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+    </style>
+
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <table style="width:100%;">
+                <tr>
+                    <td style="width:100%;">
+                        关键字：&nbsp;<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" onenter="onKeyEnter" />
+                    </td>
+                    <td style="white-space:nowrap;">
+                        <!--<a class="mini-button" onclick="uploadData()">更新</a>-->
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px);" allowalternating="true"
+         borderstyle="border-right:0;" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showpager="false" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+            <div field="ZHANID" headeralign="center" align="center">
+                内码
+            </div>
+            <div field="ZHANNAME" name="NAME" headeralign="center" align="center">
+                站名
+            </div>
+            <div field="GRIDCODE" headeralign="center" align="center">
+                对应网格
+            </div>
+            <div name="action" field="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <div id="win1" class="mini-window" title="编辑对应网格" style="width:1000px;height:650px;"
+         showMaxButton="false" showCollapseButton="false" showShadow="true"
+         showModal="false" allowResize="true" allowDrag="true"  showToolbar="true" showFooter="true">
+        <div property="toolbar" style="padding:5px;">
+            <input id="gridcodeText" class="mini-textbox" emptytext="输入网格编号，用英文逗号隔开" style="height: 25px;width:80%;"/>
+            <a class="mini-button" onclick="hideWindow()">保 存</a>
+        </div>
+        <div property="footer" style="text-align:center;padding:5px;padding-right:15px;">
+            <a class="mini-button" onclick="hideWindow()">保 存</a>
+        </div>
+        <div id="checklist" style="width:980px;height:600px;">
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        var grid = mini.get("grid1");
+        var myData = [];
+        $(function () {
+            PageFillData();
+        });
+        function PageFillData() {
+            GetJosns("MODE_ES_QXSJZHANNAMESel", { TYPE: "0" }, "Sel");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                PageServerFill(grid, data);
+                searchWG();
+            } else if (typeID == "Del") {
+                if (data.total > 0) {
+                    ShowMsg(data.Message);
+                    PageFillData();
+                }
+            } else if (typeID == "SelWG") {
+                $.data(myData, "WGDATA", data.data);
+            } else if (typeID == "MODE_ES_QXSJZHANUpdate") {
+                var win = mini.get("win1");
+                win.hide();
+                mini.unmask(document.body);
+                PageFillData();
+            }
+        }
+        function searchWG() {
+            GetJosns("QXSJ_TZ_GRIDSel", {}, "SelWG");
+            
+        }
+        function WGbind() {
+            var wgData = $.data(myData, "WGDATA");
+            var zhanid = $.data(myData, "ZHANID");
+            var GRIDCODE = $.data(myData, "GRIDCODE");
+            var stcds_arr = [];
+            if (GRIDCODE != undefined) {
+                stcds_arr = GRIDCODE.split(",");
+            }
+            stcds_arr = stcds_arr.map(Number);
+            stcds_arr = stcds_arr.splice(0,stcds_arr.length-1);
+            //console.error(stcds_arr);
+            var Person_list = " <table class=\"table table-bordered table-striped\" style=\"width:100%;\">";
+            Person_list += "<tr bgcolor=#FFFFFF>";
+            var count = 0;
+            for (var num = 0; num < wgData.length; num++) {
+                count++;
+                var checked = "";
+                var cls = "";
+                if (stcds_arr.indexOf(wgData[num].GRIDCODE) > -1) {
+                    checked = "checked=\"checked\"";
+                    cls = "divXuanzhong";
+                }
+                if (count < 9) {
+                    Person_list += "<td>";
+                    Person_list += "<div class='" + cls + "' id='div_" + num + "'> <input id=\"Employ_" + num + "\" " + checked + "onclick=\"xuanzhong('Employ_" + num + "')\"  type=checkbox name=employee_id value=\"" + wgData[num].GRIDCODE + "\">";
+                    Person_list += "<span onclick=\"xuanzhong('Employ_" + num + "')\" style=\"cursor:pointer;\">" + wgData[num].GRIDCODE + "</span></div>";
+                    Person_list += "</td>";
+                }
+                else {
+                    count = 1;
+                    Person_list += "</tr><tr bgcolor=#FFFFFF>";
+                    Person_list += "<td>";
+                    Person_list += " <div class='" + cls + "'  id='div_" + num + "'><input id=\"Employ_" + num + "\" " + checked + " onclick=\"xuanzhong('Employ_" + num + "')\"   type=checkbox name=employee_id value=\"" + wgData[num].GRIDCODE+ "\">";
+                    Person_list += "<span onclick=\"xuanzhong('Employ_" + num + "')\" style=\"cursor:pointer;\">" + wgData[num].GRIDCODE + "</span></div>";
+                    Person_list += "</td>";
+                }
+            }
+            Person_list += "</tr> ";
+            Person_list += " </table>";
+            $("#checklist").html(Person_list);
+        }
+        function xuanzhong(obj) {
+            var checked = $("#" + obj).attr("checked");
+            var id = "div_" + obj.replace("Employ_", "");
+            if (!checked) {
+                $("#" + obj).attr("checked", true);
+                document.getElementById(id).className = "divXuanzhong";
+            } else {
+                $("#" + obj).attr("checked", false);
+                document.getElementById(id).className = "";
+            }
+        }
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            var record = e.record;
+            //超链接任务
+            if (field == "action") {
+                var s = '';
+                s += '<img style="cursor:pointer;" onclick="showAtPos(\'' + record.ZHANID + '\',\'' + record.GRIDCODE +'\')" src="../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+                s += '<img style="cursor:pointer;" onclick="del(\'' + record.ZHANID + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+                e.cellHtml = s;
+            }
+            if (field == "ZHANNAME") {
+                var s = "<a title=\"" + e.value + "\" onclick=\"tans('" + e.value + "','" + record.ZHANID + "','" + record.GRIDCODE + "')\" style='cursor:pointer;'>" + e.value + "</a>";
+                e.cellHtml = s;
+            }
+        }
+        function tans(zhanname, zhanid, gridcode) {
+            if (gridcode == undefined || gridcode == null || gridcode == "" || gridcode == "undefined") {
+                mini.alert("无网格!");
+            } else {
+                var str = "?zhanid=" + zhanid + "&zhanname=" + zhanname + "&gridcode=" + gridcode;
+                WindowsOpen("/System/ES_QXSJZHAN_View.html" + str, zhanname, "70%@70%");
+            }
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "ZHANID": objID };
+                        GetJosns("MODE_ES_QXSJZHANDel", strWhere, "Del");
+                    }
+                }
+            );
+        }
+        function showAtPos(ZHANID, GRIDCODE) {
+            $.data(myData, "ZHANID", ZHANID);
+            $.data(myData, "GRIDCODE", GRIDCODE);
+            var win = mini.get("win1");
+            var x = "center";
+            var y = "middle";
+            win.showAtPos(x, y);
+            WGbind();
+        }
+        function hideWindow() {
+            //保存数据
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据保存中...'
+            });
+            var gridcodeText = mini.get("gridcodeText").getValue();
+            if (gridcodeText == "") {
+                var i_len = $("#checklist input[type='checkbox']:checked").length;
+                $("#checklist input").each(function () {
+                    if (this.checked) {
+                        gridcodeText += this.value + ",";
+                    }
+                });
+            }
+            var strWhere = { ZHANID: $.data(myData, "ZHANID"), GRIDCODE: gridcodeText};
+            GetJosns("MODE_ES_QXSJZHANUpdate", strWhere, "MODE_ES_QXSJZHANUpdate");
+        }
+    </script>
+</body>
+</html>

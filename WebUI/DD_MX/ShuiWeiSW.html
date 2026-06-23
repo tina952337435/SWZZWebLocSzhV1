@@ -1,0 +1,637 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>网格高程图生成</title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+</head>
+<body>
+    <style type="text/css">
+        html {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: white;
+        }
+        .yListr {
+            /*border-bottom: 1px solid #dcdcdc;*/
+            padding-bottom: 10px;
+            margin-bottom: 13px;
+            list-style-type: none;
+        }
+
+        .yListrLi {
+            min-height: 36px;
+            margin-bottom: 15px;
+        }
+
+        .yListrSpan {
+            color: #000000;
+            font-size: 14px;
+            line-height: 36px;
+            display: inline-block;
+            width: 85px;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .yListrEm {
+            cursor: pointer;
+            color: #666666;
+            font-size: 14px;
+            display: inline-block;
+            padding: 0 16px;
+            font-style: normal;
+            border: 1px solid #dcdcdc;
+            line-height: 34px;
+            height: 34px;
+        }
+
+        .yListrclickem {
+            line-height: 32px;
+            border: 1px solid #ccc;
+            border-color: #0080ff;
+            height: 32px;
+            position: relative;
+            padding: 0 16px;
+        }
+
+        .yListrclickem i {
+            display: block;
+            width: 15px;
+            height: 14px;
+            color: #0080ff;
+            background: transparent url("../Common/images/icon-selected.png") no-repeat right bottom;
+            right: -1px;
+            bottom: -1px;
+            position: absolute;
+        }
+
+        #contentConditionTextTwo {
+            display: block;
+        }
+
+        #contentConditionTextOne {
+            display: block;
+        }
+
+        .required {
+            height: 30px;
+            width: 110px;
+            border-radius: 4px;
+            border: solid 1px #a5acb5;
+        }
+
+        .contentConditionTextTwoBetweenItem {
+            min-height: 36px;
+            margin-bottom: 15px;
+        }
+
+        .contentResult {
+            height: 100%
+        }
+
+        .contentResultTitle {
+            width: 100%;
+            height: 40px;
+        }
+
+        .contentResultImg {
+            width: 100%;
+            height: 808px;
+            margin: 0px auto;
+        }
+
+        .contentResultImg img {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .contentResultImg iframe {
+            width: 100%;
+            height: 100%;
+        }
+
+        .contentResultTable {
+            width: 98%;
+            margin: 0px auto;
+            height: 850px;
+        }
+
+        .mwsChart {
+            -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            background-color: #fff;
+            /*padding-left: 10px;
+            padding-right: 10px;*/
+            width: 100%;
+            height: 100%;
+        }
+
+        .searchDiv {
+            position: absolute;
+            right: 40px;
+            top: 28px;
+        }
+    </style>
+
+    <ul class="yListr">
+        <li class="yListrLi" id="contentConditionType">
+            <span class="yListrSpan">类型：</span>
+            <em class="yListrEm yListrclickem">所有站<i></i></em>
+            <em class="yListrEm">单站<i></i></em>
+        </li>
+        <li class="yListrLi" id="zhanLI" style="display:none;">
+            <span class="yListrSpan">站点选择：</span>
+            <input id="STCD" name="STNM" class="mini-combobox" style="width:130px;" textField="STNM" valueField="STCD" allowInput="true" onvaluechanged="getCSSW" />
+        </li>
+        <li class="yListrLi">
+            <span class="yListrSpan">开始时间：</span>
+            <span id="DD_TM">
+            </span>
+        </li>
+        <li class="yListrLi">
+            <span class="yListrSpan">预见期：</span>
+            <span id="yubaoSC">
+            </span>小时
+        </li>
+        <li class="yListrLi" id="contentConditionTextTwo">
+            <div class="contentConditionTextTwoBetween">
+                <div id="trFD1" class="contentConditionTextTwoBetweenItem">
+                    <span class="yListrSpan">时间：</span>
+                    <input id="GCVALUE1" class="mini-datepicker" style="width: 110px;" format="yyyy-MM-dd" showtime="false" ondrawdate="onDrawDate" />
+                    <input id="startHour1" class="mini-spinner" minValue="0" maxValue="23" style="width:60px;" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;水位：<input id="ZZVALUE1" class="required" tipinfo="水位">
+                </div>
+                <div id="trFD2" class="contentConditionTextTwoBetweenItem">
+                    <span class="yListrSpan">时间：</span>
+                    <input id="GCVALUE2" class="mini-datepicker" style="width: 110px;" format="yyyy-MM-dd" showtime="false" ondrawdate="onDrawDate" />
+                    <input id="startHour2" class="mini-spinner" minValue="0" maxValue="23" style="width:60px;" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;水位：<input id="ZZVALUE2" class="required" tipinfo="水位">
+                </div>
+                <div id="trFD3" class="contentConditionTextTwoBetweenItem">
+                    <span class="yListrSpan">时间：</span>
+                    <input id="GCVALUE3" class="mini-datepicker" style="width: 110px;" format="yyyy-MM-dd" showtime="false" ondrawdate="onDrawDate" />
+                    <input id="startHour3" class="mini-spinner" minValue="0" maxValue="23" style="width:60px;" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;水位：<input id="ZZVALUE3" class="required" tipinfo="水位">
+                </div>
+            </div>
+            <div style="padding-left: 24px;">
+                <input value="添加区间" id="btnAdd" type="button" style="text-align: center; width: 120px; height: 30px; color: #30BAF5; cursor: pointer; background:#ffffff; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #30BAF5;margin-left: 4px;"
+                       class="jNicebtn_submit" />
+                <input value="删除区间" id="btnDel" type="button" style="text-align: center; width: 120px; height: 30px; color: #FF4D7F; cursor: pointer; background:#ffffff; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #FF4D7F;margin-left: 4px;"
+                       class="jNicebtn_submit" />
+            </div>
+        </li>
+        <li class="yListrLi">
+            <div style="padding-left: 24px;">
+                <input value="线性插值" id="startButton" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#00BAAD; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #00BAAD;margin-left: 4px;"
+                       class="jNicebtn_submit" />
+                <input value="确认使用" id="startOK" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#4595f7; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #4595f7;margin-left: 4px;"
+                       class="jNicebtn_submit" />
+            </div>
+        </li>
+    </ul>
+    <div id="chartDiv" style="display:none;height:300px;width:100%;">
+
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("griddata1");
+        var cType =1;
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+        function SetData() { }
+        $(function () {
+            var num = GetDateDiff(stime, etime, 'hour');
+            $("#yubaoSC").html(num);
+            $("#DD_TM").html(stime);
+            mini.get("GCVALUE1").setValue(stime);
+            mini.get("startHour1").setValue(new Date(stime).getHours());
+
+            GridColum();
+            $(".yListrEm").click(function () {
+                var text = $(this).text();
+                $(this).addClass("yListrclickem").siblings().removeClass("yListrclickem");
+                if (text == "所有站") {
+                    cType = 1;
+                    $("#zhanLI").hide();
+                } else {
+                    cType = 0;
+                    $("#zhanLI").show();
+                }
+            });
+            $("#btnAdd").click(function () {
+                var rowIndex = $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length;
+                var newTr = '<div id="trFD' + (rowIndex + 1) + '"  class="contentConditionTextTwoBetweenItem">' +
+                    '<span class="yListrSpan">时间：</span>' +
+                    '&nbsp;<input id="GCVALUE' + (rowIndex + 1) + '" class="mini-datepicker" style="width: 110px;" format="yyyy-MM-dd" showtime="false" ondrawdate="onDrawDate" />' +
+                    '<input id="startHour' + (rowIndex + 1) + '" class="mini-spinner" minValue="0" maxValue="23" style="width:60px;"  />'+
+                    '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;水位：<input id="ZZVALUE' + (rowIndex + 1) + '" class="required" tipinfo="水位"></div>';
+                $(".contentConditionTextTwoBetween").append(newTr);
+                $('#trFD' + (rowIndex + 1)).focus();
+
+                mini.parse();
+            });
+            $("#btnDel").click(function () {
+                if (confirm("是否删除条件!")) {
+                    var rowIndex = $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length;
+                    //alert(rowIndex);
+                    if (rowIndex > 1) {
+                        $("#trFD" + (rowIndex)).remove();
+                    };
+                    var divHeight = $("#contentConditionTextTwoBetween").css("height") - 30;
+                    $(".contentConditionTextTwoBetween").css("height", divHeight);
+                }
+            });
+            $("#startButton").click(function () {
+                startMode();
+            });
+            $("#startOK").click(function () {
+                isOk();
+            });
+        });
+        function GridColum() {
+            var strWhere = {
+                "pattem": "1,2,4"
+            }
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", strWhere, function (res) {
+                JosnSel(res,"GridColum");
+            });
+        }
+        var localDD_ID = GetQueryString("DD_ID");
+        if (localDD_ID == null || localDD_ID == "") {
+            localDD_ID = "0";
+        }
+        function getCSSW() {
+            var strWhere = { 
+                "pattem":mini.get("STCD").getValue(), "strExp": localDD_ID
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult", strWhere,function(res){
+                JosnSel(res, "MODE_ES_ZHANDIANDATASel");
+            });
+        }
+        function startMode() {
+            var strValue = "";
+            var value = "";
+            var dataResult = [];
+            $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").each(function (_index) {
+                if (_index > 0) {
+                    var rowIndex = (_index + 1);
+                    var valueStart = mini.get("GCVALUE" + (rowIndex-1) ).getFormValue();
+                    var valueStartHour = mini.get("startHour" + (rowIndex - 1)).getFormValue();
+                    var zzStartvalue = $("#ZZVALUE" + (rowIndex - 1)).val();//初水位
+                    var valueEnd = mini.get("GCVALUE" + rowIndex).getFormValue();
+                    var valueEndHour = mini.get("#startHour" + rowIndex).getFormValue();
+                    var zzEndvalue = $("#ZZVALUE" + rowIndex).val();//末水位
+                    var startTM = valueStart + " " + valueStartHour + ":00:00";
+                    var endTM = valueEnd + " " + valueEndHour + ":00:00";
+                    var hour = GetDateDiff(startTM, endTM, "hour");//预报期总时段
+                  
+                    if (zzStartvalue != "") {
+                        value += zzStartvalue + ",";
+                    }
+                    if (zzEndvalue != "") {
+                        value += zzEndvalue + ",";
+                    }
+                    if (valueStart != "" && endTM != "") {
+                        //console.error(startTM);
+                        //console.error(endTM);
+                        //大概思路就是：初水位 +（末水位 - 初水位）/预报期总时段*每个预报时刻距初始时刻时段
+
+                        var item = { zhantime: startTM, zhandata: zzStartvalue };
+                        dataResult.push(item);
+
+                        for (var num = 1; num < hour; num++) {
+                            var tm = new Date(AddHourDate(startTM, num)).format('yyyy-MM-dd HH:mm:ss');
+                            var juli = GetDateDiff(startTM, tm, "hour");//每个预报时刻距初始时刻时段
+                            var cha = Number((zzEndvalue - zzStartvalue) / hour * juli);
+                            var zzvalue = (Number(zzStartvalue) + cha).toFixed(2);
+                            var item = { zhantime: tm, zhandata: zzvalue };
+                            dataResult.push(item);
+                        }
+
+                        if (_index == $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length - 1) {
+                            var item = { zhantime: new Date(endTM).format('yyyy-MM-dd HH:mm:ss'), zhandata: zzEndvalue };
+                            dataResult.push(item);
+                        }
+                    }
+                }
+            });
+            if (value =="") {
+                mini.alert("请输入数值！");
+                return;
+            }
+            $.data(myData, "dataResult", dataResult);
+            $("#chartDiv").show();
+
+            var LineColor = ["#8B5CFF"];
+            var strNote = [];
+            var item = { "name": "时间", "codename": "zhantime", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "增水", "codename": "zhandata", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            //绘制图形
+            chartLL("chartDiv", dataResult, strNote, LineColor, "水位(m)");
+        }
+        function isOk() {
+            //try {
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '生成中...'
+                });
+                var dataResult = $.data(myData, "dataResult");
+                var strWhere = {
+                    "solutionid": localDD_ID,
+                    "listMode": dataResult,//JSON.stringify(dataResult),
+                    "type":"BJ"
+                };
+                if (cType != 1) {
+                    strWhere["stcd"] = mini.get("STCD").getValue();
+                }
+                strWhere["startdate"]=new Date(dataResult[0].zhantime).format('yyyy-MM-dd HH:mm:ss');
+                strWhere["enddate"]=new Date(dataResult[dataResult.length-1].zhantime).format('yyyy-MM-dd HH:mm:ss');
+                app.post("SWZZ_MODE_ES_ZHANDIANDATA/TideLineardifference",strWhere,function(res){
+                    JosnSel(res,"TideLineardifference");
+                });
+            // } catch (e) {
+            //     mini.unmask(document.body);
+            // }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "TideLineardifference") {
+                ShowMsg(data.message);
+                //调用父页面的方法
+                top["win"].OpenHref();
+                onCancel();
+            }
+            else if (typeID == "GridColum") {
+                var dataResult = data.data;
+                var bjswStcd = "1728053248,1728053250,1728053251,1728053252";
+                var arr = [];
+                for (var num = 0; num < dataResult.length; num++) {
+                    if ((dataResult[num].zhanid != "TM" && bjswStcd.indexOf(dataResult[num].zhanid) > -1)) {
+                        var item = { STCD: dataResult[num].zhanid, STNM: dataResult[num].zhanname };
+                        arr.push(item);
+                    }
+                }
+                mini.get("STCD").setData(arr);
+                mini.get("STCD").select(0);
+                getCSSW();
+            }
+            else if (typeID == "MODE_ES_ZHANDIANDATASel") {
+                $("#ZZVALUE1").val(data.data[0].zhandata);
+            }
+        }
+        function textOnchange(id) {
+            var zzvalue = $("#" + id).val();
+            var scvalue = $("#yubaoSC").html();
+            if (zzvalue >= scvalue) {
+                ShowMsg("不能超过预见期");
+                $("#" + id).val("")
+            }
+        }
+
+        function onDrawDate(e) {
+            var date = e.date;
+            var tm = addDayDate(stime, -1);
+            if (date >= new Date(tm) && date <= new Date(etime)) {
+                e.allowSelect = true;
+            } else {
+                e.allowSelect = false;
+            }
+        }
+        
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+
+
+        const hexToRgba = (hex, opacity) => {
+            let rgbaColor = "";
+            let reg = /^#[\da-f]{6}$/i;
+            if (reg.test(hex)) {
+                rgbaColor = `rgba(${parseInt("0x" + hex.slice(1, 3))},${parseInt(
+                    "0x" + hex.slice(3, 5)
+                )},${parseInt("0x" + hex.slice(5, 7))},${opacity})`;
+            }
+            return rgbaColor;
+        }
+        function chartLL(ChartName, data, strNote, LineColor, max_min_Name) {
+            //var YBTM = new Date(mini.get("STIME").getFormValue() + " " + $.data(myData, "HOUR") + ":00:00").format("yyyy年MM月dd日HH时");
+            //YBTM = YBTM + $.data(myData, "TYPE") + "数值预报";
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(value[value1.codename]); //加入时间集合
+                        chartTM.push(new Date(value[value1.codename]).format("MM-dd HH:mm")); //加入时间集合
+
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var max_min = GetSort(chartValue);
+            var option = {
+                title: {
+                    //text: YBTM,
+                    left: "center",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 20,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    show: false,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '2%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        min: max_min.min, //动态设置最大值最小值。
+                        max: max_min.max,
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                type: 'line',
+                                data: chartValue,
+                                barWidth: '40%',
+                                symbol: 'none',  //这句就是去掉点的
+                                smooth: true,
+                                areaStyle: {
+                                    normal: {
+                                        color: new echarts.graphic.LinearGradient(
+                                            0,
+                                            0,
+                                            0,
+                                            1,
+                                            [{
+                                                offset: 0,
+                                                color: hexToRgba(LineColor[j - 1], 0.3)
+                                            },
+                                            {
+                                                offset: 1,
+                                                color: hexToRgba(LineColor[j - 1], 0.1)
+                                            }
+                                            ],
+                                            false
+                                        ),
+                                        shadowColor: hexToRgba(LineColor[j - 1], 0.1),
+                                        shadowBlur: 10
+                                    }
+                                },
+                                //		           itemStyle: {normal: {
+                                //          	areaStyle: {type: 'default'},
+                                //				//颜色渐变设置
+                                //          	color:new echarts.graphic.LinearGradient(0,0,0,1,[{
+                                //          		offset:0,
+                                //          		color:'#050AE8'
+                                //          	},{
+                                //          		offset:1,
+                                //          		color:'#8688F4'
+                                //          	}])
+                                //          }},
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+
+                                symbol: 'none',  //这句就是去掉点的
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

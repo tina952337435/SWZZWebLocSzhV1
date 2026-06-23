@@ -1,0 +1,741 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.min5.2.2.js"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        #areaList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+        /*.mini-grid-summaryCell {
+            line-height: 35px;
+            text-align: center;
+            color: blue;
+            font-size:15px;
+        }*/
+        .sysList {
+            margin-top: 25px;
+            color: gray;
+            margin-left: 0%;
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+            top: 105px;
+            left: 563px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+            padding: 10px;
+        }
+
+            .sysList table td {
+                padding: 10px 3px 0px 3px;
+                /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+            }
+
+        #sysList table td {
+            padding: 10px 3px 10px 3px !important;
+        }
+
+        .sysList table td span {
+            line-height: 20px;
+        }
+
+        .btn_span {
+            padding: 6px 10px;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: normal;
+            -moz-user-select: -moz-none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            color: #fff;
+            background: #4D96DF;
+        }
+        /* line 104, ../sass/dialog.scss */
+        .dailog_divOperation .btn_span:first-child {
+            margin-right: 10px;
+        }
+
+        body .mini-grid-headerCell-nowrap, mini-grid-headerCell-inner, mini-grid-headerCell-nowrap, mini-grid-headerCell-outer, mini-grid-headerCell {
+            background: #F5FAFE !important;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 25px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="display:none;">
+                <div class="searchTitle">&nbsp; &nbsp;站点类型：</div>
+                <ul class="ui-choose choose-type-right" id="choseMNLX">
+                    <li class="selected">
+                        <span id="SW">水位站</span>
+                    </li>
+                    <li>
+                        <span id="YL">雨量站</span>
+                    </li>
+                    <li>
+                        <span id="AREA">区域</span>
+                    </li>
+                </ul>
+                <!--&nbsp;&nbsp;<a class="mini-button" onclick="Exp()">导出站点总分</a>-->
+
+            </div>
+            <div id="areaList">
+                <div style="height:25px;line-height:50px;">&nbsp; &nbsp;区域选择： </div>
+                <div id="areaDiv" style="margin-left: 92px;margin-top: -25px;">
+                </div>
+            </div>
+            <div id="zhanList" style="display:none;">
+                <div class="searchTitle" style="line-height:55px;">&nbsp; &nbsp;分值筛选： </div>
+                <div style="margin-left:92px;" id="zhanDiv">
+                    <ul class="ui-choose choose-type-right" id="chosePG">
+                        <li class="selected">
+                            <span name="全部">全部</span>
+                        </li>
+                        <li>
+                            <span name="0-60">&lt; 60</span>
+                        </li>
+                        <li>
+                            <span name="60-70">60-70</span>
+                        </li>
+                        <li>
+                            <span name="70-80">70-80</span>
+                        </li>
+                        <li>
+                            <span name="80-90">80-90</span>
+                        </li>
+                        <li>
+                            <span name="90-100">90-100</span>
+                        </li>
+                        <li>
+                            <span name="自定义">自定义</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="sysList" class="sysList" style="z-index:99;width:240px;display:none;">
+        <table>
+            <tr>
+                <td>
+                    <input id="comboStart" class="mini-textbox" style="width:70px;" />&nbsp;&nbsp;—&nbsp;&nbsp;<input id="comboEnd" class="mini-textbox" style="width:70px;" />
+                </td>
+            </tr>
+        </table>
+        <div class="dailog_divOperation">
+            <span class="btn_span" data-name="确定" onclick="XunOK()">确定</span>
+        </div>
+    </div>
+
+    <div style="height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);background: #ededed;">
+        <div style="margin:10PX 0PX;height: -webkit-calc(100% - 370px);height: -moz-calc(100% - 370px);height: calc(100% - 370px);">
+            <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:100%;background:white;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title3">水位单项指标评估</p>
+                </div>
+                <div id="grid1" class="mini-datagrid"
+                     style="width: 100%;height:height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);"
+                     allowalternating="true" borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]"
+                     pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                     showSummaryRow="false" ondrawsummarycell="onDrawSummaryCell"
+                     ondrawcell="ondrawcell">
+                    <div property="columns">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin:10PX 0PX;height:350px;">
+            <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:calc(50%);float:left;background:white;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title1">水位综合评估成果</p>
+                </div>
+                <div id="grid2" class="mini-datagrid"
+                     style="width: 100%;height:height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);"
+                     allowalternating="true" borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]"
+                     pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                     showSummaryRow="false" ondrawsummarycell="onDrawSummaryCell"
+                     ondrawcell="ondrawcell">
+                    <div property="columns">
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            一级指标
+                        </div>
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            基础设施
+                        </div>
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            测站运维
+                        </div>
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            数据管理
+                        </div>
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            信息服务
+                        </div>
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            站网管理
+                        </div>
+                        <div field="QX_ID" width="100" headerstyle="height:30px" headeralign="center" align="center">
+                            综合评价
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:calc(50% - 10px);float:left;background:white;margin-left:10px;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title2">一级指标综合评估成果图</p>
+                </div>
+                <div id="fxq_charts" style="height:calc(100% - 50px);width:100%;margin:0px 0%;"></div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var grid2 = mini.get("grid2");
+        var dataResult = {};
+        var myData = [];
+        var PathName = GetQueryString("PATHNAME");
+        var PathType = "";
+        $(function () {
+            PathName = PathName == null ? "SW" : PathName;
+            PathType = PathName == "YL" ? "雨量" : "水位";
+            $.data(myData, "HNNM", "宝山");
+            var createGrid = STGRDColumn();
+            grid.set({
+                columns: createGrid
+            });
+            var createGridOne = STGRDColumnOne();
+            grid2.set({
+                columns: createGridOne
+            });
+            loadArea();
+            search();
+
+            $('#choseMNLX li').click(function () {
+                var f = this;
+                $('#choseMNLX li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var id = $(this).find("span").attr("id");
+                PathName = id;
+                var createGrid = STGRDColumn();
+                grid.set({
+                    columns: createGrid
+                });
+                search();
+            });
+
+            $('#chosePG li').click(function () {
+                var f = this;
+                $('#chosePG li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                loadHtml();
+            });
+        });
+        function loadHtml() {
+            var data = $.data(myData, "Alldata");
+            var name = $("#chosePG .selected").find("span").attr("name");
+            if (name == "自定义") {
+                OnClickTitle();
+                return;
+            } else if (name == "全部") {
+                data = $.data(myData, "Alldata");
+            }
+            else {
+                if (name.indexOf('-') > -1) {
+                    var min = name.split('-')[0];
+                    var max = name.split('-')[1];
+                    data = data.filter(function (e) {
+                        return e.SCORE >= min && e.SCORE < max;
+                    });
+                }
+            }
+            grid.setData(data);
+        }
+        function search() {
+            $("#title3").html($.data(myData, "HNNM") + PathType+ "单项指标评估");
+            $("#title1").html($.data(myData, "HNNM") + PathType + "综合评估成果");
+            $("#title2").html($.data(myData, "HNNM") + PathType + "一级指标综合评估成果图");
+            var strWhere = {};
+            strWhere["HNNM"] = $.data(myData, "HNNM");
+            //strWhere["PATHNAME"] = PathName;
+            var name = PathName == "SW" ? "水位" : "雨量";
+            strWhere["STTP"] = name.replace("站", "");
+            var method = "SN_TARGETCONFIGSCOREGRIDTWOZONGHE";//SN_TARGETCONFIGSCOREAreaGRID
+            if (name == "区域") {
+                method = "SN_TARGETCONFIGSCOREAreaGRID";
+            }
+            GetJosns(method, strWhere, "Sel");
+
+            method = "SN_TARGETCONFIGSCOREGRIDONEZONGHE";
+            GetJosns(method, strWhere, "SelOne");
+        }
+
+        function loadArea() {
+            var dataResult = [
+                { AREANAME: "宝山" },
+                { AREANAME: "崇明" },
+                { AREANAME: "奉贤" },
+                { AREANAME: "嘉定" },
+                { AREANAME: "金山" },
+                { AREANAME: "闵行" },
+                { AREANAME: "浦东" },
+                { AREANAME: "青浦" },
+                { AREANAME: "松江" },
+                { AREANAME: "松浦" },
+                { AREANAME: "苏州河" },
+                { AREANAME: "吴淞" }
+            ];
+            var data = { data: dataResult }
+            JosnSel(data, "ASel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "Alldata", dataResult);
+                loadHtml();
+                //grid.setData(data.data);
+            }
+            else if (typeID == "ASel") {
+                $.data(myData, "AreaData", data.data);
+                var dataResult = data.data;
+                var strHtml = '<ul class="ui-choose choose-type-right" id="choseArea">';
+                //strHtml += '<li><span id="areaAll">全部</span></li>';
+                dataResult.forEach(function (item, index) {
+                    if (index == 0) {
+                        $.data(myData, "HNNM", item.AREANAME);
+                        strHtml += '<li class="selected"><span  id="' + item.AREANAME + '">' + item.AREANAME + '</span></li>';
+                    }
+                    else {
+                        strHtml += '<li><span  id="' + item.AREANAME + '">' + item.AREANAME + '</span></li>';
+                    }
+                });
+                strHtml += '</ul>';
+                //strHtml += '&nbsp;&nbsp;<a class="mini-button" onclick="ExpIndex()" style="margin-top: 10px;">导出报表</a>';
+                $("#areaDiv").html(strHtml);
+                $('#choseArea li').click(function () {
+                    var f = this;
+                    $('#choseArea li').each(function (index, item) {
+                        this.className = this == f ? 'selected' : '';
+                    });
+                    var stcd = $(this).find("span").attr("id").replace("areaAll", "");
+                    $.data(myData, "HNNM", stcd);
+                    search();
+                });
+            }
+            else if (typeID == "SCOREExcel") {
+                window.open(ClientIP + "UploadDoc/" + data.data);
+            }
+            else if (typeID == "SelOne") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "AllONEdata", dataResult);
+                grid2.setData(dataResult);
+                loadBarHtml();
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex,
+                pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+        }
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var field = e.field;
+            var grid = e.sender;
+            var data = grid.getData();
+            //服务端汇总计算
+            //if (field == "STNM") {
+            //    var s = "<span style='color:Brown;'>";
+            //    s += "<div class='classColor' style='color:blue;'>最高分</div>";
+            //    s += "<div class='classColor' style='color:blue;'>最低分</div>";
+            //    s += "<div class='classColor' style='color:blue;'>平均分</div>";
+
+            //    var name = $("#choseMNLX .selected").find("span").html();
+            //    if (name!= "区域") {
+            //        s += "<div class='classColor' style='color:blue;'>总站数</div>";
+            //    }
+            //    s += "</span>";
+            //    e.cellHtml = s;
+            //}
+            //if (field == "SCORE") {
+            //    var MaxZ = 0, MinZ = 100000, avgZ = 0, totalZ = 0;
+            //    for (var num = 0; num < data.length; num++) {
+            //        var ybz = data[num][field];
+            //        if (ybz > MaxZ) {
+            //            MaxZ = ybz;
+            //        }
+            //        if (ybz < MinZ) {
+            //            MinZ = ybz;
+            //        }
+            //        totalZ += Number(ybz);
+            //    }
+            //    if (data.length > 0) {
+            //        avgZ = (totalZ / data.length).toFixed(0);
+            //    }
+            //    if (MinZ == 100000) {
+            //        MinZ = 0;
+            //    }
+            //    var s = "<span style='color:Brown;'>";
+            //    s += "<div class='classColor' style='color:blue;'>" + MaxZ + "</div>";
+            //    s += "<div class='classColor' style='color:blue;'>" + MinZ + "</div>";
+            //    s += "<div class='classColor' style='color:blue;'>" + avgZ + "</div>";
+            //    var name = $("#choseMNLX .selected").find("span").html();
+            //    if (name != "区域") {
+            //        s += "<div class='classColor' style='color:blue;'>" + data.length + "</div>";
+            //    }
+            //    s += "</span>";
+            //    e.cellHtml = s;
+            //}
+        }
+        function OnClickTitle() {
+            var isDisplay = $("#sysList").css("display");
+            if (isDisplay == "none") {
+                $("#sysList").css("display", "block");
+            } else {
+                $("#sysList").css("display", "none");
+            }
+        }
+        function XunOK() {
+            $("#sysList").css("display", "none");
+            var data = $.data(myData, "Alldata");
+            var minValue = mini.get("comboStart").getValue();
+            var maxValue = mini.get("comboEnd").getValue();
+            if (minValue != "" && maxValue != "") {
+                data = data.filter(function (e) {
+                    return e.SCORE >= minValue && e.SCORE <= maxValue;
+                });
+            } else if (minValue != "" && maxValue == "") {
+                data = data.filter(function (e) {
+                    return e.SCORE < minValue;
+                });
+            }
+            else if (minValue == "" && maxValue != "") {
+                data = data.filter(function (e) {
+                    return e.SCORE > maxValue;
+                });
+            }
+            grid.setData(data);
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var hnnm = $.data(myData, "HNNM");
+            if (hnnm == undefined || hnnm == null || hnnm == "") {
+                hnnm = "上海市";
+            }
+            var name = hnnm + "站点评估";
+            ExportExcel(name, columns, data);
+        }
+
+        function ExpIndex() {
+            var name = $("#choseMNLX .selected").find("span").html();
+            var strWhere = {};
+            strWhere["HNNM"] = $.data(myData, "HNNM");
+            strWhere["STTP"] = name.replace("站", "");
+            var method = "SN_TARGETCONFIGSCOREExcel";
+            if (name == "区域") {
+                method = "SN_TARGETCONFIGSCOREExcelArea";
+            }
+            GetJosns(method, strWhere, "SCOREExcel");
+        }
+
+        //获取表头---2022-01-05
+        function STGRDColumn() {
+            var createGrid = [];
+            if (PathName == "SW") {
+                createGrid = [
+                    { field: "INDEXTWO", headerAlign: "center", align: "center", header: "二级指标", width: "100" },
+                    { field: "2021111711265693338", headerAlign: "center", align: "center", header: "固定设施", width: "60" },
+                    { field: "2021111711434367734", headerAlign: "center", align: "center", header: "设施环境", width: "60" },
+                    { field: "2021111713463588715", headerAlign: "center", align: "center", header: "运维频次", width: "60" },
+                    { field: "2021111711521259599", headerAlign: "center", align: "center", header: "水准接测", width: "60" },
+                    { field: "2021111713480496430", headerAlign: "center", align: "center", header: "应急响应", width: "60" },
+                    { field: "2021111711455741625", headerAlign: "center", align: "center", header: "畅通率", width: "60" },
+                    { field: "2021111711494856316", headerAlign: "center", align: "center", header: "完整率", width: "60" },
+                    { field: "2021111711514355749", headerAlign: "center", align: "center", header: "日常检查", width: "60" },
+                    { field: "202211081609136981", headerAlign: "center", align: "center", header: "极值校验", width: "60" },
+                    { field: "2021111711584832762", headerAlign: "center", align: "center", header: "报汛级别", width: "60" },
+                    { field: "2021111711592411619", headerAlign: "center", align: "center", header: "站网密度", width: "60" },
+                    { field: "2022110816153331893", headerAlign: "center", align: "center", header: "信息报送", width: "60" },
+                    { field: "2022110816280735313", headerAlign: "center", align: "center", header: "工作制度", width: "60" },
+                    { field: "2022110816294621570", headerAlign: "center", align: "center", header: "运维人员", width: "60" },
+                    { field: "2022110816312359730", headerAlign: "center", align: "center", header: "经费保障", width: "60" },
+                    { field: "2022110816333754706", headerAlign: "center", align: "center", header: "运维监管", width: "60" },
+                ];
+            }
+            else if (PathName == "YL") {
+                createGrid = [
+                    { field: "INDEXTWO", headerAlign: "center", align: "center", header: "二级指标", width: "100" },
+                    { field: "2021111611180631672", headerAlign: "center", align: "center", header: "观测场地", width: "60" },
+                    { field: "2021111611193290627", headerAlign: "center", align: "center", header: "设备遮挡", width: "60" },
+                    { field: "2021111611395416728", headerAlign: "center", align: "center", header: "运维频次", width: "60" },
+                    { field: "2022110816570254275", headerAlign: "center", align: "center", header: "滴定校验", width: "60" },
+                    { field: "2021111611402418508", headerAlign: "center", align: "center", header: "应急响应", width: "60" },
+                    { field: "2021111611323631547", headerAlign: "center", align: "center", header: "畅通率", width: "60" },
+                    { field: "2021111611331823795", headerAlign: "center", align: "center", header: "完整率", width: "60" },
+                    { field: "20211116113330719", headerAlign: "center", align: "center", header: "日常检查", width: "60" },
+                    { field: "2022110817051391679", headerAlign: "center", align: "center", header: "极值校验", width: "60" },
+                    { field: "2021111611380227416", headerAlign: "center", align: "center", header: "报汛级别", width: "60" },
+                    { field: "2021111611390091351", headerAlign: "center", align: "center", header: "站网密度", width: "60" },
+                    { field: "2022110817082574693", headerAlign: "center", align: "center", header: "信息报送", width: "60" },
+                    { field: "2022110817134925820", headerAlign: "center", align: "center", header: "工作制度", width: "60" },
+                    { field: "2022110817141411142", headerAlign: "center", align: "center", header: "运维人员", width: "60" },
+                    { field: "2022110817152022242", headerAlign: "center", align: "center", header: "经费保障", width: "60" },
+                    { field: "2022110817191652828", headerAlign: "center", align: "center", header: "运维监管", width: "60" }
+                ];
+            }
+            return createGrid;
+        }
+        function STGRDColumnOne() {
+            var createGrid = [];
+            if (PathName == "SW") {
+                createGrid = [
+                    { field: "INDEXONE", headerAlign: "center", align: "center", header: "一级指标", width: "100" },
+                    { field: "2021111711263334261", headerAlign: "center", align: "center", header: "基础设施", width: "60" },
+                    { field: "2021111713461576305", headerAlign: "center", align: "center", header: "测站运维", width: "60" },
+                    { field: "2021111711453673519", headerAlign: "center", align: "center", header: "数据管理", width: "60" },
+                    { field: "2021111711563627630", headerAlign: "center", align: "center", header: "信息服务", width: "60" },
+                    { field: "20221108162649900", headerAlign: "center", align: "center", header: "站网管理", width: "60" },
+                    { field: "ZONGHE", headerAlign: "center", align: "center", header: "综合评价", width: "60" }
+                ];
+            }
+            else if (PathName == "YL") {
+                createGrid = [
+                    { field: "INDEXONE", headerAlign: "center", align: "center", header: "一级指标", width: "100" },
+                    { field: "2021111611163325837", headerAlign: "center", align: "center", header: "基础设施", width: "60" },
+                    { field: "2021111611311897597", headerAlign: "center", align: "center", header: "测站运维", width: "60" },
+                    { field: "2021111611304970842", headerAlign: "center", align: "center", header: "数据管理", width: "60" },
+                    { field: "2021111611310375830", headerAlign: "center", align: "center", header: "信息服务", width: "60" },
+                    { field: "2022110817132964006", headerAlign: "center", align: "center", header: "站网管理", width: "60" },
+                    { field: "ZONGHE", headerAlign: "center", align: "center", header: "综合评价", width: "60" }
+                ];
+            }
+            return createGrid;
+        }
+        function loadBarHtml() {
+            var data = $.data(myData, "AllONEdata");
+            var dataResult = []
+            if (data != null) {
+                if (data.length > 0) {
+                    var item = data[0];
+                    if (PathName == "SW") {
+                        dataResult = [item["2021111711263334261"], item["2021111713461576305"], item["2021111711453673519"], item["2021111711563627630"], item["20221108162649900"]];//基础设施，测站运维，数据管理，信息服务，站网管理
+                    }
+                    else if (PathName == "YL") {
+                        dataResult = [item["2021111611163325837"], item["2021111611311897597"], item["2021111611304970842"], item["2021111611310375830"], item["2022110817132964006"]];//基础设施，测站运维，数据管理，信息服务，站网管理
+                    }
+                }
+            }
+            //console.error(data);
+            barChart("fxq_charts", dataResult);
+        }
+        function barChart(ChartName,data) {
+            var myChart = echarts.init(document.getElementById(ChartName)); //获得控件对象
+            //var data = [50, 60, 70, 20, 30, 10];
+            var className = ['基础设施', '测站运维', '数据管理', '信息报送', '站网管理'];
+            var colorList = ['#39B3FF', '#47E0E0', '#7891D9', '#83D978', '#C7A530', '#FF8439'];
+            option = {
+                legend: {
+                    show:false,
+                    data: ['平均分'],
+                    icon: 'circle',
+                    bottom: 10,
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '5%',
+                    top: '10%',
+                    containLabel: true
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function (params) {
+                        return params[0].name + '<br/>' +
+                            "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:rgba(36,207,233,0.9)'></span>" +
+                            // params[0].seriesName + ' : ' + Number((params[0].value.toFixed(4) / 10000).toFixed(2)).toLocaleString() + ' <br/>'
+                            params[0].seriesName + ' : ' + params[0].value
+                    }
+                },
+                //backgroundColor: 'rgb(20,28,52)',
+                xAxis: {
+                    type: 'value',
+                    axisLine: {
+                        show: true
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    max: 100,
+                    min: function (e) {
+                        var shiNum = parseInt(e.min / 10) % 10;
+                        return shiNum*10;
+                    }
+                },
+                yAxis: [{
+                    type: 'category',
+                    inverse: true,
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: '#000'
+                        },
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: true
+                    },
+                    axisLine: {
+                        show: true
+                    },
+                    data: className
+                }, {
+                    type: 'category',
+                    inverse: true,
+                    axisTick: 'none',
+                    axisLine: 'none',
+                    show: true,
+                    axisLabel: {
+                        textStyle: {
+                            color: '#000',
+                            fontSize: '12'
+                        },
+                        formatter: function (value) {
+                            return value;
+                        },
+                    },
+                    data: data
+                }],
+                series: [{
+                    name: '平均分',
+                    type: 'bar',
+                    zlevel: 1,
+                    itemStyle: {
+                        normal: {
+                            barBorderRadius: 0,
+                            color: (params) => {
+                                return colorList[params.dataIndex]
+                            },
+                            barBorderRadius: [0, 50, 50, 0],
+                        },
+                    },
+                    barWidth: 15,
+                    data: data
+                }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

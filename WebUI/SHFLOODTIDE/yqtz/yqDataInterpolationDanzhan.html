@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="grid1" class="mini-datagrid"
+         style="width: 100%;margin-top:1px;height:100%;"
+         allowalternating="true" allowcellselect="true" allowcelledit="true"
+         showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+         ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center"> 序号</div>
+            <div field="STNM" name="TYPE" width="10%" headeralign="center" align="center" allowsort="true">
+                名称
+            </div>
+            <div field="DRP" width="20%" headeralign="center" align="center" allowsort="true" decimalPlaces="1"
+                 dataType="float">
+                暴雨总量(mm)
+            </div>
+            <div field="DRP24"  width="20%" headeralign="center" align="center" allowsort="true" decimalPlaces="1" dataType="float">
+                最大24小时雨量(mm)
+            </div>
+            <div field="BGTM" width="20%" headeralign="center" align="center" format="yyyy-MM-dd HH:mm:ss">
+                开始时间
+            </div>
+            <div field="ENDTM" width="20%" headeralign="center" align="center" format="yyyy-MM-dd HH:mm:ss">
+                结束时间
+            </div>
+            <div field="RTYPE" width="20%" headeralign="center" align="center">
+                暴雨类型
+            </div>
+            <div field="action" width="10%" headeralign="center" align="center" allowsort="true"> 基本操作</div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var stcd = "", stime = "", etime = "", type = "", rtype = "", grade = "";
+
+        function SetData(data) {
+            stcd = data.STCD;
+            stime = data.STIME;
+            etime = data.ETIME;
+            type = data.TYPE;
+            rtype = data.RTYPE;
+            grade = data.GRADE;//暴雨级别
+            console.error(data);
+            search();
+        }
+        function search() {
+            var strWhere = {
+                STCD: stcd,
+                STIME: stime,
+                ETIME: etime,
+                TYPE: type
+            };
+            GetJosns("ST_RAINSTORMFREQUENCYNAMESel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = data.data;
+                if (rtype != null && rtype != undefined && rtype != "") {
+                    //console.error(rtype);
+                    //console.error(dataResult);
+                    dataResult = dataResult.filter(function (e) {
+                        return e.RTYPE == rtype;
+                    });
+                }
+                if (grade == "暴雨") {
+                    dataResult = dataResult.filter(function (e) {
+                        return e.DRP24 >= 50 && e.DRP24 < 100;
+                    });
+                } else if (grade == "大暴雨") {
+                    dataResult = dataResult.filter(function (e) {
+                        return e.DRP24 >= 100 && e.DRP24 < 200;
+                    });
+                } else if (grade == "特大暴雨") {
+                    dataResult = dataResult.filter(function (e) {
+                        return e.DRP24 >= 200;
+                    });
+                }
+                grid.setData(dataResult);
+            }
+            else if (typeID == "SelImg") {
+                var picUrl = data.data;
+                var strImg = ClientIP + "UploadDoc/Rainfall/" + picUrl;
+                $("#rainFallImg").attr("src", strImg);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field == "BGTM" || field == "ENDTM") {
+                var str = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+                e.cellHtml = str;
+            }
+            if (field == "STNM") {
+                var tm = new Date(convertToDate(record.BGTM)).format("yyyy-MM-dd HH:mm:ss");
+                var etm = new Date(convertToDate(record.ENDTM)).format("yyyy-MM-dd HH:mm:ss");
+                var str = "<a onclick='lookData(\"STCD@" + record.STCD + ",TM@" + tm + ",ETM@" + etm + ",TYPE@上海\",\"/SHSWTZ/yqtz/baoyuchaxundanzhan.html?type=上海\",\"" + record.STNM + "暴雨过程\",\"50%\",565,\"true\")' style='cursor:pointer;'>" + value + "</a>";
+                e.cellHtml = str;
+            }
+            if (field == "action") {
+                var s = "";
+                s += '<img style="cursor:pointer;" onclick="OpenHref(\'' + record.BGTM + '\',\'' + record.ENDTM + '\')" src="/Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+                e.cellHtml = s;
+            }
+        }
+        function OpenHref(stime, etime) {
+            var stime = new Date(convertToDate(stime)).format("yyyy-MM-dd HH:mm:ss");
+            var etime = new Date(convertToDate(etime)).format("yyyy-MM-dd HH:mm:ss");
+            var strParam = "STIME@" + stime + ",ETIME@" + etime;
+            var url = "/SHSWTZ/yqtz/danzhanchangcichaxun.html";
+            var title = new Date(stime).format("yyyy年M月d日H时") + "至" + new Date(etime).format("yyyy年M月d日H时")+"暴雨笼罩面积";
+            lookData(strParam, url, title,"60%","75%","true");
+
+            //var win = mini.get("win1");
+            //win.setTitle(stime);
+            //var x = "center";
+            //var y = "middle";
+            //win.showAtPos(x, y);
+            //var strWhere = {
+            //    STIME: stime,
+            //    ETIME: etime,
+            //};
+        }
+    </script>
+</body>
+</html>

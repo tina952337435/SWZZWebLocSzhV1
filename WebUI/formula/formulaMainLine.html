@@ -1,0 +1,337 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100mm以上暴雨查询</title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script>
+    <!--高版本下拉框无法使用-->
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="../Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="../Common/Scripts/5.2.0_dist_echarts.min.js"></script>
+    <script type="text/javascript" src="../Common/Scripts/latest_dist_ecStat.min.js"></script>
+    <style>
+        ul.ui-choose > li {
+                width: auto;
+                padding: 0px 20px;
+            }
+            .mini-grid-summaryRow tr td {
+                background: none !important;
+            }
+    
+            .mini-grid-summaryRow {
+                background: none !important;
+                padding-top: 10px;
+            }
+    
+    
+            .mini-radiobuttonlist-item .mini-list-icon {
+            }
+    
+            .mini-grid-summaryRow div {
+                background: none !important;
+            }
+    
+            .mini-grid-summaryRow table {
+                background: none !important;
+            }
+    
+            .mini-grid-summaryRow tr td {
+                text-align: center;
+                background: none !important;
+                border: none;
+            }
+    
+                .mini-grid-summaryRow tr td span {
+                    color: #fff !important;
+                    line-height: 25px;
+                    font-weight: 400 !important;
+                }
+        </style>
+</head>
+
+<body>
+    <div class="mini-toolbar">
+        <div id="zhanList">
+            <div class="searchTitle" style="line-height:35px;float:left;">&nbsp; &nbsp;站点选择： </div>
+            <input id="STCD" name="STCD" class="mini-combobox" style="width:100px;" textField="STNM" valueField="STCD"
+                allowInput="true" onvaluechanged="searchB()" />
+
+            &nbsp;&nbsp;
+            匹配时间：&nbsp;
+            <input id="TMNAME" name="TMNAME" class="mini-combobox" style="width:140px;" textField="TEXT" valueField="VALUE"
+                allowInput="true" onvaluechanged="search()" />
+
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            <button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="margin: 0px 0px;padding: 4px 12px;display:none;">导出</button>
+
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="cwchart" style="width:100%;height:100%;">
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        mini.parse();
+        var stcd = GetQueryString('stcd');
+        $(function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var dataResult = [
+                { STCD: "63405800", STNM: "芦潮港" },
+                { STCD: "63401750", STNM: "吴淞口" },
+            ];
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+            if (stcd != null) {
+                mini.get("STCD").setValue(stcd);
+            }
+            searchB();
+        });
+        function searchB() {
+            var strWhere = {
+                stcd: mini.get("STCD").getValue()
+            };
+            var node = mini.get("STCD").getSelected();
+            var gstcd = node.GSTCD;
+            strWhere.stcd = gstcd != undefined ? strWhere.stcd + "," + gstcd : strWhere.stcd;
+            //GetJosns("DATA_ST_FORMULA_BSel", strWhere, "SelB");
+			app.post("SWZZ_DATA_st_formula_b/findResult",strWhere,(data)=>{
+				JosnSel(data,"SelB")
+			})
+        }
+        function search(){
+            loadChart();
+        }
+        function setComboxValue() {
+            var bData = $.data(myData, "bData");
+            var gArr = groupBy(bData, 'type');
+            var tmArr = [];
+            for (var num = 0; num < gArr.length; num++) {
+                if (gArr[num][0].type == undefined) {
+                    break;
+                }
+                tmArr.push({ VALUE: gArr[num][0].type, TEXT: gArr[num][0].type });
+            }
+            mini.get("TMNAME").setData(tmArr);
+            mini.get("TMNAME").select(0);
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SelB") {
+                $.data(myData, "bData", data.data);
+                setComboxValue();
+                search();
+                mini.unmask(document.body);
+            }
+        }
+        function loadChart() {
+            var bData = $.data(myData, "bData");
+            var bDataTemp = bData.filter(function (res) {
+                return res.type == mini.get('TMNAME').getValue();
+            });
+            var divHtml="";
+            var verHeight=bDataTemp.length/3;
+            verHeight=Math.ceil(verHeight);
+            var divHeight=(100/verHeight).toFixed(3);
+            for (var num = 0; num < bDataTemp.length; num++) {
+                divHtml+='<div id="cwchart'+(num+1)+'" style="width:33.333%;height:'+divHeight+'%;float:left;"></div>';
+            }
+            $("#cwchart").html(divHtml);
+            for (var num = 0; num < bDataTemp.length; num++) {
+                var formula = getFormula(bDataTemp[num]);
+                var _xdata = [], _ydata = [];
+                for (var snum = 0; snum <= 20; snum++) {
+                    var zsValue = getZSValue(bDataTemp[num], snum);
+                    _xdata.push(snum);
+                    _ydata.push(zsValue);
+                }
+                chartFLFXNew("cwchart"+(num+1), _xdata, _ydata, bDataTemp[num].winddir,formula);
+            }
+        }
+        //根据风速风向计算增水
+        function getZSValue(item, WindSpeed) {
+            var yValue = 0;
+            if (item.ftype == "noe") {
+                yValue = Math.pow(WindSpeed, 2) * item.windsquarexs;
+                if(item.winddir =="东南风"){
+                console.error(WindSpeed,yValue);
+                }
+                if (item.windxs > 0) {
+                    yValue = yValue + WindSpeed * item.windxs;
+                } else {
+                    yValue = yValue - WindSpeed *Math.abs( item.windxs);
+                }
+                if (item.constant > 0) {
+                    yValue = yValue + item.constant;
+                }
+                else {
+                    yValue = yValue - Math.abs(item.constant);
+                }
+                if(item.winddir =="东南风"){
+                    //console.error(WindSpeed,item.WINDSQUAREXS,item.WINDXS,item.CONSTANT,yValue);
+                }
+            }
+            else if (item.ftype == "e") {
+                var eNum = 2.718281828459045;
+                yValue = item.windsquarexs * Math.pow(eNum, item.windxs * WindSpeed);
+            }
+            return yValue.toFixed(2);
+        }
+        function getFormula(item) {
+            var formula = "y=";
+            if (item.ftype == "noe") {
+                formula += item.windsquarexs + "x^2";
+                if (item.windxs> 0) {
+                    formula += ' + ';
+                }
+                formula += item.windxs + "x";
+                if (item.constant != undefined) {
+                    if (item.constant > 0) {
+                        formula += ' + ';
+                    }
+                    formula += item.constant;
+                }
+            } else {
+                formula += item.windsquarexs + "e^" + item.windxs + "x";
+            }
+            if (item.rquare != undefined) {
+                formula += "\nR^2=" + item.rquare;
+            }
+            return formula;
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+        }
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var grid = e.sender;
+            //服务端汇总计算
+            var JSONArray = grid.getData();
+        }
+        function Exp() {
+            var data = JSON.stringify(grid.data);
+            var columns = grid.columns;
+            var titleText = mini.get('STCD').getText() + "潮位增水风速风向关系";
+            var subtext = mini.get('FXNAME').getValue() + mini.get('TMNAME').getValue() + "风速";
+            var name = titleText + "(" + subtext + ")";
+            ExportExcel(name, columns, data);
+        }
+        function SetData() { }
+        function chartFLFXNew(ChartName, xData, _ydata, titleText,formula) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            option = {
+                title: {
+                    text: titleText,
+                    subtext:formula,
+                    subtextStyle: {//副标题的属性
+                        // color: '#25664A',
+                        fontSize:14,
+                    },
+                    left: "center"
+                },
+
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: function (params) {
+                        var str = params[0].axisValue + '<br/>';
+                        for (var num = 0; num < params.length - 1; num++) {
+                            var value = params[num].value;
+                            if (params[num].seriesName == "风向") {
+                                value += "(" + getDirName(value) + ")";
+                            }
+                            str += params[num].seriesName + '：' + value + '<br/>';
+                        }
+                        return str;
+                    }
+                },
+                grid: {
+                    left: 40,
+                    right: 20,
+                    bottom: 50,
+                    top: 80,
+                    containLabel: true
+                },
+                xAxis: {
+                    name: "风速(m/s)",
+                    type: 'category',
+                    //boundaryGap: false,
+                    splitLine: {
+                        show: false
+                    },
+                    data: xData,
+                    axisLabel: {
+                        //formatter: function (date) {
+                        //    console.error(date);
+                        //    return echarts.format.formatTime("yyyy月MM月dd日 hh时", date)
+                        //}
+                    },
+                    //offset: 0,
+                    axisLabel: { show: true },
+
+                },
+                yAxis: [{
+                    name: "增水(m)",
+                    type: 'value',
+                    // min: 0,
+                    //max: 30,
+                    axisLine: { show: true },
+                    axisTick: { show: true },
+                    axisLabel: {
+                        show: true,
+                        formatter: function (v) {
+                            return v.toFixed(1);
+                        }
+                    },
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: '#CBCBCB',
+                            width: 1,
+                            type: 'dashed',
+                        }
+                    },
+                }
+                ],
+                series: [
+                    {
+                        name: "增水",
+                        data: _ydata,
+                        type: 'line',
+                        symbol: 'none',
+                        color: "#2DB7F5",
+                        yAxisIndex: 0,
+                        lineStyle: {
+                            normal: {
+                                width: 2
+                            }
+                        },
+                        // markPoint: {
+                        //     data: [{
+                        //         type: 'max',
+                        //         name: '最大值'
+                        //     }, {
+                        //         type: 'min',
+                        //         name: '最小值'
+                        //     }]
+                        // },
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

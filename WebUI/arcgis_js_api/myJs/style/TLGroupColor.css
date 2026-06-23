@@ -1,0 +1,30 @@
+html,body{width:100%;height: 100%;font-family: "arial";font-size: 8px;}
+			*{margin: 0;padding: 0;}
+			.colorL{width: 100%;background:#ffffff;}
+			.colorLtop{width:100%;height: 15px;line-height: 15px;border-top:#909090 1px solid;border-left:#909090 1px solid;
+			           border-right:#909090 1px solid;width: -webkit-calc(100% - 2px);width: -moz-calc(100% - 2px);width: calc(100% - 2px);}
+			  .colorLtop P{width: 50%;height: 100%;float: left;text-align: center;}
+			  .closecolor{color:white;padding-left: 10px;cursor: pointer;}
+			.colorLnei{width: 100%;border-collapse: collapse;}
+			.colorLnei tr td:first-of-type{width: 40%;height: 11px;line-height: 11px;text-align: center;}
+			.colorLnei tr td:last-of-type{width: 40%;height: 11px;line-height: 11px;}
+			.colork{width: 70%;height: 80%;margin: auto;}
+			.color1{background:#005DE7;}
+			.color2{background:#00AAE7;}
+			.color3{background:#73DFFF;}
+			.color4{background:#A5FF73;}
+			.color5{background:#4AE700;}
+			.color6{background:#FFFF73;}
+			.color7{background:#FFFF00;}
+			.color8{background:#FFAA00;}
+			.color9{background:#FF0000;}
+			.color10{background:#FF0000;}
+			
+
+			.color11{background:#000000;}
+			.color22{background:#55D4FD;}
+			.color33{background:#1AA9F1;}
+			.color44{background:#5ED624;}
+			.color55{background:#25B464;}
+			.color66{background:#FEC307;}
+			.color77{background:#FD5508;}

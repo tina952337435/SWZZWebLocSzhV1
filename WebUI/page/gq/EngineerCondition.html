@@ -1,0 +1,690 @@
+﻿<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <!--STATUS OK-->
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="水利信息化平台" />
+    <meta name="keywords" content="水利信息化平台" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta property="wb:webmaster" content="10fd28588b2f9686" />
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne" />
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>工情信息</title>
+
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <script src="Engineer.js?ver=1.0.2" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/myJs/style/map.css" rel="stylesheet" />
+    <style type="text/css">
+        .btnMINI {
+            background: #FFFFFF;
+            border-color: #dddCCC;
+            color: #000 !important;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+        }
+
+        .mini-button-checked {
+            color: #FFFFFF !important;
+        }
+
+        .onlytab {
+            width: 90%;
+            height: 40px;
+            margin: auto;
+        }
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width: 30%;
+            height: 30px;
+            font: 14px/30px "arial";
+            text-align: center;
+        }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+
+        .HUIsquare {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #A1A1A1;
+            background-color: #A1A1A1;
+            font-size: 14px !important;
+        }
+
+        .Grentsquare {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #00DB00;
+            background-color: #00DB00;
+            font-size: 14px !important;
+        }
+
+        .XIUsquare {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #CDCDCD;
+            background-color: #CDCDCD;
+            font-size: 14px !important;
+        }
+
+
+        .gqXiu {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            padding: 4px;
+            border: 2px solid #CDCDCD;
+            border-radius: 50%;
+            background-color: #CDCDCD;
+        }
+
+        body .mini-grid *,
+        body .mini-supergird *,
+        body .mini-gantt *,
+        body .mini-panel *,
+        body .mini-window * {
+            box-sizing: border-box !important;
+        }
+
+        .HUIsquare,
+        .Grentsquare,
+        .XIUsquare,
+        .gqXiu,
+        .gqRed,
+        .gqGreen {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--水情信息-->
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden;">
+        <!--<div class="biaoheader">
+            条件选择</div>-->
+        <div class="right box" id="flexDemo" style="height: 90px;display:none;">
+            <div class="demo1" style="width: 100%; float: left;">
+                <div class="inline">
+                    <p style="height: 40px;margin-top: -2px;">
+                        <span class="label"
+                            style="width: 45px;line-height: 30px; margin-left:2px;margin-top: 3px;">时间：</span>
+                        <input id="end" value="2017-01-01 12" class="mini-datepicker"
+                            style="width: 144px;margin-top: 2px;" format="yyyy-MM-dd HH:mm" showtime="true"
+                            showOkButton="true" showClearButton="false" />
+                        <a class="mini-button" style="margin-left: 5px" onclick="btnSearch()">
+                            查询
+                        </a>
+                        <!--<img id="63202730_0" src="../../arcgis_js_api/myJs/images/gc/ggz.gif" class="IMGGQ" onclick="ImgClick(this)" alt="泵"/>-->
+                    </p>
+
+                    <div style="margin-top:3px; " id="DivTitles">
+                        <ul class="onlytab"></ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            工情信息<span class="dwCss"></span>&nbsp;&nbsp;&nbsp;
+            <span id="autoTM" name="autoTM" class="mini-checkbox" readOnly="false" text="自动刷新"
+                onvaluechanged="onValueChanged"></span>
+            <span id="SpanTM"><span style='color:red;'>3:00</span></span>
+            <img class="DCBGimg" title="导出表格" src="../../arcgis_js_api/myJs/images/xls.gif" onclick="exp('工情信息')"
+                style="position: relative; top: 5px; right: 15px; float: right;cursor:pointer;" />
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 98%; height: 100%; margin: auto;" showpager="false"
+            allowalternating="true" sortmode="client" idfield="STCD" allowresize="false" pagesize="50"
+            ondrawcell="ondrawcell" onrowclick="onRowClick">
+            <div property="columns">
+                <div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>
+                <div field="stnm" width="90" align="left" headeralign="center" allowsort="false">
+                    站名
+                </div>
+                <div field="OMCNUM" width="30" align="center" headeralign="center">
+                    泵站
+                </div>
+                <div field="GTOPNUM" width="90" align="center" headeralign="center">
+                    闸门
+                </div>
+                <!--<div field="VIEWNAME" width="70" align="center" headeralign="center" allowsort="true" >
+        运行调度
+    </div>-->
+                <div field="tm" width="60" align="center" headeralign="center" allowsort="true">
+                    时间
+                </div>
+            </div>
+            <div id="dataShow"
+                style="position:absolute;top:50%;left:50%; font-size:28px; font-weight:bold; display:none;">暂无数据</div>
+        </div>
+        <div style="overflow: auto;display:none;">
+            泵机状态:
+            <img alt="" src="../../arcgis_js_api/myJs/images/open.png" />运行&nbsp;&nbsp;
+            <img alt="" src="../../arcgis_js_api/myJs/images/stop.png" />停机&nbsp;&nbsp;
+            <img alt="" src="../../arcgis_js_api/myJs/images/nothing.png" />缺测
+
+        </div>
+    </div>
+    <!--页面载入显示-->
+    <div id="dataLoad">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    <img alt="" src="../../arcgis_js_api/myJs/images/wait1.gif" />
+                </td>
+            </tr>
+            <tr>
+                <td align="center">
+                    数据载入中，请稍后...
+                </td>
+            </tr>
+            <tr style="height: 50%">
+                <td align="center">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script type="text/javascript">
+    ShowPage(); //map页面会调用
+    function ShowPage() {
+        openTL("gqtl");
+    }
+
+    function ImgClick(objID) {
+        objID = "gqColor63202730";
+        window.parent.ImgClick(objID);
+    }
+    mini.parse();
+    window.parent.SpanBiaoZhu("");
+    var myData = [];
+    //实例化表格对象
+    var grid = mini.get("grid1");
+    var now = new Date();
+    var curTM = new Date(now.setHours(now.getHours() + 1)).format("yyyy/MM/dd HH:00:00");
+    //curTM = "2022-08-01 20:00:00";
+    mini.get("end").setValue(curTM);
+
+    var stcds = "63300004,63300006,63300008,63300010,63300012,63300014";
+    var treeID = GetQueryString("TREEID");
+    if (treeID != null) {
+        $.data(myData, "TREEID", treeID);
+    } else {
+        $.data(myData, "TREEID", "2022081910374531890");
+    }
+
+    var resultData;
+    var dt;
+    window.onload = function () {
+        $("#flexDemo").css("height", "40px");
+                $("#DivTitles").hide();
+        $.data(myData, "TREEID","2022081910374531890");
+        JosnSel({}, "treeSel");
+    };
+
+
+    grid.on("beforeload", function (e) {
+        e.cancel = true;
+        var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+    });
+    function ondrawcell(e) {
+        var row = e.row,                                                                                       
+            column = e.column,
+            field = e.field,
+            value = e.value;
+        rowIndex = e.rowIndex;
+        var record = e.record;
+        if (field == "OMCNUM") {
+            var s = '';
+            var tempNum = record.flpq==null?0:record.flpq;
+            // console.error('tempNum',tempNum);
+            if (tempNum.toString().lastIndexOf('/')) {
+                var AggNum = tempNum.toString().split('/');
+                tempNum = AggNum[AggNum.length - 1];
+            }
+            for (index = 1; index <= Number(tempNum); index++) {
+                var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+                var temAgg = row.gateList.filter(function (e) {
+                    return e.eqptp == "泵站状态" && Number(e.exkey) == index && new Date(convertToDate(e.tm)) > tempTM;
+                });
+                var gtqVal;
+                if (temAgg.length > 0) {
+                    gtqVal = temAgg[0].gtq;
+                    if (undefined != gtqVal) {
+                        if (gtqVal > 0) {
+                            s += '<span class="gqGreen">&nbsp;&nbsp;</span> ';
+                        } else {
+                            s += '<span class="gqRed">&nbsp;&nbsp;</span> ';
+                        }
+                    } else {
+                        s += '<span class="gqXiu">&nbsp;&nbsp;</span> ';
+                    }
+                } else {
+                    s += '<span class="gqXiu">&nbsp;&nbsp;</span> ';
+                }
+            }
+            if (s == "") {
+                s = "—";
+            }
+            e.cellHtml = s;
+        }
+         else if (field == "GTOPNUM") {
+            var s = '';
+            var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+
+            for (index = 1; index <= Number(row.grq); index++) {
+                var temAgg = [];
+                if (row.gateList.length > 0) {
+                    temAgg = row.gateList.filter(function (e) {
+                        return e.eqptp == "闸坝开度" && Number(e.exkey) == index && Number(e.gtq) > 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                    });
+                    if (temAgg.length > 0) {
+                        s += '<span class="Grentsquare">&nbsp;&nbsp;</span> ';
+                    }
+                    else {
+                        s += '<span class="HUIsquare">&nbsp;&nbsp;</span> ';
+                    }
+                } else {
+                    s += '<span class="XIUsquare">&nbsp;&nbsp;</span> ';
+                }
+            }
+            if (s == "") {
+                s = "—";
+            }
+            e.cellHtml = s;
+        } else if (field == "tm") {
+            if (record.tm != undefined) {
+                //e.cellHtml = new Date(convertToDate(record.tm)).format("MM/dd HH:mm");
+                e.cellHtml = new Date(convertToDate(record.tm)).format("HH:mm");
+            } else {
+                if (undefined != record.gateList && record.gateList.length > 0) {
+                    //e.cellHtml = new Date(convertToDate(record.gateList[0].tm)).format("MM/dd HH:mm");
+                    e.cellHtml = new Date(convertToDate(record.gateList[0].tm)).format("HH:mm");
+                } else {
+                    e.rowStyle = "color:rgb(152, 144, 144)";
+                    e.cellHtml = " — ";
+                }
+            }
+        } else if (field == "UPZ") {
+            var s = '';
+            if (record.UPZ != undefined) {
+                s = Number(record.UPZ).toFixed(2);
+            } else {
+                s = "—";
+            }
+            if (record.DWZ != undefined) {
+                s += "/" + Number(record.DWZ).toFixed(2);
+            }
+            e.cellHtml = s;
+        }
+        else if (field == "CHA") {
+            if (row.UPZ != undefined && row.DWZ != undefined && row.UPZ != "" && row.DWZ != "" && row.UPZ != "—" && row.DWZ != "—") {
+                e.cellHtml = Number(Number(row.UPZ) - Number(row.DWZ)).toFixed(2);
+            } else {
+                e.cellHtml = "—";
+            }
+        } else if (field == "stnm") {
+            //超链接任务
+            var typeName = "工情";
+            if (row.flpq != undefined) {
+                if (Number(row.flpq) > 0) {
+                    typeName = "工情监视";
+                }
+            } else {
+                typeName = "工情";
+            }
+            var s = '<a title="' + value + '" style="color:blue;" href="javaScript:Trans(\'' + record.stcd + '\',\'' + record.stnm + '\',\'' + typeName + '\')">' + value + '</a>';
+            e.cellHtml = s;
+        } else if (field == "VIEWNAME") {
+            var s = "";
+            if (row.gateList != undefined) {
+                var tempAgg = row.gateList.filter(function (e) {
+                    return e.eqptp == "泵站电流";
+                });
+                if (tempAgg.length > 0) {
+                    s = tempAgg[0].gtq;
+                } else {
+                    s = value;
+                }
+            } else {
+                s = value;
+            }
+
+            e.cellHtml = s;
+        }
+    }
+
+    function Trans(stcd, stnm, typeName) {
+        var tm = mini.get("end").getFormValue();
+        var tempTM = new Date(tm.replaceAll("-", "/") + ":00");
+        var stime = "", etime = "";
+        if (parseInt(new Date().format("HH")) < 8) {
+            stime = addDayDate(tempTM.format("yyyy/MM/dd"), -1) + " 08:00:00";
+        } else {
+            stime = tempTM.format("yyyy/MM/dd 08:00:00");
+        }
+        etime = tempTM.format("yyyy/MM/dd HH:mm:ss");
+        //openChart("page/gq/EngineerLineChart.htm?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + tempTM.format("yyyy-MM-dd 08:00:00") + "&etime=" + tempTM.format("yyyy-MM-dd HH:mm:ss"), stnm);
+        typeName = "运行状况";
+        var param = "stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime + "&TYPENAME=" + typeName;
+        var url = "././DanZhan/DanZHanSel.html?" + param;
+        openChart(url, stnm, stcd);
+    }
+
+    function onTMRenderer(e) {
+        var value = e.value;
+        if (value != undefined) {
+            return;
+        }
+        if (value !== "")
+            return mini.formatDate(formatDate(value), 'MM-dd HH:mm');
+        return "";
+    }
+
+
+    function getQueryVariable(variable) {
+        var query = window.location.search.substring(1);
+        var vars = query.split("&");
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) { return pair[1]; }
+        }
+        return (false);
+    }
+
+
+
+    var psCount = 0;
+    var ysCount = 0;
+    var gzCount = 0;
+
+    function getInfo() {
+        if (resultData == null)
+            return;
+        dt = new Array();
+        psCount = 0;
+        ysCount = 0;
+        gzCount = 0;
+        var value1 = getTLObj("cb_PS").checked;
+        var value2 = getTLObj("cb_YS").checked;
+        var value3 = getTLObj("cb_GZ").checked;
+
+        for (var i = 0; i < resultData.length; i++) {
+            var OMCN = Number(resultData[i].flpq) + Number(resultData[i].grq);
+            if (resultData[i].stcd == "63202652") {
+                resultData[i].DWZ = null;
+            }
+            if (resultData[i].tm != undefined) {
+                if (resultData[i].tm.substr(0, 5) == "/Date") {
+                    resultData[i].tm = new Date(convertToDate(resultData[i].tm)).format('yyyy/MM/dd HH:mm');
+                }
+                if (new Date(resultData[i].tm) > new Date(new Date().format("yyyy/MM/dd 00:00:00"))) {
+                    OMCN = 0;
+                } else {
+                    OMCN = undefined;
+                }
+            } else {
+                if (undefined != resultData[i].gateList && resultData[i].gateList.length > 0) {
+                    resultData[i].tm = resultData[i].gateList[0].tm;
+                } else {
+                    OMCN = undefined;
+                }
+            }
+            var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+
+            var temAgg = [];
+            if (resultData[i].gateList.length > 0) {
+                temAgg = resultData[i].gateList.filter(function (e) {
+                    return e.eqptp == "泵站状态" && Number(e.gtq) > 0 && new Date(convertToDate(e.tm)) > tempTM;
+                })
+                if (temAgg.length == 0) {
+                    temAgg = resultData[i].gateList.filter(function (e) {
+                        return e.eqptp == "闸坝开度" && Number(e.gtq) > 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                    })
+                    resultData[i].OMCN = OMCN;
+                    OMCN = temAgg.length;
+                }
+            }
+            else {
+                OMCN = undefined;
+            }
+
+            if (temAgg.length > 0) {
+                OMCN = 1;
+            }
+            // if(resultData[i].stnm=="华田泾枢纽"){
+            //     console.error(resultData[i].stnm,OMCN);
+            // }
+            if ("".lastIndexOf(resultData[i].stcd) > -1) {
+                dt.push(resultData[i]);
+            } else {
+                resultData[i].OMCN = OMCN;
+                if (OMCN == undefined) {
+                    gzCount++;
+                    if (value3) {
+                        dt.push(resultData[i]);
+                    }
+                }
+                else if (OMCN == 0) {
+                    ysCount++;
+                    if (value2) {
+                        dt.push(resultData[i]);
+                    }
+                }
+                else {
+                    psCount++;
+                    if (value1) {
+                        dt.push(resultData[i]);
+                    }
+                }
+            }
+        }
+        tableBind(dt);
+        setTimeout(function () {
+            addMark2(dt);
+        }, 1000);
+
+    }
+    function tableBind(data) {
+        var dataResult = data;
+        //fillData(0, grid.getPageSize(), dataResult);
+        grid.setData(dataResult);
+        showRowPoint(grid);
+    }
+    // 分页填充细节处理
+    function fillData(pageIndex, pageSize, dataResult) {
+        var data = dataResult;
+        var totalCount = dataResult.length;
+        var arr = [];
+        var start = pageIndex * pageSize, end = start + pageSize;
+        for (var i = start, l = end; i < l; i++) {
+            var record = data[i];
+            if (!record) continue;
+            arr.push(record);
+        }
+
+        grid.setTotalCount(totalCount);
+        grid.setPageIndex(pageIndex);
+        grid.setPageSize(pageSize);
+
+        grid.setData(arr);
+
+    }
+    function onRowClick(e) {
+        var grid = e.sender;
+        var record = grid.getSelected();
+        if (record) {
+            loc(record.lgtd, record.lttd);
+        }
+    }
+    function tlCount() {
+        getTLObj("PSCount").innerHTML = psCount;
+        getTLObj("YSCount").innerHTML = ysCount;
+        getTLObj("GZCount").innerHTML = gzCount;
+    }
+    function tlChecked() {
+        getInfo();
+    }
+    function BreakLayerLoad() {
+
+        $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
+        // var stime = mini.get("end").getFormValue();
+        // var stm = new Date(stime.replaceAll("-", "/") + ":00");//泵站@闸站
+        // //GetJosns("DT_GQXXSel", {  "STIME": stm.format("yyyy-MM-dd 00:00:00"), "ETIME": stm.format("yyyy-MM-dd HH:mm:ss"), "HNNM":"城市防洪' or OMZS is not null and '1'='1"}, "Sel");
+
+        // //GetJosns("WATER_ST_PUMP_RNEW", { "STIME": stm.format("yyyy/MM/dd 00:00:00"), "ETIME": stm.format("yyyy/MM/dd HH:mm:ss"), "TREEID": $.data(myData, "TREEID") }, "Sel");
+        // var etm = AddHourDate(stm.format("yyyy/MM/dd HH:mm:ss"), -3);
+        // // GetJosns("WATER_ST_GATE_RNEWLIST", { "STIME": etm, "ETIME": stm.format("yyyy/MM/dd HH:mm:ss"), "TREEID": $.data(myData, "TREEID") }, "Sel")
+        // var strWhere = {
+        //     "startdate": etm,
+        //     "enddate": stm.format("yyyy/MM/dd HH:mm:ss"),
+        //     "treeID": $.data(myData, "TREEID")
+        // }
+        // app.post("/SWZZ_WATER_ST_GATE_R/WATER_ST_GATE_RNEWLIST", strWhere, (data) => {
+        //     JosnSel(data, "Sel")
+        // });
+
+        var strWhere = {
+                "key": "1",
+                "pid": "2023060214563122171-1"
+            }
+            app.post("/SWZZ_RTSQ_ST_GATE_RNEW/queryList", strWhere, (data) => {
+                JosnSel(data, "Sel")
+            });
+    }
+
+    function JosnSel(ResultData, typeID) {
+        if (typeID == "Sel") {
+            if (ResultData.total > 0) {
+                resultData = ResultData.data;
+                getInfo();
+                tlCount();
+            }
+            $('#dataShow').hide();
+            $("#dataLoad").hide();
+        } else if (typeID == "treeSel") {
+            var strWhere = {
+                "key": "1",
+                "pid": "2023060214563122171-1"
+            }
+            app.post("/SWZZ_RTSQ_ST_GATE_RNEW/queryList", strWhere, (data) => {
+                JosnSel(data, "Sel")
+            });
+        }
+    }
+
+    function loc(lgtd, lttd) {
+        if (lgtd == undefined && lttd == undefined) {
+            mini.alert("缺失经纬度");
+        } else {
+            dyCenter(lgtd, lttd);
+        }
+    }
+    function btnSearch() {
+        BreakLayerLoad();
+    }
+
+    function OnClickTitle(objID, objFax, objHNNM) {
+        var only = $(".onlyli").removeClass("onlyliHover");
+        $("#" + objID).addClass("onlyliHover");
+        $.data(myData, "TREEID", objFax);
+        $('#dataLoad').show();
+        //if (objFax == "2019041210071468251") {
+        //    dyCenter(120.157139, 31.911011)
+        //}
+        setTimeout('BreakLayerLoad()', 1000);
+    }
+    var cleaTime;
+
+    function onValueChanged(e) {
+        var isOK = e.value;
+        GetTimeOK(isOK);
+    }
+
+    function GetTimeOK(isFlag) {
+        if (mini.get("autoTM").getChecked() == true) {
+            if (isFlag == "true") {
+                cleaTime = setInterval(FunTimeOver, 1000);
+                cleaTime;
+            } else {
+                clearInterval(cleaTime);
+            }
+        } else {
+            clearInterval(cleaTime);
+        }
+    }
+    var timeOver = 180000,
+        timeNum = 0;
+
+    function FunTimeOver() {
+        timeNum++;
+        var tempTimeOver = 0;
+        if (timeNum == 180) {
+            var now = new Date();
+            mini.get("end").setValue(new Date(now.setHours(now.getHours() + 1)).format("yyyy/MM/dd HH:00:00"));
+            BreakLayerLoad();
+            timeNum = 0;
+        } else {
+            tempTimeOver = timeOver - timeNum * 1000;
+        }
+        $("#SpanTM").html("<span style='color:red;'>" + formatDuring(tempTimeOver) + "</span>");
+    }
+
+    function formatDuring(result) {
+        var minutes = parseInt((result % (1000 * 60 * 60)) / (1000 * 60));
+        var seconds = (result % (1000 * 60)) / 1000;
+        var tempSeconds = Math.floor(seconds) < 10 ? '0' + seconds : seconds;
+        return minutes + ":" + tempSeconds;
+    }
+
+    function exp(name) {
+        var data = grid.data;
+        ExportExcel(data,grid,name);
+    }
+</script>
+
+</html>

@@ -1,0 +1,833 @@
+﻿
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暴雨历时</title>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .mini-panel-border, .mini-grid-border {
+            border: 0px !important;
+        }
+
+        .btn {
+            padding: 3px 12px;
+            position: absolute;
+            left: 358px;
+            top: 8px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+            /*width: 340px;*/
+        }
+
+        .searchTitle {
+            width: 102px;
+            float: left;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            /*padding-top: 10px;*/
+            padding-bottom: 5px;
+            width: 100% !important;
+        }
+
+            .onlytab li {
+                list-style: none;
+                border: 1px #3291f9 solid;
+                float: left;
+                background-color: White;
+                width: 70px !important;
+                height: 34px;
+                font: 14px/34px "arial";
+                text-align: center;
+            }
+
+                .onlytab li:nth-child(2) {
+                    border-left: 0px;
+                }
+
+                .onlytab li:nth-child(3) {
+                    border-left: 0px;
+                }
+
+                .onlytab li:nth-child(4) {
+                    border-left: 0px;
+                }
+
+        .tongji-button {
+            position: absolute;
+            left: 420px;
+            top: 6px;
+        }
+
+        .qujian {
+            padding: 4px 12px;
+            position: absolute;
+            left: 420px;
+            top: 8px;
+        }
+
+        #showTime {
+            left: 685px;
+            top: 38px;
+            z-index: 99;
+            position: absolute;
+            border: 1px solid #d2cfcf;
+            border-radius: 5px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            background: white;
+            padding: 10px;
+            display: none;
+        }
+
+            #showTime ul {
+                list-style: none;
+                margin: 0px;
+                padding: 0px;
+            }
+
+                #showTime ul li {
+                    height: 40px;
+                    margin: 0px;
+                    padding: 0px;
+                }
+
+        .mini-grid-headerCell {
+            border: 0px;
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+        }
+        .mini-grid-headerCell-nowrap {
+            background:white !important;
+        }
+        html body .mini-grid-row-hover {
+            background: white !important;
+        }
+        .mini-grid-row-alt {
+            background: white !important;
+        }
+        .mini-grid-cell {
+            border-bottom: 1px solid #dee2e6;
+        }
+        html body .mini-grid-row-selected {
+            background: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:210px;float:left;height:100%; margin-right: 5px;background: white;padding: 10px 10px;">
+        <ul id="tree1" class="mini-tree" style="width:100%;height:100%;padding:5px;"
+            showTreeIcon="true" textField="NAME"
+            idField="ID" expandOnNodeClick="true" onnodeselect="onSelectNode" expandOnLoad="1"></ul>
+    </div>
+    <div style="width:calc(100% - 215px);float:right;height:100%;background: #ededed;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+
+                <ul class="onlytab" id="onlytab2" style="width:280px !important;margin-left:20px;float:left;display:none;">
+                    <li id="TitleQuan" onclick="OnClickTitle2(this.id,'全年')" class="onlyli onlyliHover start">全年</li>
+                    <li id="TitleLidoing" onclick="OnClickTitle2(this.id,'汛期')" class="onlyli ">汛期</li>
+                    <li id="TitleLiafter" onclick="OnClickTitle2(this.id,'非汛期')" class="onlyli end">非汛期</li>
+                </ul>
+
+                <button type="button" class="btn btn-info" onclick="search()">统计</button>
+                <button type="button" class="btn btn-info qujian" onclick="searchTIME()" style="">区间对比</button>
+                <!--<a class="mini-button" onclick="Exp()">导出报表</a>-->
+
+                <div style="float:right;color:red;margin-right:10px;">
+                    <ul style="list-style:none;color:gray;">
+                        <li style="height:30px;"> 注：暴雨、大暴雨和特大暴雨相互不包含</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;暴雨级别：</div>
+                <ul class="ui-choose choose-type-right" id="choseGrade">
+                    <li class="selected" style="width: 70px;">
+                        <span name="">全部</span>
+                    </li>
+                    <li style="width: 70px;">
+                        <span name="暴雨">暴雨</span>
+                    </li>
+                    <li style="width: 90px;">
+                        <span name="大暴雨">大暴雨</span>
+                    </li>
+                    <li style="width: 90px;">
+                        <span name="特大暴雨">特大暴雨</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div style="width:100%;height:300px;margin-top:10px;">
+            <div style="margin:0px 0px 0px 10px;height:100%;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(47% - 10px);background:white;float:left;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title1"></p>
+                </div>
+                <div id="BY_charts" style="height:calc(100% - 30px);width:100%;margin:0px 0%;background:white;float:left;"></div>
+            </div>
+
+            <div style="margin:0px 0px 0px 10px;height:100%;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(53% - 10px);background:white;float:left;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title2"></p>
+                </div>
+                <div id="grid1" class="mini-datagrid" style="width: 100%;height:calc(100% - 30px);float:left;" allowalternating="true"
+                     borderstyle="border-right:0;" sortmode="client"
+                     showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+                </div>
+            </div>
+        </div>
+
+        <div style="width:100%;height:450px;margin-top:10px;">
+            <div style="margin:0px 0px 0px 10px;height:100%;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(47% - 10px);background:white;float:left;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title3"></p>
+                </div>
+                <div id="qujian_charts" style="height:calc(100% - 30px);width:100%;margin:0px 0%;background:white;float:left;"></div>
+            </div>
+
+            <div style="margin:0px 0px 0px 10px;height:100%;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(53% - 10px);background:white;float:left;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title4">各级别暴雨平均笼罩面积及占比</p>
+                </div>
+                <div id="grid2" class="mini-datagrid" style="width: 100%;height:calc(100% - 30px);float:left;" allowalternating="true"
+                     borderstyle="border-right:0;" sortmode="client"
+                     showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="showTime">
+        <ul id="qujianUL">
+            <li>
+                <div class="searchTitle" style="width:80px;padding-top: 8px;">&nbsp;&nbsp;&nbsp;区间1：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear1" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear1" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="searchTitle" style="width:80px;padding-top: 8px;">&nbsp;&nbsp;&nbsp;区间2：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear2" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear2" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div style="height: 40px;width:100%;text-align:center;">
+            <a class="mini-button" onclick="addqujian()" style="position:relative;">添加区间</a>
+            <a class="mini-button" onclick="searchqujian()" style="position:relative;">统&nbsp;计</a>
+        </div>
+    </div>
+
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        mini.parse();
+        var gradeValueArr = [[50, 100], [100, 200], [200, 10000000]];
+        var tree = mini.get("tree1");
+        var grid = mini.get("grid1");
+        var grid2 = mini.get("grid2");
+        var myData = [];
+        $(function () {
+            $.data(myData, "TIMER", null);
+            $.data(myData, "TYPE", null);
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = 1978;
+            GetObj("endYear").value = _year - 2;
+
+            GetObj("startYear1").value = 1978;
+            GetObj("endYear1").value = 2000;
+            GetObj("startYear2").value = 2001;
+            GetObj("endYear2").value = _year - 2;
+
+            searchStation();
+            searchRainType();
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+            $('#choseGrade li').click(function () {
+                var f = this;
+                $('#choseGrade li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var grade = $(this).find("span").attr("name");
+                $.data(myData, "TYPE", grade);
+                if (grade == "全部") {
+                    $.data(myData, "TYPE", null);
+                }
+                loadHtml();
+                searchqujian();
+            });
+        });
+
+        function createGrid() {
+            var typedata = $.data(myData, "typedata");
+
+            var columns = [
+                { field: "YEAR", header: "时段", name: "YEAR", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                { field: "RTYPE", header: "雨型", name:"RTYPE", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+            ];
+            for (var a = 0; a < typedata.length; a++) {
+                var item = { field: "RTYPE" + (a + 1), header: typedata[a].TYPENAME, width: "10%", headerAlign: "center", align: "center", allowSort: true };
+                columns.push(item);
+            }
+            console.error(columns);
+            grid.set({
+                columns: columns
+            });
+            
+            grid2.set({
+                columns: columns
+            });
+        }
+
+        function searchStation() {
+            var strWhere = { STTP: "PP", TYPE: "雨量" };
+            GetJosns("REPRESENTATIVESTATIONS", strWhere, "Sel");
+        }
+        function searchRainType(){
+            var strWhere = {  };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINFALLPATTERN_BSel", strWhere, "SelTYPE");
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            var column = e.column;
+        }
+        function loadTree(data) {
+            var dataResult = [];
+            dataResult.push({ ID: "310000", NAME: "全市", PID: "-1" });
+            var dataTempC = groupBy(data, "COUNTIES");
+            dataResult.push({ ID: "1", NAME: "行政分区", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                if (item[0].COUNTIESID == "100071") {
+                    dataResult.push({ ID: "10007", NAME: "浦东新区", PID: "1" });
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "10007" });
+                } else if (item[0].COUNTIESID == "100072") {
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "10007" });
+                }
+                else {
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "1" });
+                }
+            });
+            var dataTempW = groupBy(data, "WATERAREA");
+            dataResult.push({ ID: "2", NAME: "水利片区", PID: "-1" });
+            dataTempW.forEach(function (item) {
+                dataResult.push({ ID: item[0].WATERAREAID, NAME: item[0].WATERAREA, PID: "2" });
+            });
+            dataResult.push({ ID: "3", NAME: "32个代表站", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                for (var num = 0; num < item.length; num++) {
+                    dataResult.push({ ID: item[num].STCD, NAME: item[num].STNM, PID: "3" });
+                }
+            });
+            tree.loadList(dataResult, "ID", "PID");
+            tree.select(0);
+        }
+        function search() {
+            var node = tree.getSelectedNode();
+            var timer = $.data(myData, "TIMER") != null ? $.data(myData, "TIMER") : "";
+            var startYear = Number(GetObj("startYear").value) + "-01-01 00:00:00";
+            var endYear = Number(GetObj("endYear").value) + "-12-31 23:59:59";
+            var strWhere = {
+                STCD: node.ID,
+                STIME: startYear,
+                ETIME: endYear
+            };
+            GetJosns("ST_RAINSTORMFREQUENCYNAMESel", strWhere, "SelNum");
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                loadTree(data.data);
+                //search();
+            }
+            else if (typeID == "SelNum") {
+                var dataResult = data.data;
+                $.data(myData, "data", dataResult);
+                loadHtml(dataResult);
+                searchqujian();
+
+            }
+            else if (typeID == "SelTYPE") {
+                $.data(myData, "typedata", data.data);
+                createGrid();
+            }
+        }
+
+        function loadHtml() {
+            var grade = $.data(myData, "TYPE") != null ? $.data(myData, "TYPE"):"";
+            var typedata = $.data(myData, "typedata");
+            var node = tree.getSelectedNode();
+            var timer = $.data(myData, "TIMER") != null ? $.data(myData, "TIMER") : "";
+            $("#title1").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + timer + node.NAME + "汛期、非汛期" + grade+"雨型场次占比");
+            $("#title2").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + timer + node.NAME + "汛期、非汛期" + grade +"雨型场次对比");
+            $("#title3").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + timer + node.NAME + grade + "雨型场次对比");
+            $("#title4").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + timer + node.NAME + "汛期、非汛期" + grade + "雨型场次占比");
+            var data = $.data(myData, "data");
+            var timer = $.data(myData, "TIMER");
+            var data1 = [];
+
+            var strWhere = [50, 10000000];
+            if (grade == "暴雨") {
+                strWhere = gradeValueArr[0];
+            } else if (grade == "大暴雨") {
+                strWhere = gradeValueArr[1];
+            } else if (grade == "特大暴雨") {
+                strWhere = gradeValueArr[2];
+            }
+            data = data.filter(function (e) {
+                return e.DRP24 >= strWhere[0] && e.DRP24 < strWhere[1];
+            });
+            //$.data(myData, "data", data);
+            //以汛期、非汛期为主体
+            var dataTempXQ = data.filter(function (e) {
+                var bgtm = new Date(convertToDate(e.BGTM));
+                var year = bgtm.getFullYear();
+                var xqStime = new Date(bgtm.getFullYear() + "-06-01 00:00:00");
+                var xqEtime = new Date(bgtm.getFullYear() + "-09-30 23:59:59");
+                return bgtm >= xqStime && bgtm <= xqEtime;
+            });
+            var item = { YEAR: "汛期", RTYPE: "总场次"};
+            var itemB = { YEAR: "汛期", RTYPE:"占比"};
+            for (var num = 0; num < typedata.length; num++) {
+                var dataTemp = dataTempXQ.filter(function (e) {
+                    return e.RTYPE == typedata[num].TYPENAME;
+                });
+                item["RTYPE" + (num + 1)] = dataTemp.length;
+                var bili = dataTempXQ.length > 0 ? (dataTemp.length / dataTempXQ.length * 100).toFixed(1) : 0;
+                itemB["RTYPE" + (num + 1)] = bili;
+            }
+            data1.push(item);
+            data1.push(itemB);
+
+            item = { YEAR: "非汛期", RTYPE: "总场次" };
+            itemB = { YEAR: "非汛期", RTYPE: "占比" };
+            var dataTempFXQ = data.filter(function (e) {
+                var bgtm = new Date(convertToDate(e.BGTM));
+                var fxqStime1 = new Date(bgtm.getFullYear() + "-01-01 00:00:00");
+                var fxqEtime1 = new Date(bgtm.getFullYear() + "-05-31 23:59:59");
+                var fxqStime2 = new Date(bgtm.getFullYear() + "-10-01 00:00:00");
+                var fxqEtime2 = new Date(bgtm.getFullYear() + "-12-31 23:59:59");
+                if ((bgtm >= fxqStime1 && bgtm <= fxqEtime1) || (bgtm >= fxqStime2 && bgtm <= fxqEtime2)) {
+                    return true;
+                }
+            });
+            for (var num = 0; num < typedata.length; num++) {
+                var dataTemp = dataTempFXQ.filter(function (e) {
+                    return e.RTYPE == typedata[num].TYPENAME;
+                });
+                item["RTYPE" + (num + 1)] = dataTemp.length;
+                var bili = dataTempXQ.length > 0 ? (dataTemp.length / dataTempFXQ.length * 100).toFixed(1) : 0;
+                itemB["RTYPE" + (num + 1)] = bili;
+            }
+            data1.push(item);
+            data1.push(itemB);
+            
+            $.data(myData, "xqfxqData", data1);
+            chartBar('BY_charts', data1);
+
+            grid.setData(data1);
+            grid.mergeColumns(["YEAR", "company", "a"]);
+        }
+
+        function onSelectNode(e) {
+            search();
+        };
+        function onSTCDChanged(e) {
+            search();
+        }
+
+        //柱子的点击事件
+        function loadChangci(year) {
+            var node = tree.getSelectedNode();
+            var strTitle = node.NAME;
+            var STCD = node.ID;
+            var strParam = "STCD@" + STCD;
+            var rainLevel = "";
+            if (isNaN(year)) {
+                strTitle += "1978年至2020年" + year + "频次";
+                rainLevel = year;
+                strParam += ",TYPE@" + rainLevel;
+            } else {
+                strTitle += year + "年暴雨频次";
+                var stime = year + "-01-01 00:00:00";
+                var etime = year + "-12-31 23:59:59";
+                strParam += ",STIME@" + stime + ",ETIME@" + etime
+            }
+            var url = "/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html";
+            lookData(strParam, url, strTitle, "50%", 565, "true");
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var node = tree.getSelectedNode();
+            var type = $.data(myData, "TYPENAME") != null ? $.data(myData, "TYPENAME") : "";
+            var grade = $.data(myData, "GRADE") != null ? $.data(myData, "GRADE") : "暴雨";
+            var name = node.NAME + GetObj("startYear").value + "年至" + GetObj("endYear").value + "年" + type + grade + "历时统计"
+            ExportExcel(name, columns, data);
+        }
+
+
+        function OnClickTitle2(objID, name) {
+            var only = $("#onlytab2 .onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            if (objID == "TitleQuan") {
+                $.data(myData, "TIMER", null);
+            }
+            else if (objID == "TitleLidoing") {
+                $.data(myData, "TIMER", "汛期");
+            }
+            else if (objID == "TitleLiafter") {
+                $.data(myData, "TIMER", "非汛期");
+            }
+            loadHtml();
+        }
+
+        function searchTIME() {
+            var dis = $("#showTime").css("display");
+            if (dis == 'none') {
+                $("#showTime").css("display", "block");
+            } else {
+                $("#showTime").css("display", "none");
+            }
+        }
+        function addqujian() {
+            var rowIndex = $("#qujianUL li").length;
+            var html = '<li>';
+            html += '<div class="searchTitle" style = "width:80px;padding-top: 8px;" >&nbsp;&nbsp;&nbsp;区间' + (rowIndex + 1) + '：</div >';
+            html += '<div class="input-group" style="width:110px;float:left;margin-right:4px;">';
+            html += '<input id="startYear' + (rowIndex + 1) + '" class="form-control" value="开始" readonly>';
+            html += '<div class="input-group-addon">';
+            html += '<i class="fa fa-calendar" aria-hidden="true"></i>';
+            html += '</div>';
+            html += '</div>';
+            html += '<span style="float:left;">—</span>';
+            html += '<div class="input-group" style="width:110px;float:left;margin-left:4px;">';
+            html += '<input id="endYear' + (rowIndex + 1) + '" class="form-control" value="结束" readonly>';
+            html += '<div class="input-group-addon">';
+            html += '<i class="fa fa-calendar" aria-hidden="true"></i>';
+            html += '</div>';
+            html += '</div>';
+            html += '</li>';
+
+            $("#qujianUL").append(html);
+
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+        }
+        function searchqujian() {
+            $("#showTime").css("display", "none");
+            var yearArr =[];
+            $("#qujianUL li").each(function (_index) {
+                var rowIndex = (_index + 1);
+                var startYear = parseInt(GetObj("startYear" + rowIndex).value);
+                var endYear = parseInt(GetObj("endYear" + rowIndex).value);
+                yearArr.push([startYear, endYear]);
+            });
+            $.data(myData, "years", yearArr);
+            var data = $.data(myData, "data");
+
+            var grade = $.data(myData, "TYPE") != null ? $.data(myData, "TYPE") : "";
+            var strWhere = [50, 10000000];
+            if (grade == "暴雨") {
+                strWhere = gradeValueArr[0];
+            } else if (grade == "大暴雨") {
+                strWhere = gradeValueArr[1];
+            } else if (grade == "特大暴雨") {
+                strWhere = gradeValueArr[2];
+            }
+            
+            data = data.filter(function (e) {
+                return e.DRP24 >= strWhere[0] && e.DRP24 < strWhere[1];
+            });
+
+            var typedata = $.data(myData, "typedata");
+            var dataResult = [];
+            for (var y = 0; y < yearArr.length; y++) {
+                var item = { YEAR: yearArr[y][0] + "-" + yearArr[y][1],RTYPE:"总场次"};
+                var itemB = { YEAR: yearArr[y][0] + "-" + yearArr[y][1], RTYPE: "占比" }
+                var dataTemp = data.filter(function (e) {
+                    var bgtm = new Date(convertToDate(e.BGTM));
+                    var year = bgtm.getFullYear();
+                    return year >= yearArr[y][0] && year <= yearArr[y][1];
+                });
+                for (var num = 0; num < typedata.length; num++) {
+                    var dataTempT = dataTemp.filter(function (e) {
+                        return e.RTYPE == typedata[num].TYPENAME;
+                    });
+                    item["RTYPE" + (num + 1)] = dataTempT.length;
+                    var bili = dataTempT.length > 0 ? (dataTempT.length / dataTemp.length * 100).toFixed(1) : 0;
+                    itemB["RTYPE" + (num + 1)] = bili;
+                }
+                dataResult.push(item);
+                dataResult.push(itemB);
+            }
+            $.data(myData, "duibiData", dataResult);
+            grid2.setData(dataResult);
+            grid2.mergeColumns(["YEAR", "company", "a"]);
+            chartBar('qujian_charts', dataResult);
+        }
+    </script>
+    <script>
+        function chartBar(chartName, data) {
+            var typedata = $.data(myData, "typedata");
+            //var data = $.data(myData, "xqfxqData");
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var chartValueBi = [];
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+            for (var num = 0; num < typedata.length; num++) {
+                var typename = typedata[num].TYPENAME;
+                typename = typename.substr(0, typename.indexOf("（"));
+                chartTM.push(typename);
+            }
+            data = data.filter(function (e) {
+                return e.RTYPE == "占比";
+            });
+            for (var num = 0; num < data.length; num++) {
+                chartName.push(data[num].YEAR);
+            }
+            
+            var node = tree.getSelectedNode();
+            option = {
+                title: {
+                    left: 'center',
+                    //text: node.NAME + type + '平均历时'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    // 鼠标移动到柱状图会显示内容 竖线编程阴影
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                // 更改图例默认颜色(依次应用)
+                // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+                color: ['#4CABCE', '#91CC75', '#FAC858', '#EE6666'],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    // left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: chartName,
+                    show: true,
+                },
+                grid: {
+                    top: 50,
+                    left: 30,
+                    right: 30,
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: chartTM
+                },
+                yAxis: {
+                    name: "占比",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 10;
+                    }
+                },
+                series: function () {
+                    var serie = [];
+                    for (var h = 0; h < data.length; h++) {
+                        var yData = [];
+                        for (var num = 0; num < chartTM.length; num++) {
+                            var bili = parseFloat(data[h]["RTYPE" + (num + 1)]);
+                            yData.push(bili);
+                        }
+                        //console.error(data[h].YEAR);
+                        var item = {
+                            name: data[h].YEAR,
+                            type: 'bar',
+                            // barGap: '0%',
+                            barWidth: 15,
+                            data: yData,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,  //开启显示
+                                        formatter: '{c}%',  //显示数值
+                                        position: 'top',
+                                        textStyle: { //数值样式
+                                            fontSize: 10
+                                        }
+                                    },
+                                    barBorderRadius: [30, 30, 0, 0],
+                                }
+                            }
+                        };
+                        serie.push(item);
+                    }
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            // console.log(echarts.version)
+        }
+    </script>
+</body>
+</html>

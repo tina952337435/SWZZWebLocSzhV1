@@ -1,0 +1,96 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>暴雨插补成果</title>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .mini-toolbar {
+            height: 45px;
+            line-height: 40px;
+            font-size: 22px;
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            暴雨插补成果
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid"
+         style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 70px);height: -moz-calc(100% - 70px);height: calc(100% - 70px);"
+         allowalternating="true" allowcellselect="true" allowcelledit="true"
+         showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+         ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center"> 序号</div>
+            <div field="TYPE" name="TYPE" width="10%" headeralign="center" align="center" allowsort="true">
+                类型
+            </div>
+            <div field="STNM" width="20%" headeralign="center" align="center" format="yyyy-MM-dd" allowsort="true">
+                名称
+            </div>
+            <div field="BYNUMBER" width="20%" headeralign="center" align="center" allow sort="true" decimalPlaces="0"
+                 dataType="float">
+                暴雨场次
+            </div>
+
+            <!-- <div field="action" width="10%" headeralign="center" align="center" allowsort="true" > 基本操作</div >-->
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var STIME = GetQueryString("STIME");
+        var ETIME = GetQueryString("ETIME");
+        $(function () {
+            search();
+        });
+        function search() {
+            var s_where =
+            {
+                STIME: STIME, ETIME: ETIME
+            }
+            GetJosns("FREQUENCYDIAGRAM_TOTAL", s_where, "Sel");
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                loadChartBar(data.data);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field == "BYNUMBER") {
+                var str = "<a onclick='lookData(\"STCD@" + record.STCD + ",STIME@" + STIME + ",ETIME@" + ETIME+"\",\"/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html\",\"" + record.STNM + "\",\"50%\",565,\"true\")' style='cursor:pointer;'>" + value + "</a>";
+                e.cellHtml = str;
+            }
+        }
+        function loadChartBar(data) {
+            data = data.filter(function (item) {
+                //return item.TYPE == "代表站";
+                return item.BYNUMBER >0;
+            });
+            grid.setData(data);
+            grid.mergeColumns(["TYPE"]);
+        }
+    </script>
+</body>
+</html>

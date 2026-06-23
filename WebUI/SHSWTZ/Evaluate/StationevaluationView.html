@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>用户管理</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: white;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1' style=' background-color: White; width:98%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    用户管理
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    评估分：
+                </td>
+                <td class="lie2 View" id="SCORE">
+                    &nbsp;
+                </td>
+                <td class="lie1" align="right">
+                    所属分区：
+                </td>
+                <td class="lie2 View" id="HNNM">
+                    &nbsp;
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        //标准方法接口定义
+        function SetData(data) {
+            if (data.action == "look") {
+                var PATHNAME = data.PATHNAME;
+                var STCD = data.STCD;
+                var strWhere = { PATHNAME: PATHNAME, STCD: STCD};
+                GetJosns("DanStationnetworkevaluation", strWhere, "Sel");
+            }
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    var item = data.data[0];
+                    $(".CssTitle").html(item.STNM);
+                    $("#HNNM").html(item.HNNM);
+                    $("#SCORE").html(item.SCORE);
+                    var dataResult = item.valueList;
+                    var strHtml = '<tr>';
+                    for (var num = 0; num < dataResult.length; num++) {
+                        if (num != 0 && num % 2 == 0) {
+                            strHtml += '</tr>';
+                            strHtml += '<tr>';
+                        }
+                        strHtml += '<td class="lie1" align="right">' + dataResult[num].ID + '：</td>';
+                        var html = dataResult[num].VALUE;
+                        if (dataResult[num].SCORE != undefined) {
+                            html= dataResult[num].VALUE + "（" + dataResult[num].SCORE + "分）";
+                        }
+                        strHtml += '<td class="lie2 View">' + html+ '</td>';
+                    }
+                    $("#GridView1").append(strHtml);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

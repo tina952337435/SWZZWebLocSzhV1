@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title></title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /* overflow: hidden; */
+            font-size: 12px;
+        }
+
+        #TITLE table td {
+            border: 0px;
+        }
+
+        .col-lg-1,
+        .col-lg-10,
+        .col-lg-11,
+        .col-lg-12,
+        .col-lg-2,
+        .col-lg-3,
+        .col-lg-4,
+        .col-lg-5,
+        .col-lg-6,
+        .col-lg-7,
+        .col-lg-8,
+        .col-lg-9,
+        .col-md-1,
+        .col-md-10,
+        .col-md-11,
+        .col-md-12,
+        .col-md-2,
+        .col-md-3,
+        .col-md-4,
+        .col-md-5,
+        .col-md-6,
+        .col-md-7,
+        .col-md-8,
+        .col-md-9,
+        .col-sm-1,
+        .col-sm-10,
+        .col-sm-11,
+        .col-sm-12,
+        .col-sm-2,
+        .col-sm-3,
+        .col-sm-4,
+        .col-sm-5,
+        .col-sm-6,
+        .col-sm-7,
+        .col-sm-8,
+        .col-sm-9,
+        .col-xs-1,
+        .col-xs-10,
+        .col-xs-11,
+        .col-xs-12,
+        .col-xs-2,
+        .col-xs-3,
+        .col-xs-4,
+        .col-xs-5,
+        .col-xs-6,
+        .col-xs-7,
+        .col-xs-8,
+        .col-xs-9 {
+            position: relative;
+            min-height: 1px;
+            padding-right: 0px;
+            padding-left: 0px;
+        }
+
+        .tableView {
+            margin: 20px auto;
+        }
+
+        .tableView tr td {
+            position: relative;
+            width: auto !important;
+        }
+
+        .widthinput {
+            width: 120px !important;
+        }
+
+        .RadBtn {
+            margin: 0 auto;
+            border: 0px !important;
+        }
+
+        .RadBtn table {
+            margin: 0 auto;
+            border: 0px !important;
+        }
+
+        .RadBtn tr td {
+            border: 0px !important;
+        }
+        .borderCss{
+            border: 0px !important;
+        }
+        .fontSize18{
+            font-size: 18px; 
+        }
+        .qingkuan{
+            margin-left: 8px;
+        }
+        .table1{
+            font-size: 16px;
+        }
+        .table1 tr td:nth-child(2n+1) {
+            height: 44px;
+            width: 15%;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            border-image: initial;
+        }
+        .table1 tr td:nth-child(2n) {
+            height: 44px;
+            width: 35%;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            border-image: initial;
+        }
+        .lie1{
+            background: #FFFFFF;
+        }
+        .fontSizeTITLE {
+            font-size: 26px;
+        }
+        .lie2{
+            font-size: 16px ;
+        }
+        .contentbody{
+            padding: 10px 0px 0px 10px !important;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+        <button type="button" class="btn btn-primary" onclick="PrintA()" style="width:60px;margin-right:20px;">打印</button>
+    <div id="PrintA" style="text-align: center;"> 
+    
+
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1'
+            style=' background-color: White; width: 95%; height: 990px;border-collapse: collapse;border: 0px;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle borderCss" >
+                    <span id="HeadTitle">
+
+                    </span> 
+                </td>
+            </tr>
+            <tr>
+                <td class="borderCss" align="right">
+                    维护单位：
+                </td>
+                <td class="lie2 borderCss View" colspan="3" id="TITLE"> 
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="borderCss" align="right">
+                    日期：
+                </td>
+                <td class="lie2 borderCss View" id="TM"> 
+                </td>
+                <td class="borderCss" align="right">
+                    维护人员：
+                </td>
+                <td class="lie2 borderCss View" id="OWEN"> 
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" align="left" class="borderCss">
+                    <div class="form-group">
+                        <label for="name" style="margin-top: 10px;margin-left: 30px;">第一次水位校核</label>
+                        <div class="container">
+                            <div class="row" style="line-height: 60px;">
+                                <div class="col-md-3">
+                                    <div class="col-md-4 text-right">
+                                        读取时间：
+                                    </div>
+                                    <div class="col-md-8 View" id="SCTM1"> 
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        水尺读数：
+                                    </div>
+                                    <div class="col-md-6 View" id="SCR1"> 
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        水尺水位：
+                                    </div>
+                                    <div class="col-md-6 View" id="SCZ1"> 
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-7 text-right">
+                                        水位计水位：
+                                    </div>
+                                    <div class="col-md-5 View" id="SWZ1"> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-3 text-right">
+                                            水位计修改时间：
+                                        </div>
+                                        <div class="col-md-9 View" id="SWTM1"> 
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="col-md-3 text-right">
+                                        水尺零点高程：
+                                    </div>
+                                    <div class="col-md-9 View" id="SCG1"> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name" style="margin-top: 10px;margin-left: 30px;">第二次水位校核</label>
+                        <div class="container">
+                            <div class="row" style="line-height: 60px;">
+                                <div class="col-md-3">
+                                    <div class="col-md-4 text-right">
+                                        读取时间：
+                                    </div>
+                                    <div class="col-md-8 View" id="SCTM2"> 
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        水尺读数：
+                                    </div>
+                                    <div class="col-md-6 View" id="SCR2"> 
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-6 text-right">
+                                        水尺水位：
+                                    </div>
+                                    <div class="col-md-6 View" id="SCZ2"> 
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="col-md-7 text-right">
+                                        水位计水位：
+                                    </div>
+                                    <div class="col-md-5 View" id="SWZ2"> 
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row">
+                                        <div class="col-md-3 text-right">
+                                            水位计修改时间：
+                                        </div>
+                                        <div class="col-md-9 View" id="SWTM2"> 
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="col-md-3 text-right">
+                                        水尺零点高程：
+                                    </div>
+                                    <div class="col-md-9 View" id="SCG2"> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="borderCss">
+                    <div class="row" id='tableView1' style="margin-left: 0px;margin-right: 0px;">
+                        <table cellspacing='0' cellpadding='0' border='0' class="tableView"
+                            style=' background-color: White; width: 95%; border-collapse: collapse;position: relative;text-align: center;'>
+                            <tr>
+                                <td class="lie1" style="width: 15% !important;">
+                                    分类
+                                </td>
+                                <td class="lie1" style="width: 25% !important;">
+                                    明细
+                                </td>
+                                <td class="lie1" style="width: 18% !important;">
+                                    情况
+                                </td>
+                                <td class="lie1" style="width: 25% !important;">
+                                    明细
+                                </td>
+                                <td class="lie1" style="width: 18% !important;" align="center">
+                                    情况
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    情况记录：
+                </td>
+                <td class="lie2 View" colspan="3" id="NT" style="height: 180px;line-height: 180px;"> 
+
+                </td>
+            </tr> 
+        </table> 
+
+        <div id="divPic">
+               
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var myData = [];
+        //标准方法接口定义
+        var itemID=GetQueryString("ID");
+        var HeadTitle=GetQueryString("HEADTITLE");
+        $(function(){
+         
+
+            app.get("/itemZhuanti/selectList", {"id":itemID}, function (res) {
+                var data=res.data[0]; 
+                var strTitle = '<span style="padding-right: 10px;">';
+            strTitle += data.stnm;
+            strTitle += '</span>';
+            strTitle += HeadTitle; 
+            $("#HeadTitle").html(strTitle);
+            
+                var postParam = {};
+                    postParam["pathname"] = data.pathname;
+                    postParam["stcd"] = data.stcd;
+                    postParam["systype"] = "维护单位";
+                    postParam["itemid"] =  data.id;
+                    app.get("/itemZhuanti/ViewConfig", postParam, function (res) {
+                        JosnSel(res, "Sel");
+                    })
+                    })
+
+        })
+        function SetData(data) {
+            // $.data(myData, "action", data);
+            // var strTitle = '<span style="padding-right: 10px;">';
+            // strTitle += data.STNM;
+            // strTitle += '</span>';
+            // strTitle += data.HEADTITLE; 
+            // $("#HeadTitle").html(strTitle) 
+        }
+        function PrintA() { 
+            PrintDiv("PrintA"); 
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var strJson = data.data;
+                if (data.total > 0) {
+                    infoData(strJson);
+                }
+            } else if (typeID == "Update") {
+                showTips(data.Message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            } else if (typeID == "Add") {
+                showTips(data.message);
+                if (data.total > 0) {
+                    CloseWindow("save");
+                }
+            } else if (typeID == "维护单位") {
+                var strJson = data.data;
+                infoData(strJson);
+            }
+            mini.unmask(document.body);
+        }
+        function infoData(strJson){  
+            // $("#TITLE").setData(strJson.xcSystypeSPList);
+            // $("#TITLE").selectAll();
+       
+                if (strJson.stStbprpBList != undefined) {
+                    $("#SCG1").html(strJson.stStbprpBList[0]["dtmel"])
+                    $("#SCG2").html(strJson.stStbprpBList[0]["dtmel"])
+                }
+                var result = strJson.itemConfigList;
+                if (result != null) {
+                    setHtml(result,strJson.zhuantiDetailList);
+                }
+                if(strJson.picList!=null){
+                    setView(strJson.picList);
+                }
+                var _title="";
+                if(strJson.zhuantiList!=null){
+                    var item=mini.decode(strJson.zhuantiList[0]);  
+                    FromSetinnerHTML(item, "View");
+                    _title=item["title"];
+                }
+                if(strJson.xcSystypeSPList!=null){
+                var strMsg='';
+                for(num=0;num<strJson.xcSystypeSPList.length;num++){
+                    var strWhere=strJson.xcSystypeSPList[num];
+                    if(strWhere["name"]==_title){
+                        strMsg+='<span class="qingkuan"><span class="fontSize18">☑</span>'+strWhere["name"]+'</span>';
+                    }else{
+                        strMsg+='<span class="qingkuan"><span class="fontSize18">⊡</span>'+strWhere["name"]+'</span>';
+                    } 
+                }
+                $("#TITLE").html(strMsg);
+            }
+                if(strJson.zhuantiZList!=null){
+                    var item= strJson.zhuantiZList;
+                    if(item.length>0){
+                        for(num=0;num<item.length;num++){
+                            var strWhere=item[num];
+                            if(strWhere["cknum"]==1){
+                                if(strWhere["SCTM"]!=undefined){
+                                 $("#SCTM1").html(formatDate(strWhere["SCTM"]).format("yyyy-MM-dd HH:mm"));
+                                }
+                                var val=strWhere["scr"];
+                                if(SetNull(val)!=""){
+                                    val=Number(val).toFixed(2)
+                                }
+                                $("#SCR1").html(val);
+                                val=strWhere["scz"];
+                                if(SetNull(val)!=""){
+                                    val=Number(val).toFixed(2)
+                                }
+                                $("#SCZ1").html(val);
+                                val=strWhere["swz"];
+                                if(SetNull(val)!=""){
+                                    val=Number(val).toFixed(2)
+                                }
+                                $("#SWZ1").html(val);
+                                if(strWhere["swtm"]!=undefined){
+                                    $("#SWTM1").html(formatDate(strWhere["swtm"]).format("yyyy-MM-dd HH:mm"));
+                                }
+                                $("#SCG1").html(strWhere["scg"]); 
+
+                            }else{
+                                if(strWhere["SCTM"]!=undefined){
+                                    $("#SCTM2").html(formatDate(strWhere["SCTM"]).format("yyyy-MM-dd HH:mm"));
+                                }
+                                var val=strWhere["scr"];
+                                if(SetNull(val)!=""){
+                                    val=Number(val).toFixed(2)
+                                }
+                                $("#SCR2").html(val);
+                                val=strWhere["scz"];
+                                if(SetNull(val)!=""){
+                                    val=Number(val).toFixed(2)
+                                }
+                                $("#SCZ2").html(val);
+                                val=strWhere["swz"];
+                                if(SetNull(val)!=""){
+                                    val=Number(val).toFixed(2)
+                                }
+                                $("#SWZ2").html(val);
+                                if(strWhere["swtm"]!=undefined){
+                                    $("#SWTM2").html(formatDate(strWhere["swtm"]).format("yyyy-MM-dd HH:mm"));
+                                }
+                                $("#SCG2").html(strWhere["scg"]) ;
+                            }
+                        }
+                    }  
+                }
+        }
+        
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+  
+        function setHtml(strJson,strResult) { 
+            $.data(myData, "ITEM_CONFIG", strJson);
+            var result1=[],result2=[];
+            var _allJson = strJson.filter(function (res) {
+                    return res["pid"] == "-1";
+            }); 
+            if(_allJson.length>0){
+                for(numLength=0;numLength<_allJson.length;numLength++){
+                    if(numLength%2==0){
+                        result1.push(_allJson[numLength]);
+                    }else{
+                        result2.push(_allJson[numLength]);
+                    }
+                }
+            }
+
+            var strMsg = '';
+            strMsg+='<div style="float: left;width: 50%;">'
+            strMsg += '<table cellspacing="0" cellpadding="0" border="0" class="tableView" ';
+            strMsg += ' style="background-color: White; width: 100%; margin-top: 0px;margin-bottom: 0px;border-collapse: collapse;position: relative;">';
+            strMsg += ' <tr>';
+            strMsg += '    <td  class="lie1" style="width: 18.5% !important;" align="center">';
+            strMsg += '         分类';
+            strMsg += '    </td>';
+            strMsg += '      <td  class="lie1" style="width: 25% !important;" align="center">';
+            strMsg += '            明细';
+            strMsg += '     </td>';
+            strMsg += '  <td  class="lie1" style="width: 18% !important;" align="center">';
+            strMsg += '            情况';
+            strMsg += '   </td>'; 
+            strMsg += '  </tr>';
+            if (strJson.length > 0) {
+                var allJson = strJson.filter(function (res) {
+                    return res["pid"] == "-1";
+                })
+                var allJson = result1;
+                var fuItem = sortObjectArray(allJson, ['orderby'], 'asc');
+                if (fuItem.length > 0) {
+                    for (num = 0; num < fuItem.length; num++) {
+                        strMsg += '  <tr>';
+                        var tempItem = strJson.filter(function (ext) {
+                            return ext["pid"] == fuItem[num]["id"];
+                        });
+                        var numCount = Math.ceil(tempItem.length );
+                        strMsg += '     <td rowspan="' + numCount + '" align="center">';
+                        strMsg += fuItem[num]["jc_NAME"];
+                        strMsg += '   </td>';
+                        if (tempItem.length > 0) {
+                            for (numII = 0; numII < tempItem.length; numII++) {
+                                if (numII > 0) {
+                                    strMsg += '  <tr>';
+                                }
+                                strMsg += '     <td align="center">';
+                                strMsg += tempItem[numII]["jc_NAME"];
+                                strMsg += '   </td>';
+                                strMsg += '     <td align="center">';
+                                var strData = "";
+                                var strValue = "";
+                                var _item=null;
+                                if(strResult!=null){
+                                    _item=strResult.filter(function(res){
+                                        return res["zt_ID"]==tempItem[numII]["id"];
+                                    });
+                                }
+
+                                if (tempItem[numII]["jc_TYPE"] != undefined) {
+                                    var jcType = tempItem[numII]["jc_TYPE"].split('、');
+                                    for (nm = 0; nm < jcType.length; nm++) {
+                                        strValue = jcType[nm];
+                                        var tt=_item.filter(function(evt){
+                                            return evt["meet"]==strValue;
+                                        })
+                                        if(tt.length>0){
+                                            strData+='<span class="qingkuan">'+strValue+'<span class="fontSize18">☑</span></span>';
+                                        }else{
+                                            strData+='<span class="qingkuan">'+strValue+'<span class="fontSize18">⊡</span></span>';
+                                        }
+                                       
+                                    }
+                                }
+                                strMsg+=strData;
+                                strMsg += '   </td>';
+                              
+                                strMsg += ' </tr> ';
+                            }
+                        } else {
+                            strMsg += ' </tr> ';
+                        }
+
+
+
+                    }
+                }
+            }
+
+            strMsg += '   </table>';
+            strMsg += '   </div>';
+
+            strMsg+='<div style="float: left;width: 49%;margin-left: 1%;">';
+            strMsg += '<table cellspacing="0" cellpadding="0" border="0" class="tableView" ';
+            strMsg += ' style="background-color: White; width: 100%; margin-top: 0px;margin-bottom: 0px;border-collapse: collapse;position: relative;">';
+            strMsg += ' <tr>';
+            strMsg += '    <td  class="lie1" style="width: 15% !important;" align="center">';
+            strMsg += '         分类';
+            strMsg += '    </td>';
+            strMsg += '      <td  class="lie1" style="width: 25% !important;" align="center">';
+            strMsg += '            明细';
+            strMsg += '     </td>';
+            strMsg += '  <td  class="lie1" style="width: 18% !important;" align="center">';
+            strMsg += '            情况';
+            strMsg += '   </td>'; 
+            strMsg += '  </tr>';
+            if (strJson.length > 0) {
+                // var allJson=groupBy(strJson,"pid");
+                // var allJson = strJson.filter(function (res) {
+                //     return res["pid"] == "-1";
+                // })
+                var allJson = result2;
+                var fuItem = sortObjectArray(allJson, ['orderby'], 'asc');
+                if (fuItem.length > 0) {
+                    for (num = 0; num < fuItem.length; num++) {
+                        strMsg += '  <tr>';
+                        var tempItem = strJson.filter(function (ext) {
+                            return ext["pid"] == fuItem[num]["id"];
+                        });
+                        var numCount = Math.ceil(tempItem.length );
+                        strMsg += '     <td rowspan="' + numCount + '" align="center">';
+                        strMsg += fuItem[num]["jc_NAME"];
+                        strMsg += '   </td>';
+                        if (tempItem.length > 0) {
+                            for (numII = 0; numII < tempItem.length; numII++) {
+                                if (numII > 0) {
+                                    strMsg += '  <tr>';
+                                }
+                                strMsg += '     <td align="center">';
+                                strMsg += tempItem[numII]["jc_NAME"];
+                                strMsg += '   </td>';
+                                strMsg += '     <td align="center">';
+                                var strData = "";
+                                var strValue = "";
+                                var _item=null;
+                                if(strResult!=null){
+                                    _item=strResult.filter(function(res){
+                                        return res["zt_ID"]==tempItem[numII]["id"];
+                                    });
+                                }
+
+                                if (tempItem[numII]["jc_TYPE"] != undefined) {
+                                    var jcType = tempItem[numII]["jc_TYPE"].split('、');
+                                    for (nm = 0; nm < jcType.length; nm++) {
+                                        strValue = jcType[nm];
+                                        var tt=_item.filter(function(evt){
+                                            return evt["meet"]==strValue;
+                                        })
+                                        if(tt.length>0){
+                                            strData+='<span class="qingkuan">'+strValue+'<span class="fontSize18">☑</span></span>';
+                                        }else{
+                                            strData+='<span class="qingkuan">'+strValue+'<span class="fontSize18">⊡</span></span>';
+                                        }
+                                       
+                                    }
+                                }
+                                strMsg+=strData;
+                                strMsg += '   </td>'; 
+
+                                strMsg += ' </tr> ';
+                            }
+                        } else {
+                            strMsg += ' </tr> ';
+                        }
+
+
+
+                    }
+                }
+            }
+
+            strMsg += '   </table>';
+            strMsg += '   </div>';
+
+            $("#tableView1").html(strMsg);
+            mini.parse();
+        }
+    
+        function setView(strPic){
+            var tempPIC = "";
+            
+            if (strPic.length > 0) {
+                tempPIC=' <div  style="page-break-before:always;"><br /></div>';
+                for (num = 0; num < strPic.length; num++) {
+                    //每页6张问题图片
+                    tempPIC += ' <br />';
+                    tempPIC += ' <div class="fontSizeTITLE" style="height:70px !important;line-height:70px !important;border:0px !important;width:98%;text-align:left;margin-left: 35px;">'; 
+                    //tempPIC += pathName + strJson.JC_GLSTYPE; + "（附件）";
+                    tempPIC += "附图：";
+                    tempPIC += '</div>';
+                    tempPIC += '<table cellpadding="0" cellspacing="0" border="0" class="table1" style="height:900px;">';
+                    for (numII = 0; numII < 4; numII++) {
+                        //每行2个问题图片 
+                        tempPIC += '<tr>';
+                        //第一张
+                        if (num < strPic.length) {
+                            tempPIC += '      <td align="center" style="line-height:normal;height:auto;width:50% !important;">';
+//                            tempPIC += '  <div style="padding:8px; font-size:16px;">';
+//                            if (strPic[num].JC_TYPE != "0") {
+//                                tempPIC += '问题处置信息';
+//                            } else {
+//                                tempPIC += '发现问题信息';
+//                            }
+//                            tempPIC += '   </div>';
+
+                            tempPIC += '     <div style="height:240px; margin-top:10px;">';
+                            tempPIC += '            <img src="' + HttpUrl + strPic[num].pathname+"/"+ strPic[num].url + '" style="width:250px;height:240px;" />';
+                            tempPIC += '   </div>';
+                            var tempNote = strPic[num].note == undefined ? "" : strPic[num].note;
+                            if (strPic[num].staues != "0") {
+                                tempNote = strPic[num].note == undefined ? "" : strPic[num].note;
+                                tempPIC += '  <div style="padding:8px; font-size:13px;color:#2f88e9;">';
+
+                            } else {
+                                tempPIC += '  <div style="padding:8px; font-size:13px;color:red;">';
+                            
+                            }
+                            tempPIC += '     【' + strPic[num].name + '】 ' + tempNote;
+                            tempPIC += '    </div>';
+                            tempPIC += '</td>';
+
+                        } else {
+                            tempPIC += '<td align="center" style="line-height:normal;height:auto;width:50% !important;">';
+                            tempPIC += '   <div style="height:240px;">';
+                            tempPIC += ' </div>';
+                            tempPIC += '<div style="padding:8px; font-size:13px;">';
+                            tempPIC += '  </div>';
+                            tempPIC += ' </td>';
+                        }
+                        num++;
+                        //第二张
+                        if (num < strPic.length) {
+                            tempPIC += '      <td align="center" style="line-height:normal;height:auto;width:50% !important;">';
+//                            tempPIC += '  <div style="padding:8px; font-size:16px;">';
+//                            if (strPic[num].JC_TYPE != "0") {
+//                                tempPIC += '问题处置信息';
+//                            } else {
+//                                tempPIC += '发现问题信息';
+//                            }
+//                            tempPIC += '   </div>';
+                            tempPIC += '     <div style="height:240px; margin-top:10px;">';
+                            tempPIC += '            <img src="' + HttpUrl +  strPic[num].pathname+"/"+ strPic[num].url + '" style="width:250px;height:240px;" />';
+                            tempPIC += '   </div>';
+                            tempPIC += '  <div style="padding:8px; font-size:13px;">';
+                            var tempNote = strPic[num].note == undefined ? "" : strPic[num].note;
+                            if (strPic[num].staues != "0") {
+                                tempNote = strPic[num].note == undefined ? "" : strPic[num].note;
+                                tempPIC += '  <div style="padding:8px; font-size:13px;color:#2f88e9;">';
+
+                            } else {
+                                tempPIC += '  <div style="padding:8px; font-size:13px;color:red;">';
+
+                            }
+                            tempPIC += '     【' + strPic[num].name + '】 ' + tempNote;
+                            tempPIC += '    </div>';
+                            tempPIC += '</td>';
+
+                        } else {
+                            tempPIC += '<td align="center" style="line-height:normal;height:auto;width:50% !important;">';
+                            tempPIC += '   <div style="height:240px;">';
+                            tempPIC += ' </div>';
+                            tempPIC += '<div style="padding:8px; font-size:13px;">';
+                            tempPIC += '  </div>';
+                            tempPIC += ' </td>';
+                        }
+
+                        tempPIC += ' </tr>';
+                        num++;
+                    }
+
+                    tempPIC += ' </table> ';
+                }
+            } 
+            $("#divPic").html(tempPIC);
+        }
+    </script>
+</body>
+
+</html>

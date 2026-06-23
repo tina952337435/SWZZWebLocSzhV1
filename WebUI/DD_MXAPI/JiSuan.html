@@ -1,0 +1,839 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.1"></script>
+    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <title>计算统计</title>
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+        .tezhegnzhi{
+            height:40px;
+            display:none;
+        }
+        .onlytab {
+            height: 40px;
+            margin: auto;
+            width:250px !important;
+            margin:0px 10px 0px 0px;
+            float: right;
+        }
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width: 50% !important;
+            height: 30px;
+            font: 14px/30px "arial";
+            text-align: center;
+        }
+
+        .start {
+            border-radius: 5px 0 0 5px;
+        }
+
+        .end {
+            border-radius: 0 5px 5px 0;
+        }
+
+        .onlyli:hover {
+            background-color: #3291f9;
+            color: White;
+            cursor: pointer;
+        }
+
+        .onlyliHover {
+            background-color: #3291f9 !important;
+            color: White;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="width: 100%;">
+        <div style="width: 100%;height:80px;margin: 0px auto;text-align: center;">
+            <div class="pointsRule">
+                <ul id="list">
+                    <li style="z-index:5;" id="one" onclick="ClickFirst()"><a><span>1.依据时间设定</span><i></i></a></li>
+                    <li style="z-index:4" id="two" onclick="ClickSecond()"><a><em class="before"></em><span>2.预报降雨输入</span><i></i></a></li>
+                    <li style="z-index:3" id="three" onclick="ClickThird()"><a><em class="before"></em><span>3.边界条件输入</span><i></i></a></li>
+                    <li style="z-index:2" id="four" onclick="ClickFourth()"><a><em class="before"></em><span>4.工程调度</span><i></i></a></li>
+                    <li style="z-index:1" id="five" onclick="ClickFifth()"><a><em class="before"></em><span>5.预测结果</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:right;width:100%;">
+        <a class="mini-button" onclick="btnSava()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">保存方案</a>
+    </div>
+    <div style="width: 100%;height: calc(100% - 80px);">
+        <div style="width: 100%; height: 100%; border: solid 1px #ccc;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);">
+            <div style="width: 300px;float:left; margin-top:5px;margin-left:5px; height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);">
+                <div style="margin-bottom:5px; margin-top:5px; ">
+                    <label>&nbsp;&nbsp;名称：</label>
+                    <input id="key" class="mini-textbox" style="width:120px;" onenter="onKeyEnter" />
+                    <a class="mini-button" style="width:60px;" onclick="btnSearch()">搜索</a>
+                </div>
+
+                <ul id="tree1" class="mini-tree" style="width:100%;padding:5px;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);"
+                    showTreeIcon="true" textField="name" idField="stcd" onNodeClick="onNodeClick" expandOnLoad="true"></ul>
+            </div>
+
+            <div style="width: -webkit-calc(100% - 320px);width: -moz-calc(100% - 320px);width: calc(100% - 320px);height:100%;float:right;">
+                <div id="fit1" class="fit">
+                    <div id="divChart" style="height:400px;width:99.5%;">
+
+                    </div>
+                </div>
+                <div id="fit2" class="fit" style="height: -webkit-calc(100% - 440px);height: -moz-calc(100% - 440px);height: calc(100% - 440px);">
+                    <div class="tezhegnzhi">
+                            <ul class="onlytab">
+                                <li id="TitleLiGC" onclick="OnClickTitle(this.id,'GC')" class="onlyli start onlyliHover">潮(水位)过程</li>
+                                <li id="TitleLiTZ" onclick="OnClickTitle(this.id,'TZ')" class="onlyli end">潮位特征值</li>
+                            </ul>
+                    </div>
+                    <div id="grid1" class="mini-datagrid" style="width: 99%; height: 100%; margin: auto;margin-top:10px;"
+                        showPager="false" idfield="STCD" allowresize="false" allowalternating="true" showemptytext="true"
+                        emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell" sortmode="client">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("grid1");
+        var tree = mini.get("tree1");
+        $(function () {
+            $.data(myData, "ColoumnType","GC");
+            OnLoad();
+            modelGetPresetResultInfoList();
+            modelGetRainReceivingCapacity();
+            app.post("SWZZ_MODE_ES_JISUANZHAN/findResult", {}, function (res) {
+                JosnSel(res, "JISUANZHAN");
+            });
+        })
+
+        function gridLoad() {
+            var treeNodes = tree.getSelectedNode();
+            var ParentNode = tree.getParentNode(treeNodes);
+
+            var result = $.data(myData, "result");
+            var _xData = $.data(myData, "_xData");
+            var danwei = "m";
+            var NAME = ParentNode.name;
+            
+            setColoumn();
+
+            grid.setData(result);
+
+            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
+            if (NAME == "水位") {
+                strNote += ',{"name": "实测","codename": "UPZ","tableV":"1","isShow":true,"width":"30%"}';
+            }
+            strNote += ',{"name": "' + treeNodes.name + '","codename": "DATA","tableV":"1","isShow":true,"width":"30%"}]';
+            var LineColor = ['blue', '#15D69F', '#00FF00', '#FFA500'];
+
+            chartCHART("divChart", _xData, eval('(' + strNote + ')'), LineColor, NAME + "(" + danwei + ")");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "JISUANZHAN") {
+                var result = data.data;
+                var resultP = [{ id: "1", text: "水位" }, { id: "2,7,8,24,25", text: "流量" }, { id: "15", text: "蓄量" }, { id: "14", text: "水面积" }, { id: "19", text: "平均水位" }];
+                var sortNum = 0;
+                var listUser = [];
+                for (var num = 0; num < resultP.length; num++) {
+                    var dto = {};
+                    var mtype = resultP[num]["id"];
+                    var mtypeArr = mtype.split(',');
+                    var text = resultP[num]["text"];
+                    dto.id = mtype;
+                    dto.name = text;
+                    dto.type = mtype;
+                    dto.stcd = mtype;
+                    dto.pid = "-1";
+                    dto.px = sortNum;
+                    listUser.push(dto);
+                    sortNum++;
+                    // console.error(listUser);
+                    var listTemp = result.filter(function (u) {
+                        return mtypeArr.indexOf(u.type) > -1;
+                    });
+                    for (var _index = 0; _index < listTemp.length; _index++) {
+                        dto = listTemp[_index];
+                        dto.pid = mtype;
+                        listUser.push(dto);
+                    }
+                }
+                tree.loadList(listUser, "id", "pid");
+                tree.select(1);
+                search();
+            }
+            else if (typeID == "MODE_DD_SOLUTIONUpdate") {
+                var objID = $.data(myData, "objIDNew");
+                var DD_ID = $.data(myData, "DD_IDNew");
+                try {
+                    window.parent.OpenTab("fa-delicious", "调度预测成果", "../DD_MX/ResultsRelease.html?ID=" + objID + "&DD_ID=" + DD_ID + "&type=list");
+                } catch (error) {
+                    window.location.href = "../DD_MX/ResultsRelease.html?ID=" + objID + "&DD_ID=" + DD_ID + "&type=list";
+                }
+            }
+            else if (typeID == "GetResultPresetByTimePeriod") {
+                var info = data.info;
+                if (info.success && info.code == 1) {
+                    console.error(typeID, data);
+                    var times = data.data.times;//时间数组
+                    var vals = data.data.vals;//值数组
+
+                    var _xData = [];
+                    var result = [];
+                    for (var num = 0; num < times.length; num++) {
+                        var _tm, _data = "", _upz = null;
+                        _tm = new Date(times[num]);
+                        var _tmStr = _tm.format("yyyy-MM-dd HH:mm:ss");
+                        _data = vals[num];
+                        var node = tree.getSelectedNode();
+                        //水面积和蓄量需要转单位：万m³转百万m³，平方米转平方公里
+                        if (node.type == "15" || node.type == "14") {//蓄量
+                            _data = _data / 1000000;
+                        }
+                        if (node.type == "1") {
+                            var scswData = $.data(myData, "scswData");
+                            if (scswData != undefined && scswData != null) {
+                                var scswDataTemp = scswData.filter(function (res) {
+                                    var scswTM = new Date(res.TM).format("yyyy-MM-dd HH:mm:ss");
+                                    return scswTM == _tmStr;
+                                });
+                                _upz = scswDataTemp.length > 0 ? scswDataTemp[0].UPZ : null;//实测水位
+                            }
+                        }
+                        if (node.type == "1") {//水位取5分钟数据
+                            _xData.push({ "TM": _tm.format("M月d日H时m分"), "DATA": _data, UPZ: _upz });
+                            result.push({ "TM": _tm.format("yyyy-MM-dd HH:mm:ss"), "DATA": _data, "UPZ": _upz });
+                        }
+                        else {//其他取一小时一个数据
+                            if (_tm.getMinutes() == 0) {
+                                _xData.push({ "TM": _tm.format("M月d日H时m分"), "DATA": _data, UPZ: _upz });
+                                result.push({ "TM": _tm.format("yyyy-MM-dd HH:mm:ss"), "DATA": _data, "UPZ": _upz });
+                            }
+                        }
+                    }
+                    $.data(myData, "result", result);
+                    $.data(myData, "_xData", _xData);
+                    gridLoad();
+                    mini.unmask(document.body);
+                }
+                else {
+                    ShowMsg(info.msg);
+                }
+                mini.unmask(document.body);
+            }
+            else if (typeID == "WATER_ST_WAS_RDZNEW") {
+                $.data(myData, "scswData", data.data);
+                var node = tree.getSelectedNode();
+                var STIME = AddHourDate($.data(myData, "stime"), -24);
+                var ETIME = $.data(myData, "etime");
+                modelGetResultPresetByTimePeriod(node.id, STIME, ETIME);
+            }
+        }
+        //分页
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, $.data(myData, "gridData"), grid);
+        });
+
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if (field != "TM"&&field != "tm"&&field != "isHL") {
+                if (value != null && value != "" && value != undefined) {
+                    e.cellHtml = parseFloat(value).toFixed(2);
+                }
+            }
+            else{
+                if(field=="isHL"){
+                    var str="低";
+                    if(value=="H"){
+                        str="高";
+                    }
+                    e.cellHtml=str;
+                }
+            }
+        }
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            $(".fit").hide();
+            $("#" + objFit).show();
+            gridLoad();
+        }
+        function onNodeClick(e) {
+            var only = $(".onlyli").removeClass("onlyliHover");
+            $("#TitleLiGC").addClass("onlyliHover");
+            $.data(myData, "ColoumnType","GC");
+            var tree = e.sender;
+            var node = e.node;
+            var isLeaf = tree.isLeaf(node);
+            if (isLeaf == false) {
+                e.cancel = true;
+            } else {
+                search();
+            }
+        }
+        function search() {
+            var node = tree.getSelectedNode();
+            $(".tezhegnzhi").hide();
+            var cwstcd="1170181,1850281,2060881,1460281,1550181";//吴淞口，芦潮港,黄浦公园,米市渡,大治河西闸（闸外）
+            if(cwstcd.indexOf(node.stcd)>-1){
+                $(".tezhegnzhi").show();
+            }
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            if (node.type == "1") {//水位
+                //查询实测水潮位
+                var STIME = AddHourDate($.data(myData, "stime"), -24);
+                var ETIME = $.data(myData, "etime");
+                var strWhere = {
+                    startdate: STIME,
+                    enddate: ETIME,
+                    stcd: node.stcd
+                }
+                app.post("/SWZZ_FLOOD_RTSQ/WATER_ST_WAS_RDZNEW", strWhere, (data) => {
+                    JosnSel(data, "WATER_ST_WAS_RDZNEW")
+                });
+            }
+            else {
+                modelGetResultPresetByTimePeriod(node.id);
+            }
+        }
+        function btnSearch() {
+            var key = mini.get("key").getValue();
+            if (key == "") {
+                tree.clearFilter();
+            } else {
+                key = key.toLowerCase();
+                tree.filter(function (node) {
+                    var text = node.text ? node.text.toLowerCase() : "";
+                    if (text.indexOf(key) != -1) {
+                        return true;
+                    }
+                });
+            }
+        }
+        function onKeyEnter(e) {
+            btnSearch();
+        }
+        //保存方案
+        function btnSava() {
+            var strParam = "type@1,STIME@" + $.data(myData, "stime") + ",ETIME@" + $.data(myData, "etime") + ",DD_EVALUE@" + $.data(myData, "DD_EVALUE") + ",DD_ID@" + $.data(myData, "DD_ID") + ",taskID@" + $.data(myData, "taskID") + ",ModeJYDan@" + $.data(myData, "ModeJYDan");
+            var url =window.location.pathname.indexOf('swzzWeb')>-1?"FangAn.html":"DD_MXAPI/FangAn.html";
+            addData(strParam, url, "调度方案记录管理", "700px", "500px", "true");
+        }
+
+        top["win"] = window;
+        function OpenHref(objID, DD_ID) {
+            mini.confirm("是否收藏方案？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        $.data(myData, "objIDNew", objID);
+                        $.data(myData, "DD_IDNew", DD_ID);
+                        var DD_CARRYBY = "10";
+                        var strWhere = { id: objID, dd_CARRYBY: DD_CARRYBY };
+                        app.post("SWZZ_MODE_DD_SOLUTION/modify", strWhere, function (res) {
+                            JosnSel(res, "MODE_DD_SOLUTIONUpdate");
+                        });
+                    } else {
+                        try {
+                            window.parent.OpenTab("fa-delicious", "调度预测成果", "../DD_MX/ResultsRelease.html?ID=" + objID + "&DD_ID=" + DD_ID + "&type=list");
+                        } catch (error) {
+                            window.location.href = "../DD_MX/ResultsRelease.html?ID=" + objID + "&DD_ID=" + DD_ID + "&type=list";
+                        }
+                    }
+                }
+            );
+        }
+        function OnClickTitle(objID, objPathName) {//选择类型
+            var only = $(".onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            $.data(myData, "ColoumnType", objPathName);
+            setColoumn();
+            //统计高低潮
+
+        }
+        function setColoumn(){
+            var treeNodes = tree.getSelectedNode();
+            var ParentNode = tree.getParentNode(treeNodes);
+            var NAME = ParentNode.name;
+            var danwei = "m";
+            var ColoumnsName = {};
+            if ($.data(myData, "ColoumnType") == "GC") {
+                ColoumnsName = {
+                    "TM": "时间",
+                    "DATA": NAME + '(' + danwei + ')',
+                    "UPZ": "实测" + NAME + '(' + danwei + ')'
+                };
+                if (NAME == "流量" || NAME == "蓄水量") {
+                    danwei = "m³/s";
+                    ColoumnsName = {
+                        "TM": "时间",
+                        "DATA": NAME + '(' + danwei + ')'
+                    };
+                }
+                if (NAME == "蓄量") {
+                    danwei = "百万方";
+                    ColoumnsName = {
+                        "TM": "时间",
+                        "DATA": NAME + '(' + danwei + ')'
+                    };
+                }
+                if (NAME == "水面积") {
+                    danwei = "k㎡";
+                    ColoumnsName = {
+                        "TM": "时间",
+                        "DATA": NAME + '(' + danwei + ')'
+                    };
+                }
+                if (NAME == "平均水位") {
+                    danwei = "m";
+                    ColoumnsName = {
+                        "TM": "时间",
+                        "DATA": NAME + '(' + danwei + ')'
+                    };
+                }
+            }
+            else{
+                ColoumnsName = {
+                    "tm": "时间",
+                    "tdz": NAME + '(' + danwei + ')',
+                    "isHL": '备注',
+                };
+            }
+            SetColumns(ColoumnsName, grid);
+            var result = $.data(myData, "result");
+            if ($.data(myData, "ColoumnType") == "GC") {
+                grid.setData(result);
+            }
+            else{
+                //计算高低潮
+                console.error('result',result);
+                var resultTemp=result.filter(function(e){
+                    return new Date(e.TM).getTime()>=new Date($.data(myData, "stime")).getTime();
+                });
+                var tideHList=[];
+                resultTemp.map(m=>{
+                    tideHList.push([m.TM,m.DATA]);
+                });
+                var gdcList= computeHL(tideHList);
+                console.error('gdcList',gdcList);
+                grid.setData(gdcList);
+            }
+        }
+        function computeHL(tideHList) {
+            // ["2025-1-1 0:00",2.76]
+            const gdcList = [];
+            let vvalid = false;
+            var v0 = parseFloat(tideHList[0][1]);
+            var v1 = parseFloat(tideHList[1][1]);
+            var v2 = parseFloat(tideHList[2][1]);
+
+            // 3小时15分 - 3小时30分
+            for (let index = 39; index < tideHList.length - 3 - 39; index++) {
+                const v3 = parseFloat(tideHList[index][1]);
+                const v4 = parseFloat(tideHList[index + 1][1]);
+                const v5 = parseFloat(tideHList[index + 2][1]);
+                const v6 = parseFloat(tideHList[index + 3][1]);
+                let hlstr = "";
+
+                if (v3 !== v5) {
+                    vvalid = false;
+                    if (v3 >= v0 && v3 >= v1 && v3 >= v2 && v3 >= v4 && v3 >= v5 && v3 >= v6) {
+                        if (v3 >= parseFloat(tideHList[index - 6][1]) && v3 >= parseFloat(tideHList[index - 12][1]) &&
+                            v3 >= parseFloat(tideHList[index - 18][1]) && v3 >= parseFloat(tideHList[index - 24][1]) &&
+                            v3 >= parseFloat(tideHList[index - 30][1]) && v3 >= parseFloat(tideHList[index - 36][1]) &&
+                            v3 >= parseFloat(tideHList[index + 6][1]) && v3 >= parseFloat(tideHList[index + 12][1]) &&
+                            v3 >= parseFloat(tideHList[index + 18][1]) && v3 >= parseFloat(tideHList[index + 24][1]) &&
+                            v3 >= parseFloat(tideHList[index + 30][1]) && v3 >= parseFloat(tideHList[index + 36][1])) {
+                            vvalid = true;
+                            hlstr = "H";
+                        }
+                    } else if (v3 <= v0 && v3 <= v1 && v3 <= v2 && v3 <= v4 && v3 <= v5 && v3 <= v6) {
+                        if (v3 <= parseFloat(tideHList[index - 6][1]) && v3 <= parseFloat(tideHList[index - 12][1]) &&
+                            v3 <= parseFloat(tideHList[index - 18][1]) && v3 <= parseFloat(tideHList[index - 24][1]) &&
+                            v3 <= parseFloat(tideHList[index - 30][1]) && v3 <= parseFloat(tideHList[index - 36][1]) &&
+                            v3 <= parseFloat(tideHList[index + 6][1]) && v3 <= parseFloat(tideHList[index + 12][1]) &&
+                            v3 <= parseFloat(tideHList[index + 18][1]) && v3 <= parseFloat(tideHList[index + 24][1]) &&
+                            v3 <= parseFloat(tideHList[index + 30][1]) && v3 <= parseFloat(tideHList[index + 36][1])) {
+                            vvalid = true;
+                            hlstr = "L";
+                        }
+                    }
+
+                    if (vvalid) {
+                        const map = {
+                            tm: tideHList[index][0],
+                            tdz: tideHList[index][1],
+                            isHL: hlstr
+                        };
+                        gdcList.push(map);
+                        index = (index - 1) + 180 / 5;
+                    }
+
+                    v0 = v1;
+                    v1 = v2;
+                    v2 = v3;
+                }
+            }
+            // console.error(JSON.stringify(gdcList));
+            return gdcList;
+        }
+    </script>
+    <script type="text/javascript">
+        function chartCHART(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var tm = new Date($.data(myData, "stime")).format("M月d日H时m分");
+            console.error(tm);
+            //echarts.init(document.getElementById('quxian'), 'macarons');
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(new Date(value[value1.codename].replaceAll("-","/")).format("MM-dd HH:mm")); //加入时间集合
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            //获得最大值最小值
+            //var max_min = GetSort(chartValue);
+            //console.error(max_min.max);
+            chartValue.sort(compare);
+            var _min = chartValue[0];
+            var _max = chartValue[chartValue.length - 1];
+            max_min = { min: _min, max: _max };
+            //console.error(max_min.max);
+            var option = {
+                //backgroundColor: '#100E19',
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                    //控制过程线默认是否显示
+                    //       ,
+                    //		 selected: {
+                    //          '警戒水位' : false
+                    //      }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartTM,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#000000',
+                                width: 1, //这里是为了突出显示加上的
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            }
+                        },
+                        //axisPointer: {
+                        //    value: tm,
+                        //    snap: true,
+                        //    lineStyle: {
+                        //        color: '#004E52',
+                        //        opacity: 0.5,
+                        //        width: 2
+                        //    },
+                        //    label: {
+                        //        show: true,
+                        //        formatter: function (params) {
+                        //            return params.value;
+                        //        },
+                        //        backgroundColor: '#004E52'
+                        //    },
+                        //    handle: {
+                        //        show: true,
+                        //        color: '#004E52',
+                        //        size: 0
+                        //    }
+                        //}
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.min - (jiangenew - jiange) / 200 - 1;
+                            }
+                            else {
+                                return value.min - (jiangenew - jiange - 1) / 200 - 1;
+                            }
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.max + (jiangenew - jiange) / 200 + 1;
+                            }
+                            else {
+                                return value.max + (jiangenew - jiange + 1) / 200 + 1;
+                            }
+
+                        },
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#E5E5E5',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        //min:max_min.min, //动态设置最大值最小值。
+                        //max:max_min.max,
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#000000',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 2)); //循环价值
+                        }
+                        if (max_min_Name != "" & max_min_Name == chartName[j]) {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    var item = {
+                        name: '平行于y轴的趋势线',
+                        type: 'line',
+                        markLine: {
+                            itemStyle: {      //盒须图样式。
+                                color: '#004E52'
+                            },
+                            name: 'cc',
+                            data: [[
+                                { coord: [tm, 0] },
+                                { coord: [tm, max_min.max] }
+                            ]]
+                        }
+                    }
+                    serie.push(item);
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+    <script type="text/javascript">
+        function OnLoad() {
+            var current1 = GetCookie("one");
+            var current2 = GetCookie("two");
+            var current3 = GetCookie("three");
+            var current4 = GetCookie("four");
+            var current5 = GetCookie("five");
+            //console.error(current1 + ":::" + current2 + ":::" + current3 + ":::" + current4);
+
+            if (current1 != null && current1 != "") {
+                $("#one").removeClass("gray");
+                $("#one").addClass("green");
+                $("#one").find('i').eq(0).removeClass("gray");
+                $("#one").find('i').eq(0).addClass("green");
+            } else {
+                $("#one").removeClass("orange");
+                $("#one").addClass("gray");
+                $("#one").find('i').eq(0).removeClass("orange");
+                $("#one").find('i').eq(0).addClass("gray");
+            }
+            if (current2 != null && current2 != "") {
+                $("#two").removeClass("gray");
+                $("#two").addClass("green");
+                $("#two").find('i').eq(0).removeClass("gray");
+                $("#two").find('i').eq(0).addClass("green");
+            } else {
+                $("#two").removeClass("green");
+                $("#two").addClass("gray");
+                $("#two").find('i').eq(0).removeClass("green");
+                $("#two").find('i').eq(0).addClass("gray");
+            }
+
+            if (current3 != null && current3 != "") {
+                $("#three").removeClass("gray");
+                $("#three").addClass("green");
+                $("#three").find('i').eq(0).removeClass("gray");
+                $("#three").find('i').eq(0).addClass("green");
+            } else {
+                $("#three").removeClass("green");
+                $("#three").addClass("gray");
+                $("#three").find('i').eq(0).removeClass("green");
+                $("#three").find('i').eq(0).addClass("gray");
+            }
+            if (current4 != null && current4 != "") {
+                $("#four").removeClass("gray");
+                $("#four").addClass("green");
+                $("#four").find('i').eq(0).removeClass("gray");
+                $("#four").find('i').eq(0).addClass("green");
+            } else {
+                $("#four").removeClass("green");
+                $("#four").addClass("gray");
+                $("#four").find('i').eq(0).removeClass("green");
+                $("#four").find('i').eq(0).addClass("gray");
+            }
+            if (current5 != null && current5 != "") {
+                $("#five").removeClass("gray");
+                $("#five").addClass("orange");
+                $("#five").find('i').eq(0).removeClass("gray");
+                $("#five").find('i').eq(0).addClass("orange");
+            } else {
+                $("#five").removeClass("green");
+                $("#five").addClass("gray");
+                $("#five").find('i').eq(0).removeClass("green");
+                $("#five").find('i').eq(0).addClass("gray");
+            }
+        }
+        function up_click() {
+            url = "ShuiWei.html";
+            Next_Click(url);
+        }
+        function next_click() {
+            var url = "GongCheng.html";
+            Next_Click(url);
+        }
+    </script>
+</body>
+
+</html>

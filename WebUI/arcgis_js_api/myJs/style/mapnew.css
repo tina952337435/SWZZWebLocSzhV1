@@ -1,0 +1,616 @@
+/*地图div样式*/
+#myMap {
+    overflow: hidden;
+}
+
+.MapText {
+    min-width: 30px;
+    border-radius: 3px;
+    position: absolute;
+    text-align: left;
+    padding: 0px;
+    line-height: 14px;
+    font-size: 14px;
+    pointer-events: none; 
+}
+
+.waterText {
+    border: 1px solid rgb(151,166,151);
+    min-width: 30px;
+    position: absolute;
+    text-align: left;
+    padding: 5px;
+    line-height: 14px;
+    font-size: 14px;
+    pointer-events: none;
+    color: black;
+    background: rgba(246, 254, 246, 0.8);
+}
+
+.gqText {
+    border: 1px solid #ddd;
+    /*color: #2C2D2C;
+    background: rgba(239,255,239,0.7);*/
+    color: #1C1C1C;
+    background: rgba(187,255,187, 0.8);
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    -moz-box-shadow: 0px 5px 10px #888686; /*firefox*/
+    -webkit-box-shadow: 0px 5px 10px #888686; /*safari或chrome*/
+    box-shadow: 0px 5px 10px #888686; /*opera或ie9*/
+    text-align: center;
+    /*font-weight:600;*/
+    font-size: 14px;
+}
+
+.gqRed {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    padding: 4px;
+    border: 2px solid #A1A1A1;
+    border-radius: 50%;
+    background-color: #A1A1A1;
+}
+
+.gqGreen {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    padding: 4px;
+    border: 2px solid #00DB00;
+    border-radius: 50%;
+    background: rgba(0,219,0,0.7);
+}
+
+.gqText img {
+    cursor: pointer;
+}
+
+.wrzText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    /*-moz-box-shadow: 0px 5px 10px #888686; 
+    -webkit-box-shadow: 0px 5px 10px #888686;  
+    box-shadow: 0px 5px 10px #888686;*/
+    color: #FFFFFF;
+    background: rgba(247,93,0,0.7);
+}
+
+.grzText {
+    border: 1px solid #ddd;
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    -moz-box-shadow: 0px 5px 10px #888686; /*firefox*/
+    -webkit-box-shadow: 0px 5px 10px #888686; /*safari或chrome*/
+    box-shadow: 0px 5px 10px #888686; /*opera或ie9*/
+    color: #FFFFFF;
+    background: rgba(159,2,2,0.7);
+}
+
+.InfoText {
+    border: 1px solid red;
+    background: #FFFFFF;
+    min-height: 25px;
+}
+
+.TextDiv {
+    border: 0;
+    background: #6DCD2B;
+}
+
+    .TextDiv .TextTri {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        z-index: -1;
+        background: #6DCD2B;
+        margin: auto;
+        margin-top: -5px;
+        left: 0;
+        right: 0;
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
+        -ms-transform: rotate(45deg); /* IE 9 */
+        -moz-transform: rotate(45deg); /* Firefox */
+        -webkit-transform: rotate(45deg); /* Safari 和 Chrome */
+        -o-transform: rotate(45deg); /* Opera */
+    }
+
+
+.TipBox {
+    border: 1px solid #CCC;
+    position: absolute;
+    min-width: 30px;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background-color: White;
+    text-indent: 3px;
+    line-height: 16px;
+}
+
+.TipTitle {
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    margin-top: 0px;
+    margin-bottom: -5px;
+    height: 25px;
+    color: White;
+    text-align: left;
+    line-height: 25px;
+    background-color: #3190F8;
+    text-indent: 18px;
+    padding-right: 16px;
+}
+
+.TipClass {
+    margin-right: 15px;
+    margin-bottom: 12px;
+    margin-left: 6px;
+    margin-top: 11px;
+    text-indent: 15px;
+}
+
+    .TipClass span {
+        color: Blue;
+    }
+
+/*水质类别*/
+.szqcText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    color: #000000;
+    background: #D3CFCF;
+}
+
+.szoneText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    color: #000000;
+    background: #56D4FD;
+}
+
+.sztwoText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    color: #000000;
+    background: #1AA9F1;
+}
+
+.szthreeText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    /*-moz-box-shadow: 0px 5px 10px #888686; 
+    -webkit-box-shadow: 0px 5px 10px #888686;  
+    box-shadow: 0px 5px 10px #888686; */
+    color: #000000;
+    background: #5ED624;
+}
+
+.szfourText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    color: #000000;
+    background: #FEC307;
+}
+
+.szfiveText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    color: #000000;
+    background: #FD5508;
+}
+.szhuiText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    color: #000000;
+    background: #CCCED3;
+    opacity: 0.8;
+}
+.top {
+    margin-top: -10px;
+}
+.left {
+    margin-left: -2px;
+}
+.right {
+    margin-left: 5px;
+}
+.bottom {
+    margin-top: 6px;
+}
+.topwaterText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: rgb(151,166,151);
+}
+
+.bottomwaterText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: rgb(151,166,151);
+}
+
+.leftwaterText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: rgb(151,166,151);
+}
+
+.rightwaterText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: rgb(151,166,151);
+}
+
+.topwrzText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: rgba(247,93,0,0.7);
+}
+
+.bottomwrzText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: rgba(247,93,0,0.7);
+}
+
+.leftwrzText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: rgba(247,93,0,0.7);
+}
+
+.rightwrzText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: rgba(247,93,0,0.7);
+}
+
+
+
+.topszqcText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #D3CFCF;
+}
+
+.bottomszqcText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: #D3CFCF;
+}
+
+.leftszqcText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #D3CFCF;
+}
+
+.rightszqcText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #D3CFCF;
+}
+.topszoneText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #56D4FD;
+}
+
+.bottomszoneText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: #56D4FD;
+}
+
+.leftszoneText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #56D4FD;
+}
+
+.rightszoneText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #56D4FD;
+}
+.topsztwoText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #1AA9F1;
+}
+
+.bottomsztwoText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: #1AA9F1;
+}
+
+.leftsztwoText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #1AA9F1;
+}
+
+.rightsztwoText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #1AA9F1;
+}
+.topszthreeText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #5ED624;
+}
+
+.bottomszthreeText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: #5ED624;
+}
+
+.leftszthreeText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #5ED624;
+}
+
+.rightszthreeText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #5ED624;
+}
+.topszfourText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #FEC307;
+}
+
+.bottomszfourText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: #FEC307;
+}
+
+.leftszfourText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #FEC307;
+}
+
+.rightszfourText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #FEC307;
+}
+.topszfiveText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #FD5508;
+}
+
+.bottomszfiveText {
+    font-size: 38px;
+    margin-top: -14px;
+    color: #FD5508;
+}
+
+.leftszfiveText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #FD5508;
+}
+
+.rightszfiveText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #FD5508;
+}
+.topszhuiText {
+    font-size: 38px;
+    margin-top: 5px;
+    color: #CCCED3;
+}
+
+.leftszhuiText {
+    font-size: 38px;
+    margin-left: 24px;
+    color: #CCCED3;
+}
+
+.rightszhuiText {
+    font-size: 38px;
+    margin-left: -22px;
+    color: #CCCED3;
+}
+
+.bottomszhuiText {
+    font-size: 38px;
+    margin-top: -12px;
+    color: #CCCED3;
+}
+.gqtop {
+    margin-top: 12px;
+}
+/*新标注begin*/
+.amap-ui-district-cluster-marker {
+    color: #555;
+    background-color: #fffeef;
+    font-size: 14px;
+    white-space: nowrap;
+    position: absolute
+}
+
+.amap-ui-district-cluster-marker {
+    border: 1px solid #8e8e8e;
+    width: auto;
+    height: 22px;
+    border-radius: 5px 5px 5px 0;
+    left: 0;
+    top: 0
+}
+
+    .amap-ui-district-cluster-marker:after, .amap-ui-district-cluster-marker:before {
+        content: '';
+        display: block;
+        position: absolute;
+        width: 0;
+        height: 0;
+        border: solid rgba(0,0,0,0);
+        border-width: 6px;
+        left: 4px
+    }
+
+    .amap-ui-district-cluster-marker:after {
+        bottom: -12px;
+        border-top-color: #fffeef
+    }
+
+    .amap-ui-district-cluster-marker:before {
+        bottom: -13px;
+        border-top-color: #8e8e8e
+    }
+
+    .amap-ui-district-cluster-marker span {
+        vertical-align: middle;
+        padding: 3px 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 12px
+    }
+
+.amap-ui-district-cluster-marker-title {
+    border-radius: 5px 0 0 0
+}
+
+.amap-ui-district-cluster-marker-body {
+    background-color: #dc3912;
+    color: #fff;
+    border-radius: 0 5px 5px 0;
+	margin-top:0px;
+}
+
+.amap-ui-district-cluster-marker.level_country .amap-ui-district-cluster-marker-body {
+    background-color: #36c
+}
+
+.amap-ui-district-cluster-marker.level_zc .amap-ui-district-cluster-marker-body {
+    background-color: #1085ef
+}
+/*超警*/
+.amap-ui-district-cluster-marker.level_wrz .amap-ui-district-cluster-marker-body {
+    background-color: orange;
+    color: black !important;
+}
+/*超保*/
+.amap-ui-district-cluster-marker.level_grz .amap-ui-district-cluster-marker-body {
+    background-color: red;
+}
+
+
+/* 雨量标注 */
+.amap-ui-district-cluster-marker.rainText200 .amap-ui-district-cluster-marker-body {
+    background-color: #800140;
+}
+.amap-ui-district-cluster-marker.rainText199 .amap-ui-district-cluster-marker-body {
+    background-color: #F801FA;
+}
+.amap-ui-district-cluster-marker.rainText99 .amap-ui-district-cluster-marker-body {
+    background-color: #0004F6;
+}
+.amap-ui-district-cluster-marker.rainText49 .amap-ui-district-cluster-marker-body {
+    background-color: #62B7FE;
+}
+.amap-ui-district-cluster-marker.rainText24 .amap-ui-district-cluster-marker-body {
+    background-color: #39BC39;
+}
+.amap-ui-district-cluster-marker.rainText9 .amap-ui-district-cluster-marker-body {
+    background-color: #A7F387;
+}
+.amap-ui-district-cluster-marker.rainText .amap-ui-district-cluster-marker-body {
+    background-color: #FFFFFF;
+	 color: #000;
+}
+/* 雨量标注结束 */
+
+/*新标注end*/
+/*正常*/
+.zc-content-marker:before {
+    width: .15rem;
+    height: .15rem;
+    -webkit-animation: bubble1 1.2s infinite;
+    animation: bubble1 1.2s infinite;
+}
+
+.zc-content-marker:after, .wrz-content-marker:before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    -webkit-transform: translate(-50%,50%) rotateX(65deg);
+    transform: translate(-50%,50%) rotateX(65deg);
+    border-radius: 50%;
+    -webkit-box-shadow: 0 0 0.8rem #4498FF inset;
+    box-shadow: inset 0 0 0.8rem #4498FF;
+    z-index: -222;
+}
+
+.zc-content-marker:after {
+    width: .35rem;
+    height: .35rem;
+    -webkit-animation: bubble2 1.2s infinite;
+    animation: bubble2 1.2s infinite
+}
+/*超保证*/
+.custom-content-marker:before {
+    width: .15rem;
+    height: .15rem;
+    -webkit-animation: bubble1 1.2s infinite;
+    animation: bubble1 1.2s infinite;
+}
+
+.custom-content-marker:after, .custom-content-marker:before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    -webkit-transform: translate(-50%,50%) rotateX(65deg);
+    transform: translate(-50%,50%) rotateX(65deg);
+    border-radius: 50%;
+    -webkit-box-shadow: 0 0 0.8rem #dd5145 inset;
+    box-shadow: inset 0 0 0.8rem #dd5145;
+    z-index: -222;
+}
+
+.custom-content-marker:after {
+    width: .35rem;
+    height: .35rem;
+    -webkit-animation: bubble2 1.2s infinite;
+    animation: bubble2 1.2s infinite
+}
+/*超警戒*/
+.wrz-content-marker:before {
+    width: .15rem;
+    height: .15rem;
+    -webkit-animation: bubble1 1.2s infinite;
+    animation: bubble1 1.2s infinite;
+}
+
+.wrz-content-marker:after, .wrz-content-marker:before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    -webkit-transform: translate(-50%,50%) rotateX(65deg);
+    transform: translate(-50%,50%) rotateX(65deg);
+    border-radius: 50%;
+    -webkit-box-shadow: 0 0 0.8rem #FFA500 inset;
+    box-shadow: inset 0 0 0.8rem #FFA500;
+    z-index: -222;
+}
+
+.wrz-content-marker:after {
+    width: .35rem;
+    height: .35rem;
+    -webkit-animation: bubble2 1.2s infinite;
+    animation: bubble2 1.2s infinite
+}

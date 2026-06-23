@@ -1,0 +1,335 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>站点关联配置</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 12px;
+        }
+        .mini-listbox-border {
+            border-color: #ccc;
+            height: -webkit-calc(100% - 10px);
+            height: -moz-calc(100% - 10px);
+            height: calc(100% - 10px);
+        }
+    </style>
+</head>
+<body>
+    <table style="width:100%;table-layout:fixed;height: 100%;">
+        <tr>
+            <td style="width:50%;">
+                <div id="p1" class="mini-panel" title="站点配置" style="width:100%;height:100%;"
+                     buttons="" onbuttonclick="onbuttonclick">
+                    <div style="width:100%; height:98%;">
+                        <div style="margin-left:50px;height:100%;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;height:100%;">
+                                <tr>
+                                    <td colspan="4">
+                                        <span style="    font-weight: bold;">站点类型：</span> <div id="DIV_TAB" class="mini-checkboxlist" repeatitems="15" repeatlayout="table"
+                                                                                                    textfield="name" valuefield="stcd">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4" style="height:20px;">
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td valign="top" style="width:30%;">
+                                        <span style="    font-weight: bold;">站点列表：</span> 
+                                        <div id="listbox1" class="mini-listbox" style="width:100%;height: -webkit-calc(100% - 30px);height: -moz-calc(100% - 30px);height: calc(100% - 30px);    margin-top: 5px;"
+                                             textField="stnm" valueField="stcd" showCheckBox="true" multiSelect="true">
+                                        </div>
+
+                                    </td>
+                                    <td style="width:15%;" align="center">
+                                        <a class="mini-button" onclick="add()">></a><br /><br />
+                                        <a class="mini-button" onclick="addAll()">>></a><br /><br />
+                                        <a class="mini-button" onclick="removeAll()">&lt;&lt;</a><br /><br />
+                                        <a class="mini-button" onclick="removes()">&lt;</a>
+                                    </td>
+                                    <td valign="top" style="width:30%;">
+                                        <span style="    font-weight: bold;">待确认站点列表：</span>
+                                        <div id="listbox2" class="mini-listbox" style="width:100%;height: -webkit-calc(100% - 30px);height: -moz-calc(100% - 30px);height: calc(100% - 30px);   margin-top: 5px;"
+                                             showCheckBox="true" multiSelect="true">
+                                            <div property="columns">
+                                                <div header="站码" field="stcd"></div>
+                                                <div header="站名" field="stnm"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td style="width:15%;padding-left:10px;"> 
+                                        <a class="mini-button" onclick="saveData()">保存</a>
+                                    </td>
+                                </tr>
+                            </table>
+
+
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td style="width:50%;">
+                <div id="p2" class="mini-panel" title="站点列表信息" style="width:100%;height:100%;"
+                     buttons="" onbuttonclick="onbuttonclick">
+                    <div style="width:100%;height:100%;">
+                        <div class="mini-toolbar">
+                            &nbsp; &nbsp;  <div id="ck1" name="product" class="mini-checkbox" readOnly="false" text="关联信息" onvaluechanged="onValueChanged"></div>
+                            &nbsp; &nbsp; <span style="font-size:13px;">关键字：</span>&nbsp;<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 25px;width: 150px;" onenter="onKeyEnter" />
+                            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+                            <a class="mini-button" id="btnAdd" onclick="AddData()">新增</a><br />
+                        </div>
+                        <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 35px);height: -moz-calc(100% - 35px);height: calc(100% - 35px);" allowalternating="true"
+                             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="20" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+                            <div property="columns">
+                                <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+                                <div field="stnm" name="STNM" headeralign="center" align="center" allowsort="true">
+                                    站名
+                                </div>
+                                <div field="name" headeralign="center" align="center" allowsort="true">
+                                    关联名称
+                                </div>
+                                <div field="url" headeralign="center" align="center" allowsort="true">
+                                    关联路径
+                                </div>
+                                <div field="orderby" headeralign="center" align="center" allowsort="true">
+                                    排序
+                                </div>
+                                <div name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                                    基本操作
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            
+        </tr>
+    </table>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var myData = [];
+        var grid = mini.get("grid1");
+        mini.parse();
+        var listbox1 = mini.get("listbox1");
+        var listbox2 = mini.get("listbox2");
+
+        function add() {
+            var items = listbox1.getSelecteds();
+            listbox1.removeItems(items);
+            listbox2.addItems(items);
+        }
+        function addAll() {
+            var items = listbox1.getData();
+            listbox1.removeItems(items);
+            listbox2.addItems(items);
+        }
+        function removes() {
+            var items = listbox2.getSelecteds();
+            listbox2.removeItems(items);
+            listbox1.addItems(items);
+        }
+        function removeAll() {
+            var items = listbox2.getData();
+            listbox2.removeItems(items);
+            listbox1.addItems(items);
+        }
+        $(function () {
+            $("#btnAdd").hide();
+            app.post("SWZZ_MODE_st_stbprp_b/findResult",{},function(res){
+                JosnSel(res,"InputSTCD");
+            });
+            app.post("SWZZ_MODE_GL_STCD/findResult",{pattem:"站点配置"},function(res){
+                JosnSel(res,"DIV_TAB");
+            });
+
+            $.data(myData, "TYPE", "站点关联配置");
+            //默认加载数据
+            search();
+        })
+        function onKeyEnter() {
+            //关键字
+            search();
+        }
+        var dataResult = null;
+        function search() {
+            PageFillData(0, 20);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            //查询方法
+            var itemList = listbox2.getValue();
+            var _stcd = ""; 
+            if (itemList != "undefined" && itemList.length>0) {
+                for (num = 0; num < itemList.length; num++) { 
+                    _stcd += itemList[num] + ",";
+                }
+                if (_stcd.length > 0) {
+                    _stcd = _stcd.substring(0, _stcd.length - 1);
+                }
+            }
+            var strWhere = { 
+                "pattem": $.data(myData, "TYPE"), 
+                "stcd": _stcd, 
+                "kwtxt": mini.get("key").getValue(), 
+                "pageindex": pageIndex, 
+                "pagesize": pageSize 
+            };
+            app.post("SWZZ_MODE_GL_STCD/findResultStnm",strWhere,function(res){
+                JosnSel(res,"Sel");
+            });
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                console.log(JSON.stringify(data))
+                PageServerFill(grid, data);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            } else if (typeID == "DIV_TAB") {
+                $.data(myData, "GLDATA", data.data);
+                mini.get("DIV_TAB").setData(data.data);
+                mini.get("DIV_TAB").selectAll();
+            } else if (typeID == "InputSTCD") {
+                $.data(myData, "STCDDATA", data.data);
+                listbox1.setData(data.data);
+            } else if (typeID == "SavaData") {
+                showTips(data.message);
+                var obj = mini.get("DIV_TAB").getSelecteds();
+                var data = listbox2.getData();
+                var _stcd = "";
+                search();
+            } else if (typeID == "Add") {
+                search();
+            } else if (typeID == "WATER_GL_STCDDel") {
+                var obj = mini.get("DIV_TAB");
+                var _text = obj.getText();
+                var data = [];
+                var _stcd = $.data(myData, "STCD").split(',');
+                var _name = _text.split(',');
+                var list=$.data(myData, "GLDATA");
+                for (var num = 0; num < _stcd.length; num++) {
+                    for (var numII = 0; numII < _name.length; numII++) {
+                        var item = {};
+                        item.id = generateUUID();
+                        item.stcd = _stcd[num];
+                        item.name = _name[numII].replaceAll(" ", "");
+                        var listTemp = list.filter(function(u){
+                            return u.name.replaceAll(" ", "") == item.name;
+                        });
+                        if (listTemp.length > 0) {
+                            item.url = listTemp[0].url;
+                            item.orderby = listTemp[0].orderby;
+                        }
+                        item.type = "站点关联配置";
+                        data.push(item);
+                    }
+                }
+                app.post("SWZZ_MODE_GL_STCD/batchResult/false", data, function(res){
+                    JosnSel(res,"SavaData");
+                });
+            }
+        }
+
+        function checkRate(objNum) {
+            var re = /^[0-9]+.?[0-9]*/;//判断字符串是否为数字//判断正整数/[1−9]+[0−9]∗]∗/
+            if (!re.test(objNum)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '<img style="cursor:pointer;" onclick="lookData(\'ID@' + record.id+',type@'+record.type + '\',\'System/WATER_GL_STCD_View.html\',\'查看站点关联配置\',\'40%\',380,\'true\')" src="../Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+            s += '<img style="cursor:pointer;" onclick="editData(\'ID@' + record.id+',type@'+record.type + '\', \'System/WATER_GL_STCD_Edit.html\', \'编辑站点关联配置\', \'40%\',350, \'true\')" src="../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+            s += '<img style="cursor:pointer;" onclick="del(\'' + record.id + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除站点关联配置" />&nbsp;';
+            return s;
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        app.post("SWZZ_MODE_GL_STCD/remove", { "stcd": objID }, function (res) {
+                            JosnSel(res, "Del");
+                        });
+                    }
+                }
+            );
+        }
+        //--------------------------------
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+
+        function AddData() {
+            addData('STCD@' , 'System/WATER_GL_STCD_Edit.html', '新增站点关联配置', '40%', '40%', 'true')
+        }
+        function onValueChanged(e) { 
+            var checked = this.getChecked();
+            if (checked == true) {
+                $("#btnAdd").show();
+                grid.hideColumn("STNM");
+                $.data(myData, "TYPE", "站点配置");
+            } else {
+                $("#btnAdd").hide();
+                grid.showColumn("STNM");
+                $.data(myData, "TYPE", "站点关联配置");
+            }
+            search();
+        }
+
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+
+        }
+        function saveData() {
+            var data = listbox2.getData();
+            var _stcd = "";
+            if (data.length > 0) {
+                for (num = 0; num < data.length; num++) {
+                    _stcd += data[num].stcd + ',';
+                }
+                if (_stcd.length > 0) {
+                    _stcd = _stcd.substring(0, _stcd.length - 1);
+                }
+            }
+         
+            $.data(myData, "STCD", _stcd);
+            app.post("SWZZ_MODE_GL_STCD/removemore",{ "stcd": _stcd },function(res){
+                JosnSel(res,"WATER_GL_STCDDel");
+            });
+          
+        }
+        function onDeptChanged() {
+            var stcd = InputSTCD.getValue();
+            search();
+        }
+    </script>
+</body>
+</html>

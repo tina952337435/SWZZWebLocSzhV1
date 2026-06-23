@@ -1,0 +1,860 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暴雨历时</title>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .mini-panel-border, .mini-grid-border {
+            border: 0px !important;
+        }
+
+        .btn {
+            padding: 3px 12px;
+            position: absolute;
+            left: 360px;
+            top: 8px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+            /*width: 340px;*/
+        }
+
+        .searchTitle {
+            width: 102px;
+            float: left;
+        }
+
+        .tongji-button {
+            position: absolute;
+            left: 420px;
+            top: 6px;
+        }
+        .qujian {
+            padding: 4px 12px;
+            position: absolute;
+            left: 420px;
+            top: 8px;
+        }
+
+        #showTime {
+            left: 685px;
+            top: 38px;
+            z-index: 99;
+            position: absolute;
+            border: 1px solid #d2cfcf;
+            border-radius: 5px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            background: white;
+            padding: 10px;
+            display: none;
+        }
+
+            #showTime ul {
+                list-style: none;
+                margin: 0px;
+                padding: 0px;
+            }
+
+                #showTime ul li {
+                    height: 40px;
+                    margin: 0px;
+                    padding: 0px;
+                }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:210px;float:left;height:100%; margin-right: 5px;background: white;padding: 10px 10px;">
+        <ul id="tree1" class="mini-tree" style="width:100%;height:100%;padding:5px;"
+            showTreeIcon="true" textField="NAME"
+            idField="ID" expandOnNodeClick="true" onnodeselect="onSelectNode" expandOnLoad="1"></ul>
+    </div>
+    <div style="width:calc(100% - 215px);float:right;height:100%;background: #ededed;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-info" onclick="search()">统计</button>
+                <button type="button" class="btn btn-info qujian" onclick="searchTIME()" style="">区间对比</button>
+
+                <div style="float:right;color:red;margin-right:10px;">
+                    <ul style="list-style:none;color:gray;">
+                        <li style="height:30px;"> 注：暴雨、大暴雨和特大暴雨相互不包含</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div style="margin:10PX;height:350px;">
+            <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:calc(50%);float:left;background:white;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title1">暴雨平均历时</p>
+                </div>
+                <div id="BY_charts" style="height:calc(100% - 35px);width:100%;margin:0px 0%;"></div>
+            </div>
+            <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:calc(50% - 10px);float:left;background:white;margin-left:10px;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title2">汛期、非汛期不同级别暴雨平均历时</p>
+                </div>
+                <div id="fxq_charts" style="height:calc(100% - 35px);width:100%;margin:0px 0%;"></div>
+            </div>
+
+        </div>
+        <div style="margin:10PX;height:400px;">
+            <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:100%;background:white;">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p" id="title3">汛期、非汛期不同级别暴雨平均历时</p>
+                </div>
+                <div id="hour_charts" style="height:100%;width:100%;margin:0px 0%;height:calc(100% - 35px);"></div>
+            </div>
+        </div>
+        <!--<div id="grid1" class="mini-datagrid" style="width: 100%;height:400px;margin:10PX;" allowalternating="true"
+             borderstyle="border-right:0;"
+             showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+            <div property="columns">
+                <div type="indexcolumn" headeralign="center" align="center" width="50">序号</div>
+                <div width="10%" field="STNM" headeralign="center" align="center" allowsort="true">
+                    区域名称
+                </div>
+                <div width="20%" field="NUMBER" headeralign="center" align="center" allowsort="true" decimalPlaces="0"
+                     dataType="float">
+                    ≤1h
+                </div>
+                <div width="20%" field="DNUMBER" headeralign="center" align="center" allowsort="true" decimalPlaces="0"
+                     dataType="float">
+                    1-3h
+                </div>
+                <div width="20%" field="DBILI" headeralign="center" align="center" allowsort="true" decimalPlaces="1"
+                     dataType="float">
+                    3-6h
+                </div>
+                <div width="20%" field="CNUMBER" headeralign="center" align="center" allowsort="true" decimalPlaces="0"
+                     dataType="float">
+                    6-12h
+                </div>
+                <div width="20%" field="CBILI" headeralign="center" align="center" allowsort="true" decimalPlaces="1"
+                     dataType="float">
+                    12-24h
+                </div>
+                <div width="20%" field="YAVGDUR" headeralign="center" align="center" allowsort="true" decimalPlaces="1"
+                     dataType="float">
+                    年平均历时(h)
+                </div>
+            </div>
+        </div>-->
+    </div>
+    <div id="showTime">
+        <ul id="qujianUL">
+            <li>
+                <div class="searchTitle" style="width:80px;padding-top: 8px;">&nbsp;&nbsp;&nbsp;区间1：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear1" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear1" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="searchTitle" style="width:80px;padding-top: 8px;">&nbsp;&nbsp;&nbsp;区间2：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear2" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear2" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div style="height: 40px;width:100%;text-align:center;">
+            <a class="mini-button" onclick="addqujian()" style="position:relative;">添加区间</a>
+            <a class="mini-button" onclick="searchqujian()" style="position:relative;">统&nbsp;计</a>
+        </div>
+    </div>
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+        mini.parse();
+        var tree = mini.get("tree1");
+        var myData = [];
+        $(function () {
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = 1978;
+            GetObj("endYear").value = _year - 2;
+
+            GetObj("startYear1").value = 1978;
+            GetObj("endYear1").value = 2000;
+            GetObj("startYear2").value = 2001;
+            GetObj("endYear2").value = _year - 2;
+
+            searchStation();
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+        });
+
+        function searchStation() {
+            var strWhere = { STTP: "PP", TYPE: "雨量" };
+            GetJosns("REPRESENTATIVESTATIONS", strWhere, "Sel");
+        }
+        function loadTree(data) {
+            var dataResult = [];
+            dataResult.push({ ID: "310000", NAME: "全市", PID: "-1" });
+            var dataTempC = groupBy(data, "COUNTIES");
+            dataResult.push({ ID: "1", NAME: "行政分区", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                if (item[0].COUNTIESID == "100071") {
+                    dataResult.push({ ID: "10007", NAME: "浦东新区", PID: "1" });
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "10007" });
+                } else if (item[0].COUNTIESID == "100072") {
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "10007" });
+                }
+                else {
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "1" });
+                }
+            });
+            var dataTempW = groupBy(data, "WATERAREA");
+            dataResult.push({ ID: "2", NAME: "水利片区", PID: "-1" });
+            dataTempW.forEach(function (item) {
+                dataResult.push({ ID: item[0].WATERAREAID, NAME: item[0].WATERAREA, PID: "2" });
+            });
+            dataResult.push({ ID: "3", NAME: "32个代表站", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                for (var num = 0; num < item.length; num++) {
+                    dataResult.push({ ID: item[num].STCD, NAME: item[num].STNM, PID: "3" });
+                }
+            });
+            tree.loadList(dataResult, "ID", "PID");
+            tree.select(0);
+        }
+        function search() {
+            var node = tree.getSelectedNode();
+            var startYear = GetObj("startYear").value + "-01-01 00:00:00";
+            var endYear = GetObj("endYear").value + "-12-31 23:59:59";
+
+            $("#title1").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + node.NAME + "暴雨平均历时(h)");
+            $("#title2").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + node.NAME + "汛期、非汛期不同级别暴雨平均历时");
+            $("#title3").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + node.NAME + "暴雨不同历时场次变化(h)");
+
+            var strWhere = {
+                STCD: node.ID,
+                STIME: startYear,
+                ETIME: endYear
+            };
+            GetJosns("ST_RAINSTORMFREQUENCYNAMESel", strWhere, "SelNum");
+        }
+
+        function searchqujian() {
+            $("#showTime").css("display", "none");
+            var yearArr = [];
+            var strYears = "";
+            $("#qujianUL li").each(function (_index) {
+                var rowIndex = (_index + 1);
+                var startYear = parseInt(GetObj("startYear" + rowIndex).value);
+                var endYear = parseInt(GetObj("endYear" + rowIndex).value);
+                for (var num = startYear; num <= endYear; num++) {
+                    strYears += num + ",";
+                }
+                yearArr.push([startYear, endYear]);
+            });
+            $.data(myData, "years", yearArr);
+            if (strYears != "") strYears = strYears.substring(0, strYears.length - 1);
+
+            var data = $.data(myData, "data");
+
+            var gradeArr = ["暴雨", "大暴雨", "特大暴雨"];
+            var gradeValueArr = [[50, 100], [100, 200], [200, 10000000]];
+
+            var dataResult = [];
+            for (var num = 0; num < gradeArr.length; num++) {
+                var dataTemp = data.filter(function (e) {
+                    return e.DRP24 >= gradeValueArr[num][0] && e.DRP24 < gradeValueArr[num][1];
+                });
+                var item = { GRADE: gradeArr[num] };
+                for (var y = 0; y < yearArr.length; y++) {
+                    var dataTempT = dataTemp.filter(function (e) {
+                        var bgtm = new Date(convertToDate(e.BGTM));
+                        var year = bgtm.getFullYear();
+                        return year >= yearArr[y][0] && year <= yearArr[y][1];
+                    });
+                    
+                    var totalHour = SumJson(dataTempT, 'HOUR');
+                    item["YEAR" + (y + 1)] = (totalHour / dataTempT.length).toFixed(1);
+                }
+                dataResult.push(item);
+            }
+            ChartNew("BY_charts", dataResult);
+
+            dataResult = [];
+            var hourArr = [[0, 1], [1, 3], [3, 6], [6, 12], [12, 24], [24, 100000000]];
+            for (var num = 0; num < hourArr.length; num++) {
+                var str = hourArr[num][0] + "-" + hourArr[num][1] + "h";
+                if (num == 0) {
+                    str = "<=" + hourArr[num][1] +"h";
+                }
+                if (num == hourArr.length - 1) {
+                    str = ">" + hourArr[num][0] +"h";
+                }
+                item = { HOUR: str };
+                var dataTemp = data.filter(function (e) {
+                    return e.HOUR > hourArr[num][0] && e.HOUR <= hourArr[num][1];
+                });
+                console.error(dataTemp);
+                for (var y = 0; y < yearArr.length; y++) {
+                    var dataTempT = dataTemp.filter(function (e) {
+                        var bgtm = new Date(convertToDate(e.BGTM));
+                        var year = bgtm.getFullYear();
+                        return year >= yearArr[y][0] && year <= yearArr[y][1];
+                    });
+
+                    var dataTotal = data.filter(function (e) {
+                        var bgtm = new Date(convertToDate(e.BGTM));
+                        var year = bgtm.getFullYear();
+                        return year >= yearArr[y][0] && year <= yearArr[y][1];
+                    });
+                    var bili= ((dataTempT.length / dataTotal.length) * 100).toFixed(1);
+                    item["YEARBILI" + (y + 1)] = bili;
+                }
+                dataResult.push(item);
+            }
+            ChartHOUR("hour_charts", dataResult);
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                loadTree(data.data);
+                //search();
+            }
+            else if (typeID == "SelNum") {
+                var dataResult = data.data;
+                $.data(myData, "data", dataResult);
+                loadHtml(dataResult);
+                searchqujian();
+            }
+            else if (typeID == "SelNumArea") {
+                var dataResult = data.data;
+                loadAreaHtml(dataResult);
+            }
+        }
+        function onSelectNode(e) {
+            search();
+        }
+        function loadHtml(data) {
+            var data1 = [];
+            var gradeArr = ["暴雨", "大暴雨", "特大暴雨"];
+            var gradeValueArr = [[50, 100], [100, 200], [200, 10000000]];
+            for (var num = 0; num < gradeArr.length; num++) {
+                var dataTemp = data.filter(function (e) {
+                    return e.DRP24 >= gradeValueArr[num][0] && e.DRP24 < gradeValueArr[num][1];
+                });
+
+                var item = { GRADE: gradeArr[num] };
+                //统计汛期，非汛期
+                var total = SumJson(dataTemp, 'HOUR'), totalXQ = 0, totalFXQ = 0;//暴雨总时长，暴雨汛期时长，暴雨非汛期时长；
+                var number = dataTemp.length, numberXQ = 0, numberFXQ = 0;
+                var maxHour = 0, maxHourQX = 0, maxHourFQX = 0;
+                var minHour = 100000000000, minHourQX = 100000000000, minHourFQX = 100000000000;
+                item = { GRADE: gradeArr[num] };
+                for (var h = 0; h < dataTemp.length; h++) {
+                    var bgtm = new Date(convertToDate(dataTemp[h].BGTM));
+                    var xqStime = new Date(bgtm.getFullYear() + "-06-01 00:00:00");
+                    var xqEtime = new Date(bgtm.getFullYear() + "-09-30 23:59:59");
+
+                    var fxqStime1 = new Date(bgtm.getFullYear() + "-01-01 00:00:00");
+                    var fxqEtime1 = new Date(bgtm.getFullYear() + "-05-31 23:59:59");
+                    var fxqStime2 = new Date(bgtm.getFullYear() + "-01-01 00:00:00");
+                    var fxqEtime2 = new Date(bgtm.getFullYear() + "-09-30 23:59:59");
+
+                    if (bgtm >= xqStime && bgtm <= xqEtime) {
+                        totalXQ += dataTemp[h].HOUR;
+                        numberXQ++;
+                        if (maxHourQX < dataTemp[h].HOUR) {
+                            maxHourQX = dataTemp[h].HOUR;
+                        }
+                        if (minHourQX > dataTemp[h].HOUR) {
+                            minHourQX = dataTemp[h].HOUR;
+                        }
+                    }
+                    if ((bgtm >= fxqStime1 && bgtm <= fxqEtime1) || (bgtm >= fxqStime2 && bgtm <= fxqEtime2)) {
+                        totalFXQ += dataTemp[h].HOUR;
+                        numberFXQ++;
+                        if (maxHourFQX < dataTemp[h].HOUR) {
+                            maxHourFQX = dataTemp[h].HOUR;
+                        }
+                        if (minHourFQX > dataTemp[h].HOUR) {
+                            minHourFQX = dataTemp[h].HOUR;
+                        }
+                    }
+                    if (maxHour < dataTemp[h].HOUR) {
+                        maxHour = dataTemp[h].HOUR;
+                    }
+                    if (minHour > dataTemp[h].HOUR) {
+                        minHour = dataTemp[h].HOUR;
+                    }
+                }
+                item.HOURQ = (total / number).toFixed(1);
+                item.HOURXQ = (totalXQ / numberXQ).toFixed(1);
+                item.HOURFXQ = (totalFXQ / numberFXQ).toFixed(1);
+                item.HOURQMAX = maxHour;
+                item.HOURXQMAX = maxHourQX;
+                item.HOURFXQMAX = maxHourFQX;
+                item.HOURQMIN = minHour;
+                item.HOURXQMIN = minHourQX;
+                item.HOURFXQMIN = minHourFQX;
+                data1.push(item);
+            }
+            Chart('fxq_charts', data1);
+        }
+        function searchTIME() {
+            var dis = $("#showTime").css("display");
+            if (dis == 'none') {
+                $("#showTime").css("display", "block");
+            } else {
+                $("#showTime").css("display", "none");
+            }
+        }
+        function addqujian() {
+            var rowIndex = $("#qujianUL li").length;
+            var html = '<li>';
+            html += '<div class="searchTitle" style = "width:80px;padding-top: 8px;" >&nbsp;&nbsp;&nbsp;区间' + (rowIndex + 1) + '：</div >';
+            html += '<div class="input-group" style="width:110px;float:left;margin-right:4px;">';
+            html += '<input id="startYear' + (rowIndex + 1) + '" class="form-control" value="开始" readonly>';
+            html += '<div class="input-group-addon">';
+            html += '<i class="fa fa-calendar" aria-hidden="true"></i>';
+            html += '</div>';
+            html += '</div>';
+            html += '<span style="float:left;">—</span>';
+            html += '<div class="input-group" style="width:110px;float:left;margin-left:4px;">';
+            html += '<input id="endYear' + (rowIndex + 1) + '" class="form-control" value="结束" readonly>';
+            html += '<div class="input-group-addon">';
+            html += '<i class="fa fa-calendar" aria-hidden="true"></i>';
+            html += '</div>';
+            html += '</div>';
+            html += '</li>';
+
+            $("#qujianUL").append(html);
+
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+        }
+    </script>
+    <script>
+        function Chart(chartName, data) {
+            var node = tree.getSelectedNode();
+            var legendData = ["汛期", "非汛期"];
+            var legendDataF = ["HOURXQ","HOURFXQ"];
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var xData = ["暴雨", "大暴雨", "特大暴雨"];
+            var text = "";
+            option = {
+                title: {
+                    left: 'center',
+                    text: text
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    //axisPointer: {
+                    //    type: 'shadow'
+                    //}
+                },
+                // 更改图例默认颜色(依次应用)
+                color: ['#26A0D2', '#44CB90', '#EFBB43', '#E63D45', '#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    //left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: legendData
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: xData
+                },
+                yAxis: {
+                    name: "历时（h）",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 20;
+                    }
+                },
+                series: function () {
+                    var serie = [];
+                    for (var h = 0; h < legendDataF.length; h++) {
+                        var yData = [];
+                        for (var num = 0; num < data.length; num++) {
+                            yData.push(data[num][legendDataF[h]]);
+                        }
+                        var item = {
+                            name: legendData[h],
+                            type: 'bar',
+                            // barGap: '0%',
+                            barWidth: 20,
+                            data: yData,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,  //开启显示
+                                        formatter: '{c}',  //显示数值
+                                        position: 'top',
+                                        textStyle: { //数值样式
+                                            fontSize: 10
+                                        }
+                                    },
+                                    barBorderRadius: [30, 30, 0, 0],
+                                }
+                            }
+                        };
+                        serie.push(item);
+                    }
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+        function ChartNew(chartName, data) {
+            var legendData = [];
+            var legendDataF = [];
+            var yearArr = $.data(myData, "years");
+            for (var num = 0; num < yearArr.length; num++) {
+                var strYear = yearArr[num][0] + "-" + yearArr[num][1];
+                legendData.push(strYear);
+                legendDataF.push("YEAR" + (num + 1));
+            }
+            var node = tree.getSelectedNode();
+            
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var xData = ["暴雨", "大暴雨", "特大暴雨"];
+            var text = "";
+            option = {
+                title: {
+                    left: 'center',
+                    text: text
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    //axisPointer: {
+                    //    type: 'shadow'
+                    //}
+                },
+                // 更改图例默认颜色(依次应用)
+                color: ['#26A0D2', '#44CB90', '#EFBB43', '#E63D45', '#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    //left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: legendData
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: xData
+                },
+                yAxis: {
+                    name: "历时（h）",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 20;
+                    }
+                },
+                series: function () {
+                    var serie = [];
+                    for (var h = 0; h < legendDataF.length; h++) {
+                        var yData = [];
+                        for (var num = 0; num < data.length; num++) {
+                            yData.push(data[num][legendDataF[h]]);
+                        }
+                        var item = {
+                            name: legendData[h],
+                            type: 'bar',
+                            // barGap: '0%',
+                            barWidth: 20,
+                            data: yData,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,  //开启显示
+                                        formatter: '{c}',  //显示数值
+                                        position: 'top',
+                                        textStyle: { //数值样式
+                                            fontSize: 10
+                                        }
+                                    },
+                                    barBorderRadius: [30, 30, 0, 0],
+                                }
+                            }
+                        };
+                        serie.push(item);
+                    }
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+        function ChartHOUR(chartName, data) {
+            var legendData = [];
+            var legendDataF = [];
+            var yearArr = $.data(myData, "years");
+            for (var num = 0; num < yearArr.length; num++) {
+                var strYear = yearArr[num][0] + "-" + yearArr[num][1];
+                legendData.push(strYear);
+                legendDataF.push("YEARBILI" + (num + 1));
+            }
+            var node = tree.getSelectedNode();
+
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var xData = [];
+            for (var num = 0; num < data.length; num++) {
+                xData.push(data[num].HOUR);
+            }
+            var text = "";
+            option = {
+                title: {
+                    left: 'center',
+                    text: text
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    //axisPointer: {
+                    //    type: 'shadow'
+                    //}
+                },
+                // 更改图例默认颜色(依次应用)
+                color: ['#26A0D2', '#44CB90', '#EFBB43', '#E63D45', '#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    //left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: legendData
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: xData
+                },
+                yAxis: {
+                    name: "占比（%）",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 20;
+                    }
+                },
+                series: function () {
+                    var serie = [];
+                    for (var h = 0; h < legendDataF.length; h++) {
+                        var yData = [];
+                        for (var num = 0; num < data.length; num++) {
+                            yData.push(data[num][legendDataF[h]]);
+                        }
+                        var item = {
+                            name: legendData[h],
+                            type: 'bar',
+                            // barGap: '0%',
+                            barWidth: 20,
+                            data: yData,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,  //开启显示
+                                        formatter: '{c}',  //显示数值
+                                        position: 'top',
+                                        textStyle: { //数值样式
+                                            fontSize: 10
+                                        }
+                                    },
+                                    barBorderRadius: [30, 30, 0, 0],
+                                }
+                            }
+                        };
+                        serie.push(item);
+                    }
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

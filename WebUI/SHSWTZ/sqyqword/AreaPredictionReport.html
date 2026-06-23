@@ -1,0 +1,284 @@
+﻿
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>分片水情预报专报</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style="height: 50px;">
+        <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+            <input id="startYear" class="form-control" value="请选择年份" readonly>
+            <div class="input-group-addon">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+        <span style="float:left;">—</span>
+        <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+            <input id="endYear" class="form-control" value="请选择年份" readonly>
+            <div class="input-group-addon">
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+            </div>
+        </div>
+        &nbsp;&nbsp;
+        <!--开始时间：<input id="stime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" />
+        &nbsp;&nbsp;
+        结束时间：<input id="etime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" />-->
+        &nbsp;&nbsp;
+        <!--关键字：<input id="key" class="mini-textbox" style="width:115px;" />-->
+        &nbsp;&nbsp;
+        <a class="mini-button" onclick="search()" style="">查询</a>
+        &nbsp;&nbsp;
+        <a class="mini-button" id="addbtn" onclick="AddBtn('')" plain="false">增加</a>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);">
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height:100%;" allowalternating="true"
+             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true"
+             emptytext="暂无数据" alwaysshowemptytext="true" showpager="true" ondrawcell="ondrawcell">
+            <div property="columns">
+                <div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>
+                <div field="XQKB_TITLE" width="80" headeralign="center" align="center" allowsort="true" format="yyyy-MM-dd">
+                    标题
+                </div>
+                <div field="XQKB_QIHAO" width="80" headeralign="center" align="center">
+                    期号
+                </div>
+                <div field="XQKB_FILE" width="80" headeralign="center" align="center">
+                    文件
+                </div>
+                <div field="XQKB_OWEN" width="80" headeralign="center" align="center" allowsort="true" format="yyyy-MM-dd">
+                    创建人
+                </div>
+                <div field="XQKB_TM" width="80" headeralign="center" align="center">
+                    创建时间
+                </div>
+                <div field="action" width="80" headeralign="center" align="center">
+                    基本操作
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="win1" class="mini-window" title="增加分片水情预报专报" style="width:500px;height:350px;"
+         showMaxButton="false" showCollapseButton="false" showShadow="false"
+         showToolbar="false" showFooter="false" showModal="false" allowResize="false" allowDrag="false">
+        <div style="width:100%;height:100%;">
+            <div style="line-height:50px;margin:0px 20px;">
+                预报时间选择：<input id="XQKB_STM" class="mini-datepicker" format="yyyy-MM-dd HH" showTime="true" style="width:130px;" />
+            </div>
+            <div style="line-height:50px;margin:0px 20px;">
+                预报专报标题：<input id="XQKB_TITLE" class="mini-textbox" style="width:300px;" />
+            </div>
+            <div style="line-height:50px;margin:0px 170px;">
+                <a class="mini-button" onclick="OnSava()" style="width:115px;margin-left:10px;"><i class="fa fa-file-word-o"></i>&nbsp;预报专报生成</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        var XQKB_TYPE = GetQueryString("XQKB_TYPE");
+        $(function () {
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = _year - 2;
+            GetObj("endYear").value = _year;
+            if (XQKB_TYPE == null) { XQKB_TYPE = "分片水情预报专报";}
+            $.data(myData, "QXKB_TYPE", XQKB_TYPE);
+            var curTM = new Date().format("yyyy-MM-dd 08");
+            if (XQKB_TYPE == "风暴潮预报专报") {
+                curTM = new Date().format("yyyy-MM-dd HH");
+            }
+            mini.get("XQKB_STM").setValue(curTM);
+            search();
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1949",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            PageFillData(0, 15);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            var strWhere = {
+                //KEY: mini.get("key").getValue(),
+                STIME: GetObj("startYear").value + "-01-01 00:00:00",
+                ETIME: GetObj("endYear").value + "-12-31 23:59:59",
+                XQKB_TYPE: $.data(myData, "QXKB_TYPE"),
+                PageIndex: pageIndex,
+                PageSize: pageSize
+            };
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = data.data;
+                for (var num = 0; num < dataResult.length; num++) {
+                    dataResult[num].YEAR = new Date(convertToDate(dataResult[num].XQKB_STM)).getFullYear();
+                    dataResult[num].MONTH = new Date(convertToDate(dataResult[num].XQKB_STM)).getMonth() + 1;
+                }
+                PageServerFill(grid, data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+            else if (typeID == "printWord") {
+                mini.unmask(document.body);
+                if (data.data == "生成文件失败" || data.data == "没有预报记录") {
+                    mini.alert(data.data);
+                    return;
+                }
+                search();
+                var fileName = data.data;
+                window.open(HttpUrl + "XQKB/" + fileName);
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field == "XQKB_TM") {
+                var s = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+                e.cellHtml = s;
+            }
+            if (field == "XQKB_FILE") {
+                var s = '';
+                if (value != undefined) {
+                    s = '<img src="/Common/miniui/themes/icons/word.gif" style="cursor:pointer;" onclick="OpenHref(\'' + record.XQKB_FILE + '\')" title=\"点击下载此文件\"/>';
+
+                    var strFILE = record.XQKB_FILE.replaceAll(".docx", ".pdf");
+                    var hrefFile = HttpUrl + "XQKB/" + strFILE;
+                    s += '&nbsp;&nbsp;<img src="/Common/miniui/themes/icons/pdf.gif" style="cursor:pointer;" onclick="OpenHref(\'' + strFILE + '\')" title=\"点击下载此文件\"/>';
+                }
+                e.cellHtml = s;
+            }
+            if (field == "action") {
+                var s = '';
+                s += '<img style="cursor:pointer;" onclick="del(\'' + record.XQKB_ID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+                e.cellHtml = s;
+            }
+        }
+        function AddBtn(ID) {
+            if (ID == "") {
+                showAtPos();
+            }
+        }
+        function showAtPos() {
+            var win = mini.get("win1");
+            var winTitle = "增加"+$.data(myData, "QXKB_TYPE");
+            win.setTitle(winTitle);
+            var x = "center";
+            var y = "middle";
+            win.showAtPos(x, y);
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "XQKB_ID": objID };
+                        GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTDel", strWhere, "Del");
+                    }
+                }
+            );
+        }
+        top["win"] = window;
+        function OpenHref(fileName) {
+            window.open(HttpUrl + "XQKB/" + fileName);
+        }
+        /**
+        * 判断服务的文件是否存在
+        * @param filepath 文件地址
+        */
+        function isExistFile(filepath) {
+            try {
+                if (filepath == null || filepath == undefined || filepath == "") {
+                    return false;
+                }
+                var xmlhttp;
+                if (window.XMLHttpRequest) {
+                    xmlhttp = new XMLHttpRequest();
+                } else {
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xmlhttp.open("GET", filepath, false);
+                xmlhttp.send();
+                if (xmlhttp.readyState == 4) {
+                    if (xmlhttp.status == 200) {
+                        console.clear();
+                        return true;
+                    } else {
+                        console.clear();
+                        return false;
+                    }
+                }
+            } catch (e) {
+                return false;
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function OnSava() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '文件生成中，请稍等...'
+            });
+            var tm = mini.get("XQKB_STM").getFormValue() +":00:00";
+            var strWhere = {
+                XQKB_STM: tm,
+                username: GetCookie("LOGINNAME"),
+                XQKB_TITLE: mini.get("XQKB_TITLE").getValue()
+            };
+            var method = "AreaPredictionReportWord";
+            if ($.data(myData, "QXKB_TYPE") == "风暴潮预报专报") {
+                method = "StormSurgePredictionReportWord";
+            }
+            GetJosns(method, strWhere, "printWord");
+        }
+    </script>
+</body>
+</html>

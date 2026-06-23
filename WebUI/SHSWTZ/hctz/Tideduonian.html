@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+        #choseMNLX  li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+        .searchTitle{
+            width:92px;
+            float:left;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar">
+        <p>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;年份：&nbsp;&nbsp;
+            <input id="startYear" name="STCD" class="mini-textbox" style="width: 80px;" allowinput="true" value="1987" onvaluechanged="onSTCDChanged" />
+            —
+            <input id="endYear" name="STCD" class="mini-textbox" style="width: 80px;" allowinput="true" value="2021" onvaluechanged="onSTCDChanged" />
+        </p>
+        <p id="typeList" style="margin-top:-10px;">
+            <div class="searchTitle" style="height:25px;line-height:50px;">&nbsp; &nbsp;分类规则：</div>
+            <ul class="ui-choose choose-type-right" id="choseMNLX">
+                <li class="selected">
+                    <span>全部</span>
+                </li>
+                <li>
+                    <span>黄浦江干流</span>
+                </li>
+                <li>
+                    <span>黄浦江上游</span>
+                </li>
+                <li>
+                    <span>长江口、杭州湾</span>
+                </li>
+            </ul>
+        </p>
+        <div class="searchTitle" style="line-height:40px;">&nbsp; &nbsp;站点选择： </div>
+        <p id="zhanList" style="margin-top:-10px;">
+        </p>
+    </div>
+    <div class="type" style="height: -webkit-calc(100% - 165px);height: -moz-calc(100% - 165px);height: calc(100% - 165px);">
+        <div id="chartPie" style="height:100%;width:100%;">
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var stnmArr = ["吴淞", "黄浦公园", "吴泾", "米市渡", "夏字圩", "河祝", "芦潮港", "金山嘴", "高桥", "堡镇"];
+        $(function () {
+            var strHtml = '<ul class="ui-choose choose-type-right" id="choseZhan">';
+            stnmArr.forEach(function (item, index) {
+                var cls = '';
+                if (index == 0) {
+                    cls = 'selected';
+                }
+                strHtml += '<li  class="' + cls +'"><span>' + item + '</span></li>';
+            });
+            strHtml += '</ul>';
+            $("#zhanList").html(strHtml);
+            $('#choseZhan li').click(function () {
+                var f = this;
+                $('#choseZhan li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+            });
+
+            var dataX = ["1987", "1988", "1989", "1990", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2012", "2013", "2014", "2015", "2016", "2018", "2019", "2020", "2021"];
+            var dataY = [4.85, 4.51, 5.12, 3.86, 3.67, 3.92, 3.86, 4.11, 4.05, 3.91, 5.81, 4.19, 5.01, 4.71, 4.61, 4.31, 3.92, 4.01, 4.02, 3.52, 4.17, 4.81, 4.72, 4.91, 3.56, 3.62, 3.72, 5.00, 4.70, 4.15, 5.55];
+            var dataPie = [{ value: 3, name: "强暴雨" }, { value: 27, name: "中暴雨" }, { value: 39, name: "弱暴雨" }];
+            chartBarPie('chartPie', dataX, dataY, dataPie, 68);
+        });
+        function chartBarPie(ChartName, dataX, dataY, dataPie, totalTF) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.clear();
+            var colorList = ['#afa3f5', '#00d488', '#3feed4', '#3bafff', '#f1bb4c', "rgba(250,250,250,0.5)"];
+            var sportsIcon = {
+                'a': '/asset/get/s/data-1559121268278-ozjd-lXoz.png',
+                'b': '/asset/get/s/data-1559121263841-UC5w7mTJ9.png',
+                'c': '/asset/get/s/data-1559121259198-sxyPSimU9.png',
+                'd': '/asset/get/s/data-1559121254241-xj5JAIBzC.png',
+                'e': '/asset/get/s/data-1559121249274-QxHDAdQGy.png',
+            };
+            option = {
+                backgroundColor: '#fff',
+                title: {
+                    text: mini.get("startYear").getValue() + "至" + mini.get("endYear").getValue() + "吴淞高高潮对比分析",
+                    //subtext: '历史影响台风列表',
+                    //x: '72.5%',
+                    //y: '32%',
+                    x: "center",
+                    y: "top",
+                    textAlign: "center",
+                    textStyle: {
+                        fontSize: 24,
+                        fontWeight: 'normal',
+                        color: ['#333']
+                    },
+                    subtextStyle: {
+                        color: '#666',
+                        fontSize: 16
+                    },
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    axisPointer: {
+                        lineStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: '#FFD56E'
+                                }, {
+                                    offset: 0.5,
+                                    color: '#fff',
+                                }, {
+                                    offset: 1,
+                                    color: '#FFD56E'
+                                }],
+                                global: false
+                            }
+                        },
+                    }
+                },
+                legend: {
+                    right: 20,
+                    show: false,
+                    top: 0,
+                    itemGap: 10, // 各个item之间的间隔，单位px，默认为10，
+                    itemWidth: 30, // 图例图形宽度
+                    itemHeight: 10, // 图例图形高度
+                    textStyle: {
+                        //color: 'red',
+                        fontWeight: 'normal',
+                        fontSize: 14
+                    },
+                },
+                grid: {
+                    top: '5%',
+                    left: '3%',
+                    right: '1%',
+                    bottom: '8%',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: dataX,
+                        axisTick: {
+                            show: false // 是否显示坐标轴轴线
+                        },
+                        axisLabel: {
+                            color: '#282828'
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                        boundaryGap: true,
+                        axisLine: { //坐标轴轴线相关设置。
+                            show: true,
+                            inside: false,
+                            lineStyle: {
+                                color: '#000'
+                            }
+                        }
+                    },
+                ],
+                yAxis: [{
+                    type: 'value',
+                    max: function (e) {
+                        return Math.floor(e.max + 5);
+                    },
+                    min: 0,
+                    splitNumber: 4,
+                    splitLine: { show: true },
+                    axisLabel: { //坐标轴刻度标签的相关设置。
+                        show: true,
+                        textStyle: {
+                            color: '#737373',
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(131,101,101,0.2)',
+                            type: 'dashed',
+                        }
+                    },
+                    show: true,
+                }],
+                series: [
+                    {
+                        type: 'line',
+                        zlevel: 10,
+                        symbol: 'none',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的
+                        // barGap: '100%',
+                        data: dataY,
+                        itemStyle: {
+                            normal: {
+                                color: {
+                                    type: 'linear',
+                                    x: 0,
+                                    y: 0,
+                                    x2: 0,
+                                    y2: 1,
+                                    colorStops: [{
+                                        offset: 0,
+                                        color: '#2D8DED'
+                                    }, {
+                                        offset: 1,
+                                        color: '#5ED8FB'
+                                    }]
+                                },
+                                barBorderRadius: [30, 30, 0, 0],
+                            }
+                        },
+                        label: {
+                            normal: {
+                                show: false,
+                                position: 'top',
+                                formatter: function (params) {
+                                    return params.value;
+                                },
+                                textStyle: {
+                                    color: '#2D8DED', //color of value
+                                    fontSize: 14
+                                }
+                            }
+                        },
+                        markPoint: {
+                            data: [{ type: 'max', name: '最大值' }]
+                        },
+                    },
+                ]
+            };
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var name = param.name;
+                bindGridData(name);
+            }
+        }
+    </script>
+</body>
+</html>

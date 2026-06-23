@@ -1,0 +1,328 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>典型降雨导入</title>
+    <script src="../../Common/Scripts/echarts.min.js"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .mini-grid-checkbox {
+            margin-top: 10px;
+        }
+        /*.mini-labelfield-checkboxlist table{
+            padding-left:60px !important;
+        }*/
+        .mini-panel .mini-panel-viewport {
+            width: 100%;
+        }
+
+        .mini-grid-rows-view {
+            overflow-x: hidden;
+        }
+
+        .mini-grid-summaryCell {
+            line-height: 35px;
+            text-align: center;
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:200px;float:left;height:100%; margin-right: 5px;background:white;">
+        <div class="mini-toolbar">
+            <a class="mini-button buttonAdd" id="addbtn" onclick="addFuData()" plain="false">增加(节点)</a>
+            <a class="mini-button buttonAdd" id="addbtn" onclick="addZiData()" plain="false">增加(子节点)</a><br />
+            <a class="mini-button buttonAdd" id="addbtn" onclick="edit()" plain="false">编辑(节点)</a>
+            <a class="mini-button buttonAdd" id="addbtn" onclick="delTree()" plain="false">删除</a>
+        </div>
+        <ul id="tree1" class="mini-tree" style="width:100%;height: -webkit-calc(100% - 70px);height: -moz-calc(100% - 70px);height: calc(100% - 70px);padding:5px;"
+            showTreeIcon="true" textField="title" expandOnLoad="0" allowDrag="true" allowDrop="true" allowLeafDropIn="true"
+            idField="id" parentField="pid" resultAsTree="false" onnodeselect="onSelectNode"></ul>
+    </div>
+    <div style="width:calc(100% - 210px);float:left;height:100%;">
+        <div class="mini-toolbar" style=" margin-bottom:1px;">
+            <table style="width:100%;">
+                <tr>
+                    <td style="width:100%;"></td>
+                    <td style="white-space:nowrap;">
+                        <!--<a class="mini-button" onclick="addDataExcel()">降雨数据导入</a>-->
+                        <a class="mini-button" onclick="Exp()">导出报表</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="BY_charts" style="height:350px;width:100%;margin:0px 0%;background:white;"></div>
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 400px);height: -moz-calc(100% - 400px);height: calc(100% - 400px);"
+             allowalternating="true" multiSelect="true"
+             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+             showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" resultAsData="true" showSummaryRow="true"
+             showPager="false" ondrawcell="onGriddrawcell"  ondrawsummarycell="onDrawSummaryCell">
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var PathName = GetQueryString("PATHNAME");
+        var myData = [];
+        var tree = mini.get("tree1");
+        var grid2 = mini.get("grid1");
+        $(function () {
+            search();
+        })
+        function TreeSel() {
+            //GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINFALL_TREESel", { "PATHNAME": PathName }, "MODE_ES_RAINFALL_TREESel");
+			app.post("SWZZ_MODE_ES_RAINFALL_TREE/findResult",{kwtxt : PathName},(data)=>{
+				JosnSel(data,"MODE_ES_RAINFALL_TREESel")
+			})
+		}
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "MODE_ES_RAINFALL_TREESel") {
+                tree.loadList(ResultData.data, "id", "pid");
+                if ($.data(myData, "ID") != null) {
+                    tree.setValue($.data(myData, "ID"));
+                } else {
+                    tree.select(1);
+                    var node = tree.getSelected();
+                    $.data(myData, "ID", node.id);
+                    $.data(myData, "PID", node.pid);
+                }
+                SelGrid();
+            } else if (typeID == "MODE_ES_RAINFALL_TREEDel") {
+                search();
+            } else if (typeID == "MODE_ES_RAINFALLDel") {
+                SelDATA();
+            } else if (typeID == "SWZZ_FLOODTIDEDATA_ST_RAINFALLSelMore") {
+                var dataResult = mini.decode(ResultData.data);
+                var dataColumn = $.data(myData, "columnsData");
+                var dataAvg = [], dataX=[];
+                for (var num = 0; num < dataResult.length; num++) {
+                    var drp = 0;
+                    for (var c = 0; c < dataColumn.length; c++) {
+                        drp += Number(dataResult[num][dataColumn[c].AID]);
+                    }
+                    var drpAvg = (drp / dataColumn.length).toFixed(1);
+                    dataX.push(dataResult[num].TM);
+                    dataAvg.push(drpAvg);
+                }
+                chartBar(dataX,dataAvg);
+                grid2.setData(dataResult);
+            } else if (typeID == "MODE_ES_RAINFALLPL") {
+                SelDATA();
+            } else if (typeID == "MODE_ES_RAINFALLUpdate") {
+                showTips(ResultData.Message);
+                SelDATA();
+            } else if (typeID == "SWZZ_FLOODTIDEDATA_ST_AREA_BSel") {
+                $.data(myData, "columnsData", ResultData.data);
+                SelGridColumn(ResultData.data);
+                SelDATA();
+            }
+        }
+        function PageFillData(pageIndex, pageSize) {
+            //查询方法
+            if ($.data(myData, "PID") != null) {
+                var strWhere = { "TYPE": $.data(myData, "ID") };
+                GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINFALLSelMore", strWhere, "SWZZ_FLOODTIDEDATA_ST_RAINFALLSelMore");
+            }
+
+        }
+        function SelGrid() {
+            var strWhere = {ATYPE:"水利片区"};
+            //GetJosns("SWZZ_FLOODTIDEDATA_ST_AREA_BSel", strWhere, "SWZZ_FLOODTIDEDATA_ST_AREA_BSel");
+			
+        }
+        function SelGridColumn(data) {
+            var columns = [];
+            columns.push({ type: "indexcolumn", header: "序号", width: "40", headerAlign: "center", align: "center" });
+            columns.push({ field: "tm", header: "时间", width: "120", headerAlign: "center", align: "center" });
+            for (var num = 0; num < data.length; num++) {
+                var item = { field: data[num].aid, header: data[num].areaname, headerAlign: "center", align: "center",width:50, decimalPlaces: "1", dataType:"float", summaryType:"sum" };
+                columns.push(item);
+            }
+            grid2.set({ columns: columns }); 
+        }
+        function SelDATA() {
+            grid2.loading("加载数据中，请稍后......");
+            setTimeout(function () { PageFillData(0, 15); }, 100);
+        }
+        function search() {
+            TreeSel();
+        }
+        function onSelectNode(e) {
+            if (e.node) {
+                var strPID = e.node.PID;
+                $.data(myData, "ID", e.node.ID);
+                $.data(myData, "PID", strPID);
+            }
+            SelDATA();
+        }
+        function addDataExcel() {
+            editData('ID@' + $.data(myData, "ID"), '/System/ExcelDATA.html', '典型降雨数据导入', '70%', '80%', 'true');
+        }
+        function addZiData() {
+            $.data(myData, "ADDDATA", "ZI");
+            addMenuData();
+        }
+        function addMenuData() {
+            if ($.data(myData, "ADDDATA") == "ZI") {
+                var node = tree.getValue($.data(myData, "ID"));
+                var nodes = tree.getChildNodes(node);
+                addData('PID@' + $.data(myData, "ID") + ',ORDERBYID@' + (nodes.length + 1) + ',PATHNAME@' + PathName, './System/ES_RAINFALL_Edit.html', '增加(子节点)', '600px', '340px', 'true')
+            } else if ($.data(myData, "ADDDATA") == "FU") {
+                var tempPid = "";
+                if ($.data(myData, "PID") == "-1") {
+                    tempPid = $.data(myData, "ID");
+                } else {
+                    tempPid = $.data(myData, "PID");
+                }
+                var node = tree.getNode(tempPid);
+                var nodes = tree.getChildNodes(node);
+                addData('PID@' + $.data(myData, "PID") + ',' + ',ORDERBYID@' + (nodes.length + 1) + ',PATHNAME@' + PathName, './System/ES_RAINFALL_Edit.html', '增加(子节点)', '600px', '340px', 'true')
+            }
+        }
+        function addFuData() {
+            $.data(myData, "ADDDATA", "FU");
+            addMenuData();
+        }
+        function edit() {
+            editData('ID@' + $.data(myData, "ID"), './System/ES_RAINFALL_Edit.html', '编辑(节点)', '600px', '340px', 'true');
+        }
+        function delTree() {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        var strWhere = { "ID": $.data(myData, "ID") };
+                        GetJosns("MODE_ES_RAINFALL_TREEDel", strWhere, "MODE_ES_RAINFALL_TREEDel");
+                    }
+                });
+        }
+        function Exp() {
+            var data = grid2.data;
+            var columns = grid2.columns;
+            var node = tree.getSelected();
+            var name = node.TITLE+"设计暴雨";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+    <script type="text/javascript">
+        function Del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        var strWhere = { "ID": objID };
+                        GetJosns("MODE_ES_RAINFALLDel", strWhere, "MODE_ES_RAINFALLDel");
+                    }
+                });
+        }
+        //鼠标移动上去的提示信息。
+        function onGriddrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            var record = e.record;
+            
+        }
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var field = e.field;
+            var grid = e.sender;
+            //服务端汇总计算
+            if (field == "TM") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:blue;'>累计值</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+        }
+        function chartBar(dataX,dataY) {
+            var myChart = echarts.init(document.getElementById('BY_charts'));
+            var node = tree.getSelected();
+            option = {
+                title: {
+                    left: 'center',
+                    text: node.TITLE
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                // 更改图例默认颜色(依次应用)
+                // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+                color: ['#38A7F0', '#91CC75', '#FAC858', '#EE6666'],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    orient: 'vertical',
+                    x: 'right',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    padding: [10, 50, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    show: false,
+                    //data: ['2021', '2020', '2019', '2018']
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: dataX
+                },
+                yAxis: {
+                    name: "雨量(m)",
+                    type: 'value'
+                },
+                series: [
+                    {
+                        name: '2021',
+                        type: 'bar',
+                        barGap: '0%',
+                        barWidth:10,
+                        data: dataY,
+                        itemStyle: {
+                            normal: {
+                                label: {
+                                    show: true,  //开启显示
+                                    formatter: '{c}',  //显示数值
+                                    position: 'top',
+                                    textStyle: { //数值样式
+                                        fontSize: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

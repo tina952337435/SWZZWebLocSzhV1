@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style=" margin-bottom:1px;height:50px;">
+        <table style="width:100%;">
+            <tr>
+                <td style="width:100%;">
+                    <p style="float:left;margin-top: 8px;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;累计极值：</p>
+                    <ul class="ui-choose choose-type-right" id="choseMNLX" style="float:left;">
+                        <li class="selected">
+                            <span id="HOUR">小时最大</span>
+                        </li>
+                        <li style="">
+                            <span id="DAY">日最大</span>
+                        </li>
+                    </ul>
+                </td>
+                <!--<td style="white-space:nowrap;">
+                    <a class="mini-button" onclick="addDataExcel()">添加站点</a>
+                    <a class="mini-button" onclick="addDataExcel()">保存数据</a>
+                </td>-->
+            </tr>
+        </table>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px);"
+         allowalternating="true" multiSelect="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+         showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" resultAsData="true" allowcellselect="true" allowcelledit="true"
+         showPager="false" ondrawcell="onGriddrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center">序号</div>
+            <div field="STNM" width="60" align="center" headeralign="center" allowsort="false">站名</div>
+            <div field="DRP" width="120" align="center" headeralign="center" allowsort="false" decimalPlaces="1"
+                 dataType="float">
+                历史最大降雨量(mm)
+                <input property="editor" class="mini-textbox" style="width:100%;" vtype="float" onvaluechanged="onvaluechanged" />
+            </div>
+            <div field="TM" width="120" align="center" headeralign="center" allowsort="false">
+                发生时间
+                <!--<input property="editor" class="mini-datepicker" format="yyyy-MM-dd HH:mm" showtime="true"  style="width:100%;" />-->
+            </div>
+            <div field="action" width="60" align="center" headeralign="center" allowsort="false">基本操作</div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var myData = [];
+        $(function () {
+            $.data(myData, "STYPE", "1");
+            search();
+            $('#choseMNLX li').click(function () {
+                var f = this;
+                $('#choseMNLX li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var str = $(this).find('span').attr("id");
+                if (str == "HOUR") {
+                    $.data(myData, "STYPE", "1");
+                } else {
+                    $.data(myData, "STYPE", "2");
+                }
+                search();
+            });
+        });
+        function search() {
+            var strWhere = { STYPE: $.data(myData, "STYPE") };
+            GetJosns("RAINSTORMVALUENAME_SSel", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                grid.setData(data.data);
+            }
+            else if (typeID == "Update") {
+                ShowMsg(data.Message);
+                search();
+            }
+        }
+        function onvaluechanged(e) {
+            var value = e.value;
+            var sender = e.sender;
+            var selected = grid.getSelected();
+            if (selected) {
+                if (!isNaN(value)) {
+                    mini.confirm("值改变是否确认修改？", "确定？",
+                        function (action) {
+                            if (action == "ok") {
+                                var strWhere = { STCD: selected.STCD, STYPE: $.data(myData, "STYPE"), DRP: value };
+                                GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINSTORMVALUE_SUpdate", strWhere, "Update");
+                            }
+                            else {
+                            }
+                        }
+                    );
+                }
+            }
+        }
+        function onGriddrawcell(e)
+        {
+            var record = e.record;
+            var field = e.field;
+            var value = e.value;
+            if (field == 'action') {
+                var s = ' <img style="cursor:pointer;" onclick="removeRow(\'' + record.STCD + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+                e.cellHtml = s;
+            }
+            if (field == "TM") {
+                try {
+                    var str = convertToDate(value).format("yyyy-MM-dd HH:mm");
+                    e.cellHtml = str;
+                } catch (e) {
+                    var str = new Date(value).format("yyyy-MM-dd HH:mm")
+                    e.cellHtml = str;
+                }
+            }
+        }
+        function removeRow(stcd) {
+            var strWhere = { STCD: stcd, STYPE: $.data(myData, "STYPE") };
+            GetJosns("SWZZ_FLOODTIDEDATA_ST_RAINSTORMVALUE_SDel", strWhere, "Update");
+        }
+    </script>
+</body>
+</html>

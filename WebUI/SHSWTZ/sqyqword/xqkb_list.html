@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>汛情快报记录</title>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <link href="../../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style="height: 50px;">
+        &nbsp;&nbsp;
+        开始时间：<input id="stime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" />
+        &nbsp;&nbsp;
+        结束时间：<input id="etime" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" />
+        &nbsp;&nbsp;
+        关键字：<input id="key" class="mini-textbox" style="width:115px;" />
+        &nbsp;&nbsp;
+
+        <!-- <ul class="ui-choose choose-type-right" id="choseGrade">
+            <li class="selected">
+                <span name="水情快报">快报</span>
+            </li>
+            <li>
+                <span name="水情简报">简报</span>
+            </li>
+        </ul> -->
+
+        <a class="mini-button" onclick="search()" style="">查询</a>
+        &nbsp;&nbsp;
+        <a class="mini-button" id="addbtn" onclick="AddBtn('')" plain="false">增加</a>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);">
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height:100%;" allowalternating="true"
+             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true"
+             emptytext="暂无数据" alwaysshowemptytext="true" showpager="true" ondrawcell="ondrawcell">
+            <div property="columns">
+                <div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>
+                <div field="XQKB_TM" width="80" headeralign="center" align="center" allowsort="true" format="yyyy-MM-dd">
+                    日期
+                </div>
+                <div field="XQKB_TITLE" width="120" headeralign="center" align="left">
+                    标题
+                </div>
+                <div field="XQKB_QIHAO" width="80" headeralign="center" align="center" >
+                    期号
+                </div>
+                <div field="XQKB_FILE" width="80" headeralign="center" align="center">
+                    文件
+                </div>
+                <div field="action" width="80" headeralign="center" align="center">
+                    基本操作
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        $(function () {
+            $.data(myData, "QXKB_TYPE", "水情快报");
+            var tm = new Date();
+            mini.get("stime").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            mini.get("etime").setValue(tm.format("yyyy-MM-dd"));
+            search();
+
+            $('#choseGrade li').click(function () {
+                var f = this;
+                $('#choseGrade li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var grade = $(this).find("span").attr("name");
+                $.data(myData, "QXKB_TYPE", grade);
+                search();
+            });
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            PageFillData(0, 15);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            var strWhere = {
+                key: mini.get("key").getValue(),
+                stime: mini.get("stime").getFormValue()+" 00:00:00",
+                etime: mini.get("etime").getFormValue() + " 23:59:59",
+                pathname: $.data(myData, "QXKB_TYPE")
+            };
+            app.post("SWZZ_FLOOD_XQKB_LIST/findResult", strWhere, function (res) {
+                var data = res.data;
+                JosnSel(res,"Sel");
+            });
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                PageServerFill(grid, data);
+                mini.unmask(document.body);
+            }
+            if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            var value = e.value;
+            if (field == "XQKB_TM") {
+                var s = new Date((value)).format("yyyy-MM-dd");
+                e.cellHtml = s;
+            }
+            if (field == "XQKB_FILE") {
+                var s = '';
+                if (value != undefined) {
+                    s = '<img src="../../Common/miniui/themes/icons/word.gif" style="cursor:pointer;" onclick="OpenHref(\'' + record.XQKB_FILE + '\')" title=\"点击下载此文件\"/>';
+
+                    var strFILE = record.XQKB_FILE.replaceAll(".docx", ".pdf");
+                    var hrefFile = HttpUrl + "sqkb/" + strFILE;
+
+                    //var strExistFile = isExistFile(hrefFile);
+                    //if (strExistFile != false) {
+                        s += '&nbsp;&nbsp;<img src="../../Common/miniui/themes/icons/pdf.gif" style="cursor:pointer;" onclick="OpenHref(\'' + strFILE + '\')" title=\"点击下载此文件\"/>';
+                    //} else {
+                       // s += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    //}
+                }
+                e.cellHtml = s;
+            }
+            if (field == "action") {
+                var s = '';
+                //s+='<img style="cursor:pointer;" onclick="lookData(\'ID@' + record.ID + ',TYPE@' + $.data(myData, "TYPE") + '\',\'/System/DATA_EMPLOYEE_View.html\',\'查看用户管理\',\'50%\',485,\'true\')" src="../../Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+                // s += '<img style="cursor:pointer;" onclick="UploadBtn(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/upload.gif" title="文件上传" />&nbsp;';
+                // s += '<img style="cursor:pointer;" onclick="AddBtn(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+                s += '<img style="cursor:pointer;" onclick="del(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/remove.png" title="删除用户管理" />&nbsp;';
+                e.cellHtml = s;
+            }
+        }
+        function AddBtn(ID) {
+            var type = "add";
+            var param = "?action=" + type;
+            if (ID != '') {
+                type = "edit";
+                param = "?action=" + type + "&XQID=" + ID;
+            }
+            var url = '/SHSWTZ/sqyqword/xqkb_preview.html' + param;          
+            if( $.data(myData, "QXKB_TYPE") == "水情快报") {   
+                url="/SHSWTZ/sqyqword/sqkbEdit.html" + param;
+            }
+            window.parent.addTab("水情快报生成", url);
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "stcd": objID };
+                        app.post("SWZZ_FLOOD_XQKB_LIST/remove", strWhere, function (res) {
+                            JosnSel(res,"Del");
+                        });
+                    }
+                }
+            );
+        }
+        top["win"] = window;
+        function OpenHref(fileName) {
+            window.open(HttpUrl+"sqkb/"+fileName);
+        }
+        /**
+ * 判断服务的文件是否存在
+ * @param filepath 文件地址
+ */
+        function isExistFile(filepath) {
+            try {
+                if (filepath == null || filepath == undefined || filepath == "") {
+                    return false;
+                }
+                var xmlhttp;
+                if (window.XMLHttpRequest) {
+                    xmlhttp = new XMLHttpRequest();
+                } else {
+                    xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                xmlhttp.open("GET", filepath, false);
+                xmlhttp.send();
+                if (xmlhttp.readyState == 4) {
+                    if (xmlhttp.status == 200) {
+                        console.clear();
+                        return true;
+                    } else {
+                        console.clear();
+                        return false;
+                    }
+                }
+            } catch (e) {
+                return false;
+            }
+        }
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function UploadBtn(ID) {
+            addData('XQID@' + ID, '/SHSWTZ/sqyqword/UploadFile.html', '上传文件', '800px', '450px', 'true');
+        }
+    </script>
+</body>
+</html>

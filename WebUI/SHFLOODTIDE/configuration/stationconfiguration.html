@@ -1,0 +1,171 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代表站暴雨极值查询</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .onlytab {
+            margin: 0px;
+            padding: 0px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            width: 100% !important;
+        }
+
+        .onlytab li {
+            list-style: none;
+            border: 1px #3291f9 solid;
+            float: left;
+            background-color: White;
+            width: 100px !important;
+            height: 30px;
+            font: 14px/30px "arial";
+            text-align: center;
+        }
+
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+            list-style: none;
+            float: left;
+        }
+
+        #areaList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+            list-style: none;
+            float: left;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 头部搜索框start -->
+    <div class="mini-toolbar">
+        <ul class="ui-choose choose-type-right" id="choseMNLX">
+            <li class="selected" style="border-radius: 3px 0 0 3px;">
+                <span>雨量站</span>
+            </li>
+            <li>
+                <span>潮位站</span>
+            </li>
+        </ul>
+        <a class="mini-button" onclick="AddBtn()" style="margin-left:20px;">添加站点</a>
+    </div>
+    <!-- 头部搜索框end -->
+    <!-- 表格start -->
+    <div id="grid1" class="mini-datagrid"
+         style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 70px);height: -moz-calc(100% - 70px);height: calc(100% - 70px);"
+         allowalternating="true" borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]"
+         pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+         ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center">序号</div>
+            <div field="STCD"  headeralign="center" align="center" allowsort="true">
+                站码
+            </div>
+            <div field="STNM"  headeralign="center" align="center" allowsort="true">
+                站名
+            </div>
+            <div field="COUNTIES"  headeralign="center" align="center" allow sort="true">
+                行政分区
+            </div>
+            <div field="WATERAREA"  headeralign="center" align="center" allowsort="true">
+                水利片区
+            </div>
+            <div field="action" width="60" headeralign="center" align="center" allowsort="true">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <!-- 表格end -->
+
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        var dataResult = {};
+        $(function () {
+            $.data(myData, "STTP","PP");
+            $.data(myData, "TYPE","雨量");
+            search();
+        });
+        function search() {
+            var strWhere = { STTP: $.data(myData, "STTP"), TYPE: $.data(myData, "TYPE") };
+            GetJosns("REPRESENTATIVESTATIONS", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                grid.setData(data.data);
+            } else if (typeID == "Del") {
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        $('#choseMNLX li').click(function () {
+            var f = this;
+            $('#choseMNLX li').each(function (index, item) {
+                this.className = this == f ? 'selected' : '';
+            });
+            var name = $(this).find("span").html().replace("站","");
+            if (name =="雨量") {
+                $.data(myData, "STTP", "PP");
+                $.data(myData, "TYPE", "雨量");
+            } else if (name == "潮位") {
+                $.data(myData, "STTP", "ZZ");
+                $.data(myData, "TYPE", "潮位");
+            }
+            search();
+        });
+        function ondrawcell(e) {
+            var grid = e.sender;
+            var field = e.field;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            if (field == "action") {
+                var s = '';
+                //s += '<img style="cursor:pointer;" onclick="editData(\'ID@' + record.BID +'\', \'/System/DATA_EMPLOYEE_Edit.html\', \'编辑代表站\', \'50%\',565, \'true\')" src="/Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+                s += '<img style="cursor:pointer;" onclick="del(\'' + record.BID + '\')" src="/Common/miniui/themes/icons/remove.png" title="删除代表站" />&nbsp;';
+                e.cellHtml = s;
+            }
+        }
+        function AddBtn() {
+            addData('TYPE@' + $.data(myData, "TYPE"), '/SHFLOODTIDE/configuration/stationconfigurationEdit.html', '新增代表站', 600, 365, 'true');
+        }
+        function del(bid) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "ID": bid };
+                        GetJosns("SWZZ_FLOODTIDEDATA_ST_AREASTATION_BDel", strWhere, "Del");
+                    }
+                }
+            );
+        }
+    </script>
+
+
+</body>
+
+</html>

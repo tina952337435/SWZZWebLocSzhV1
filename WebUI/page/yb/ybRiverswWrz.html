@@ -1,0 +1,1497 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <!--<script src="../../Common/Scripts/echartsNew.js"></script>-->
+
+    <script src="../../Common/Scripts/echarts.min.js"></script>
+    <link href="../../arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="../../arcgis_js_api/myJs/parentIndex.js"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../Common/jquery.min.js"></script>
+    <!--高版本下拉框无法使用-->
+    <script src="../../arcgis_js_api/myJs/bj.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/mapIndex.js?ver=1" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/CommonTool.js" type="text/javascript"></script>
+
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/myJs/style/map.css" rel="stylesheet" type="text/css" />
+
+    <link href="../../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/Progress/indexProgress.js"></script>
+
+    <script src="../../Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/ChartJs.js"></script>
+
+    <script src="../../Common/Scripts/modelHelperApi.js"></script>
+
+
+    <style>
+        html,
+        body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 10px;
+        }
+
+        .colorL p {
+            width: 55px;
+            margin: 0px auto;
+            margin-top: -4px;
+        }
+
+        .colorSpan {
+            display: inline-block;
+            width: 20px;
+            height: 30px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            vertical-align: 10px;
+        }
+
+        #swzzModerRiverCenterLine_layer path, #swzzModerRiverCenterLine_layer polyline {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1;
+        }
+
+        #swzzModerRiverCenterLine_layer path, #swzzModerRiverCenterLine_layerpolyline {
+            stroke-width: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute"></div>
+    <div class="flex" style="width: 355px; height: 822px; overflow: hidden;background:white;position:absolute;background:white;right: 3px;top: 10px;padding: 5px 10px;
+    border-radius: 5px;">
+        <div class="right box" style="height: 40px;">
+            <div class="demo1" style="float: left;width:100%;">
+                <div class="inline">
+                    <div style="width: 100%; height: 35px; float: left;">
+                        方案选择：
+                        <input id="STCD" name="STCD" class="mini-combobox" style="width: 180px;" textfield="dd_NAME"
+                            valuefield="dd_ID" allowinput="true" onvaluechanged="onSTCDChanged" />
+                        <!--<a class="mini-button" onclick="OpenHref()" style="width:60px;">报表</a>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp">
+            </p>
+            <span id="spanTitle">
+                代表站水位极值<span class="dwCss">(单位:m)</span>&nbsp;&nbsp;&nbsp;
+            </span>
+            <img title="导出表格" src="../../arcgis_js_api/myJs/images/excel.png" onclick="exp('预报水位')" style="position: relative;
+                top: 5px; right: 15px; float: right; cursor: pointer;" />
+        </div>
+        <div style="height:360px;">
+            <div id="grid1" class="left mini-datagrid" style="width: 99%; height:100%; margin: auto;" showpager="false"
+                idfield="STCD" allowresize="false" allowalternating="true" showemptytext="true" emptytext="暂无数据"
+                alwaysshowemptytext="true" ondrawcell="ondrawcell" sortMode="client" onselectionchanged="onSelectionChanged">
+
+            </div>
+        </div>
+        <div class="biaoheader" style="margin-top:10px;border:0px;">
+            <p class="NONEp">
+            </p>
+            <span id="spanTitle">
+                片区预报降雨量<span class="dwCss">(单位:mm)</span>&nbsp;&nbsp;&nbsp;
+            </span>
+        </div>
+        <div style="height:350px;">
+            <div style="width:100%;height:100%;" id="JY_charts">
+
+            </div>
+        </div>
+    </div>
+    <!--时间轴开始-->
+    <div class="box1" id="PreeBox" style="position:absolute;width:-webkit-calc(100% - 445px);
+width:-moz-calc(100% - 445px);
+width:calc(100% - 445px);z-index:1; right:365px; bottom:2px;display: none;">
+        <div id="progressTime_control" onclick="progressTimeControl(this)" title="开始" style="background-image: url(&quot;../../Common/Scripts/Progress/img/play.png&quot;);"></div>
+        <div class="progressTime" id="progressTime" style="z-index: 9; width:95%; ">
+            <div>
+                <p id="startTime" style=" float:left;margin-left:33px;opacity: 0;display: none;">2018/11/14 0:00:00</p>
+                <p id="endTime" style=" float:right;margin-right:33px;opacity: 0;display: none;">2018/11/17 0:00:00</p>
+            </div>
+            <div class="time_slot"></div>
+            <div id="progressTime_concent">
+                <div id="scrollBarBox">
+                    <div id="scrollBar">
+                        <div id="scroll_Track" style="width: 128.472px;"></div>
+                        <div id="scroll_Thumb" style="margin-left: 128.472px;">周日 30 - 13:00</div>
+                    </div>
+                </div>
+                <div class="timecode" style="display: none; left: 135px;">23:00</div>
+                <div style="width:90%; margin-left: auto;margin-right: auto;">
+                    <div style="width:300px;float:right;margin-right:-110px;margin-top:-8px">
+                        <p id="TimeSpeed" style="float:left;margin-right:40px;display:none">×1</p>
+                        <p style="float:right" id="scrollBarTxt"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--时间轴结束-->
+    <div id="SSTTL" style="background:#ffffff;position:absolute;right:365px;bottom:55px;height:145px;
+    border: 1px solid #cecbcb;
+    width: 75px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;display:block;">
+        <div class="colorL">
+            <p style="padding:8px 0px;"><input id="river_lx" type="checkbox" style="width:20px;vertical-align: -2px;" />
+                流向</p>
+            <p><span class="colorSpan" style="background-color:red"></span><span class="colorSpanValue">超保</span></p>
+            <p><span class="colorSpan" style="background-color:orange;"></span><span class="colorSpanValue">超警</span></p>
+            <p><span class="colorSpan" style="background-color:blue;"></span><span class="colorSpanValue">正常</span></p>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var SQnormalGraphicLayer;
+        var layer_hw;
+        var layer_hwCenterLine;
+        var countyLayer1;
+        var labels = new Array();
+        var _globallevel = 5;
+        var ybsw_LayerGraphicLayer;
+        var grid = mini.get("grid1");
+        var myData = [];
+        var mydt = [];
+        var resultData = [];
+        var typeName = GetQueryString("typeName");
+        $(function () {
+            var title = "";
+            typeName = "水位";
+            createGrid();
+            setTimeout(function () {
+                loadLayer();
+                //loadEcharts();
+                //测试数据
+                //var data = [
+                //    { "from": "海口", "from_lon": 110.259516, "from_lat": 19.992593, "to": "三亚", "to_lon": 109.524805, "to_lat": 18.278795 },
+                //    { "from": "海口", "from_lon": 110.259516, "from_lat": 19.992593, "to": "琼海", "to_lon": 110.358393, "to_lat": 18.751495 },
+                //    { "from": "儋州", "from_lon": 109.576991, "from_lat": 19.527321, "to": "三亚", "to_lon": 109.524805, "to_lat": 18.278795 },
+                //    { "from": "三亚", "from_lon": 109.524805, "from_lat": 18.278795, "to": "文昌", "to_lon": 110.776493, "to_lat": 19.573909 }
+                //]
+                //loadEchartsLJ(data);
+
+                $("#PreeBox").css("display", "block");
+            }, 1000);
+            $("input[type='checkbox']").click(function () {
+                var checkedStr = $(this).attr("id");
+                var value = document.getElementById(checkedStr).checked;
+                if (value) {
+                    layer_hwCenterLine.setVisibility(true);
+                    loadSVG();
+                } else {
+                    layer_hwCenterLine.setVisibility(false);
+                }
+            })
+        });
+        function loadSVG() {
+            // Obtain all transit line paths + polylines
+            let paths = document.querySelectorAll('#swzzModerRiverCenterLine_layer path');
+            paths = Array.prototype.slice.call(paths);
+            //alert(paths.length);
+            let style = ``;
+            //alert(paths.length);
+            const CAR_SIZE = 10;
+            var arr = ["#2196f3", "#E42323", "#FFE63D", "#751299", "#0078D7"];
+            //水质类别颜色
+            var LineColor = ['#1D8ADD', '#47c714', '#FED202', "#FE9506", "#F91005", "#FD5508"];
+            //来水组成颜色
+            var lineColorLszc = ["#228B22", "#ADFF2F", "#FFA500", "#DA70D6", "#DA70D6", "#FF4500"];
+            //console.error(JSON.stringify(resultData));
+            paths.forEach((path, i) => {
+                path.setAttribute('id', 'path-' + i);
+                const length = path.getTotalLength();
+                //console.error(length);
+                const speed = length / 100;
+                style += `
+        #path-${i} {
+          stroke-dasharray: ${length};
+          stroke-dashoffset: ${length};
+          animation: dash ${speed}s linear infinite;
+        }
+
+        @keyframes dash-${i} {
+          from {
+            stroke-dashoffset: 0;
+          }
+          to {
+            stroke-dashoffset: ${length};
+          }
+        }
+@keyframes dash {
+          to {
+            stroke-dashoffset: 0;
+          }
+        }
+`
+            });
+
+            const sheet = document.createElement('style');
+            sheet.innerHTML = style;
+            document.head.appendChild(sheet);
+        }
+
+        //加载echart
+        function loadEcharts() {
+            require(["esri/map", "myJs/Echarts3Layer", "dojo/domReady!"], function (Map, Echarts3Layer) {
+                var overlay = new Echarts3Layer(map, echarts);
+                var chartsContainer = overlay.getEchartsContainer();
+                var myChart = overlay.initECharts(chartsContainer);
+                var geoCoordMap = {
+                    '上海': [121.4648, 31.2891],
+                    '东莞': [113.8953, 22.901],
+                    '东营': [118.7073, 37.5513],
+                    '中山': [113.4229, 22.478],
+                    '临汾': [111.4783, 36.1615],
+                    '临沂': [118.3118, 35.2936],
+                    '丹东': [124.541, 40.4242],
+                    '丽水': [119.5642, 28.1854],
+                    '乌鲁木齐': [87.9236, 43.5883],
+                    '佛山': [112.8955, 23.1097],
+                    '保定': [115.0488, 39.0948],
+                    '兰州': [103.5901, 36.3043],
+                    '包头': [110.3467, 41.4899],
+                    '北京': [116.4551, 40.2539],
+                    '北海': [109.314, 21.6211],
+                    '南京': [118.8062, 31.9208],
+                    '南宁': [108.479, 23.1152],
+                    '南昌': [116.0046, 28.6633],
+                    '南通': [121.1023, 32.1625],
+                    '厦门': [118.1689, 24.6478],
+                    '台州': [121.1353, 28.6688],
+                    '合肥': [117.29, 32.0581],
+                    '呼和浩特': [111.4124, 40.4901],
+                    '咸阳': [108.4131, 34.8706],
+                    '哈尔滨': [127.9688, 45.368],
+                    '唐山': [118.4766, 39.6826],
+                    '嘉兴': [120.9155, 30.6354],
+                    '大同': [113.7854, 39.8035],
+                    '大连': [122.2229, 39.4409],
+                    '天津': [117.4219, 39.4189],
+                    '太原': [112.3352, 37.9413],
+                    '威海': [121.9482, 37.1393],
+                    '宁波': [121.5967, 29.6466],
+                    '宝鸡': [107.1826, 34.3433],
+                    '宿迁': [118.5535, 33.7775],
+                    '常州': [119.4543, 31.5582],
+                    '广州': [113.5107, 23.2196],
+                    '廊坊': [116.521, 39.0509],
+                    '延安': [109.1052, 36.4252],
+                    '张家口': [115.1477, 40.8527],
+                    '徐州': [117.5208, 34.3268],
+                    '德州': [116.6858, 37.2107],
+                    '惠州': [114.6204, 23.1647],
+                    '成都': [103.9526, 30.7617],
+                    '扬州': [119.4653, 32.8162],
+                    '承德': [117.5757, 41.4075],
+                    '拉萨': [91.1865, 30.1465],
+                    '无锡': [120.3442, 31.5527],
+                    '日照': [119.2786, 35.5023],
+                    '昆明': [102.9199, 25.4663],
+                    '杭州': [119.5313, 29.8773],
+                    '枣庄': [117.323, 34.8926],
+                    '柳州': [109.3799, 24.9774],
+                    '株洲': [113.5327, 27.0319],
+                    '武汉': [114.3896, 30.6628],
+                    '汕头': [117.1692, 23.3405],
+                    '江门': [112.6318, 22.1484],
+                    '沈阳': [123.1238, 42.1216],
+                    '沧州': [116.8286, 38.2104],
+                    '河源': [114.917, 23.9722],
+                    '泉州': [118.3228, 25.1147],
+                    '泰安': [117.0264, 36.0516],
+                    '泰州': [120.0586, 32.5525],
+                    '济南': [117.1582, 36.8701],
+                    '济宁': [116.8286, 35.3375],
+                    '海口': [110.3893, 19.8516],
+                    '淄博': [118.0371, 36.6064],
+                    '淮安': [118.927, 33.4039],
+                    '深圳': [114.5435, 22.5439],
+                    '清远': [112.9175, 24.3292],
+                    '温州': [120.498, 27.8119],
+                    '渭南': [109.7864, 35.0299],
+                    '湖州': [119.8608, 30.7782],
+                    '湘潭': [112.5439, 27.7075],
+                    '滨州': [117.8174, 37.4963],
+                    '潍坊': [119.0918, 36.524],
+                    '烟台': [120.7397, 37.5128],
+                    '玉溪': [101.9312, 23.8898],
+                    '珠海': [113.7305, 22.1155],
+                    '盐城': [120.2234, 33.5577],
+                    '盘锦': [121.9482, 41.0449],
+                    '石家庄': [114.4995, 38.1006],
+                    '福州': [119.4543, 25.9222],
+                    '秦皇岛': [119.2126, 40.0232],
+                    '绍兴': [120.564, 29.7565],
+                    '聊城': [115.9167, 36.4032],
+                    '肇庆': [112.1265, 23.5822],
+                    '舟山': [122.2559, 30.2234],
+                    '苏州': [120.6519, 31.3989],
+                    '莱芜': [117.6526, 36.2714],
+                    '菏泽': [115.6201, 35.2057],
+                    '营口': [122.4316, 40.4297],
+                    '葫芦岛': [120.1575, 40.578],
+                    '衡水': [115.8838, 37.7161],
+                    '衢州': [118.6853, 28.8666],
+                    '西宁': [101.4038, 36.8207],
+                    '西安': [109.1162, 34.2004],
+                    '贵阳': [106.6992, 26.7682],
+                    '连云港': [119.1248, 34.552],
+                    '邢台': [114.8071, 37.2821],
+                    '邯郸': [114.4775, 36.535],
+                    '郑州': [113.4668, 34.6234],
+                    '鄂尔多斯': [108.9734, 39.2487],
+                    '重庆': [107.7539, 30.1904],
+                    '金华': [120.0037, 29.1028],
+                    '铜川': [109.0393, 35.1947],
+                    '银川': [106.3586, 38.1775],
+                    '镇江': [119.4763, 31.9702],
+                    '长春': [125.8154, 44.2584],
+                    '长沙': [113.0823, 28.2568],
+                    '长治': [112.8625, 36.4746],
+                    '阳泉': [113.4778, 38.0951],
+                    '青岛': [120.4651, 36.3373],
+                    '韶关': [113.7964, 24.7028]
+                };
+
+                var BJData = [
+                    [{ name: '武汉' }, { name: '上海', value: 95 }],
+                    [{ name: '武汉' }, { name: '广州', value: 90 }],
+                    [{ name: '武汉' }, { name: '大连', value: 80 }],
+                    [{ name: '武汉' }, { name: '南宁', value: 70 }],
+                    [{ name: '武汉' }, { name: '南昌', value: 60 }],
+                    [{ name: '武汉' }, { name: '拉萨', value: 50 }],
+                    [{ name: '武汉' }, { name: '长春', value: 40 }],
+                    [{ name: '武汉' }, { name: '包头', value: 30 }],
+                    [{ name: '武汉' }, { name: '重庆', value: 20 }],
+                    [{ name: '武汉' }, { name: '常州', value: 10 }]
+                ];
+
+                var SHData = [
+                    [{ name: '武汉' }, { name: '包头', value: 95 }],
+                    [{ name: '武汉' }, { name: '昆明', value: 90 }],
+                    [{ name: '武汉' }, { name: '广州', value: 80 }],
+                    [{ name: '武汉' }, { name: '郑州', value: 70 }],
+                    [{ name: '武汉' }, { name: '长春', value: 60 }],
+                    [{ name: '武汉' }, { name: '重庆', value: 50 }],
+                    [{ name: '武汉' }, { name: '长沙', value: 40 }],
+                    [{ name: '武汉' }, { name: '北京', value: 30 }],
+                    [{ name: '武汉' }, { name: '丹东', value: 20 }],
+                    [{ name: '武汉' }, { name: '大连', value: 10 }]
+                ];
+
+                var planePath = 'path://M1705.06,1318.313v-89.254l-319.9-221.799l0.073-208.063c0.521-84.662-26.629-121.796-63.961-121.491c-37.332-0.305-64.482,36.829-63.961,121.491l0.073,208.063l-319.9,221.799v89.254l330.343-157.288l12.238,241.308l-134.449,92.931l0.531,42.034l175.125-42.917l175.125,42.917l0.531-42.034l-134.449-92.931l12.238-241.308L1705.06,1318.313z';
+
+                var convertData = function (data) {
+                    var res = [];
+                    for (var i = 0; i < data.length; i++) {
+                        var dataItem = data[i];
+                        var fromCoord = geoCoordMap[dataItem[0].name];
+                        var toCoord = geoCoordMap[dataItem[1].name];
+                        if (fromCoord && toCoord) {
+                            res.push([{
+                                coord: fromCoord
+                            }, {
+                                coord: toCoord
+                            }]);
+                        }
+                    }
+                    return res;
+                };
+                var convertData2 = function (data) {
+                    var res1 = [];
+                    for (var i = 0; i < data.length; i++) {
+                        var dataItem = data[i];
+                        var fromCoord = geoCoordMap[dataItem[1].name];
+                        var toCoord = geoCoordMap[dataItem[0].name];
+                        if (fromCoord && toCoord) {
+                            res1.push([{
+                                coord: fromCoord
+                            }, {
+                                coord: toCoord
+                            }]);
+                        }
+                    }
+                    return res1;
+                };
+
+                var color = ['#a6c84c', '#ffa022', '#46bee9'];
+                var series = [];
+                [['武汉返程', SHData]].forEach(function (item, i) {
+                    series.push({
+                        name: item[0] + ' Top10',
+                        type: 'lines',
+                        zlevel: 1,
+                        effect: {
+                            show: true,
+                            period: 6,
+                            trailLength: 0.7,
+                            color: '#fff',
+                            symbolSize: 3
+                        },
+                        lineStyle: {
+                            normal: {
+                                color: color[i],
+                                width: 0,
+                                curveness: 0.2
+                            }
+                        },
+                        data: convertData2(item[1])
+                    }, {
+                            name: item[0] + ' Top10',
+                            type: 'lines',
+                            zlevel: 2,
+                            effect: {
+                                show: true,
+                                period: 6,
+                                trailLength: 0,
+                                symbol: planePath,
+                                symbolSize: 2
+                            },
+                            lineStyle: {
+                                normal: {
+                                    color: color[i],
+                                    width: 1,
+                                    opacity: 0.4,
+                                    curveness: 0.2
+                                }
+                            },
+                            data: convertData2(item[1])
+                        }, {
+                            name: item[0] + ' Top10',
+                            type: 'effectScatter',
+                            coordinateSystem: 'geo',
+                            zlevel: 2,
+                            rippleEffect: {
+                                brushType: 'stroke'
+                            },
+                            label: {
+                                normal: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: '{b}'
+                                }
+                            },
+                            symbolSize: function (val) {
+                                return val[2] / 8;
+                            },
+                            itemStyle: {
+                                normal: {
+                                    color: color[i]
+                                }
+                            },
+                            data: item[1].map(function (dataItem) {
+                                return {
+                                    name: dataItem[1].name,
+                                    value: geoCoordMap[dataItem[1].name].concat([dataItem[1].value])
+                                };
+                            })
+                        });
+                });
+                [['武汉出发', BJData]].forEach(function (item, i) {
+                    series.push({
+                        name: item[0] + ' Top10',
+                        type: 'lines',
+                        zlevel: 1,
+                        effect: {
+                            show: true,
+                            period: 6,
+                            trailLength: 0.7,
+                            color: '#fff',
+                            symbolSize: 3
+                        },
+                        lineStyle: {
+                            normal: {
+                                color: color[2],
+                                width: 0,
+                                curveness: 0.2
+                            }
+                        },
+                        data: convertData(item[1])
+                    },
+                        {
+                            name: item[0] + ' Top10',
+                            type: 'lines',
+                            zlevel: 2,
+                            effect: {
+                                show: true,
+                                period: 6,
+                                trailLength: 0,
+                                symbol: planePath,
+                                symbolSize: 2
+                            },
+                            lineStyle: {
+                                normal: {
+                                    color: color[2],
+                                    width: 1,
+                                    opacity: 0.4,
+                                    curveness: 0.2
+                                }
+                            },
+                            data: convertData(item[1])
+                        },
+                        {
+                            name: item[0] + ' Top10',
+                            type: 'effectScatter',
+                            coordinateSystem: 'geo',
+                            zlevel: 2,
+                            rippleEffect: {
+                                brushType: 'stroke'
+                            },
+                            label: {
+                                normal: {
+                                    show: true,
+                                    position: 'right',
+                                    formatter: '{b}'
+                                }
+                            },
+                            symbolSize: function (val) {
+                                return val[2] / 8;
+                            },
+                            itemStyle: {
+                                normal: {
+                                    color: color[2]
+                                }
+                            },
+                            data: item[1].map(function (dataItem) {
+                                return {
+                                    name: dataItem[1].name,
+                                    value: geoCoordMap[dataItem[1].name].concat([dataItem[1].value])
+                                };
+                            })
+                        });
+                });
+
+                option = {
+                    //        		backgroundColor: '#404a59',
+                    title: {
+                        text: '人口户籍迁徙',
+                        left: 'center',
+                        textStyle: {
+                            color: '#fff'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        top: 'bottom',
+                        left: 'left',
+                        data: ['武汉出发 Top10', '武汉返程 Top10'],
+                        textStyle: {
+                            color: '#fff'
+                        },
+                        selectedMode: 'multiple'
+                    },
+                    geo: {
+                        map: '',
+                        label: {
+                            emphasis: {
+                                show: false
+                            }
+                        },
+                        roam: true,
+                        itemStyle: {
+                            normal: {
+                                areaColor: '#323c48',
+                                borderColor: '#404a59'
+                            },
+                            emphasis: {
+                                areaColor: '#2a333d'
+                            }
+                        }
+                    },
+                    series: series
+                };
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            });
+        }
+
+        function loadEchartsLJ(data) {
+            require(
+                [
+                    "esri/map",
+                    'esri/layers/ArcGISTiledMapServiceLayer',
+                    'esri/geometry/Extent',
+                    "myJs/Echarts3LayerNew",
+                    "dojo/domReady!"
+                ],
+                function (
+                    Map,
+                    ArcGISTiledMapServiceLayer,
+                    Extent,
+                    Echarts3LayerNew) {
+                    //转为float类型
+                    function toNum(n) {
+                        return parseFloat(n)
+                    }
+                    var length = data.length
+                    var allPoints = []
+                    var lineft = []
+                    var linetf = []
+                    if (length > 0) {
+                        //获取所有点集合
+                        for (var i = 0; i < length; i++) {
+                            var flon = toNum(data[i].from_lon)
+                            var flat = toNum(data[i].from_lat)
+                            var fPoint = { "value": [flon, flat] }
+                            var tlon = toNum(data[i].to_lon)
+                            var tlat = toNum(data[i].to_lat)
+                            var tPoint = { "value": [tlon, tlat] }
+                            allPoints.push(fPoint)
+                            allPoints.push(tPoint)
+                            //流向线 from至to
+                            var ft = [
+                                { "coord": [flon, flat] },
+                                { "coord": [tlon, tlat] }
+                            ]
+                            lineft.push(ft)
+                            //流向线  to至from
+                            var tf = [
+                                { "coord": [tlon, tlat] },
+                                { "coord": [flon, flat] }
+                            ]
+                            linetf.push(tf)
+                        }
+                    }
+
+                    map.hideZoomSlider()
+                    var overlay = new Echarts3LayerNew(map, echarts);
+                    var chartsContainer = overlay.getEchartsContainer();
+                    var myChart = overlay.initECharts(chartsContainer);
+
+                    var color = '#ffffff'
+                    var mySeries = []
+                    mySeries.push(
+                        {
+                            name: '流向图:from--→to',
+                            type: 'lines',
+                            zlevel: 1,
+                            effect: {
+                                "show": true,
+                                "period": 2, //轨迹速度
+                                "trailLength": 0.5,//轨迹长度
+                                "symbol": "pin",
+                                "symbolSize": 7, //轨迹宽度
+                                "color": "#00FA9A"
+                            },
+                            lineStyle: {
+                                normal:
+                                {
+                                    width: 1, //线的宽度
+                                    color: '#00BFFF', //线的颜色
+                                    opacity: 0.5, // 透明度
+                                    curveness: 0.1 //线的弧度，值越大，弧度越大
+                                }
+                            },
+                            data: lineft
+                        },
+                        {
+                            name: '流向图:to--→from',
+                            type: 'lines',
+                            zlevel: 1,
+                            effect: {
+                                "show": true,
+                                "period": 2, //轨迹速度
+                                "trailLength": 0.5,//轨迹长度
+                                "symbol": "pin",
+                                "symbolSize": 7,
+                                "color": "#00FA9A"
+                            },
+                            lineStyle: {
+                                normal:
+                                {
+                                    width: 1,
+                                    color: '#00BFFF',
+                                    opacity: 0.5,
+                                    curveness: 0.1
+                                }
+                            },
+                            data: linetf
+                        },
+                        {
+                            name: '涟漪效果散点',
+                            type: 'effectScatter',
+                            coordinateSystem: 'geo',
+                            zlevel: 2,
+                            rippleEffect: {
+                                "period": 2,
+                                "brushType": "stroke",
+                                "scale": 3
+                            },
+                            symbolSize: 6,
+                            symbolSize: 10,
+                            itemStyle: {
+                                normal: {
+                                    color: color
+                                }
+                            },
+                            data: allPoints
+                        }
+                    );
+
+                    var option = {
+                        title: {
+                            text: 'arcgis api结合echart 轨迹',
+                            subtext: '',
+                            left: 'center',
+                            textStyle: {
+                                color: '#fff'
+                            }
+                        },
+                        geo: {
+                            map: '',
+                            label: {
+                                emphasis: {
+                                    show: false
+                                }
+                            },
+                            roam: true,
+                            itemStyle: {
+                                normal: {
+                                    areaColor: '#323c48',
+                                    borderCOlor: '#404a59'
+                                },
+                                emphasis: {
+                                    areaColor: '#2a333d'
+                                }
+                            }
+                        },
+                        series: mySeries
+                    }
+                    myChart.setOption(option)
+                });
+        }
+
+        function createGrid() {
+            grid.set({
+                columns: [
+                    //{ type: "indexcolumn", width: 40 },
+                    { field: "stnm", width: 50, headerAlign: "center", align: "left", header: "站名", },
+                    { field: "maxz", width: 60, headerAlign: "center", align: "center", header: "最高水位", decimalPlaces: "2", dataType: "float" },
+                    { field: "wrz", width: 60, headerAlign: "center", align: "center", header: "警戒水位", decimalPlaces: "2", dataType: "float" },
+                    { field: "maxtm", width: 70, headerAlign: "center", align: "center", allowSort: true, header: "出现时间" },
+                ]
+            });
+        }
+        function onSTCDChanged(e) {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var time = new Date((nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date((nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", { pattem: "0" }, function (res) {
+                JosnSel(res, "MODE_ES_ZHANDIANSel");
+            });
+            onLoadAllData();
+            YBClick(time, etime);
+        }
+        function SetMapData(time) {
+            showJCTips(time);
+            SetSDE(time);
+            daibiaozhan(time);
+        }
+        function YBClick(objSTM, objETM) {
+            _DayNum = 24;
+            ScrollBar.value = 0;
+            SetProgressTime(null, objSTM, objETM);
+            progressTimeStop();
+        }
+        //调用接口没返回结果，不再调用，完成才让调用
+        var isSetSDE = true;
+        var isComp = 0;
+        var isCompLX = true;
+        function SetSDE(time) {
+            time = new Date(time).format("yyyy/MM/dd HH:mm:ss");
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            s_where = { "SolutionID": nodes.dd_ID, "strPathName": "黄浦江水系预报模型三期", "typeName": typeName, "strTM": time, JIBIE: "A" };
+            if (isSetSDE) {
+                isSetSDE = false;
+                modeGetResultAllModelByTime(time, nodes.dd_FOR);
+            }
+        }
+
+        //加载预报水位
+        function onLoadData() {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var time = new Date((nodes.dd_TM)).format("yyyy-MM-dd HH:mm:ss");
+            var etime = new Date((nodes.dd_CHECKBY)).format("yyyy-MM-dd HH:mm:ss");
+            var s_where = {
+                "datatype": "0",
+                "dayhour": "DAY",
+                "solutionid": _stcd.getValue(),
+                "startdate": time,
+                "enddate": etime
+            }
+
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBindJY", s_where, function (res) {
+                JosnSel(res, "JIANGYU");
+            });
+        }
+
+        //水位统计报表
+        function onLoadAllData() {
+            var _stcd = mini.get("STCD");
+            var DD_ID = _stcd.getValue();
+            var strParam = { "solutionid": DD_ID, "data_TYPE": "1" };
+            app.post('SWZZ_MODE_BDMS_PREDICT/WJ_MODELSINGRESULT', strParam, function (res) {
+                JosnSel(res, "WJ_MODELSINGRESULT");
+            });
+        }
+        //代表站水位
+        function daibiaozhan(time) {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            time = new Date(time).format("yyyy-MM-dd HH:mm:ss");
+            s_where = { "solutionid": nodes.dd_ID, "typeID": "1", tm: time };
+            app.post("/SWZZ_MODE_BDMS_PREDICT/YBList", s_where, function (res) {
+                JosnSel(res, "SelAll");
+            });
+        }
+
+        function JsonColumnChart(strJson) {
+            var arrZhan = $.data(myData, "ES_ZHANDIAN");
+            var arr = strJson;
+            var strNote = [];
+            var item = { "name": "名称", "codename": "STNM", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "降雨量", "codename": "DRP", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+
+            var _XData = [];
+            if (arr != null && arr != undefined) {
+                for (var num = 0; num < arrZhan.length; num++) {
+                    var totalJY = 0;
+                    for (var h = 0; h < arr.length; h++) {
+                        if(arr[h][arrZhan[num]["id"]] != undefined){
+							 totalJY += parseFloat(arr[h][arrZhan[num]["id"]]);
+						}
+                    }
+                    var item = {
+                        STNM: arrZhan[num]["title"], DRP: totalJY
+                    };
+                    _XData.push(item);
+                }
+                //绘制过程线颜色设置
+                var LineColor = ['#3398DB', '#FF0000', '#00FF00', '#FFA500'];
+                //绘制图形
+                chartYL("JY_charts", _XData, strNote, LineColor, "雨量");
+            }
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                mini.get("STCD").setData(data.data);
+                mini.get("STCD").select(0);
+                var _stcd = mini.get("STCD");
+                var nodes = _stcd.getSelected();
+                var time = new Date(nodes.dd_TM).format("yyyy-MM-dd HH:mm:ss");
+                var etime = new Date(nodes.dd_CHECKBY).format("yyyy-MM-dd HH:mm:ss");
+                app.post("SWZZ_MODE_ES_SLTONGJI/findResult",{pattem: "134"},(data)=>{
+				    JosnSel(data,"MODE_ES_ZHANDIANSel");
+			    });
+                onLoadAllData();
+                YBClick(time, etime);
+            }
+            else if (typeID == "WJ_MODELSINGRESULT") {
+                gridLoad(data.data);
+            }
+            else if (typeID == "GetResultAllModelByTime") {
+                isSetSDE = true;
+                $.data(myData, "AllModelByTimeData", data.results);
+                //画颜色
+                queryComplete();
+            }
+            else if (typeID == "SelAll") {
+                addMark(data.data);
+            }
+            else if (typeID == "MODE_ES_ZHANDIANSel") {
+                $.data(myData, "ES_ZHANDIAN", data.data);
+                onLoadData();
+            }
+            else if (typeID == "JIANGYU") {
+                var dataResult = mini.decode(data.data);
+                if (dataResult != [] && dataResult != null) {
+                    //绘制图形
+                    JsonColumnChart(dataResult);
+                }
+            }
+        }
+        function addMark(obj) {
+            if (ybsw_LayerGraphicLayer != null) {
+                ybsw_LayerGraphicLayer.clear();
+            }
+            if (obj == null)
+                return;
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol) {
+                var breakSymbol;
+                _destroy();
+                for (var i = 0; i < obj.length; i++) {
+                    if (obj[i].lgtd == undefined && obj[i].lttd == undefined) {
+                        continue;
+                    }
+                    var temp = "";
+                    var state = 0;
+                    var z = parseFloat(obj[i].data);
+                    var wrz = parseFloat(obj[i].wrz);
+                    var grz = parseFloat(obj[i].grz);
+
+                    breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api/myJs/images/水位站图标.png", 26, 35);
+                    if ((obj[i].data == null || obj[i].data == "")) {
+                        //breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api/myJs/images/gray_hd.gif", 22, 22);
+                    } else if (z >= grz && grz != 0) {
+                        //breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api/myJs/images/s_red_u1.gif", 22, 22);
+                        state = 2;
+                    } else if (z >= wrz && wrz != 0) {
+                        //breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api/myJs/images/s_yellow_u1.gif", 22, 22);
+                        state = 1;
+                    } else {
+                        //breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api/myJs/images/blue_hd.gif", 22, 22);
+                        state = 0;
+                    }
+                    var point = new Point({ "x": obj[i].lgtd, "y": obj[i].lttd, "spatialReference": { "wkid": 4326 } });
+                    var objID = "gqColor" + obj[i].stcd;
+
+                    var cls = "  waterText";
+                    if (state == 2) {
+                        cls = "  grzText";
+                    }
+                    else if (state == 1) {
+                        cls = "  wrzText";
+                    }
+                    var tm = obj[i].tm;
+                    var dh = "";
+                    if (tm == "") {
+                        tm = obj[i].TM;
+                    } else {
+                        tm = new Date((tm)).format('MM-dd HH:mm');
+                        dh = new Date((tm)).format('d日H时');
+                    }
+                    obj[i].TM = tm;
+                    obj[i].temptm=new Date(obj[i].tm).format('yyyy-MM-dd HH:mm:ss');
+                    var upzText = obj[i].data == null ? "-" : obj[i].data;//+ "m";
+                    var upzMax = obj[i].maxdata == null ? "-" : obj[i].maxdata;//+ "m";
+                    var textStr = obj[i].stnm + ":" + Number(upzText).toFixed(2);
+                    var _align = "bottom";
+                    var label = new MapText(map, point, obj[i], textStr, _globallevel, _align, cls, 12);
+                    labels.push(label);
+
+                    var graphic = new Graphic(point, breakSymbol, obj[i], null);
+                    ybsw_LayerGraphicLayer.add(graphic);
+                }
+            });
+        }
+        function gridLoad(data) {
+            grid.setData(data);
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "maxtm") {
+                if (value != undefined) {
+                    e.cellHtml = new Date(value).format('d日H时m分');
+                }
+            }
+            if (field == "max") {
+                var WRZ = record.wrz;
+                if (WRZ != undefined) {
+                    if (value >= WRZ) {
+                        e.cellStyle = "color:orange";
+                    }
+                }
+            }
+        }
+        function loadLayer() {
+            //var url = swzzModerRiverUrl;
+            //layer_hw = new esri.layers.FeatureLayer(url + "/0", {
+            //注意这里的mode一定要指定MODE_SNAPSHOT，否则每次放大或缩小或者是平移都会执行FeatureLayer的update-end操作
+            //    mode:esri.layers.FeatureLayer.MODE_SNAPSHOT,
+            //    //输出所有属性
+            //    outFields: ["*"],
+            //    id: "swzzModerRiver"
+            //});
+            //添加图层
+            //map.addLayer(layer_hw);
+            //layer_hw.setDefinitionExpression("等级=1");
+
+            countyLayer1 = CreateLayer("MODE_River");
+            ybsw_LayerGraphicLayer = CreateLayer("MODE_zhans");
+            /*设置图层的飞行提示*/
+            setLayerToolTip(ybsw_LayerGraphicLayer, "stnm", "temptm,data", "时间,水位@(m)");
+            ybsw_LayerGraphicLayer.on("click", function (e) {
+                var graphic = e.graphic;
+                var attributes = graphic.attributes;
+                tansZhan(attributes.stnm, attributes.stcd);
+            });
+            map.addLayer(countyLayer1);
+            countyLayer1.on("click", function (e) {
+                var graphic = e.graphic;
+                var attributes = graphic.attributes;
+                trans(attributes);
+            });
+
+            SQnormalGraphicLayer = CreateLayer("TF_SQLayer4");
+
+            app.post("SWZZ_MODE_DD_SOLUTION/findResult", { "DD_STATUS": "1" }, function (res) {
+                JosnSel(res, "Sel");
+            });
+
+            layer_hwCenterLine = CreateLayer("swzzModerRiverCenterLine");
+            MapRainfallArea();
+        }
+
+        //加载河道中心线json
+        function MapRainfallArea() {
+            if (layer_hwCenterLine != null) {
+                layer_hwCenterLine.clear();
+            }
+            require(["esri/geometry/Point",
+                "esri/geometry/Polyline",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font", "dojo/_base/lang",
+                "esri/geometry/Polygon", "dojo/domReady!"
+            ], function (Point, Polyline, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, Font, lang, Polygon) {
+                    $.get(
+                        "../../Common/swzzModerRiverCenterLine2000.json",//json路径
+                        lang.hitch(this, function (data, status) {
+                            if (status === "success") {
+                                var features = data.features;
+                                //var  featuresNew=[];
+                                // for(var num=0;num<gradeOneRiver.length;num++){
+                                //     var featuresTemp=features.filter(function(res){
+                                //         return res.properties.ID==gradeOneRiver[num];
+                                //     });
+                                //     var featureNew={};
+                                //     var coordinates=[];
+                                //     for(var _index=0;_index<featuresTemp.length;_index++){
+                                //         if (featuresTemp[_index].geometry != undefined) {
+                                //          featuresTemp[_index].geometry.coordinates.forEach(function (item) {
+                                //             coordinates.push(item);
+                                //          }, this);
+                                //         }
+                                //     }
+                                //     featureNew.properties=featuresTemp[0].properties;
+                                //     featureNew.properties["等级"]=1;
+                                //     featureNew.geometry=featuresTemp[0].geometry;
+                                //     featureNew.geometry.coordinates=coordinates;
+                                //     featuresNew.push(featureNew);
+                                // }
+                                // console.error("featuresNew" , JSON.stringify(featuresNew));
+
+                                features.forEach(function (feature) {
+                                    if (feature.geometry != undefined) {
+                                        var coordinates = feature.geometry.coordinates;
+                                        var properties = feature.properties;
+                                        var hd_id = properties.ID;
+                                        //if (properties["等级"] == 1 || properties["等级"] == "1") {
+                                            var area = new Polyline(coordinates);
+                                            var symbol = new SimpleFillSymbol(
+                                                SimpleFillSymbol.STYLE_SOLID,
+                                                new SimpleLineSymbol(
+                                                    SimpleLineSymbol.STYLE_SOLID,
+                                                    new Color([64, 158, 255]), //rgb155, 153, 153
+                                                    2
+                                                ),
+                                                new Color([4, 20, 54, 0]) //rgba
+                                            );
+                                            var gra = new Graphic(area, symbol);
+                                            layer_hwCenterLine.add(gra);
+                                        //}
+                                    }
+                                }, this);
+                                layer_hwCenterLine.setVisibility(false);
+                            }
+                        }),
+                        "json"
+                    );
+                });
+        }
+
+        //查询结果换颜色
+        function queryComplete() {
+            if ($.data(myData, "jsonfeatures") == undefined || $.data(myData, "jsonfeatures") == null || $.data(myData, "jsonfeatures") == "") {
+                $.get(
+                    "../../Common/SHSWZZModeRiver2000.json",//json路径
+                    function (data, status) {
+                        if (status === "success") {
+                            var features = data.features;
+                            $.data(myData, "jsonfeatures", features);
+                            queryCompleteDraw();
+                        }
+                    },
+                    "json"
+                );
+            } else {
+                queryCompleteDraw();
+            }
+        }
+        var gradeOneRiver=[100667513,100667514,100667515,100667516,100667517,100667518,100667522,100667523,100667525,100667526,100667533,100667535,100667536,100667537,100667538,100667540,100667542,100667543,100667546,100667550,100667553,100667554,100667558,100667559,100667560,100667563,100667565,100667694,100668805,100669744,100669745,100669746,100669747,100669748,100669804,100669806];
+        function queryCompleteDraw() {
+            var colors = ["#0000FF", "#FFA500", "#FF0000",];
+            var colors2 = ["#0000FF", "#FFA500", "#FF0000"];
+            var features = $.data(myData, "jsonfeatures");
+            var result = $.data(myData, "AllModelByTimeData");
+            var featuresNew=[];
+            //console.error("画河道之前："+new Date().format("yyyy-MM-dd HH:mm:ss"));
+            require([
+                "esri/graphic",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/geometry/Polygon",
+                "dojo/domReady!"
+            ], function (Graphic, SimpleFillSymbol, SimpleLineSymbol, Color, Polygon) {
+                //console.error(layer_hw.graphics.length);
+                var dataLJ = [];
+                //读取json文件
+                //console.error(features);
+                features.forEach(function (feature) {
+                    if (feature.geometry != undefined) {
+                        var allrings = feature.geometry.coordinates;
+                        var polygon = new Polygon(allrings);
+                        var properties = feature.properties;
+                        var hd_id = properties.ID;
+                        // if (gradeOneRiver.indexOf(hd_id) > -1) {
+                        //     featuresNew.push(feature);
+                        // }
+                        var dm = parseInt(properties["起始断面序"]);
+                        //gradeOneRiver.push(hd_id);
+                        if (result[hd_id] != undefined) {
+                            var arr = result[hd_id].sections;
+                            var wrz = properties.WRZ;
+                            var grz = properties.GRZ;
+                            if (arr.length > 0) {
+                                var ZVALUE = Number(arr[dm].Z.toFixed(2));
+                                arr[dm].HDNAME = properties['名称'];
+                                arr[dm].ID = properties['ID'];
+                                arr[dm].DMNUM = arr[dm].index;
+                                // console.error(ZVALUE);
+                                var color = 0;
+                                if (wrz != undefined) {
+                                    //超警
+                                    if (ZVALUE >= wrz) {
+                                        color = 1;
+                                    }
+                                }
+                                if (grz != undefined) {
+                                    //超警
+                                    if (ZVALUE >= grz) {
+                                        color = 2;
+                                    }
+                                }
+                                var colorStr = colors[color];
+                                var fillColorStr = colors2[color];
+                                var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                    new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                        new Color(colorStr), 2), new Color(fillColorStr)
+                                );
+                                //var g3 = new Graphic(gra.geometry, fs);
+                                //g3.attributes = arr[dm];
+                                //countyLayer1.add(g3);
+
+                                var g3 = new Graphic(polygon, fs);
+                                g3.attributes = arr[dm];
+                                countyLayer1.add(g3);
+                                //console.error(g3);
+                            }
+
+                        }
+                        else {
+                            //console.error(hd_id);
+                        }
+                    }
+                    
+                }, this);
+                //console.error("gradeOneRiver：",JSON.stringify(gradeOneRiver));
+                //console.error("画河道之后：" + new Date().format("yyyy-MM-dd HH:mm:ss"));
+                //console.error("featuresNew" , JSON.stringify(featuresNew));
+            });
+        }
+
+        function showJCTips(tm) {
+            var strMsg = "当前调度时间：" + new Date(tm).format("yyyy-MM-dd HH:mm");
+            var x = "center";
+            var y = "top";
+            var state = "info"
+            var strMsg = "<b style='font-size:16px;'>" + strMsg + "</b>"
+            mini.showTips({
+                content: strMsg,
+                state: state,
+                x: x,
+                y: y,
+                timeout: null
+            });
+        }
+        function trans(feat) {
+            var typeName = "水位";
+            var strPathName = "黄浦江水系预报模型三期";
+            var hd_name = feat.HDNAME;
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var time = new Date((nodes.dd_TM)).format("yyyy/MM/dd HH:mm:ss");
+            var etime = new Date((nodes.dd_CHECKBY)).format("yyyy/MM/dd HH:mm:ss");
+            var nodes = _stcd.getSelected();
+            var paramStr="?stcd=" + feat.ID + "&stnm=" + hd_name
+                + "&PLAN_N=" + nodes.dd_ID + "&typeName=" + typeName + "&dm_id=" + feat.DMNUM
+                + "&strPathName=" + strPathName + "&stime=" + time + "&etime=" + etime+"&taskID="+nodes.dd_FOR;
+            var url = "././DanZhan/YBSZLine.html"+paramStr;
+            //查看计算成果
+            openChart(url, hd_name, hd_name);
+        }
+
+        function tansZhan(stnm, stcd) {
+            var _stcd = mini.get("STCD");
+            var nodes = _stcd.getSelected();
+            var stime = nodes.dd_TM;
+            stime = new Date((stime)).format("yyyy-MM-dd HH:mm:ss");
+            var etime = nodes.dd_CHECKBY;
+            etime = new Date((etime)).format("yyyy-MM-dd HH:mm:ss");
+            var ZU_ID = nodes.dd_MIND;
+            var DD_ID = _stcd.getValue();
+            WindowsOpen("././DanZhan/YBSQLine.html?stcd=" + stcd + "&stnm=" + (stnm) + "&stime=" + stime + "&etime=" + etime + "&PLAN_N=" + DD_ID + "&ZU_ID=" + ZU_ID, stnm + "水位过程线", "1100@630");
+        }
+        /* 柱状图 雨量
+* ChartName画图控件名称
+* dataS数据对象，数据格式json
+* strNote数据说明，数据类型数组，数据格式
+* json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示
+*/
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                        //chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    show: false,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                toolbox: {
+                    show: false
+                },
+                grid: {
+                    left: 90,
+                    right: 40,
+                    bottom: 40,
+                    top: 20,
+                    containLabel: false
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'value',
+                        show: false,
+                        //name: max_min_Name,
+                        axisTick: {
+                            alignWithLabel: false
+                        },
+                        min: 0,
+                        max: function (value) {
+                            return Number(value.max) + 15;
+                        },
+                        axisLine: {
+                            show: false
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        boundaryGap: false,
+                        axisLabel: {
+                            interval: 0,
+                            //rotate: 30
+                        },
+                        axisLine: {
+                            show: false
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        if (chartName[j] == "名称") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: 12,
+                                label: {
+                                    normal: {
+                                        show: true,
+                                        position: 'right',
+                                        formatter: function (params) {
+                                            if (params.value == 0) {  //为0时不显示
+                                                return '';
+                                            } else {
+                                                return params.value;
+                                            }
+                                        }
+                                    },
+
+                                },
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                        else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+            myChart.on('click', function (param) {
+                var name = param.name;
+                WindowsOpen("/DanZhan/YBYQBar.html?stnm=" + (name) + "&DD_ID=" + DD_ID, name, "1100@600");
+            });
+        }
+
+        function exp(name) {
+            var data = grid.data;
+                ExportExcel(data, grid, name);
+        }
+
+
+        function onSelectionChanged(e) {
+            var grid = e.sender;
+            var record = grid.getSelected();
+            if (record) {
+                loc(record.LGTD, record.LTTD);
+            }
+        }
+        function loc(lgtd, lttd) {
+            if (lgtd == undefined && lttd == undefined) {
+                showTips("缺失经纬度");
+            } else {
+                dyCenter(lgtd, lttd);
+            }
+        }
+    </script>
+</body>
+
+</html>

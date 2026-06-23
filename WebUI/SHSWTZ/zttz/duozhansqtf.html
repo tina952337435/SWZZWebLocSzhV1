@@ -1,0 +1,345 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div id="Chart" style="height:96%;width:100%;text-align: center">
+    </div>
+    <script>
+        mini.parse();
+        var Startime = GetQueryString("STIME");
+        var Endtime = GetQueryString("ETIME");
+        var STCD = GetQueryString("STCD");
+        $(function () {
+            search();
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var strWhere = {
+                STIME: Startime, ETIME: Endtime, STCD: STCD, "DAY": "Minute"
+            }
+            GetJosns("DT_SQDUOZHANLISTSel", strWhere, "Sel");
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dt = [];
+                var strNote = [
+                    { name: "时间", codename: "TIME", tableV: "1", isShow: "true" },
+                    { name: "水位", codename: "UPZ", tableV: "1", isShow: "true" },
+                    { name: "警戒水位", codename: "WRZ", tableV: "1", isShow: "false" }
+                ];
+                dt = data.data;
+                var LineColor = ['#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"];
+                LineColor = ['#00f8ff', '#00f15a', '#0696f9', '#dcf776', '#1a9bfc', '#99da69', '#e32f46', '#7049f0', '#fa704d', '#01babc'];
+                var objArrg = sortObjectArray(dt, ['TIME'], 'asc');
+                LineColor = ['orange', 'red'];
+                chartSW("Chart", objArrg, strNote, LineColor, "水位");
+                mini.unmask(document.body);
+            }
+        }
+   
+        /* 过程线绘制 过程线 水位
+        * ChartName画图控件名称
+        * dataS数据对象，数据格式json
+        * strNote数据说明，数据类型数组，数据格式
+        * json 格式说明 name数据类型名称，codename数据表示，tableV 表格是否显示，isShow 是否显示过程线
+        * [
+        * {"name": "时间","codename": "TM","tableV":"1","isShow":true},
+        * {"name": "闸上水位","codename": "UPZ","tableV":"1","isShow":true},
+        * {"name": "闸下水位","codename": "DWZ","tableV":"1","isShow":true},
+        * {"name": "警戒水位","codename": "WRZ","tableV":"0","isShow":false}
+        * ]
+        */
+        function chartSW(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            //echarts.init(document.getElementById('quxian'), 'macarons');
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var ShowSelected = {};
+            var m = new Array();
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        //chartTM.push(new Date(value[value1.codename].replaceAll("-","/")).format("MM-dd HH:mm")); //加入时间集合
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            //获得最大值最小值
+            //var max_min=GetSort(chartValue);
+            var option = {
+                //backgroundColor: '#100E19',
+                noDataLoadingOption: {
+                    text: '暂无数据',
+                    effect: 'bubble',
+                    effectOption: {
+                        effect: {
+                            n: 0 //气泡个数为0
+                        }
+                    },
+                    textStyle: {
+                        fontSize: 30,
+                        fontWeight: 'bold'
+                    }
+                },
+                tooltip: {
+                    //showDelay: 0,
+                    //hideDelay: 50,
+                    //transitionDuration: 0,
+                    //backgroundColor: 'rgba(255,255,255,0.9)',
+                    //borderColor: '#4040FB',
+                    //borderRadius: 8,
+                    //borderWidth: 2,
+                    //padding: 10,
+                    //textStyle: {
+                    //    color: '#000000'
+                    //},
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#cbcccc',
+                        fontSize: 12
+                    },
+                    selected: ShowSelected
+                    //selected: {
+                    //    '警戒水位': false
+                    //}
+
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartTM,
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1, //这里是为了突出显示加上的
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            }
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#1B2B2F',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.min - (jiangenew - jiange) / 20;
+                            }
+                            else {
+                                return value.min - (jiangenew - jiange - 1) / 20;
+                            }
+
+
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.max + (jiangenew - jiange) / 30;
+                            }
+                            else {
+                                return value.max + (jiangenew - jiange + 1) / 30;
+                            }
+
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            },
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: '#918F8F',
+                                width: 1,//这里是为了突出显示加上的
+                                shadowBlur: 0,
+                                shadowOffsetX: 0,
+                            },
+                            textStyle: {
+                                color: '#000',
+                                fontSize: '16'
+                            },
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            chartValue.push(m[i][j]); //循环价值
+                        }
+                        if (chartName[j] == "水位") {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                connectNulls: true,
+                                itemStyle: {
+                                    normal: {
+                                        color: '#000',
+                                        label: {
+                                            show: true,
+                                            color: '#000000',//气泡中字体颜色
+                                        }
+                                    }
+                                },
+                                markPoint: {
+                                    data: [
+                                        { type: 'max', name: '最大值' },
+                                        { type: 'min', name: '最小值' },
+                                    ], label: {
+                                        offset: [0, 0],
+                                        textStyle: {
+                                            color: "#000000",
+                                            fontSize: 13,
+                                        },
+                                    },
+                                },
+                                symbol: "none",
+                                smooth: true,
+                                itemStyle: {
+                                    color: "rgba(20,253,129,1)",
+                                    //borderColor: "#646ace",
+                                    //borderWidth: 1
+                                },
+                                areaStyle: { //区域填充样式
+                                    normal: {
+                                        //线性渐变，前4个参数分别是x0,y0,x2,y2(范围0~1);相当于图形包围盒中的百分比。如果最后一个参数是‘true’，则该四个值是绝对像素位置。
+                                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                            offset: 0,
+                                            color: "rgba(20,253,129,.3)"
+                                        },
+                                        {
+                                            offset: 1,
+                                            color: "rgba(25,163,223, 0)"
+                                        }
+                                        ], false),
+                                        shadowColor: 'rgba(20,253,129, 0.5)', //阴影颜色
+                                        shadowBlur: 20 //shadowBlur设图形阴影的模糊大小。配合shadowColor,shadowOffsetX/Y, 设置图形的阴影效果。
+                                    }
+                                },
+                            }
+                            serie.push(item);
+                        } else {
+                            var item = {
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValue,
+                                connectNulls: true,
+                                //markPoint: {
+                                //    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                //},
+                                symbol: "none",
+                                smooth: true,
+                                itemStyle: {
+                                    borderWidth: 1
+
+                                },
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+            if (m.length == 0) {
+                if ($.data(myData, "ChartID") != null) {
+                    $("#" + $.data(myData, "ChartID")).show();
+                } else {
+                    var $li = "";
+                    $.data(myData, "ChartID", new Date().format("yyyyMMddHH"));
+
+                    $li = "<div id='" + $.data(myData, "ChartID") + "'>\ <span  class='b threefont' style='letter-spacing:-2px;position: absolute;top: 40%;font-size: 30px;color:#ddd'>暂无数据</span>\ </div>";
+                    $('#' + ChartName).append($li);
+                }
+
+            } else {
+                //$("#" + $.data(myData, "ChartID")).hide();
+            }
+        }
+    </script>
+</body>
+</html>

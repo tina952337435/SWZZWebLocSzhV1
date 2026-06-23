@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+
+    <script src="../Common/Scripts/CopyExcel.js"></script>
+    <script src="../Common/Scripts/modelHelper.js"></script>
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <title></title>
+    <style type="text/css">
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2,
+        .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1,
+        .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55, 148, 255, .3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="height:100%;width:100%;display:none;" id="formMenu1">
+        <div style="height:200px;">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p">水位边界</p>
+            </div>
+            <div style="height: calc(100% - 40px);padding: 0px 20px;" id="swInputList">
+
+            </div>
+        </div>
+        <div style="height: calc(100% - 300px);">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p">预报降雨</p>
+            </div>
+            <div id="gridJY" class="mini-datagrid" style="width: 100%; height:100%;z-index: 0;" ondrawcell="ondrawcell"
+                allowalternating="true" allowcellselect="true" allowcelledit="true" showpager="false" showemptytext="true"
+                emptytext="暂无数据" alwaysshowemptytext="true" showFilterRow="true" showSummaryRow="true"
+                ondrawsummarycell="onDrawSummaryCell" cellEditAction="celldblclick">
+                <!--headerContextMenu="#headerMenu"-->
+            </div>
+        </div>
+        <div style="height:60px;margin-top: 50px;text-align: center;">
+            <a class="mini-button" onclick="startJisuan()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#3AB308;">
+                启动模型计算
+            </a>
+        </div>
+    </div>
+    <div style="height:100%;width:100%;" id="formMenu2">
+        <div style="height: calc(100% - 60px);width:100%;" id="swCharts">
+
+        </div>
+        <div style="height:60px;text-align: center;width:100%;">
+            <a class="mini-button" onclick="isOk()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#3AB308;">
+                确认应用
+            </a>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get('gridJY');
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+        var sbjID=GetQueryString("sbjID");
+        var huishuimodehdyroID=GetQueryString("huishuimodehdyroID");
+        var SOLUTIONID = GetQueryString("SOLUTIONID") == null ? "0" : GetQueryString("SOLUTIONID");
+        function SetData(data) { }
+        $(function () {
+            if(stime==null){
+                stime=new Date().format("yyyy-MM-dd HH:00:00");
+            }
+            if(etime==null){
+                etime=AddHourDate(stime,24);
+            }
+            app.post("SWZZ_MODE_ES_MODELGUANLIAN/findResult", { kwtxt: "GSXGTJ" }, function (res) {
+                JosnSel(res, "MODE_ES_MODELGUANLIANSel");
+            });
+        });
+        function JosnSel(data, typeID) {
+            if (typeID == "MODE_ES_MODELGUANLIANSel") {
+                $.data(myData, "baseZhanDian", data.data);
+                startJisuan();
+            }
+            else if (typeID == 'GetStatisticsPredictObjectsGSApi') {
+                if (data.total == 0) {
+                    mini.alert('模型无计算结果！');
+                } else {
+                    // console.error(typeID, data);
+                    $.data(myData, "ybswData", data.data);
+                    $("#formMenu1").hide();
+                    $("#formMenu2").show();
+                    var dataResult = data.data;
+                    var LineColor = ["#8B5CFF", "#0000FF", "#00FF00", "#FF0101"];
+                    var _xdata = [];
+                    var hours = GetDateDiff(stime, etime, 'hour');
+                    for (var mt = 0; mt < hours * 12; mt++) {
+                        var tm = new Date(new Date(stime).addDate('n', mt * 5)).format('yyyy-MM-dd HH:mm');
+                        _xdata.push(tm);
+                    }
+                    // console.error('_xdata', _xdata);
+                    //绘制图形
+                    chartLL("swCharts", _xdata, dataResult, LineColor, "水位(m)");
+                }
+                mini.unmask(document.body);
+            }
+            else if (typeID == "StatisticalCorrelationModelSW") {
+                ShowMsg(data.message);
+                //调用父页面的方法
+                top["win"].OpenHref();
+                onCancel();
+            }
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+        function swInputHtml() {
+            var html = "";
+            var baseZhanDian = $.data(myData, "baseZhanDian");
+            baseZhanDian = baseZhanDian.filter(function (res) {
+                return res.FIELD == "水位";
+            });
+            var swStcds = "";
+            for (var num = 0; num < baseZhanDian.length; num++) {
+                var mkeyid = baseZhanDian[num].MKEYID;
+                var stcd = baseZhanDian[num].stcd;
+                swStcds += stcd + ",";
+                html += '<div style="float:left;width:25%;margin-bottom:10px;">';
+                html += mkeyid + '：<input id="' + stcd + '" changeOnMousewheel="false" class="mini-spinner" style="width:150px;" minValue="0" increment="0.01" format="n2" onvaluechanged="onValueChanged" value=""/>';
+                html += '</div>';
+            }
+            $("#swInputList").html(html);
+            mini.parse();
+        }
+        function isOk() {
+            var ybswData = $.data(myData, "ybswData");
+            if (ybswData != undefined && ybswData != null) {
+                try {
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loading',
+                        html: '应用中...'
+                    });
+                    // var strWhere = {
+                    //     "SOLUTIONID": SOLUTIONID,
+                    //     "LISTMODE": JSON.stringify(ybswData)
+                    // };
+                    //GetJosns("StatisticalCorrelationModelSW", strWhere, "StatisticalCorrelationModelSW");
+                        
+                    strWhere = {
+                        "solutionid": SOLUTIONID,
+                        "ddobjson": JSON.stringify(ybswData)
+                    };
+                    //console.error('ybswData',JSON.stringify(ybswData));
+                    app.post("SWZZ_MODE_ES_ZHANDIANDATA/StatisticalCorrelationModelSW", strWhere, function(data){
+                        JosnSel(data,"StatisticalCorrelationModelSW");
+                    });
+                } catch (e) {
+                    mini.unmask(document.body);
+                }
+            }
+        }
+        //鼠标移动上去的提示信息。
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            //超链接任务
+            if (field == "TM") {
+
+            } else if (field == "action") {
+                var s = '<input id="fullValue" name=\'' + e.row.tm + '\' type="input" style="width:80px;height:20px;border:1px solid #8BA0BC;" onblur="onfull(\'' + e.row.tm + '\',this)"/> ';
+                e.cellHtml = s;
+            } else {
+                var s = "";
+                if (value != undefined) {
+                    s = Number(value).toFixed(1);
+                }
+                e.cellHtml = s;
+            }
+        }
+        //累计
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var field = e.field;
+            var grid = e.sender;
+            var data = grid.getData();
+
+            //服务端汇总计算
+            if (field == "TM") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:blue;'>累计降雨量：</div>";
+                s += "</span>";
+                e.cellHtml = s;
+            }
+        }
+        function startJisuan() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '模型计算中...'
+            });
+            var strWhere = {
+                "version": 1,
+                "api": "GetResultPresetByTimePeriod",
+                "startTM": new Date(AddHourDate(stime,-7*24)).format("yyyy-MM-d H:mm"),
+                "endTM": new Date(stime).format('yyyy-MM-d H:mm'),//开始时间
+                "sbjID":Number(sbjID),
+                "hydroID": Number(huishuimodehdyroID),
+            }
+            var baseZhanDian=$.data(myData, "baseZhanDian");
+            var baseZhanDianT=baseZhanDian.filter(function(res){
+                return res.field=="雨量"&&res.type=="GSXGTJZ";
+            });
+            // console.error(baseZhanDianT);
+            var listPPTN=[];
+            for (var num = 0; num < baseZhanDianT.length; num++) {
+                strWhere.id = Number(baseZhanDianT[num].stcd);
+                GetJosnsModeNew("", strWhere, false, function (res) {
+                    // console.error(strWhere, 'GetResultPresetByTimePeriod', res);
+                    var times=res.data.times;
+                    var vals=res.data.vals;
+                    for (var _index = 0; _index < times.length; _index++) {
+                        var ctm = new Date(times[_index]).format('yyyy-MM-dd HH:mm:ss');
+                        var pREDICT = {};
+                        pREDICT.stcd = baseZhanDianT[num].stcd;
+                        pREDICT.tm = ctm;//模型计算数据要加8小时
+                        pREDICT.drp = vals[_index];
+                        listPPTN.push(pREDICT);
+                    }                    
+                });
+            }
+            
+            // strWhere = {
+            //     yj_time: stime,
+            //     yj_etime: etime,
+            //     SOLUTIONID: SOLUTIONID,
+            //     //ZHANID: zhanids,
+            //     //SWLIST: JSON.stringify(SWLIST)
+            // };
+            // app.post("GetStatisticsPredictObjectsGSApi", strWhere, function (res) {
+            //     JosnSel(res, "GetStatisticsPredictObjectsGSApi");
+            // });
+
+            console.error("listPPTN",listPPTN);
+                
+            $.data(myData, "listPPTN",listPPTN);
+            GetStatisticsPredictObjectsGS();
+        }
+        function GetStatisticsPredictObjectsGS(){
+            var mPredictTime=stime;
+            var mPredictETime=etime;
+            var listPPTN=$.data(myData, "listPPTN");
+            var listGUANNew =$.data(myData, "baseZhanDian");
+            var listGUANNewYL = listGUANNew.filter(p => {return p.type == "GSXGTJ" && p.field == "雨量";});
+            var zhanidsYL ="";
+            listGUANNewYL.filter(p=>{
+                zhanidsYL+= p.stcd+",";
+            });
+            zhanidsYL=zhanidsYL!=""?zhanidsYL.substring(0,zhanidsYL.length-1):"";
+            var strWhere={
+                pattem:zhanidsYL,
+                strExp: SOLUTIONID
+            }
+            var listData=[];
+            app.postAsync("SWZZ_MODE_ES_ZHANDIANDATA/findResult",strWhere,function(res){
+                listData=res.data;
+            });
+            var listGUANNewSW = listGUANNew.filter(function(p) {return p.type == "GSXGTJ" && p.field == "水位"});
+            var listGUANNewSWZ = listGUANNew.filter(function(p){return p.field == "水位"});//需要查前7日实测水位的站
+            var stcdsSW ="";
+            listGUANNewSWZ.filter(p=>{
+                stcdsSW+= p.stcd+",";
+            });
+            stcdsSW=stcdsSW!=""?stcdsSW.substring(0,stcdsSW.length-1):"";
+            var swetime =new Date( etime).format("yyyy-MM-dd HH:mm:ss");
+            var swstime =new Date(AddHourDate(etime,-7*24)).format("yyyy-MM-dd HH:mm:ss");
+            strWhere={
+                startdate: swstime,
+                enddate: swetime,
+                stcd: stcdsSW,
+                dayHour:new Date(stime).format("HH")
+            }
+            var listWas=[];
+            app.postAsync("/GetWaterViewNew/selectListByHis", strWhere, (res) => {
+                listWas=res.data;
+            });
+            var userList =[];
+            listGUANNewSW.forEach(u => {
+                // console.error(u);
+                var ybupz = 0;
+                var stcd = u.stcd;
+                var zhanid="",stnm="";
+                if (stcd == "63403500")//陈墓水位
+                {
+                    zhanid="1728053248";
+                    stnm="陈墓";
+                    ybupz = FormulaCalculationCM(mPredictTime, listWas, listPPTN, listData);
+                }
+                else if (stcd == "63301150")//嘉兴水位
+                {
+                    zhanid="1728053250";
+                    stnm="嘉兴";
+                    ybupz = FormulaCalculationJX(mPredictTime, listWas, listPPTN, listData);
+                }
+                else if (stcd == "63205150")//昆山水位
+                {
+                    zhanid="1728053251";
+                    stnm="昆山";
+                    ybupz = FormulaCalculationKS(mPredictTime, listWas, listPPTN, listData);
+                }
+                else if (stcd == "63205350")//平望水位
+                {
+                    zhanid="1728053252";
+                    stnm="平望";
+                    ybupz = FormulaCalculationPW(mPredictTime, listWas, listPPTN, listData);
+                }
+                ybupz = parseFloat(ybupz).toFixed(2);
+                // console.error(stnm,ybupz);
+                var dtoNew = {};
+                dtoNew.stcd = zhanid;
+                dtoNew.stnm = stnm;
+                var listWasTemp = listWas.filter(function(p){return p.stcd == stcd && p.tm == mPredictTime});
+                var upz = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;
+                //水位线性插值
+                var CModelComputeDataItemmData = getXiangXingChaZhiArray(upz, ybupz, mPredictTime, mPredictETime);
+                dtoNew.mData = CModelComputeDataItemmData;
+                userList.push(dtoNew);
+
+                console.error('dtoNew',stnm,upz,ybupz);
+            });
+            var data={
+                data:userList,
+                total:userList.length
+            }
+            JosnSel(data, "GetStatisticsPredictObjectsGSApi");
+        }
+
+        function chartLL(ChartName, _xdata, data, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var chartName = []; 	//控件元素名称
+            var chartTM = _xdata; 	//时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+            $.each(data, function (index, value, item) {
+                chartName.push(value.stnm);   //Echarts绘制标注名称加入
+            });
+            var option = {
+                title: {
+                    //text: YBTM,
+                    left: "center",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 20,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    show: true,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '2%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        //scale: true, //是否自动计算最大最小值。
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(1);
+                            }
+                        },
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.min - (jiangenew - jiange) / 30;
+                            }
+                            else {
+                                return value.min - (jiangenew - jiange - 1) / 30;
+                            }
+
+
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                return value.max + (jiangenew - jiange) / 30;
+                            }
+                            else {
+                                return value.max + (jiangenew - jiange + 1) / 30;
+                            }
+
+                        },
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < data.length; j++) {
+                        var item = {
+                            name: data[j].stnm,
+                            symbol: 'none',  //这句就是去掉点的
+                            type: 'line',
+                            data: data[j].mData,
+                            smooth: true
+                        }
+                        serie.push(item);
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+
+    <script>
+        //昆山预报水位公式计算：Z_昆山 =-0.00779+Z_昆山-1 -0.132Z_昆山-2 +0.132Z_昆山-3 -0.0935Z_昆山-4 +0.0935Z_昆山-5 +0.00189P_嘉宝北片面平均 
+        //-0.00106P_嘉宝北片面平均-2 +0.00147P_商榻片面平均 -0.00038P_商榻片面平均-7
+        function FormulaCalculationKS(mPredictTime,listWas, listPPTN, listData)
+        {
+            var stime1 =new Date(AddHourDate( mPredictTime,-24*1)).format("yyyy-MM-dd HH:mm:ss");
+            var listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime1});
+            var Z1 = listWasTemp.length>0?Number( listWasTemp[0].upz):0;//昆山站前一天当前时刻水位
+
+            var stime2 = new Date(AddHourDate(mPredictTime,-24*2)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime2});
+            var Z2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; ;//昆山站前两天当前时刻水位
+            
+            var stime3 = new Date(AddHourDate(mPredictTime,-24*3)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime3});
+            var Z3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; ;//昆山站前三天当前时刻水位
+
+            var stime4 = new Date(AddHourDate(mPredictTime,-24*4)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime4});
+            var Z4 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; ;//昆山站前四天当前时刻水位
+
+            var stime5 =new Date(AddHourDate(mPredictTime,-24*5)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime5});
+            var Z5 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; ;//昆山站前五天当前时刻水位
+
+            var listDataTemp = listData.filter(function(p){return p.zhanid == "1744830552"});
+            var jbbp_drpyb =Number(SumJson(listDataTemp,'zhandata'));//嘉宝北片面平均（预报周期累计降雨）
+            
+
+            var listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime2) && new Date(p.tm) <= new Date(stime2)&&p.stcd== "81459"});
+            var jbbp_drpyb2 =Number(SumJson(listPPTNTemp,'drp'));//嘉宝北片面平均前两日这1天的24h累计降雨
+
+            listDataTemp = listData.filter(function(p){return p.zhanid == "1744830531"});
+            var stp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//商榻片面平均（预报周期累计降雨）
+
+            var stime6 = new Date(AddHourDate(mPredictTime,-24*6)).format("yyyy-MM-dd HH:mm:ss");
+            var stime7 = new Date(AddHourDate(mPredictTime,-24*7)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime7) && new Date(p.tm) <= new Date(stime6) && p.stcd == "80991"});
+            var stp_drpyb7 = Number(SumJson(listPPTNTemp,'drp'));//商榻片面平均前7日这1天的24h累计降雨
+
+            var upz = -0.00779 + Z1 - 0.132 * Z2 + 0.132 * Z3 - 0.0935 * Z4 + 0.0935 * Z5 + 0.00189 * jbbp_drpyb 
+                - 0.00106 * jbbp_drpyb2 + 0.00147 * stp_drpyb - 0.00038 * stp_drpyb7;
+            return upz;
+        }
+
+        //陈墓预报水位公式计算：Z_陈墓 =-0.0107+Z_陈墓-1 +0.00143P_青松片面平均 +0.000738P_青松片面平均-1 -0.000232P_青松片面平均-4 +0.00147P_商榻片面平均 -0.000313P_商榻片面平均-2 -0.000356P_商榻片面平均-3 -0.000227P_商榻片面平均-4 -0.000154P_商榻片面平均-7 
+        //+0.182Z_商榻-1 -0.182Z_商榻-2 -0.142Z_昆山-2 +0.142Z_昆山-3 -0.0647Z_昆山-4 +0.0647Z_昆山-5
+        function FormulaCalculationCM(mPredictTime,listWas, listPPTN, listData)
+        {
+            var stime1 = new Date(AddHourDate(mPredictTime,-24*1)).format("yyyy-MM-dd HH:mm:ss");
+            var listWasTemp = listWas.filter(function(p){return p.stcd == "63403500" && p.tm == stime1});
+            var Z1 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//陈墓前一天当前时刻水位
+
+            var listDataTemp = listData.filter(function(p){return p.zhanid == "1744830548"});
+            var qsp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//青松片面平均（预报周期累计降雨）
+
+            var listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime1) && new Date(p.tm) <= new Date(mPredictTime) && p.stcd == "80990"});
+            var qsp_drpyb1 = Number(SumJson(listPPTNTemp,'drp'));//青松片面平均前1日这1天的24h累计降雨
+
+            var stime3 = new Date(AddHourDate(mPredictTime,-24*3)).format("yyyy-MM-dd HH:mm:ss");
+            var stime4 = new Date(AddHourDate(mPredictTime,-24*4)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime4) && new Date(p.tm) <= new Date(stime3) && p.stcd == "80990"});
+            var qsp_drpyb4 = Number(SumJson(listPPTNTemp,'drp'));//青松片面平均前4日这1天的24h累计降雨
+            
+
+            listDataTemp = listData.filter(function(p){return p.zhanid == "1744830531"});
+            var stp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//商榻片面平均（预报周期累计降雨）
+
+            var stime2 = new Date(AddHourDate(mPredictTime,-24*2)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime2) && new Date(p.tm) <= new Date(stime1) && p.stcd == "80991"});
+            var stp_drpyb2 = Number(SumJson(listPPTNTemp,'drp'));//商榻片面平均前2日这1天的24h累计降雨
+
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime3) &&new Date( p.tm) <= new Date(stime3) && p.stcd == "80991"});
+            var stp_drpyb3 = Number(SumJson(listPPTNTemp,'drp'));//商榻片面平均前3日这1天的24h累计降雨
+
+            var stime5 = new Date(AddHourDate(mPredictTime,-24*5)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime5) && new Date(p.tm) <= new Date(stime4) && p.stcd == "80991"});
+            var stp_drpyb4 = Number(SumJson(listPPTNTemp,'drp'));//商榻片面平均前4日这1天的24h累计降雨
+
+            var stime6 = new Date(AddHourDate(mPredictTime,-24*6)).format("yyyy-MM-dd HH:mm:ss");
+            var stime7 = new Date(AddHourDate(mPredictTime,-24*7)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime7) && new Date(p.tm) <= new Date(stime6) && p.stcd == "80991"});
+            var stp_drpyb7 = Number(SumJson(listPPTNTemp,'drp'));//商榻片面平均前7日这1天的24h累计降雨
+            
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403800" && p.tm == stime1});
+            var stZ1 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//商榻站前一天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403800" && p.tm == stime2});
+            var stZ2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//商榻站前两天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime2});
+            var ksZ2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//昆山前两日天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime3});
+            var ksZ3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//昆山前三日天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime4});
+            var ksZ4 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//昆山前四日天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime5});
+            var ksZ5 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//昆山前五日天当前时刻水位
+
+            var upz = 0.0107 + Z1 + 0.00143 * qsp_drpyb + 0.000738 * qsp_drpyb1 - 0.000232 * qsp_drpyb4 + 0.00147 * stp_drpyb - 0.000313 * stp_drpyb2 - 0.000356 * stp_drpyb3 - 0.000227 * stp_drpyb4 - 0.000154 * stp_drpyb7
+        + 0.182 * stZ1 - 0.182 * stZ2 - 0.142 * ksZ2 + 0.142 * ksZ3 - 0.0647 * ksZ4 + 0.0647 * ksZ5;
+            return upz;
+        }
+
+        //平望预报水位公式计算：Z_平望 =-0.0143+Z_平望-1 -0.0638Z_平望-2 +0.0638Z_平望-3 +0.00225P_商榻片面平均 +0.00256P_浦南西片面平均 -0.000884P_浦南西片面平均-2 
+        //-0.000532P_浦南西片面平均-7 +0.14Z_商榻-1 -0.182Z_商榻-2 +0.0418Z_商榻-3 -0.0549Z_金泽-2 +0.0549Z_金泽-3 -0.0601Z_练塘-3 +0.015Z_练塘-4 +0.0451Z_练塘-5 -
+        //0.0137Z_吴淞口-4 +0.0137Z_吴淞口-5
+        function FormulaCalculationPW( mPredictTime,  listWas,  listPPTN, listData)
+        {
+            var stime1 = new Date(AddHourDate(mPredictTime,-24*1)).format("yyyy-MM-dd HH:mm:ss");
+            var listWasTemp = listWas.filter(function(p){return p.stcd == "63205350" && p.tm == stime1});
+            var Z1 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//平望前一天当前时刻水位
+
+            var stime2 = new Date(AddHourDate(mPredictTime,-24*2)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205350" && p.tm == stime2});
+            var Z2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//平望前两天当前时刻水位
+
+            var stime3 = new Date(AddHourDate(mPredictTime,-24*3)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63205350" && p.tm == stime3});
+            var Z3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//平望前三天当前时刻水位
+
+            var listDataTemp = listData.filter(function(p){return p.zhanid == "1744830531"});
+            var stp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//商榻片面平均（预报周期累计降雨）
+
+            listDataTemp = listData.filter(function(p){return p.zhanid == "1744830534"});
+            var pnxp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//浦南西片面平均（预报周期累计降雨）
+
+            var listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime3) && new Date(p.tm) <= new Date(stime2) && p.stcd == "81004"});
+            var pnxp_drpyb2 = Number(SumJson(listPPTNTemp,'drp'));//浦南西片面平均前1日这2天的24h累计降雨
+
+            var stime6 = new Date(AddHourDate(mPredictTime,-24*6)).format("yyyy-MM-dd HH:mm:ss");
+            var stime7 = new Date(AddHourDate(mPredictTime,-24*7)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime7) && new Date(p.tm) <= new Date(stime6) && p.stcd == "81004"});
+            var pnxp_drpyb7 = Number(SumJson(listPPTNTemp,'drp'));//浦南西片面平均前1日这1天的24h累计降雨
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403800" && p.tm == stime1});
+            var stZ1 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//商榻站前一天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403800" && p.tm == stime2});
+            var stZ2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//商榻站前两天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403800" && p.tm == stime3});
+            var stZ3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//商榻站前三天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403200" && p.tm == stime2});
+            var jzZ2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//金泽站前两天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403200" && p.tm == stime3});
+            var jzZ3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; //金泽站前三天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403190" && p.tm == stime3});
+            var ltZ3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; //练塘站前三天当前时刻水位
+
+            var stime4 = new Date(AddHourDate(mPredictTime,-24*4)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403190" && p.tm == stime4});
+            var ltZ4 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; //练塘站前四天当前时刻水位
+
+            var stime5 = new Date(AddHourDate(mPredictTime,-24*5)).format("yyyy-MM-dd HH:mm:ss");
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403190" && p.tm == stime5});
+            var ltZ5 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; //练塘站前五天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63401750" && p.tm == stime4});
+            var wskZ4 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//吴淞口站前四天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63401750" && p.tm == stime5});
+            var wskZ5 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//吴淞口站前五天当前时刻水位
+
+            var upz = -0.0143 + Z1 - 0.0638 * Z2 + 0.0638 * Z3 + 0.00225 * stp_drpyb + 0.00256 * pnxp_drpyb - 0.000884 * pnxp_drpyb2
+         - 0.000532 * pnxp_drpyb7 + 0.14 * stZ1 - 0.182 * stZ2 + 0.0418 * stZ3 - 0.0549 * jzZ2 + 0.0549 * jzZ3 - 0.0601 * ltZ3 + 0.015 * ltZ4 + 0.0451 * ltZ5
+         - 0.0137 * wskZ4 + 0.0137 * wskZ5;
+            return upz;
+        }
+        
+        //嘉兴预报水位公式计算：Z_嘉兴 =-0.0101+Z_嘉兴-1 +0.00339P_浦南西片面平均 -0.000995P_浦南西片面平均-3 -0.000672P_浦南西片面平均-4 -0.000775P_浦南西片面平均-7 
+        //+0.00306P_浦南东片面平均 -0.00138P_浦南东片面平均-2 -0.000426P_浦南东片面平均-5 +0.0906Z_枫围-1 -0.0906Z_枫围-2 -0.106Z_金泽-2 +0.106Z_金泽-3
+        function FormulaCalculationJX( mPredictTime,  listWas,  listPPTN,listData)
+        {
+            var stime1 = new Date(AddHourDate(mPredictTime,-24*1)).format("yyyy-MM-dd HH:mm:ss");
+            var listWasTemp = listWas.filter(function(p){return p.stcd == "63301150" && p.tm == stime1});
+            var Z1 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//嘉兴前一天当前时刻水位
+
+            var listDataTemp = listData.filter(function(p){return p.zhanid == "1744830534"});
+            var pnxp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//浦南西片面平均（预报周期累计降雨）
+            
+
+            var stime2 = new Date(AddHourDate(mPredictTime,-24*2)).format("yyyy-MM-dd HH:mm:ss");
+            var stime3 = new Date(AddHourDate(mPredictTime,-24*3)).format("yyyy-MM-dd HH:mm:ss");
+            var listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime3) && new Date(p.tm) <= new Date(stime2) && p.stcd == "81004"});
+            var pnxp_drpyb3 = Number(SumJson(listDataTemp,'zhandata'));//浦南西片面平均前3日这1天的24h累计降雨
+
+            var stime4 = new Date(AddHourDate(mPredictTime,-24*4)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime4) && new Date(p.tm) <= new Date(stime3) && p.stcd == "81004"});
+            var pnxp_drpyb4 = Number(SumJson(listDataTemp,'zhandata'));//浦南西片面平均前4日这1天的24h累计降雨
+
+            var stime6 = new Date(AddHourDate(mPredictTime,-24*6)).format("yyyy-MM-dd HH:mm:ss");
+            var stime7 = new Date(AddHourDate(mPredictTime,-24*7)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime7) && new Date(p.tm) <= new Date(stime6) && p.stcd == "81004"});
+            var pnxp_drpyb7 = Number(SumJson(listDataTemp,'zhandata'));//浦南西片面平均前7日这1天的24h累计降雨
+
+            listDataTemp = listData.filter(function(p){return p.zhanid == "1744830535"});
+            var pndp_drpyb = Number(SumJson(listDataTemp,'zhandata'));//浦南东片面平均（预报周期累计降雨）
+
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime2) && new Date(p.tm) <= new Date(stime1) && p.stcd == "81005"});
+            var pndp_drpyb2 = Number(SumJson(listDataTemp,'zhandata'));//浦南东片面平均前2日这1天的24h累计降雨
+
+            var stime5 = new Date(AddHourDate(mPredictTime,-24*5)).format("yyyy-MM-dd HH:mm:ss");
+            listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime5) && new Date(p.tm) <= new Date(stime4) && p.stcd == "81005"});
+            var pndp_drpyb5 = 0;//浦南东片面平均前5日这1天的24h累计降雨
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63402500" && p.tm == stime1});
+            var fwZ1 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//枫围前一天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63402500" && p.tm == stime2});
+            var fwZ2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0;//枫围前两天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403200" && p.tm == stime2});
+            var jzZ2 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; //金泽站前两天当前时刻水位
+
+            listWasTemp = listWas.filter(function(p){return p.stcd == "63403200" && p.tm == stime3});
+            var jzZ3 = listWasTemp.length > 0 ? Number(listWasTemp[0].upz) : 0; //金泽站前三天当前时刻水位
+
+            var upz = -0.0101 + Z1 + 0.00339 * pnxp_drpyb - 0.000995 * pnxp_drpyb3 - 0.000672 * pnxp_drpyb4 - 0.000775 * pnxp_drpyb7
+        + 0.00306 * pndp_drpyb - 0.00138 * pndp_drpyb2 - 0.000426 * pndp_drpyb5 + 0.0906 * fwZ1 - 0.0906 * fwZ2 - 0.106 * jzZ2 + 0.106 * jzZ3;
+            return upz;
+        }
+    
+        function getXiangXingChaZhiArray(szs, ezs, stm, etm)
+        {
+            var mPredictTime=stm;
+            var minutes=GetDateDiff(stm,etm,'minute');
+            minutes = minutes / 5;//5分钟一个数据
+            var mData = []
+            mData.push( (szs-0.26).toFixed(2));
+            for (var _num = 1; _num < minutes; _num++)
+            {
+                if (_num < minutes - 1)
+                {
+                    var tm =  new Date(new Date(mPredictTime).addDate('n',_num*5)).format("yyyy-MM-dd HH:mm:ss");
+                    ss = tm - stm;
+                    var juli = GetDateDiff(stm,tm,'minute')/5;//每个预报时刻距初始时刻时段
+                    var cha = (ezs - szs) / minutes * juli;
+                    var zzvalue = szs + cha - 0.26;
+                    // console.error('cha',cha,'juli',juli,GetDateDiff(stm,tm,'minute'));
+                    mData.push(Number(zzvalue.toFixed(2)));
+                }
+                else
+                {
+                    mData.push((ezs -0.26).toFixed(2));
+                }
+            }
+            mData.push((ezs - 0.26).toFixed(2));
+            return mData;
+        }
+        function getZhanIDBymInputText(mInputText)
+        {
+            var ZhanID = "";
+            if (mInputText == "青松片面平均降雨")
+            {
+                ZhanID = "1744830548";
+            }
+            else if (mInputText == "")
+            {
+
+            }
+            return ZhanID;
+        }
+    </script>
+</body>
+</html>

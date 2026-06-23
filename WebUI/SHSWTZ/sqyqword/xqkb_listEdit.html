@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        .FactorUl li {
+            list-style: none;
+            float: left
+        }
+        .searchContext {
+            /*height: 40px;
+            line-height: 40px;*/
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+            line-height: 35px;
+        }
+        ul.ui-choose {
+            display:flow-root;
+        }
+
+            ul.ui-choose > li {
+                width: auto !important;
+                margin-right: 10px !important;
+                margin-bottom: 10px !important;
+            }
+    </style>
+</head>
+<body>
+    <div id="form1" style="text-align: center;">
+        <table cellspacing='0' cellpadding='0' border='0' id='GridView1' class="table1" style=' background-color: White; width: 98%; border-collapse: collapse;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle">
+                    汛情快报
+                    <input id="XQKB_ID" name="XQKB_ID" class="mini-textbox Span90" style="display:none;" />
+                    <input id="XQKB_QIHAO" name="XQKB_QIHAO" class="mini-textbox Span90" style="display:none;" />
+                    <input id="XQKB_OWEN" name="XQKB_OWEN" class="mini-textbox Span90" style="display:none;" />
+                    <input id="XQKB_FILE" name="XQKB_FILE" class="mini-textbox Span90" style="display:none;" />
+                </td>
+            </tr>
+            <tr id="tr1">
+                <td class="lie1" align="right">
+                    <span class="FontColor">*</span>标题
+                </td>
+                <td class="lie2" colspan="3">
+                    <input id="XQKB_TITLE" name="XQKB_TITLE" class="mini-textbox Span90" required="true" />
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始时间
+                </td>
+                <td class="lie2">
+                    <input id="XQKB_STM" name="XQKB_STM" class="mini-datepicker Span70" showTime="true"  format="yyyy-MM-dd HH:mm"  required="true" />
+                </td>
+                <td class="lie1" align="right">
+                    结束时间
+                </td>
+                <td class="lie2">
+                    <input id="XQKB_ETM" name="XQKB_ETM" class="mini-datepicker Span70"  showTime="true" format="yyyy-MM-dd HH:mm" required="true" />
+                </td>
+            </tr>
+            <tr id="tr2">
+                <td class="lie1" align="right">
+                    要素选择
+                </td>
+                <td class="lie2" colspan="3">
+                    <div class="searchContext">
+                        <div class="searchTitle">&nbsp; &nbsp;降雨：</div>
+                        <ul class="ui-choose choose-type-right" id="choseJY">
+                            <li class="selected">
+                                <span name="weather">天气降雨概况</span>
+                            </li>
+                            <li class="selected">
+                                <span name="SHIJSL">全市时段降水总量</span>
+                            </li>
+                            <li  class="selected">
+                                <span name="ShroudedRange">笼罩范围</span>
+                            </li>
+                            <li class="selected">
+                                <span name="AREATOP3">行政区面降雨前三</span>
+                            </li>
+                            <li>
+                                <span name="RAINGRADE">降雨级别</span>
+                            </li>
+                            <li>
+                                <span name="RainstormCenter">暴雨中心</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP24">最大24小时雨量</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP12">最大12小时雨量</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP6">最大6小时雨量</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP3">最大3小时雨量</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP1">最大1小时雨量</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP60M">最大60分钟雨量</span>
+                            </li>
+                            <li>
+                                <span name="MAXDRP30M">最大30分钟雨量</span>
+                            </li>
+                            <li>
+                                <span name="PLQK">排涝情况</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="searchContext">
+                        <div class="searchTitle">&nbsp; &nbsp;水位：</div>
+                        <ul class="ui-choose choose-type-right" id="choseSW">
+                            <li class="selected">
+                                <span name="SHISW">全市总体情况</span>
+                            </li>
+                            <li>
+                                <span name="YJYWSW">沿江沿湾</span>
+                            </li>
+                            <li>
+                                <span name="HPJZXYSW">黄浦江中下游</span>
+                            </li>
+                            <li>
+                                <span name="HPJSYSW">黄浦江上游及边界</span>
+                            </li>
+                            <li>
+                                <span name="SZHSYSW">苏州河上游</span>
+                            </li>
+                            <li>
+                                <span name="AREASW">水利片</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="searchContext">
+                        <div class="searchTitle">&nbsp; &nbsp;流量：</div>
+                        <ul class="ui-choose choose-type-right" id="choseLL">
+                            <li>
+                                <span name="HPJSYLL">黄浦江上游</span>
+                            </li>
+                            <li>
+                                <span name="SZHSYLL">苏州河上游</span>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="lie2" align="center" style="text-align:center;height:50px;line-height:50px; ">
+                    <a class="mini-button" onclick="OnSava" style="width:80px;margin-right:20px;">生成文件</a>
+                    <a class="mini-button" onclick="onCancel" style="width:60px;">取消</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+
+    <script>
+        mini.parse();
+        var form = new mini.Form("form1");
+        var objSate = "add";
+        //标准方法接口定义
+        function SetData(data) {
+            objSate = data.action;
+            if (objSate == "add") {
+                mini.get("XQKB_ID").setValue(GetTableID());
+                
+                mini.get("XQKB_STM").setValue(formatDate(addDayDate(new Date().format("yyyy-MM-dd"), -1)).format("yyyy-M-dd 08:00:00"));
+                mini.get("XQKB_ETM").setValue(new Date().format("yyyy-M-dd 08:00:00"));
+                mini.get("XQKB_OWEN").setValue(GetCookie("LOGINNAME"));
+            } else {
+                mini.get("XQKB_ID").setValue(data.ID);
+            }
+        }
+        $(function () {
+            $('#choseJY li').click(function () {
+                if ($(this).attr("class") == "selected") {
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).addClass('selected');
+                }
+            });
+            $('#choseSW li').click(function () {
+                if ($(this).attr("class") == "selected") {
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).addClass('selected');
+                }
+            });
+            $('#choseLL li').click(function () {
+                if ($(this).attr("class") == "selected") {
+                    $(this).removeClass('selected');
+                } else {
+                    $(this).addClass('selected');
+                }
+            });
+            //$(".selected").each(function (e) {
+                //console.error(e);
+                //console.error($(this).find("span"));
+                //var spanName = $(this).find("span").attr("name");
+                //console.error(spanName);
+            //});
+            var Now = new Date();
+            var tm =Now.format("yyyy-MM-dd")+ " 00:00:00";
+            var strWhere = { "thecol": "XQKB_QIHAO", "thetable": " swzz_floodtidedata.dbo.XQKB_LIST where XQKB_TM>='" + tm + "'" };
+            GetJosns("TABLEMAXID", strWhere, "TABLEMAXID");
+        });
+        function OnSava() {
+            form.validate();
+            if (form.isValid() == false)
+                return;
+            var year = formatDate(mini.get("XQKB_STM").getFormValue()).format('yyyy');
+            var qihao = mini.get("XQKB_QIHAO").getValue();
+            var fileName = "汛情快报[" + year + qihao + "]_" + mini.get("XQKB_TITLE").getValue()+".docx";
+            mini.get("XQKB_FILE").setValue(fileName);
+            var strWhere = form.getData(true, true);
+            strWhere.XQKB_TM = new Date().format("yyyy-MM-dd HH:mm:ss");
+            strWhere.XQKB_TYPE = "汛情快报";
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '文件生成中，请稍等...'
+            });
+            if (objSate == "edit") {
+                GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTUpdate", strWhere, "Update");
+            }
+            else {
+                GetJosns("SWZZ_FLOODTIDEDATA_XQKB_LISTAdd", strWhere, "Add");
+            }
+        }
+        function exportFile() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '文件生成中，请稍等...'
+            });
+            var fileName = mini.get("XQKB_FILE").getValue().replace(".docx","");
+            var yaosuStr = "";
+            $(".selected").each(function (e) {
+                var spanName = $(this).find("span").attr("name");
+                yaosuStr += spanName+ ",";
+            });
+            if (yaosuStr != "") {
+                yaosuStr = yaosuStr.substring(0, yaosuStr.length-1);
+            }
+            var strWhere = {
+                fileName: fileName,
+                STIME: mini.get("XQKB_STM").getFormValue(),
+                ETIME: mini.get("XQKB_ETM").getFormValue(),
+                YAOSU: yaosuStr,
+                XQKB_ID: mini.get("XQKB_ID").getValue()
+            };
+            var choseArr = ["choseJY", "choseSW", "choseLL"];
+            for (var num = 0; num < choseArr.length; num++) {
+                var _length = $("#" + choseArr[num] + " .selected").length;
+                //console.error(_length);
+                if (_length > 0) {
+                    strWhere[choseArr[num]] = true;
+                } else {
+                    strWhere[choseArr[num]] = false;
+                }
+            }
+            GetJosns("SWZZ_FLOODTIDEDATA_XQKBPrintWord", strWhere, "printWord");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Update" || typeID == "Add") {
+                //汛情快报的记录生成之后，生成汛情快报文件
+                exportFile();
+            }
+            else if (typeID == "printWord") {
+                mini.unmask(document.body);
+                if (data.data == "生成文件失败") {
+                    mini.alert(data.data);
+                    return;
+                }
+                //调用父页面的方法
+                top["win"].OpenHref(data.data);
+            }
+            else if (typeID == "TABLEMAXID") {
+                mini.get("XQKB_QIHAO").setValue(data.ID);
+            }
+        }
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && form.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow)
+                return window.CloseOwnerWindow(action);
+            else
+                window.close();
+        }
+        function onCancel(e) {
+            CloseWindow("cancel");
+        }
+    </script>
+</body>
+</html>

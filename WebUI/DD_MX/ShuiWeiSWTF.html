@@ -1,0 +1,897 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>相似台风潮位增水应用到模型</title>
+    <script src="../Common/Scripts/echarts.min.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+            text-align: right;
+        }
+
+        .noTyphoonTip {
+            text-align: center;
+            width: 257px;
+            height: 45px;
+            line-height: 45px;
+            /* float: left; */
+            background-size: 100%;
+            /* background-color: #0995cc; */
+            color: white;
+            font-size: 20px;
+            /*font-weight: bold;*/
+            background: none !important;
+            font-size: 1.875rem;
+            text-shadow: rgb(161 157 157) 1px 0px 0px, rgb(126 122 122) 0px 1px 0px, rgb(129 126 126) -1px 0px 0px, rgb(155 152 152) 0px -1px 0px;
+            color: #3291f9;
+            width: 360px;
+            font-weight: 500;
+            margin: 40px auto;
+        }
+
+        .sysList {
+            margin-top: 25px;
+            /*color: gray;*/
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+            top: 55px;
+            left: 470px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+            padding: 10px;
+        }
+
+        .sysList table td {
+            padding: 10px 3px 0px 3px;
+            /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+        }
+
+        #sysList table td {
+            padding: 10px 3px 10px 3px !important;
+        }
+
+        .sysList table td span {
+            line-height: 20px;
+        }
+
+        .tipDateText {
+            height: 40px;
+            line-height: 40px;
+            /*margin-left: 150px;*/
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .tipDateText span {
+            color: #0080ff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mini-toolbar">
+        <div class="searchContext" style="line-height:35px;">
+            <div class="searchTitle">站点选择：</div>
+            <div style="float:left;">
+                <input id="STCD" class="mini-combobox" valuefield="STCD" textfield="STNM" style="height: 25px;width: 150px;"
+                    onvaluechanged="onDeptChanged" />
+            </div>
+            <div class="searchTitle">开始时间：</div>
+            <div style="float:left;">
+                <input id="STIME" class="mini-datepicker" style="height: 25px;width: 110px;" showTime="true" format="yyyy-MM-dd"
+                    ondrawdate="onDrawDate" />
+                <input id="startHour" class="mini-spinner" minValue="0" maxValue="23" style="width:55px;" />
+            </div>
+            <div class="searchTitle">开始时间：</div>
+            <div style="float:left;">
+                <input id="ETIME" class="mini-datepicker" style="height: 25px;width: 110px;" showTime="true" format="yyyy-MM-dd"
+                    ondrawdate="onDrawDate" />
+                <input id="endHour" class="mini-spinner" minValue="0" maxValue="23" style="width:55px;" />
+            </div>
+            <div style="float:left;color:red;">
+                &nbsp;&nbsp;(应用到模型的时间段)
+            </div>
+        </div>
+        <div class="searchContext" style="line-height:35px;">
+            <div class="searchTitle">基本操作：</div>
+            <ul class="ui-choose choose-type-right" id="choseGrade" style="float:left;">
+                <li class="selected">
+                    <span name="choseGrade1">同比例</span>
+                </li>
+                <li>
+                    <span name="choseGrade2">区间压缩</span>
+                </li>
+                <li>
+                    <span name="choseGrade3">区间放大</span>
+                </li>
+                <li>
+                    <span name="choseGrade4">系数叠加</span>
+                </li>
+            </ul>
+
+            <div id="sysList" class="sysList" hidden="hidden" style="z-index:99;width:165px;">
+                系数：<input id="XSLIST" name="XSLIST" class="mini-textbox" style="width:90px;" onvaluechanged="onvaluechangedTMList" />
+            </div>
+
+            <div style="float:left;">
+                &nbsp;&nbsp;&nbsp;&nbsp;<a class="mini-button" onclick="saveData()">保存</a>
+            </div>
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="cwchart" style="width:100%;height:calc(50% - 30px);">
+        </div>
+        <div class="tipDateText">
+        </div>
+        <div id="cwchartAfter" style="width:100%;height:calc(50% - 30px);">
+        </div>
+        <div style="height:20px;"></div>
+    </div>
+
+    <script>
+        mini.parse();
+        var myData = [];
+        var stimeTF = GetQueryString("stimeTF");
+        var etimeTF = GetQueryString("etimeTF");
+        var yj_stime = GetQueryString("stime");//计算方案的依据时间
+        var yj_etime = GetQueryString("etime");//计算方案的预见期时间
+        var tfbh = GetQueryString("tfbh");
+        var SOLUTIONID = GetQueryString("SOLUTIONID") == null ? "0" : GetQueryString("SOLUTIONID");
+        if (GetQueryString("SOLUTIONID") == null) {//先判断是不是传了参数，再判断是不是存了本地localStorage
+            SOLUTIONID = GetQueryString("DD_ID");
+            if (SOLUTIONID == null || SOLUTIONID == "") {
+                SOLUTIONID = "0";
+            }
+        }
+        $(function () {
+            $.data(myData, "GRADE", "choseGrade1");
+            $.data(myData, "rangeStime", stimeTF);
+            $.data(myData, "rangeEtime", etimeTF);
+            var dataResult = [
+                { STCD: "63401750", STNM: "吴淞口", ZHANID: "1778384914" },
+                { STCD: "62701710", STNM: "高桥（二）", ZHANID: "1778384915" },
+                { STCD: "63405800", STNM: "芦潮港", ZHANID: "1778384904" },
+                //{ STCD: "63401100", STNM: "米市渡" },
+                //{ STCD: "63401500", STNM: "黄浦公园" },
+                { STCD: "63405900", STNM: "金山嘴", ZHANID: "1778384924" }
+            ];
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+            if (yj_stime != null) {
+                mini.get("STIME").setValue(yj_stime);
+                mini.get("ETIME").setValue(yj_etime);
+
+                mini.get("startHour").setValue(new Date(yj_stime).getHours());
+                mini.get("endHour").setValue(new Date(yj_etime).getHours());
+            }
+            GetTyphoonListLJ();
+            search();
+            $('#choseGrade li').click(function () {
+                $(".sysList").hide();
+                var f = this;
+                $('#choseGrade li').each(function (index, item) {
+                    this.className = this == f ? 'selected' : '';
+                });
+                var grade = $(this).find("span").attr("name");
+                $.data(myData, "GRADE", grade);
+                if (grade == "choseGrade4") {
+                    //$.data(myData, "GRADE", "choseGrade1");//选择系数的时候按照同比例使用增水
+                    $(".sysList").show();
+                }
+                bindCW();
+            });
+        });
+        function search() {
+            if (stimeTF != null && etimeTF != undefined) {
+                var str = "选择的增水时段：<span>" + new Date(stimeTF).format("yyyy-MM-dd HH:mm:ss");
+                str += "至" + new Date(etimeTF).format("yyyy-MM-dd HH:mm:ss") + "</span>";
+                $(".tipDateText").html(str);
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '数据加载中...'
+                });
+                var stime = AddHourDate(stimeTF, -24);//往前查询，方便查找最高潮位时间
+                var etime = AddHourDate(etimeTF, 72);//延长查询，方便查找最高潮位时间
+                var strWhere = {
+                    startdate: stime,
+                    enddate: etime,
+                    stcd: mini.get("STCD").getValue(),
+                    tdptn: "2"
+                };
+                app.post("SWZZ_MODE_ES_ZHANDIANDATA/SWZZ_FLOODTIDEDATA_ST_TIDEHIGH_RSel", strWhere, (data) => {
+                    JosnSel(data, "Sel")
+                });
+            }
+        }
+        function searchCW() {
+            var node = mini.get("STCD").getSelected();
+            var strWhere = {
+                pattem: node.ZHANID,
+                strExp: SOLUTIONID
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult", strWhere, function(res){
+                JosnSel(res,"DATASel");
+            });
+        }
+        function GetTyphoonListLJ() {
+            var strWhere = { tfbh: tfbh, isYB: "false" };
+            app.post("ZJ_TYPHOON_ZJ_TF/GetTyphoonList", strWhere, (data) => {
+                JosnSel(data, "GetTyphoonList")
+            })
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                $.data(myData, "zsData", data.data);
+                searchCW();
+                var xdata = [];
+                var ydataZ = [];
+                for (var num = 0; num < data.data.length; num++) {
+                    var tm = new Date((data.data[num].tm)).format("yyyy-MM-dd HH:mm");
+                    xdata.push(tm);
+                    var ztdz = data.data[num].ztdz != undefined ? Number(Number(data.data[num].ztdz).toFixed(2)) : null;
+                    ydataZ.push(ztdz);
+                }
+                chartCWZS("cwchart", xdata, ydataZ, "增水");
+                mini.unmask(document.body);
+            }
+            else if (typeID == "plAdd") {
+                if (data.total > 0) {
+                    mini.unmask(document.body);
+                    ShowMsg("操作成功！");
+                    //调用父页面的方法
+                    top["win"].OpenHref();
+                }
+            }
+            else if (typeID == "DATASel") {
+                $.data(myData, "bjData", data.data);
+                bindCW();
+            }
+            else if (typeID == "GetTyphoonList") {
+                $.data(myData, "tfData", data.data);
+            }
+        }
+        function bindCW() {
+            var zsData = $.data(myData, "zsData");
+            var bjData = $.data(myData, "bjData");
+            var xdata = [], ydataZ = [], ydataZAfter = [], zdata = [];//时间数组，叠加前潮位数组，叠加后潮位数组，增水数组
+            var grade = $.data(myData, "GRADE").replace("choseGrade", "");
+            if (grade == "1") {//同比例
+                var zsDataTemp = zsData.filter(function (res) {
+                    var rangeStime = $.data(myData, "rangeStime");
+                    var rangeEtime = $.data(myData, "rangeEtime");
+                    var TM = new Date((res.tm));
+                    return TM >= new Date(rangeStime) && TM <= new Date(rangeEtime);
+                });
+                console.error('zsDataTemp',zsDataTemp);
+                //console.error(zsDataTemp);
+                for (var num = 0; num < bjData.length; num++) {
+                    var item = bjData[num];
+                    var zhantime = new Date((item.zhantime)).format("yyyy-MM-dd HH:mm");
+                    xdata.push(zhantime);
+                    var zhandata = item.zhandata;
+                    ydataZ.push(zhandata);
+                    var ztdz = 0;
+                    try {
+                        ztdz = zsDataTemp[num].ztdz;
+                    } catch (e) { }
+                    zdata.push(ztdz);
+                    var zhandataAfter =(Number(zhandata) + Number(ztdz)).toFixed(2);
+                    //console.error(zhantime,"叠加前潮位："+zhandata,"叠加后潮位：",zhandataAfter,"增水："+ztdz);
+                    ydataZAfter.push(zhandataAfter);
+                }
+            }
+            else if (grade == "2") {//区间压缩
+                var zsDataTemp = zsData.filter(function (res) {
+                    var rangeStime = $.data(myData, "rangeStime");
+                    var rangeEtime = $.data(myData, "rangeEtime");
+                    var TM = new Date((res.tm));
+                    return TM >= new Date(rangeStime) && TM <= new Date(rangeEtime);
+                });//选择的增水区间
+                var bjDataTemp = bjData.filter(function (res) {
+                    var STIME = mini.get("STIME").getFormValue();
+                    var ETIME = mini.get("ETIME").getFormValue();
+                    var TM = new Date((res.zhantime));
+                    return TM >= new Date(STIME) && TM <= new Date(ETIME);
+                });//选择的应用到模型的区间
+                var interVal = Math.ceil(zsDataTemp.length / bjDataTemp.length);//几个值压缩
+                for (var num = 0; num < bjDataTemp.length; num++) {
+                    var item = bjDataTemp[num];
+                    var startVal = interVal * num;//开始索引
+                    var endVal = startVal + interVal;//结束索引
+
+                    var zsStime, zsEtime;
+                    try {
+                        zsStime = new Date((zsDataTemp[startVal].tm));
+                    } catch (Exception) { }
+                    try {
+                        zsEtime = new Date((zsDataTemp[endVal].tm));
+                    } catch (Exception) { }
+                    var listZSTemp = zsDataTemp.filter(function (res) {
+                        var TM = new Date((res.tm));
+                        return TM >= zsStime && TM < zsEtime;
+                    });
+                    var zhantime = new Date((item.zhantime)).format("yyyy-MM-dd HH:mm");
+                    xdata.push(zhantime);
+                    var zstotal = SumJson(listZSTemp, 'ZTDZ');
+                    var avgzs = listZSTemp.length > 0 ? zstotal / listZSTemp.length : 0;//压缩平均的增水
+                    zdata.push(avgzs);
+
+                    var zhandata = Number(item.zhandata);
+                    var zhandataAfter = (zhandata + avgzs).toFixed(2);
+                    ydataZ.push(zhandata);
+                    ydataZAfter.push(zhandataAfter);
+                }
+            }
+            else if (grade == "3") {//区间放大
+                var zsDataTemp = zsData.filter(function (res) {
+                    var rangeStime = $.data(myData, "rangeStime");
+                    var rangeEtime = $.data(myData, "rangeEtime");
+                    var TM = new Date((res.tm));
+                    return TM >= new Date(rangeStime) && TM <= new Date(rangeEtime);
+                });//选择的增水区间
+                var bjDataTemp = bjData.filter(function (res) {
+                    var STIME = mini.get("STIME").getFormValue();
+                    var ETIME = mini.get("ETIME").getFormValue();
+                    var TM = new Date((res.zhantime));
+                    return TM >= new Date(STIME) && TM <= new Date(ETIME);
+                });//选择的应用到模型的区间
+                var zsArr = [];
+                var interVal = Math.ceil(bjDataTemp.length / zsDataTemp.length);//需要放大成多少段
+                //先插值过程
+                for (var num = 0; num < zsDataTemp.length; num++) {
+                    if (num != zsDataTemp.length - 1) {
+                        var startZTDZ = Number(zsDataTemp[num].ztdz);
+                        var endZTDZ = Number(zsDataTemp[num + 1].ztdz);
+                        var startTime = new Date((bjDataTemp[num].zhantime)).format("yyyy-MM-dd HH:mm:ss");
+                        var endTime = new Date((bjDataTemp[num + interVal].zhantime)).format("yyyy-MM-dd HH:mm:ss");
+                        var minutes = GetDateDiff(startTime, endTime, 'minute') / 5;//相差分钟，5分钟一个数
+
+                        var dto = {};
+                        dto.ztdz = startZTDZ;
+                        dto.tm = startTime;
+                        zsArr.push(dto);
+                        for (var minu = 1; minu < minutes; minu++) {
+                            var tm = new Date(new Date(startTime).addDate('n', minu * 5)).format("yyyy-MM-dd HH:mm:ss");
+                            var juli = GetDateDiff(startTime, tm, 'minute') / 5;//每个预报时刻距初始时刻时段
+                            var cha = (endZTDZ - startZTDZ) / minutes * juli;
+                            var zzvalue = startZTDZ + cha;
+                            dto = {};
+                            dto.ztdz = zzvalue.toFixed(2);
+                            dto.tm = tm;
+                            zsArr.push(dto);
+                        }
+                    }
+                    else {
+                        var dto = {};
+                        dto.ztdz = zsDataTemp[zsDataTemp.length - 1].ztdz;
+                        zsArr.push(dto);
+                    }
+                }
+                console.error('zsArr',zsArr);
+                for (var num = 0; num < bjDataTemp.length; num++) {
+                    var item = bjDataTemp[num];
+                    var zhantime = new Date((item.zhantime)).format("yyyy-MM-dd HH:mm");
+                    xdata.push(zhantime);
+                    var zhandata = Number(item.zhandata);
+                    var avgzs = 0;
+                    try {
+                        avgzs = Number(zsArr[num].ztdz);
+                    } catch (Exception) { }
+                    zdata.push(avgzs);
+                    var zhandataAfter = (zhandata + avgzs).toFixed(2);
+                    ydataZ.push(zhandata);
+                    ydataZAfter.push(zhandataAfter);
+                }
+            }
+            else if (grade == "4") { }//系数叠加
+            if (ydataZAfter.length > 0) {
+                $.data(myData, "zdata", zdata);
+                $.data(myData, "xdata", xdata);
+                $.data(myData, "ydataZ", ydataZ);
+                $.data(myData, "ydataZAfter", ydataZAfter);
+                chartCW("cwchartAfter", xdata, ydataZ, ydataZAfter, "潮位");
+            }
+        }
+        function onDrawDate(e) {
+            var date = e.date;
+            if (yj_stime != null) {
+                var stm = new Date(addDayDate(yj_stime, 0));
+                var etm = new Date(yj_etime);
+                if (date >= stm && date <= etm) {
+                    e.allowSelect = true;
+                } else {
+                    e.allowSelect = false;
+                }
+            } else {
+                e.allowSelect = false;
+            }
+        }
+        function onDeptChanged(e) {
+            search();
+        }
+        function saveData() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据操作中...'
+            });
+            var stime = mini.get("STIME").getFormValue();
+            var etime = mini.get("ETIME").getFormValue();
+            if (stime != "" && etime != "") {
+                stime = stime + " " + mini.get("startHour").getValue() + ":00:00";//匹配到模型的开始时间
+                etime = etime + " " + mini.get("endHour").getValue() + ":00:00";//匹配到模型的结束时间
+                var rangeStime = $.data(myData, "rangeStime");//选择台风增水开始时间
+                var rangeEtime = $.data(myData, "rangeEtime");//选择台风增水结束时间
+                //四种方式
+                //1、同比例：
+                //2、压缩平均：
+                //3、放大（选择小的放到大的）：插值
+                //4、系数叠加：
+                var methodType = $.data(myData, "GRADE");
+                methodType = methodType.replace("choseGrade", "");
+                methodType = "50";//前端将插补好的潮位值传入后台
+                var strWhere = {
+                    STCD: mini.get("STCD").getValue(),
+                    RSTIME: rangeStime,
+                    RETIME: rangeEtime,
+                    STIME: stime,
+                    ETIME: etime,
+                    TYPE: methodType,
+                    SOLUTIONID: SOLUTIONID
+                };
+                if (methodType == "50") {
+                    var ydataZAfter = $.data(myData, "ydataZAfter");
+                    var ydataZAfterStr = JSON.stringify(ydataZAfter);
+                    strWhere.TIDEDATA = ydataZAfterStr.replace("[", "").replace("]", "");
+                }
+                console.error(strWhere);
+                GetJosns("xiangsiTypoonToMode", strWhere, "plAdd");
+            }
+            else {
+                mini.alert("请选择应用到模型的时间区间！");
+            }
+        }
+        function chartCWZS(ChartName, xdata, ydataZ, yAxisName = "水位") {
+            var start = 0;
+            var end = xdata.length;
+            //console.error(JSON.stringify( xdata));
+            var startStr = new Date(stimeTF).format("yyyy-MM-dd HH:mm");
+            var endStr = new Date(etimeTF).format("yyyy-MM-dd HH:mm");
+            //console.error(startStr, endStr);
+            start = (xdata.indexOf(startStr) / xdata.length) * 100;
+            end = (xdata.indexOf(endStr) / xdata.length) * 100;
+            //console.error(start, end);
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var showTitle = false;
+            if (xdata.length == 0) {
+                showTitle = true;
+            }
+            var option = {
+                text: mini.get("STCD").getText() + "潮位过程",
+                title: {
+                    show: showTitle,
+                    text: "无潮位增水数据！",
+                    left: "center",
+                    top: "center",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 18,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    },
+                    formatter: (params) => {
+                        // 打印确认params是对象还是数组
+                        //console.error(params);
+                        var str = '';
+                        var tipTM = '';
+                        for (var num = 0; num < params.length; num++) {
+                            str += params[num].seriesName + '：' + params[num].value + 'm<br/>';
+                            tipTM = params[num].name;
+                        }
+                        var tfData = $.data(myData, "tfData");
+                        if (tfData != null) {
+                            tipTM = tipTM + ":00";
+                            tipTM = new Date(tipTM).format("yyyy-MM-dd HH");
+                            var points = tfData[0].points;
+                            var pointsTemp = points.filter(function (res) {
+                                return new Date((res.RQSJ2)).format("yyyy-MM-dd HH") == tipTM;
+                            });
+                            //console.error(pointsTemp);
+                            if (pointsTemp.length > 0) {
+                                str += '风速：' + pointsTemp[0].FS + 'm/s<br/>';
+                                //str += '风力：' + pointsTemp[0].FL + '<br/>';
+                                str += '气压：' + pointsTemp[0].QY + '百帕<br/>';
+                                str += '移向：' + pointsTemp[0].MOVEFX + '<br/>';
+                            }
+                        }
+                        return str
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['增水'],
+                    show: false,
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: 60,
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xdata
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: yAxisName + "(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                    }
+                ],
+                dataZoom: [{
+                    type: 'slider', //图表下方的伸缩条
+                    show: true, //是否显示
+                    realtime: true, //拖动时，是否实时更新系列的视图
+                    filterMode: 'filter',
+                    start: start || 0,
+                    end: end || 100,
+                }],
+                series: [
+                    {
+                        name: '增水',
+                        type: 'line',
+                        color: "#FF6600",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false,
+                        },
+                        data: ydataZ,
+                        markPoint: {
+                            label: {
+                                formatter: function (e) {
+                                    var value = e.value;
+                                    return value.toFixed(2);
+                                }
+                            },
+                            data: [
+                                { type: 'max', name: '最大值' }
+                            ]
+                        },
+                        itemStyle: {
+                            normal: {
+                                lineStyle: {
+                                    width: 2,
+                                    //type: 'dotted' //'dotted'虚线 'solid'实线
+                                }
+                            }
+                        },
+                    }
+                ]
+            };
+            myChart.setOption(option);
+            myChart.on('datazoom', function (params) {
+                //console.error(params);
+                let xAxis = myChart.getModel().option.xAxis[0]; // 获取x轴数据 我这个是时间
+                //let series = myChart.getModel().option.series[0]; // 获取数据
+                //console.log(series); // 这个是获取的数据
+                //console.log(series.data);
+                //console.log(xAxis.rangeStart);//滑动条左端对应在xAxis.data的索引
+                //console.log(xAxis.rangeEnd);//滑动条右端对应在xAxis.data的索引
+                var stm = xdata[xAxis.rangeStart];
+                var etm = xdata[xAxis.rangeEnd];
+
+                if (stm != undefined) {
+                    $.data(myData, "rangeStime", stm);
+                    $.data(myData, "rangeEtime", etm);
+
+                    var str = "选择的增水时段：<span>" + new Date(stm).format("yyyy-MM-dd HH:mm:ss");
+                    str += "至" + new Date(etm).format("yyyy-MM-dd HH:mm:ss") + "</span>";
+                    $(".tipDateText").html(str);
+                }
+            });
+        }
+        function chartCW(ChartName, xdata, ydataZ, ydataZAfter, yAxisName = "水位") {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var option = {
+                text: mini.get("STCD").getText() + "潮位过程",
+                title: {
+                    //text: mini.get("STCD").getText()+"潮位过程",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 14,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['叠加前潮位', '叠加后潮位'],
+                    show: true,
+                    orient: 'vertical',
+                    x: 'right',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    padding: [10, 100, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: 60,
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xdata
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: yAxisName + "(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                    }
+                ],
+                series: [
+                    {
+                        name: '叠加前潮位',
+                        type: 'line',
+                        color: "#808BC6",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false,
+                        },
+                        data: ydataZ,
+                        markPoint: {
+                            label: {
+                                formatter: function (e) {
+                                    var value = e.value;
+                                    return value.toFixed(2);
+                                }
+                            },
+                            data: [
+                                { type: 'max', name: '最大值' }
+                            ]
+                        },
+                    },
+                    {
+                        name: '叠加后潮位',
+                        type: 'line',
+                        color: "#2EE38D",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false,
+                        },
+                        data: ydataZAfter,
+                        markPoint: {
+                            label: {
+                                formatter: function (e) {
+                                    var value = e.value;
+                                    return value.toFixed(2);
+                                }
+                            },
+                            data: [
+                                { type: 'max', name: '最大值' }
+                            ]
+                        },
+                        itemStyle: {
+                            normal: {
+                                lineStyle: {
+                                    width: 3,
+                                    //type: 'dotted' //'dotted'虚线 'solid'实线
+                                }
+                            }
+                        },
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+        function onvaluechangedTMList(e) {
+            var value = e.value;
+            if (value != "") {
+                value = Number(value);
+                var xdata = $.data(myData, "xdata");
+                var zdataY = $.data(myData, "zdata");
+                var ydataZAfter = $.data(myData, "ydataZAfter");
+                var ydataZ = $.data(myData, "ydataZ"), ydataZAfter = [], zdata = [];
+                for (var num = 0; num < zdataY.length; num++) {
+                    var z = (Number(zdataY[num]) * value).toFixed(2);//增水*系数
+                    zdata.push(z);
+                    var zhandataAfter = (Number(ydataZ[num]) + Number(z)).toFixed(2);
+                    //console.error(zdataY[num], ydataZ[num], zhandataAfter, z, value);
+                    ydataZAfter.push(zhandataAfter);
+                }
+                $.data(myData, "zdata", zdata);
+                $.data(myData, "xdata", xdata);
+                $.data(myData, "ydataZ", ydataZ);
+                $.data(myData, "ydataZAfter", ydataZAfter);
+                chartCW("cwchartAfter", xdata, ydataZ, ydataZAfter, "潮位");
+                $(".sysList").hide();
+            }
+        }
+    </script>
+</body>
+
+</html>

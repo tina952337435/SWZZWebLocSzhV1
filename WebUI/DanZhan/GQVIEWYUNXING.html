@@ -1,0 +1,226 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /*overflow: hidden;*/
+            font-size: 12px;
+        }
+
+        fieldset {
+            border: solid 1px #aaa;
+        }
+            fieldset legend {
+                font-size: 18px;
+
+            }
+            .hideFieldset {
+                border-left: 0;
+                border-right: 0;
+                border-bottom: 0;
+            }
+
+        table.hovertable {
+            font-family: verdana,arial,sans-serif;
+            font-size: 13px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #999999;
+            border-collapse: collapse;
+            width: 100%;
+            height: 100%;
+        }
+
+            table.hovertable th {
+                background-color: #F5FAFE;
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+            }
+
+            table.hovertable tr {
+                background-color: #FFFFFF;
+            }
+
+            table.hovertable td {
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #a9c6c9;
+                text-align: center;
+            }
+    </style>
+
+</head>
+<body>
+
+    <div id="YUNXING" class="mini-tabs" activeIndex="0" style="width:100%;height:500px;">
+    </div>
+    <div style="text-align:center; ">
+        <div class="bootstrap-switch ">
+            <div class="bootstrap-switch-container" style="background:#eeeeee;width:180px;">
+                <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1" style="width:90px;"><i class="fa fa-photo">&nbsp;示意图</i></span>
+                <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2" style="width:80px;"><i class="fa fa-table">&nbsp;表格</i></span>
+            </div>
+        </div>
+
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+
+
+        var myData = [];
+        //实例化表格对象
+        $(function () {
+            var _stcd = GetQueryString("stcd");
+            var _stnm = GetQueryString("STNM");
+            var _stime = GetQueryString("STIME");
+            var _etime = GetQueryString("ETIME");
+            $.data(myData, "STCD", _stcd);
+            $.data(myData, "STNM", _stnm);
+            $.data(myData, "STIME", _stime);
+            $.data(myData, "ETIME", _etime);
+            var _url1 = GetQueryString("URL1");
+            var _url2 = GetQueryString("URL2");
+            if (_url1 == null) {
+                _url1 = "GQVIEWNew.html";
+            }
+            if (_url2 == null) {
+                _url2 = "GQVIEW.html";
+            }
+            $.data(myData, "URL1", _url1);
+            $.data(myData, "URL2", _url2);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            $.data(myData, "URL", $.data(myData, "URL1") + "?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData, "ETIME"));
+            search();
+        })
+
+        function search() {
+            var YUNXING = mini.get("YUNXING");
+            var tab = { title: $.data(myData, "STNM"), url: $.data(myData, "URL"), showCloseButton: false, visible: false };
+            YUNXING.addTab(tab);
+            YUNXING.activeTab(tab);
+
+            mini.unmask(document.body);
+
+        }
+        function JosnSel(ResultData, typeID) {
+            if (typeID == "Sel") {
+                console.log(JSON.stringify(ResultData));
+                var strMsg = "";
+                if (ResultData.total > 0) {
+                    var OMCNUM = ResultData.data[0].OMCNUM;
+                    $.data(myData, "STNM", ResultData.data[0].STNM);
+                    $.data(myData, "STCD", ResultData.data[0].STCD);
+                    var tempGTOPNUM = ResultData.data[0].GTOPNUM;
+                    if (OMCNUM == 0) {
+                        OMCNUM = Number(tempGTOPNUM);
+                    }
+                    if (OMCNUM > 0) {
+                        for (num = 0; num < OMCNUM; num++) {
+                            var strJson = ResultData.data[0].ST_GATE_R;
+                            var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
+                            var p1 = strJson.filter(function (e) {
+                                return e.EXKEY == (num + 1) && Number(e.GTQ) > 0.1 && convertToDate(e.TM) >= tempTM && (e.EQPTP == "泵站流量" || e.EQPTP == "闸坝开度");
+                            });
+                            var tempXX = "<span style='color:red;'>关</span>";
+                            if (p1.length > 0) {
+                                tempXX = "<span style='color:#4CE242;'>开</span>";
+                            }
+                            strMsg += '<fieldset id="fd1" style="width:100%;">';
+                            strMsg += '<legend><label>' + (num + 1) + '#信息（' + tempXX + '）</label></legend>';
+                            strMsg += '<div class="fieldset-body">';
+
+                            strMsg += '<table class="hovertable">';
+                            strMsg += '<tr>';
+                            strMsg += '<th>站名</th>';
+                            strMsg += '<th>类型</th>';
+                            strMsg += '<th>数据</th>';
+                            strMsg += '<th>时间</th>';
+                            strMsg += '</tr>';
+
+                            if (strJson.length > 0) {
+                                var tempJson1 = strJson.filter(function (e) {
+                                    return e.EXKEY == (num + 1);
+                                });
+                                if (tempJson1.length > 0) {
+                                    for (II = 0; II < tempJson1.length; II++) {
+                                        strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                        strMsg += '<td><a id="Json_' + num + II + '" href="###" onclick="GetView(\'' + $.data(myData, "STCD") + '\',\'' + tempJson1[II].EXKEY + '\',\'' + tempJson1[II].EQPTP + '\',\'' + $.data(myData, "STNM") + tempJson1[II].EXKEY + "#" + tempJson1[II].EQPTP + '\')">' + $.data(myData, "STNM") + tempJson1[II].EXKEY + "#" + tempJson1[II].EQPTP + '</a></td>';
+                                        strMsg += '<td>' + tempJson1[II].EQPTP + '</td>';
+                                        if (tempJson1[II].GTQ != undefined) {
+                                            if (tempJson1[II].EQPTP == "泵站流量") {
+                                                strMsg += '<td>' + Number(tempJson1[II].GTQ).toFixed(2) + 'm³/s</td>';
+                                            } else if (tempJson1[II].EQPTP == "泵站电流") {
+                                                strMsg += '<td>' + Number(tempJson1[II].GTQ).toFixed(2) + 'A</td>';
+                                            } else {
+                                                strMsg += '<td>' + Number(tempJson1[II].GTQ).toFixed(2) + '</td>';
+                                            }
+                                        } else {
+                                            strMsg += '<td>—</td>';
+                                        }
+                                        
+                                        strMsg += '<td>' + convertToDate(tempJson1[II].TM).format("yyyy-MM-dd HH:mm") + '</td>';
+                                        strMsg += '</tr>';
+
+                                    }
+                                } else {
+                                    strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                    strMsg += '<td colspan="4" align="center">暂无数据</td>';
+                                    strMsg += '</tr>';
+
+                                }
+                            } else {
+                                strMsg += '<tr onmouseover="this.style.backgroundColor=\'#ffff66\';" onmouseout="this.style.backgroundColor=\'#FFFFFF\';">';
+                                strMsg += '<td colspan="4" align="center">暂无数据</td>';
+                                strMsg += '</tr>';
+                            }
+
+                            strMsg += '</table>';
+                            strMsg += '</div>';
+                            strMsg += '</fieldset>';
+                            //GetObj("fd" + (num + 1)).style.display = "block";
+                        }
+                    } else {
+                        //window.location.href = "/DanZhan/GQLine.html?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData,"ETIME");
+                        strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
+                        //strMsg = "";
+                    }
+                } else {
+                    strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
+                }
+                $("#divCount").html(strMsg);
+                mini.unmask(document.body);
+            }
+        }
+
+
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            if (objID == "switch1") {
+                $.data(myData, "URL", $.data(myData, "URL1") + "?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData, "ETIME"));
+            } else {
+
+                $.data(myData, "URL", $.data(myData, "URL2") + "?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData, "ETIME"));
+            }
+            search();
+        }
+
+    </script>
+</body>
+</html>

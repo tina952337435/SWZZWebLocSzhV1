@@ -1,0 +1,752 @@
+﻿/*地图div样式*/
+#myMap {
+    overflow: hidden;
+}
+
+.MapText {
+    min-width: 30px;
+    border-radius: 3px;
+    position: absolute;
+    text-align: left;
+    padding: 5px;
+    line-height: 14px;
+    font-size:14px;
+    pointer-events: none;
+}
+
+.waterText {
+    border: 1px solid rgb(151,166,151);
+    min-width: 30px;
+    position: absolute;
+    text-align: left;
+    padding: 5px;
+    line-height: 14px;
+    font-size: 14px;
+    pointer-events: none;
+    color: black;
+    background: rgba(246, 254, 246, 0.8);
+}
+
+.gqText {
+    border: 1px solid #ddd;
+    /*color: #2C2D2C;
+    background: rgba(239,255,239,0.7);*/
+    color: #1C1C1C;
+    background: rgba(187,255,187, 0.8);
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    -moz-box-shadow: 0px 5px 10px #888686; /*firefox*/
+    -webkit-box-shadow: 0px 5px 10px #888686; /*safari或chrome*/
+    box-shadow: 0px 5px 10px #888686; /*opera或ie9*/
+    text-align: center;
+    /*font-weight:600;*/
+    font-size:14px;
+}
+
+.gqRed {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    padding: 4px;
+    border: 2px solid #A1A1A1;
+    border-radius: 50%;
+    background-color: #A1A1A1;
+}
+
+.gqGreen {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    padding: 4px;
+    border: 2px solid #00DB00;
+    border-radius: 50%;
+    background: rgba(0,219,0,0.7);
+}
+
+.gqText img {
+    cursor: pointer;
+}
+
+.wrzText {
+    border: 1px solid rgb(151,166,151);
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    /*-moz-box-shadow: 0px 5px 10px #888686; 
+    -webkit-box-shadow: 0px 5px 10px #888686;  
+    box-shadow: 0px 5px 10px #888686;
+    color: #FFFFFF;*/
+    background: rgba(255,240,0,0.7);
+}
+
+.grzText {
+    border: 1px solid #ddd;
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    -moz-box-shadow: 0px 5px 10px #888686; /*firefox*/
+    -webkit-box-shadow: 0px 5px 10px #888686; /*safari或chrome*/
+    box-shadow: 0px 5px 10px #888686; /*opera或ie9*/
+    color: #FFFFFF;
+    background: rgba(159,2,2,0.7);
+}
+
+.InfoText {
+    border: 1px solid red;
+    background: #FFFFFF;
+    min-height: 25px;
+}
+
+.TextDiv {
+    border: 0;
+    background: #6DCD2B;
+}
+
+    .TextDiv .TextTri {
+        position: absolute;
+        width: 15px;
+        height: 15px;
+        z-index: -1;
+        background: #6DCD2B;
+        margin: auto;
+        margin-top: -5px;
+        left: 0;
+        right: 0;
+        -webkit-transform: rotate(45deg);
+        transform: rotate(45deg);
+        -ms-transform: rotate(45deg); /* IE 9 */
+        -moz-transform: rotate(45deg); /* Firefox */
+        -webkit-transform: rotate(45deg); /* Safari 和 Chrome */
+        -o-transform: rotate(45deg); /* Opera */
+    }
+
+
+.TipBox {
+    border: 1px solid #CCC;
+    position: absolute;
+    min-width: 30px;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    background-color: White;
+    text-indent: 3px;
+    line-height: 16px;
+}
+
+.TipTitle {
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    margin-top: 0px;
+    margin-bottom: -5px;
+    height: 25px;
+    color: White;
+    text-align: left;
+    line-height: 25px;
+    background-color: #3190F8;
+    text-indent: 18px;
+    padding-right: 16px;
+}
+
+.TipClass {
+    margin-right: 15px;
+    margin-bottom: 12px;
+    margin-left: 6px;
+    margin-top: 11px;
+    text-indent: 15px;
+}
+
+    .TipClass span {
+        color: Blue;
+    }
+
+/*水质类别*/
+.szqcText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+ 
+    color: #000000;
+    background: #D3CFCF;
+}
+
+.szoneText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+  
+    color: #000000;
+    background: #1D8ADD;
+}
+
+.sztwoText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+ 
+    color: #000000;
+    background: #47c714;
+}
+
+.szthreeText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+    /*-moz-box-shadow: 0px 5px 10px #888686; 
+    -webkit-box-shadow: 0px 5px 10px #888686;  
+    box-shadow: 0px 5px 10px #888686; */
+    color: #000000;
+    background: #FED202;
+}
+
+.szfourText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+     
+    color: #000000;
+    background: #FE9506;
+}
+.szfiveText {
+    /*border: 1px solid rgb(151,166,151);*/
+    filter: progid:DXImageTransform.Microsoft.Shadow(color=#909090,direction=120,strength=4); /*ie*/
+   
+    color: #000000;
+    background: #F91005;
+}
+
+.topwrzText {
+    margin-top: -10px;
+}
+
+    .topwrzText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(255,240,0) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 42%;
+    }
+
+.bottomwrzText {
+    margin-top: 10px;
+}
+
+    .bottomwrzText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(255,240,0) solid;
+        top: -20px;
+        margin-left: 42%;
+    }
+
+.leftwrzText {
+    margin-left: -10px;
+}
+
+    .leftwrzText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(255,240,0) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 3%;
+        margin-left: 95%;
+    }
+
+.rightwrzText {
+    margin-left: 10px;
+}
+
+    .rightwrzText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(255,240,0) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 2%;
+        margin-left: -25px;
+    }
+
+
+
+
+
+.topgrzText {
+    margin-top: -10px;
+}
+
+.topgrzText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgba(159,2,2,0.7) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 42%;
+    }
+
+.bottomgrzText {
+    margin-top: 10px;
+}
+
+.bottomgrzText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgba(159,2,2,0.7) solid;
+        top: -20px;
+        margin-left: 42%;
+    }
+
+.leftgrzText {
+    margin-left: -10px;
+}
+
+.leftgrzText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgba(159,2,2,0.7) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 3%;
+        margin-left: 95%;
+    }
+
+.rightgrzText {
+    margin-left: 10px;
+}
+
+    .rightgrzText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgba(159,2,2,0.7) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 2%;
+        margin-left: -25px;
+    }
+
+
+
+
+.topwaterText {
+    margin-top: -10px;
+}
+
+    .topwaterText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px #97a697 solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 42%;
+    }
+
+.bottomwaterText {
+    margin-top: 10px;
+}
+
+    .bottomwaterText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px #97a697 solid;
+        top: -20px;
+        margin-left: 42%;
+    }
+
+.leftwaterText {
+    margin-left: -5px;
+}
+
+    .leftwaterText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px #97a697 solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 3%;
+        margin-left: 95%;
+    }
+
+.rightwaterText {
+    margin-left: 5px;
+}
+
+    .rightwaterText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px #97a697 solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 2%;
+        margin-left: -25px;
+    }
+
+
+.topszqcText {
+    margin-top: -10px;
+}
+
+    .topszqcText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(211,207,207) solid;
+        border-left: 8px transparent dashed;
+        border-right: 8px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 35%;
+    }
+
+.bottomszqcText {
+    margin-top: 10px;
+}
+
+    .bottomszqcText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(211,207,207) solid;
+        top: -20px;
+        margin-left: 40%;
+    }
+
+.leftszqcText {
+    margin-left: -5px;
+}
+
+    .leftszqcText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(211,207,207) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: 95%;
+    }
+
+.rightszqcText {
+    margin-left: 5px;
+}
+
+    .rightszqcText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(211,207,207) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: -25px;
+    }
+
+.topszoneText {
+    margin-top: -10px;
+}
+
+    .topszoneText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(29,138,221) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 35%;
+    }
+
+.bottomszoneText {
+    margin-top: 10px;
+}
+
+    .bottomszoneText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(29,138,221) solid;
+        top: -20px;
+        margin-left: 35%;
+    }
+
+.leftszoneText {
+    margin-left: -5px;
+}
+
+    .leftszoneText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(29,138,221) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: 95%;
+    }
+
+.rightszoneText {
+    margin-left: 5px;
+}
+
+    .rightszoneText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(29,138,221) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: -25px;
+    }
+
+.topsztwoText {
+    margin-top: -10px;
+}
+
+    .topsztwoText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(71,199,20) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 35%;
+    }
+
+.bottomsztwoText {
+    margin-top: 10px;
+}
+
+    .bottomsztwoText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(71,199,20) solid;
+        top: -20px;
+        margin-left: 35%;
+    }
+
+.leftsztwoText {
+    margin-left: -5px;
+}
+
+    .leftsztwoText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(71,199,20) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: 95%;
+    }
+
+.rightsztwoText {
+    margin-left: 5px;
+}
+
+    .rightsztwoText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(71,199,20) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: -25px;
+    }
+
+.topszthreeText {
+    margin-top: -10px;
+}
+
+    .topszthreeText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(254,210,2) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 40%;
+    }
+
+.bottomszthreeText {
+    margin-top: 10px;
+}
+
+    .bottomszthreeText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(254,210,2) solid;
+        top: -20px;
+        margin-left: 40%;
+    }
+
+.leftszthreeText {
+    margin-left: -5px;
+}
+
+    .leftszthreeText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(254,210,2) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: 95%;
+    }
+
+.rightszthreeText {
+    margin-left: 5px;
+}
+
+    .rightszthreeText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(254,210,2) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: -25px;
+    }
+
+.topszfourText {
+    margin-top: -10px;
+}
+
+    .topszfourText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(254,149,6) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 35%;
+    }
+
+.bottomszfourText {
+    margin-top: 10px;
+}
+
+    .bottomszfourText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(254,149,6) solid;
+        top: -20px;
+        margin-left: 35%;
+    }
+
+.leftszfourText {
+    margin-left: -5px;
+}
+
+    .leftszfourText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(254,149,6) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: 95%;
+    }
+
+.rightszfourText {
+    margin-left: 5px;
+}
+
+    .rightszfourText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(254,149,6) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: -25px;
+    }
+
+.topszfiveText {
+    margin-top: -10px;
+}
+
+    .topszfiveText:after {
+        position: absolute;
+        content: '';
+        border-top: 15px rgb(249,16,5) solid;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        bottom: -20px;
+        margin-left: 35%;
+    }
+
+.bottomszfiveText {
+    margin-top: 10px;
+}
+
+    .bottomszfiveText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 5px transparent dashed;
+        border-bottom: 15px rgb(249,16,5) solid;
+        top: -20px;
+        margin-left: 35%;
+    }
+
+.leftszfiveText {
+    margin-left: -5px;
+}
+
+    .leftszfiveText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 15px rgb(249,16,5) solid;
+        border-right: 5px transparent dashed;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: 95%;
+    }
+
+.rightszfiveText {
+    margin-left: 5px;
+}
+
+    .rightszfiveText:before {
+        position: absolute;
+        content: '';
+        border-top: 5px transparent dashed;
+        border-left: 5px transparent dashed;
+        border-right: 15px rgb(249,16,5) solid;
+        border-bottom: 5px transparent solid;
+        margin-top: 12%;
+        margin-left: -25px;
+    }

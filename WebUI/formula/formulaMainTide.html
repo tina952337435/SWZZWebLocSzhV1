@@ -1,0 +1,363 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100mm以上暴雨查询</title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script>
+    <!--高版本下拉框无法使用-->
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="../Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="../Common/Scripts/5.2.0_dist_echarts.min.js"></script>
+    <script type="text/javascript" src="../Common/Scripts/latest_dist_ecStat.min.js"></script>
+    <style>
+        ul.ui-choose>li {
+            width: auto;
+            padding: 0px 20px;
+        }
+
+        .mini-grid-summaryRow tr td {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow {
+            background: none !important;
+            padding-top: 10px;
+        }
+
+
+        .mini-radiobuttonlist-item .mini-list-icon {}
+
+        .mini-grid-summaryRow div {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow table {
+            background: none !important;
+        }
+
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+
+        .mini-grid-summaryRow tr td span {
+            color: #fff !important;
+            line-height: 25px;
+            font-weight: 400 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cwchart" style="height:350px;width:90%;margin:0px auto;background:white;">
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 405px);height: -moz-calc(100% - 405px);height: calc(100% - 405px);"
+        allowalternating="true" borderstyle="border-right:0;" showpager="false" showemptytext="true" emptytext="暂无数据"
+        alwaysshowemptytext="true" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div field="TM" width="60" align="center" headeralign="center" allowsort="false">时间</div>
+            <div field="WINDZS" width="120" align="center" headeralign="center" allowsort="false">预报增水(m)</div>
+            <div field="HTDZ" width="120" align="center" headeralign="center" allowsort="false">天文潮(m)</div>
+            <div field="TDZ" width="120" align="center" headeralign="center" allowsort="false">预报潮位(m)</div>
+        </div>
+    </div>
+
+    <script>
+        var myData = [];
+        mini.parse();
+        var grid=mini.get('grid1');
+        var stcd = GetQueryString('stcd');
+        var stime = GetQueryString('stime');
+        var etime = GetQueryString('etime');
+        $(function () {
+            search();
+        });
+        function SetData(data) {
+
+        }
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var strWhere = {
+                stcd: stcd,
+                startdate: stime,
+                enddate: etime
+            }
+            //GetJosns("SWZZ_FLOODTIDEDATA_ST_TIDEH_RSel", strWhere, "Sel");
+			app.post("SWZZ_FLOOD_ST_TIDE_R/findResult",strWhere,(data)=>{
+				JosnSel(data,"Sel")
+			})
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+				console.log(data.data)
+                $.data(myData, "TWCData", data.data);
+                bindData();
+            }
+        }
+        function bindData() {
+            var resultData = $.data(myData, "TWCData");
+            var zsData = top["win"].getZSData();//增水
+			console.log(zsData)
+            //增水插补
+            var dataResult = [];
+            var xdata=[], ydata=[], ydataH=[], ydataZ=[];
+            for (var num = 0; num < zsData.length; num++) {
+                var stm = new Date(zsData[num].tm).format("yyyy-MM-dd HH:mm:ss");
+                var szs = Number(zsData[num].WINDZS);
+                xdata.push(stm);
+                if (num < zsData.length - 1) {
+                    var etm = new Date(zsData[num + 1].tm).format("yyyy-MM-dd HH:mm:ss");
+                    var ezs = Number(zsData[num + 1].WINDZS);
+                    var minutesTotal = GetDateDiff(stm, etm, "minute");//预报期总时段
+                    var minutes = minutesTotal / 5;//5分钟一个数据
+                    // console.error(stm, etm, minutes);
+                    var item = { TM: stm, WINDZS: szs };
+                    var htdz = getHTDZ(stm);
+                    item.HTDZ = htdz;//天文潮
+                    item.TDZ=Number(htdz+szs).toFixed(2);//预报潮位
+                    dataResult.push(item);
+                    ydataH.push(htdz);
+                    ydata.push(item.TDZ);
+                    ydataZ.push(item.WINDZS);
+                    var resultDataTemp = resultData.filter(function (res) {
+                        return new Date(res.tm)>=new Date(stm)&&new Date(res.tm)<new Date(etm);
+                    });
+                    for (var _num = 1; _num < minutes; _num++) {
+                        var tm = new Date(new Date(stm).addDate('n', _num * 5)).format("yyyy-MM-dd HH:mm:ss");
+                        xdata.push(tm);
+                        var juli = GetDateDiff(stm, tm, "minute");//每个预报时刻距初始时刻时段
+                        var cha = Number((ezs - szs) / minutesTotal * juli);
+                        var zzvalue = (Number(szs) + cha).toFixed(2)=='-0.00'?'0.00':(Number(szs) + cha).toFixed(2);
+                        // if(stm=="2023-11-05 20:00:00"){
+                        //     console.error('tm',tm,'szs',szs,'ezs',ezs,'cha',cha);
+                        //     console.error(tm + ":::::" + zzvalue);
+                        // }
+                        item = { TM: tm, WINDZS: zzvalue };
+                        htdz=resultDataTemp[_num].tdz;
+                        item.HTDZ = htdz;//天文潮
+                        item.TDZ=(htdz+Number(zzvalue)).toFixed(2);//预报潮位
+                        dataResult.push(item);
+                        ydataH.push(htdz);
+                        ydata.push(item.TDZ);
+                        ydataZ.push(item.WINDZS);
+                    }
+                }
+                else{
+                    var item = { TM: stm, WINDZS: szs };
+                    var htdz = getHTDZ(stm);
+                    item.HTDZ = htdz;//天文潮
+                    item.TDZ=Number(htdz+szs).toFixed(2);//预报潮位
+                    dataResult.push(item);
+                    ydataH.push(htdz);
+                    ydata.push(item.TDZ);
+                    ydataZ.push(item.WINDZS);
+                }
+            }
+            chartCW("cwchart", xdata, ydata, ydataH, ydataZ);
+            grid.setData(dataResult);
+            mini.unmask(document.body);
+        }
+        function getHTDZ(stm) {
+            var tdz = 0;
+            var resultData = $.data(myData, "TWCData");
+            var resultDataTemp = resultData.filter(function (res) {
+                return new Date(res.tm).format("yyyy-MM-dd HH:mm:ss") == stm;
+            });
+            if (resultDataTemp.length > 0) {
+                tdz = resultDataTemp[0].tdz;
+            }
+            return tdz;
+        }
+        function ondrawcell (){
+
+        }
+        function chartCW(ChartName, xdata, ydata, ydataH, ydataZ) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            var realEx = [];
+            var maxTDZ = Math.max.apply(null, ydata);
+            var maxTDZTM = "";
+            var maxZS = 0;
+            for (var num = 0; num < ydata.length; num++) {
+                if (ydata[num] == maxTDZ) {
+                    maxTDZTM = xdata[num];
+                    maxZS = ydataZ[num];
+                    break;
+                }
+            }
+            var option = {
+                text:"预报潮位过程",
+                title: {
+                    //text: mini.get("STCD").getText()+"潮位过程",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 14,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        label: {
+                            backgroundColor: '#A7E0F4'
+                        }
+                    }
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        mark: { show: false },
+                        dataView: { show: false, readOnly: false },
+                        magicType: {
+                            show: false,
+                            type: ['line', 'funnel'],
+                            option: {
+                                funnel: {
+                                    x: '25%',
+                                    width: '50%',
+                                    funnelAlign: 'left',
+                                    max: 1548
+                                }
+                            }
+                        },
+                        restore: { show: false },
+                        saveAsImage: { show: false }
+                    }
+                },
+                legend: {
+                    data: ['潮位', '天文潮', '增水'],
+                    show: true,
+                    selected: {
+                        //'天文潮': false
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        boundaryGap: false,
+                        data: xdata
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: "水位(m)",
+                        type: 'value',
+                        //max: 6,
+                        //min: 2
+                        min: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.min - (jiangenew - jiange) / 200 - 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.min - (jiangenew - jiange - 1) / 200 - 1, 0);
+                            }
+                            return sw;
+                        },
+                        max: function (value) {
+                            var jiange = (value.max - value.min).toFixed(2) * 100;
+                            var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+
+                            jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5)
+                            if ((jiangenew - jiange - 1) == 0) {
+                                jiangenew = jiangenew * 2;
+                            }
+                            if (jiangenew < 5) jiangenew = 5;
+
+                            var sw = 0;
+                            if ((jiangenew - jiange) % 2 == 0) {
+                                sw = Math.round(value.max + (jiangenew - jiange) / 200 + 1, 0);
+                            }
+                            else {
+                                sw = Math.round(value.max + (jiangenew - jiange + 1) / 200 + 1, 0);
+                            }
+                            return sw;
+                        },
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        },
+                    }
+                ],
+                series: [
+                    {
+                        name: '潮位',
+                        type: 'line',
+                        color: "blue",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydata,
+                        markPoint: {
+                            data: [{ type: 'max', name: '最大值' }]
+                        },
+                    },
+                    {
+                        name: '天文潮',
+                        type: 'line',
+                        color: "#00FF00",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydataH
+                    },
+                    {
+                        name: '增水',
+                        type: 'line',
+                        color: "#FF0000",
+                        symbol: 'circle',  //这句就是去掉点的
+                        smooth: true,  //这句就是让曲线变平滑的,
+                        symbolSize: 1,
+                        label: {
+                            show: false
+                        },
+                        data: ydataZ,
+                        markPoint: {
+                            data: [
+                                { type: 'max', name: '最大值' },
+                                { name: '高潮增水', value: maxZS, xAxis: maxTDZTM, yAxis: maxZS },
+                            ]
+                        },
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+
+</html>

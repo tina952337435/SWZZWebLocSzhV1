@@ -1,0 +1,298 @@
+﻿@charset "utf-8";
+
+body {
+    font-size: 12px;
+    font-family: 宋体,Arial,sans-serif;
+    color: #343434;
+    background: #000
+}
+
+html, body, div, span, p, h1, h2, h3, h4, h5, h6, em, img, strong, sub, sup, tt, dd, dl, dt, form, label, table, caption, tbody, tfoot, thead, tr, th, td, ul, li, p, a {
+    margin: 0;
+    padding: 0
+}
+
+.cbody988 {
+    margin: 0 auto;
+    width: 988px;
+    position: relative
+}
+
+.cbody937 {
+    margin: 0 auto;
+    width: 937px;
+    position: relative;
+    padding-left: 7px
+}
+
+input, select, textarea, img {
+    vertical-align: middle
+}
+
+img {
+    border: 0
+}
+
+ul, li {
+    list-style-type: none
+}
+
+a:link, a:visited {
+    text-decoration: none;
+    color: #343434
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0f6bd0
+}
+
+.overhide {
+    overflow: hidden;
+    text-indent: -100em
+}
+
+.marTop10 {
+    margin-top: 10px
+}
+
+.left {
+    float: left
+}
+
+.right {
+    float: right
+}
+
+.clear {
+    clear: both
+}
+
+.clearfix:after {
+    clear: both;
+    content: '';
+    display: block;
+    font-size: 0;
+    line-height: 0;
+    visibility: hidden;
+    width: 0;
+    height: 0
+}
+
+.clearfix {
+    display: +inline-block
+}
+
+#header {
+    border-bottom: 1px solid #383838;
+    height: 46px;
+    position: relative;
+    line-height: 46px;
+    color: #fff
+}
+
+    #header h1 {
+        font-size: 12px;
+        font-weight: 400;
+        background: url(news.png) no-repeat 50px center;
+        padding-left: 163px
+    }
+
+    #header span {
+        position: absolute;
+        right: 10px;
+        top: 0;
+        color: #9a9a9a;
+        font-size: 12px;
+        font-weight: 400
+    }
+
+        #header span a {
+            color: #9a9a9a;
+            margin: 0 3px
+        }
+
+#wrapper {
+    width: 80%;
+    margin: 0 auto
+}
+
+#picSlideWrap {
+    background: #f5f8fd;
+    border: 1px solid #a9bfd6;
+    padding-bottom: 30px
+}
+
+.titleh3 {
+    height: 70px;
+    line-height: 70px;
+    text-align: center;
+    background: url(../images/dot.gif) repeat-x left bottom;
+    width: 910px;
+    margin: 0 auto;
+    font-size: 26px;
+    color: #000
+}
+
+.titleh4 {
+    text-align: center;
+    font-size: 12px;
+    color: #000;
+    font-weight: 400;
+    padding: 10px 0 20px
+}
+
+.imgnav {
+    width: 100%;
+    margin: 10px auto
+}
+
+#content {
+    margin: 0 auto;
+    line-height: 19px
+}
+
+    #content p {
+        text-indent: 2em;
+        color: #333
+    }
+
+.imgnav {
+    position: relative;
+    margin: 0 auto;
+    width: 100%
+}
+
+#img {
+    z-index: 10;
+    width: 100%;
+    position: relative;
+    text-align: center
+}
+
+    #img img {
+        height: 370px;
+        display: none;
+        border: 4px solid #000
+    }
+
+#front {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    cursor: pointer;
+    width: 394px;
+    height: 300px;
+    background: url(../images/blank.gif)
+}
+
+    #front a {
+        position: absolute;
+        left: 20px;
+        top: 224px;
+        display: block;
+        background: url(../images/imgSlideLeft.png) no-repeat;
+        width: 104px;
+        height: 104px;
+        display: none
+    }
+
+#next {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 10;
+    cursor: pointer;
+    width: 394px;
+    height: 300px;
+    background: url(../images/blank.gif)
+}
+
+    #next a {
+        position: absolute;
+        right: 20px;
+        top: 224px;
+        display: block;
+        background: url(../images/imgSlideRight.png) no-repeat;
+        width: 104px;
+        height: 104px;
+        display: none
+    }
+
+#cbtn {
+    background: #eaebf0;
+    position: relative;
+    height: 122px;
+    border: 1px solid #d6d9dc;
+    margin-top: 12px
+}
+
+    #cbtn ul {
+        position: relative;
+        width: 10000px;
+        height: 122px
+    }
+
+        #cbtn ul li {
+            float: left;
+            padding: 8px 3px 3px;
+            width: 116px;
+            height: 110px;
+            cursor: pointer;
+            text-align: center;
+            margin-right: 20px;
+            position: relative
+        }
+
+            #cbtn ul li img {
+                width: 116px;
+                height: 86px;
+                display: block
+            }
+
+            #cbtn ul li tt {
+                background: #000;
+                color: #fff;
+                position: absolute;
+                right: 4px;
+                bottom: 4px;
+                z-index: 20;
+                font-family: 宋体;
+                font-size: 12px;
+                line-height: 16px;
+                padding: 0 5px
+            }
+
+    #cbtn li.hov {
+        background: url(../images/imgHoverBg.gif) no-repeat
+    }
+
+.ctrl div {
+    clear: both
+}
+
+#cSlideUl {
+    width: 80%;
+    height: 116px;
+    overflow: hidden;
+    position: relative;
+    top: 10px;
+    margin: 0 auto
+}
+
+.picSildeLeft {
+    cursor: pointer;
+    position: absolute;
+    top: 32px;
+    left: 10px;
+    z-index: 9
+}
+
+.picSildeRight {
+    cursor: pointer;
+    position: absolute;
+    top: 32px;
+    right: 10px;
+    z-index: 9
+}

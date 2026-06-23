@@ -1,0 +1,416 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.min5.2.2.js"></script>
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        #zhanList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        #areaList ul li {
+            width: auto !important;
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+        }
+
+        .searchTitle {
+            width: 92px;
+            float: left;
+        }
+        /*.mini-grid-summaryCell {
+            line-height: 35px;
+            text-align: center;
+            color: blue;
+            font-size:15px;
+        }*/
+        .sysList {
+            margin-top: 25px;
+            color: gray;
+            margin-left: 0%;
+            position: absolute;
+            border: 1px solid #dadbdc;
+            background-color: #FFF;
+            top: 105px;
+            left: 563px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+            -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+            padding: 10px;
+        }
+
+            .sysList table td {
+                padding: 10px 3px 0px 3px;
+                /*width: 125px;
+                border-bottom: 1px solid #3291f9;*/
+            }
+
+        #sysList table td {
+            padding: 10px 3px 10px 3px !important;
+        }
+
+        .sysList table td span {
+            line-height: 20px;
+        }
+
+        .btn_span {
+            padding: 6px 10px;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: normal;
+            -moz-user-select: -moz-none;
+            -ms-user-select: none;
+            -webkit-user-select: none;
+            user-select: none;
+            color: #fff;
+            background: #4D96DF;
+        }
+        /* line 104, ../sass/dialog.scss */
+        .dailog_divOperation .btn_span:first-child {
+            margin-right: 10px;
+        }
+
+        body .mini-grid-headerCell-nowrap, mini-grid-headerCell-inner, mini-grid-headerCell-nowrap, mini-grid-headerCell-outer, mini-grid-headerCell {
+            background: #F5FAFE !important;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 25px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div style="height: -webkit-calc(100%);height: -moz-calc(100%);height: calc(100%);background: #ededed;">
+        <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:calc(50%);float:left;background:white;">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p" id="title1">全市综合一级指标评估结果</p>
+            </div>
+            <div id="fxq_chartsOne" style="height:calc(100% - 50px);width:100%;margin:0px 0%;"></div>
+        </div>
+        <div style="height:calc(100%);padding:0px 10px;box-sizing: border-box;-webkit-box-sizing: border-box;width:calc(50% - 10px);float:left;background:white;margin-left:10px;">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p" id="title2">行政区综合评估结果</p>
+            </div>
+            <div id="fxq_charts" style="height:calc(100% - 50px);width:100%;margin:0px 0%;"></div>
+        </div>
+    </div>
+
+    <script>
+        var myData = [];
+        $(function () {
+            searchType();
+        });
+
+        //查询水位、雨量大类权重
+        function searchType() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中，请稍等...'
+            });
+            var strWhere = {TPID:-2};
+            method = "SWZZ_FLOODTIDEDATA_SN_TARGETCONFIGSel";
+            GetJosns(method, strWhere, "SelTYPE");
+        }
+
+        function searchSW() {
+            var strWhere = {};
+            var name = "水位";
+            strWhere["STTP"] = name;
+            method = "SN_TARGETCONFIGSCOREGRIDONEZONGHEArea";
+            GetJosns(method, strWhere, "SelSW");
+        }
+        function searchYL() {
+            var strWhere = {};
+            var name = "雨量";
+            strWhere["STTP"] = name;
+            method = "SN_TARGETCONFIGSCOREGRIDONEZONGHEArea";
+            GetJosns(method, strWhere, "SelYL");
+        }
+
+        function searchONESW() {
+            var strWhere = {};
+            var name = "水位";
+            strWhere["STTP"] = name;
+            method = "SN_TARGETCONFIGSCOREGRIDONEZONGHE";
+            GetJosns(method, strWhere, "SelOneSW");
+        }
+        function searchONEYL() {
+            var strWhere = {};
+            var name = "雨量";
+            strWhere["STTP"] = name;
+            method = "SN_TARGETCONFIGSCOREGRIDONEZONGHE";
+            GetJosns(method, strWhere, "SelOneYL");
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "SelTYPE") {
+                $.data(myData, "typedata", data.data);
+                searchSW();
+                searchONESW();
+            }
+            else if (typeID == "SelSW") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "AllSWdata", dataResult);
+                searchYL();
+            }
+            else if (typeID == "SelYL") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "AllYLdata", dataResult);
+                loadBarHtml();
+                mini.unmask(document.body);
+            }
+            else if (typeID == "SelOneSW") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "SWONEdata", dataResult);
+                searchONEYL();
+            }
+            else if (typeID == "SelOneYL") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "YLONEdata", dataResult);
+                loadBarONEHtml();
+            }
+        }
+        function loadBarHtml() {
+            var typedata=$.data(myData, "typedata");
+            var dataSW = $.data(myData, "AllSWdata");
+            var dataYL = $.data(myData, "AllYLdata");
+            var dataResult = []
+            if (dataSW != null) {
+                for (var num = 0; num < dataSW.length; num++) {
+                    if (dataSW[num]["HNNM"] != "全市") {
+                        var swData = Number( dataSW[num]["ZONGHE"]);
+                        var ylData = Number(dataYL[num]["ZONGHE"]);
+                        var swWeight = typedata.length > 0 ? typedata[0].WEIGHT : 0;
+                        var ylWeight = typedata.length >1 ? typedata[1].WEIGHT : 0;
+                        var value = (swData * swWeight + ylData * ylWeight).toFixed(1);
+                        dataResult.push(value);
+                    }
+                }
+            }
+            var className = ['宝山', '崇明', '奉贤', '嘉定', '金山', '闵行', '浦东', '青浦', '松江', '松浦', '苏州河', '吴淞'];
+            var barWidth = 15;
+            barChart("fxq_charts", className, dataResult, barWidth);
+        }
+        function loadBarONEHtml() {
+            var typedata = $.data(myData, "typedata");
+            var dataSW = $.data(myData, "SWONEdata");
+            var dataYL = $.data(myData, "YLONEdata");
+            var dataResult = []
+            if (dataSW != null) {
+                for (var num = 0; num < dataSW.length; num++) {
+                    if (dataSW[num]["INDEXONE"] == "平均分") {
+                        var swData = Number(dataSW[num]["2021111711263334261"]);//水位：基础设施
+                        var ylData = Number(dataYL[num]["2021111611163325837"]); //雨量：基础设施
+                        var swWeight = typedata.length > 0 ? typedata[0].WEIGHT : 0;
+                        var ylWeight = typedata.length > 1 ? typedata[1].WEIGHT : 0;
+                        var value = (swData * swWeight + ylData * ylWeight).toFixed(1);
+                        dataResult.push(value);
+
+                        swData = Number(dataSW[num]["2021111713461576305"]);//水位：测站运维
+                        ylData = Number(dataYL[num]["2021111611311897597"]); //雨量：测站运维
+                        swWeight = typedata.length > 0 ? typedata[0].WEIGHT : 0;
+                        ylWeight = typedata.length > 1 ? typedata[1].WEIGHT : 0;
+                        value = (swData * swWeight + ylData * ylWeight).toFixed(1);
+                        dataResult.push(value);
+
+                        swData = Number(dataSW[num]["2021111711453673519"]);//水位：数据管理
+                        ylData = Number(dataYL[num]["2021111611304970842"]); //雨量：数据管理
+                        console.error("水位：数据管理", ylData);
+                        console.error("雨量：数据管理", ylData);
+                        swWeight = typedata.length > 0 ? typedata[0].WEIGHT : 0;
+                        ylWeight = typedata.length > 1 ? typedata[1].WEIGHT : 0;
+                        value = (swData * swWeight + ylData * ylWeight).toFixed(1);
+                        dataResult.push(value);
+
+                        swData = Number(dataSW[num]["2021111711563627630"]);//水位：信息服务
+                        ylData = Number(dataYL[num]["2021111611310375830"]); //雨量：信息服务
+                        swWeight = typedata.length > 0 ? typedata[0].WEIGHT : 0;
+                        ylWeight = typedata.length > 1 ? typedata[1].WEIGHT : 0;
+                        value = (swData * swWeight + ylData * ylWeight).toFixed(1);
+                        dataResult.push(value);
+                        
+                        swData = Number(dataSW[num]["20221108162649900"]);//水位：站网管理
+                        ylData = Number(dataYL[num]["2022110817132964006"]); //雨量：站网管理
+                        swWeight = typedata.length > 0 ? typedata[0].WEIGHT : 0;
+                        ylWeight = typedata.length > 1 ? typedata[1].WEIGHT : 0;
+                        value = (swData * swWeight + ylData * ylWeight).toFixed(1);
+                        dataResult.push(value);
+                    }
+                }
+            }
+            var className = ['基础设施', '测站运维', '数据管理', '信息服务', '站网管理'];
+            var barWidth = 20;
+            barChart("fxq_chartsOne", className, dataResult, barWidth);
+        }
+        function barChart(ChartName, className, data, barWidth) {
+            var myChart = echarts.init(document.getElementById(ChartName)); //获得控件对象
+            var colorList = ['#39B3FF', '#47E0E0', '#7891D9', '#83D978', '#C7A530', '#FF8439'];
+            option = {
+                legend: {
+                    show: false,
+                    data: ['平均分'],
+                    icon: 'circle',
+                    bottom: 10,
+                    textStyle: {
+                        color: '#ffffff'
+                    }
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '5%',
+                    top: '5%',
+                    containLabel: true
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function (params) {
+                        return params[0].name + '<br/>' +
+                            "<span style='display:inline-block;margin-right:5px;border-radius:10px;width:9px;height:9px;background-color:rgba(36,207,233,0.9)'></span>" +
+                            // params[0].seriesName + ' : ' + Number((params[0].value.toFixed(4) / 10000).toFixed(2)).toLocaleString() + ' <br/>'
+                            params[0].seriesName + ' : ' + params[0].value
+                    }
+                },
+                //backgroundColor: 'rgb(20,28,52)',
+                xAxis: {
+                    type: 'value',
+                    axisLine: {
+                        show: true
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    max: 100,
+                    min: function (e) {
+                        var shiNum = parseInt(e.min / 10) % 10;
+                        return shiNum * 10 - 20;
+                    }
+                },
+                yAxis: [{
+                    type: 'category',
+                    inverse: true,
+                    axisLabel: {
+                        show: true,
+                        textStyle: {
+                            color: '#000'
+                        },
+                    },
+                    splitLine: {
+                        show: false
+                    },
+                    axisTick: {
+                        show: true
+                    },
+                    axisLine: {
+                        show: true
+                    },
+                    data: className
+                }, {
+                    type: 'category',
+                    inverse: true,
+                    axisTick: 'none',
+                    axisLine: 'none',
+                    show: true,
+                    axisLabel: {
+                        textStyle: {
+                            color: '#000',
+                            fontSize: '12'
+                        },
+                        formatter: function (value) {
+                            return value;
+                        },
+                    },
+                    data: data
+                }],
+                series: [{
+                    name: '平均分',
+                    type: 'bar',
+                    zlevel: 1,
+                    itemStyle: {
+                        normal: {
+                            barBorderRadius: 0,
+                            color: (params) => {
+                                return colorList[0]
+                            },
+                            barBorderRadius: [0, 50, 50, 0],
+                        },
+                    },
+                    barWidth: barWidth,
+                    data: data
+                }
+                ]
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

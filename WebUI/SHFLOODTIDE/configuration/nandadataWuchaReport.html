@@ -1,0 +1,430 @@
+﻿
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>单站数据比较</title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/Scripts/echarts.min.js"></script>
+
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: #EDEDED;
+        }
+
+        .classColor {
+            font-size: 14px;
+            text-align: center;
+            line-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            站点选择： &nbsp;<input id="STCD" name="STCD" class="mini-combobox" style="width:100px;" textField="STNM" valueField="STCD" allowInput="false" />
+            &nbsp; &nbsp;
+            开始日期： &nbsp;<input id="STIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+            结束日期：&nbsp;<input id="ETIME" class="mini-datepicker" style="width:115px;" format="yyyy-MM-dd" />&nbsp;&nbsp;
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            &nbsp;&nbsp;<button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="display:none;">导出报表</button>
+        </div>
+    </div>
+    <div class="type" style="position:relative;height:300px;">
+        <div id="chartBar" style="height:100%;width:calc(55% - 0px);float:left;background:#fff;box-sizing: border-box;
+    -webkit-box-sizing: border-box;padding:10px;margin:5px 0px 5px 0px;">
+        </div>
+        <div id="chartPie" style="height:100%;width:calc(45% - 10px);float:left;background:#fff;box-sizing: border-box;
+    -webkit-box-sizing: border-box;padding:10px;margin:5px 0px 5px 10px;">
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 360px);height: -moz-calc(100% - 360px);height: calc(100% - 360px);"
+         allowalternating="true"
+         borderstyle="border-right:0;" sortmode="client" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showSummaryRow="false"
+         ondrawcell="ondrawcell">
+
+    </div>
+
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var grid = mini.get("grid1");
+        $(function () {
+            $("#expButton").hide();            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {                $("#expButton").show();            }
+            var tm = new Date();
+            //mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            //mini.get("ETIME").setValue(tm.format("yyyy-MM-dd"));
+            //默认加载数据
+            STGRDColumn();
+            searchZhan();
+        });
+        var dataResult = null;
+        var myData = [];
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var Startime;
+            var Endtime;
+            if (mini.get("STIME").getFormValue() != "") {
+                Startime = mini.get("STIME").getFormValue() + " 00:00:00";
+            }
+            if (mini.get("ETIME").getFormValue() != "") {
+                Endtime = mini.get("ETIME").getFormValue() + " 23:59:59";
+            }
+
+            if (Startime > Endtime) {
+                mini.alert("请确认起止日期次序是否正确（终止日期至少是起始日期的次日）！");
+                return false;
+            }
+
+            var stcd = mini.get("STCD").getValue();
+            if (stcd == "310000") {
+                stcd = null;
+            }
+            var strWhere = { "STIME": Startime, "ETIME": Endtime, STCD: stcd };
+            GetJosns("GRADRDAYDZTONGJI", strWhere, "GRADRDAYDZTONGJI");
+        }
+        function searchZhan() {
+            var strWhere = {};
+            GetJosns("getNDSTNM", strWhere, "getNDSTNM");
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "getNDSTNM") {
+                var zhanData = data.data;
+                zhanData.unshift({ STCD: "310000", STNM: "全市" });
+                mini.get("STCD").setData(zhanData);
+                mini.get("STCD").select(0);
+                search();
+            }
+            else if (typeID == "GRADRDAYDZTONGJI") {
+                grid.setData(data.data);
+                loadBarChart(data.data);
+                mini.unmask(document.body);
+            }
+        }
+        function loadBarChart(data) {
+            var dataX = []; //["1987", "1988", "1989", "1990", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2012", "2013", "2014", "2015", "2016", "2018", "2019", "2020", "2021"];
+            var dataY = [];//[4, 3, 5, 2, 1, 2, 3, 1, 2, 1, 3, 1, 5, 1, 1, 1, 2, 4, 2, 2, 1, 1, 4, 1, 3, 2, 2, 5, 1, 1, 1];
+            dataX = ["差值=0mm","0mm<差值<=1mm", "1mm<差值<=5mm", "5mm<差值<=10mm", "差值>10mm"];
+            dataY = [data[0].TOTALWU,data[0].TOTAL1, data[0].TOTAL5, data[0].TOTAL10, data[0].TOTAL11];
+            TotalNum = data[0].TOTAL;
+            var dataPie = [];
+            for (var num = 0; num < dataX.length; num++) {
+                dataPie.push({ value: dataY[num], name: dataX[num] });
+            }
+            chartBar('chartBar', dataX, dataY, dataPie, TotalNum);
+            chartPie('chartPie', dataX, dataY, dataPie, TotalNum);
+        }
+        function ondrawcell(e) {
+        }
+        function STGRDColumn() {
+            var createGrid = [];
+            createGrid.push({ field: "TOTAL", headerAlign: "center", align: "center", header: "总数量" });
+            createGrid.push({ field: "TOTALWU", headerAlign: "center", align: "center", header: "差值=0mm" });
+            createGrid.push({ field: "TOTAL1", headerAlign: "center", align: "center", header: "0mm<差值<=1mm" });
+            createGrid.push({ field: "TOTAL5", headerAlign: "center", align: "center", header: "1mm<差值<=5mm" });
+            createGrid.push({ field: "TOTAL10", headerAlign: "center", align: "center", header: "5mm<差值<=10mm" });
+            createGrid.push({ field: "TOTAL11", headerAlign: "center", align: "center", header: "差值>10mm" });
+            //createGrid.push({ field: "TOTALWU", headerAlign: "center", align: "center", header: "无实测日雨量" });
+            grid.set({
+                columns: createGrid
+            });
+        }
+
+
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var name = "";
+            name += mini.get("STCD").getText()+ "南大日雨量与实测日雨量误差数量统计";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+
+    <script type="text/javascript">
+        function chartBar(ChartName, dataX, dataY, dataPie, totalTF) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.off('click');
+            myChart.clear();
+            var colorList = ['#afa3f5', '#00d488', '#3feed4', '#3bafff', '#f1bb4c', "rgba(250,250,250,0.5)"];
+            var sportsIcon = {
+                'a': '/asset/get/s/data-1559121268278-ozjd-lXoz.png',
+                'b': '/asset/get/s/data-1559121263841-UC5w7mTJ9.png',
+                'c': '/asset/get/s/data-1559121259198-sxyPSimU9.png',
+                'd': '/asset/get/s/data-1559121254241-xj5JAIBzC.png',
+                'e': '/asset/get/s/data-1559121249274-QxHDAdQGy.png',
+            };
+            var grade = $("#choseGrade .selected").find("span").html();
+            var seriesData = [{
+                type: 'bar',
+                barMaxWidth: 20,
+                zlevel: 10,
+                data: dataY,
+                itemStyle: {
+                    normal: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0,
+                                color: '#2D8DED'
+                            }, {
+                                offset: 1,
+                                color: '#5ED8FB'
+                            }]
+                        },
+                        barBorderRadius: [30, 30, 0, 0],
+                    }
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'top',
+                        formatter: function (params) {
+                            return params.value;
+                        },
+                        textStyle: {
+                            color: '#2D8DED', //color of value
+                            fontSize: 14
+                        }
+                    }
+                },
+
+            },];
+            option = {
+                backgroundColor: '#fff',
+                title: {
+                    text: "南大识别日雨量与实测日雨量误差统计",
+                    //subtext: '历史影响台风列表',
+                    //x: '72.5%',
+                    //y: '32%',
+                    x: "50%",
+                    y: "top",
+                    textAlign: "center",
+                    textStyle: {
+                        fontSize: 20,
+                        fontWeight: 'normal',
+                        color: ['#333']
+                    },
+                    subtextStyle: {
+                        color: '#666',
+                        fontSize: 16
+                    },
+                },
+                tooltip: {
+                    show: true,
+                    trigger: 'item',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    axisPointer: {
+                        lineStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0,
+                                    color: '#FFD56E'
+                                }, {
+                                    offset: 0.5,
+                                    color: '#fff',
+                                }, {
+                                    offset: 1,
+                                    color: '#FFD56E'
+                                }],
+                                global: false
+                            }
+                        },
+                    }
+                },
+                legend: {
+                    right: 20,
+                    show: false,
+                    top: 0,
+                    itemGap: 10, // 各个item之间的间隔，单位px，默认为10，
+                    itemWidth: 30, // 图例图形宽度
+                    itemHeight: 10, // 图例图形高度
+                    textStyle: {
+                        //color: 'red',
+                        fontWeight: 'normal',
+                        fontSize: 14
+                    },
+                },
+                // barGap: '100%',
+                toolbox: {//echart保存为图片
+                    show: true,
+                    feature: {
+                        mark: {
+                            show: true
+                        },
+                        //restore: {
+                        //    show: true
+                        //},
+                        saveAsImage: {
+                            show: true,
+                            pixelRatio: 1,
+                            title: '保存为图片',
+                            type: 'png',
+                            lang: ['点击保存']
+                        }
+                    }
+                },
+                grid: {
+                    top: '5%',
+                    left: '10%',
+                    right: '10%',
+                    bottom: '8%',
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: dataX,
+                        axisTick: {
+                            show: false // 是否显示坐标轴轴线
+                        },
+                        axisLabel: {
+                            color: '#282828',
+                            interval: 0,
+                        },
+                        splitLine: {
+                            show: false
+                        },
+                       
+                        boundaryGap: true,
+                        axisLine: { //坐标轴轴线相关设置。
+                            show: true,
+                            inside: false,
+                            lineStyle: {
+                                color: '#000'
+                            }
+                        }
+                    },
+                ],
+                yAxis: [{
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + e.max / 10;
+                    },
+                    min: 0,
+                    splitNumber: 4,
+                    splitLine: { show: true },
+                    axisLabel: { //坐标轴刻度标签的相关设置。
+                        show: true,
+                        textStyle: {
+                            color: '#737373',
+                        }
+                    },
+                    axisLine: {
+                        show: true,
+                    },
+                    axisTick: {
+                        show: false,
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(131,101,101,0.2)',
+                            type: 'dashed',
+                        }
+                    },
+                    show: true,
+                }],
+                series: seriesData
+            };
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var year = param.name;
+                loadChangci(year);
+            }
+        }
+        function chartPie(ChartName, dataX, dataY, dataPie, totalTF) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            myChart.off('click');
+            myChart.clear();
+            let datas = dataPie;
+            var option = {
+                backgroundColor: '#fff',
+                color: ["#00AFF1", "#3F73D3", "#A8CF3B", "#02A54E", "#FFB813"],
+                legend: {
+                    itemHeight: 14,
+                    itemWidth: 14,
+                    icon: "rect",
+                    orient: "vertical",
+                    top: "center",
+                    right: "10%",
+                    textStyle: {
+                        align: "left",
+                        color: "#",
+                        verticalAlign: "middle",
+                        rich: {
+                            name: {
+                                width: 200,
+                                fontSize: 16,
+                            },
+                            value: {
+                                //width: 20,
+                                align: "right",
+                                fontFamily: "Medium",
+                                fontSize: 16,
+                            },
+                            rate: {
+                                width: 10,
+                                align: "right",
+                                fontSize: 16,
+                            },
+                        },
+                    },
+                    data: datas,
+                    formatter: (name) => {
+                        if (datas.length) {
+                            const item = datas.filter((item) => item.name === name)[0];
+                            return `{name|${name}}{value| ${item.value}} {rate| 条}`;
+                        }
+                    },
+                },
+                tooltip: {
+                    trigger: "item",
+                    formatter: "{d}%",
+                },
+                series: [
+                    {
+                        name: "",
+                        type: "pie",
+                        radius: ["30%", "80%"],
+                        center: ["25%", "50%"],
+                        roseType: "radius",
+                        label: {
+                            formatter: "{d}%",
+                        },
+                        labelLine: {
+                            length: 1,
+                            length2: 20,
+                        },
+                        data: datas,
+                    },
+                ],
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>

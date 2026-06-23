@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .mini-toolbar{
+            border:0px !important;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar" style="float:right;">
+            &nbsp;&nbsp;<a class="mini-button" onclick="saveData()">保存</a>
+            <!-- &nbsp;&nbsp;<a class="mini-button" onclick="trans()">查看风暴潮</a>
+			&nbsp;&nbsp;<a class="mini-button" onclick="transPic()">查看风暴潮图片</a> -->
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 55px);height: -moz-calc(100% - 55px);height: calc(100% - 55px);" allowalternating="true"
+         borderstyle="border-right:0;" showemptytext="true"  allowcellselect="true" allowcelledit="true"
+         emptytext="暂无数据" alwaysshowemptytext="true" showpager="false"
+         showFilterRow="true"
+         ondrawcell="ondrawcell">
+        <div property="columns">
+            <div type="indexcolumn" width="4%" headeralign="center" align="center">序号</div>
+            <div field="zhanname" width="120" headeralign="center" align="center" >
+                站码
+            </div>
+            <div field="xs" width="10%" headeralign="center" align="center">
+                系数
+                <input property="editor" class="mini-textbox" style="width:100%;" />
+                <input id="XSFilter" property="filter" class="mini-textbox" style="width:100%;"
+                       onvaluechanged="onFilterChanged" />
+            </div>
+            <div field="action" name="action" width="6%" headeralign="center" align="center" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var grid = mini.get("grid1");
+        var dd_tm = GetQueryString("DD_TM");
+        var etime = GetQueryString("ETIME");
+        $(function () {
+            search();
+        });
+        function search() {
+            var strWhere = {pattem:"1"};
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult",strWhere,function(res){
+                JosnSel(res,"Sel");
+            });
+        }
+        function loadXS() {
+            var strWhere = {};
+            app.post("SWZZ_MODE_ES_ZHANDIANXS/findResult", strWhere,function(res){
+                JosnSel(res,"XSSel");
+            });
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                $.data(myData, "dataZhan", data.data);
+                loadXS();
+            }
+            else if (typeID == "XSSel") {
+                loadHtml(data.data);
+            }
+            else if (typeID == "Del") {
+                ShowMsg(data.message);
+                if (data.isSuccess) {
+                    search();
+                }
+            }
+            else if (typeID == "ADDPL") {
+                ShowMsg(data.message);
+                if (data.isSuccess) {
+                    search();
+                    // updateZCW();
+                }
+            }
+            else if (typeID == "updateZCW") {
+                CloseWindow("save");
+            }
+        }
+        function loadHtml(data) {
+            var dataZhan = $.data(myData, "dataZhan");
+            for (var num = 0; num < data.length; num++) {
+                var dataZhanTemp = dataZhan.filter(function (item) {
+                    return item.zhanid == data[num].mkeyid;
+                });
+                if (dataZhanTemp.length > 0) {
+                    data[num].zhanname = dataZhanTemp[0].zhanname;
+                }
+            }
+            grid.setData(data);
+        }
+
+        function ondrawcell(e) {
+            var field = e.field;
+            var record = e.record;
+            if (field == "action") {
+                var s = ' <img style="cursor:pointer;" onclick="removeRow(\'' + record.MKEYID + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+                e.cellHtml = s;
+            }
+        }
+
+        //修改系数的时候需要修改潮位本次总潮位
+        function saveData() {
+            grid.commitEdit();
+            var data = grid.getChanges();
+            var json = mini.encode(data);
+            if (json == "[]") {
+                mini.alert("没有可以保存的数据！");
+                return;
+            }
+            //grid.loading("保存中，请稍后......");
+            var obj = eval('(' + json + ')');
+            if (obj.length > 0) {
+                var dataNEW = [];
+                var mkeyids = "";
+                for (i = 0; i < obj.length; i++) {
+                    var STATE = obj[i]._state;
+                    var _MKEYID = obj[i].mkeyid;
+                    var _XS = obj[i].xs;
+                    var item = { mkeyid: _MKEYID, xs: _XS};
+                    dataNEW.push(item);
+
+                    mkeyids += _MKEYID + ",";
+                }
+                if (mkeyids != "") {
+                    mkeyids = mkeyids.substring(0, mkeyids.length-1);
+                }
+                $.data(myData, "mkeyids", mkeyids);
+                app.post("SWZZ_MODE_ES_ZHANDIANXS/batchResult/true", dataNEW, function(res){
+                    JosnSel(res,"ADDPL");
+                });
+            }
+        }
+        //修改对应的总潮位
+        function updateZCW() {
+            var mkeyids = $.data(myData, "mkeyids");
+            var strWhere = { mkeyids: mkeyids, dd_tm: dd_tm, username: GetCookie("LOGINNAME") };
+            GetJosns("updateZCW", strWhere, "updateZCW");
+        }
+        //删除
+        function removeRow(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { stcd: objID };
+                        GetJosns("SWZZ_MODE_ES_ZHANDIANXS/remove", strWhere, "Del");
+                    }
+                    else {
+                        //alert("不删除!");
+                    }
+                }
+            );
+        }
+        function trans() {
+            lookData('action@look', '/DD_MX/ShuiWei_ViewChart.html?DD_TM=' + dd_tm + "&ETIME=" + etime, '高桥风暴潮', '45%', '50%', 'true');
+        }
+		function transPic(){
+			lookData('action@look', '/DD_MX/ShuiWei_Pic.html?DD_TM=' + dd_tm + "&ETIME=" + etime, '高桥风暴潮图片', '50%', '55%', 'true');
+		}
+
+        //关闭窗体
+        function CloseWindow(action) {
+            if (action == "close" && tree.isChanged()) {
+                if (confirm("数据被修改了，是否先保存？")) {
+                    return false;
+                }
+            }
+            if (window.CloseOwnerWindow) return window.CloseOwnerWindow(action);
+            else window.close();
+        }
+
+        function onFilterChanged(e) {
+            var xsbox = mini.get("XSFilter");
+            var value = xsbox.getValue();
+            if (value == "") {
+                return;
+            }
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            var data = grid.getData();
+            var json = mini.encode(data);
+            //grid.loading("保存中，请稍后......");
+            var obj = eval('(' + json + ')');
+            if (obj.length > 0) {
+                var dataNEW = [];
+                var mkeyids = "";
+                for (i = 0; i < obj.length; i++) {
+                    var _MKEYID = obj[i].mkeyid;
+                    var _XS = value;
+                    var item = { mkeyid: _MKEYID, xs: _XS };
+                    dataNEW.push(item);
+                }
+                app.post("SWZZ_MODE_ES_ZHANDIANXS/batchResult/true", dataNEW, function(res){
+                    JosnSel(res,"ADDPL");
+                });
+            }
+            
+        }
+    </script>
+</body>
+</html>

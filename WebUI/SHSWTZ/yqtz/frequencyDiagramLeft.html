@@ -1,0 +1,263 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <link href="/arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <link href="/arcgis_js_api/myJs/style/map.css?ver=0" rel="stylesheet" type="text/css" />
+    <script src="/arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="/arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+
+    <script src="/arcgis_js_api/myJs/bj.js?ver=1" type="text/javascript"></script>
+    <script src="/arcgis_js_api/myJs/mapIndex.js?ver=1.0.7" type="text/javascript"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 15px;
+        }
+
+        .colorL p {
+            width: 55px;
+            margin: 0px auto;
+            margin-top: -4px;
+        }
+
+        .colorSpan {
+            display: inline-block;
+            width: 15px;
+            height: 25px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+        position: absolute">
+    </div>
+    <div id="SSTTL_TZ" style="background:#ffffff;position:absolute;left:10px;top:10px;height:185px;
+    border: 1px solid #cecbcb;
+    width: 55px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;padding: 0px 5px;display:none;">
+        <div class="colorL">
+            <p><span class="colorSpan" style="background-color:#FCCD03"></span><span class="colorSpanValue">255</span></p>
+            <p><span class="colorSpan" style="background-color:#E9D620"></span><span class="colorSpanValue">245</span></p>
+            <p><span class="colorSpan" style="background-color:#D4E03E"></span><span class="colorSpanValue">235</span></p>
+            <p><span class="colorSpan" style="background-color:#C1EB5D"></span><span class="colorSpanValue">225</span></p>
+            <p><span class="colorSpan" style="background-color:#ACF57A"></span><span class="colorSpanValue">215</span></p>
+            <p><span class="colorSpan" style="background-color:#99FF99"></span><span class="colorSpanValue">205</span></p>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var labels = new Array();
+        var layer_hw;
+        var countyLayer1;
+        var _globallevel = 5;
+        var labels = new Array();
+        $(function () {
+            setTimeout(function () {
+                map.setZoom(8);
+                countyLayer1 = CreateLayer("Area_Layer1");
+                countyLayer1.on("click", function (e) {
+                    var graphic = e.graphic;
+                    var attributes = graphic.attributes;
+                    var title = attributes.NAME;
+                    trans(title);
+                });
+                BreakLayerLoad();
+            }, 1000);
+        });
+        function BreakLayerLoad() {
+            var _year = new Date().format("yyyy");
+            var STIME = "1978-01-01 00:00:00";
+            var ETIME = _year + "-12-31 23:59:59";
+            var strWhere = { "STIME": STIME, ETIME: ETIME };
+            GetJosns("FREQUENCYDIAGRAM_TOTAL", strWhere, "Sel");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.total > 0) {
+                    resultData = data.data.filter(function (item) {
+                        return item.TYPE == "行政分区";
+                    });
+                    $.data(myData, "resultData", resultData);
+                    MapRainfallArea();
+                } else {
+                    resultData = [];
+                }
+            }
+        }
+        function MapRainfallArea() {
+            var result = $.data(myData, "resultData");
+            var VALUE_OBJ=addTuli();
+            countyLayer1.clear();
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "myJs/MapText",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/Color",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/symbols/Font",
+                "dojo/_base/lang",
+                "esri/geometry/Polygon",
+                "dojo/domReady!"
+            ], function (Point, Graphic, MapText, PictureMarkerSymbol, SimpleFillSymbol, SimpleLineSymbol, Color,
+                InfoTemplate, InfoWindow, GraphicsLayer, webMercatorUtils, TextSymbol, Font, lang, Polygon) {
+                $.get(
+                    "/Common/上海市行政分区.json",//json路径
+                    lang.hitch(this, function (data, status) {
+                        if (status === "success") {
+                            var features = data.features;
+                            features.forEach(function (feature) {
+                                var allrings = feature.geometry.coordinates;
+                                var polygon = new Polygon(allrings);
+                                var gra = feature.properties;
+                                var mc = gra.NAME;
+                                var stcd = gra.STCD;
+                                var arr = result.filter(function (item) {
+                                    return item.STNM == mc;
+                                });
+                                if (arr.length > 0) {
+                                    var BYNUMBER=arr[0].BYNUMBER;
+                                    var center = [];
+                                    center = [arr[0].LGTD, arr[0].LTTD];
+                                    var cls = "";
+                                    var textStr = "";//arr[0].NAME + ":" +
+                                    textStr = arr[0].STNM + '\n' + BYNUMBER;
+                                    var point = new Point({
+                                        "x": center[0],
+                                        "y": center[1],
+                                        "spatialReference": {
+                                            "wkid": 4326
+                                        }
+                                    });
+                                    //cls += " slText ";
+                                    var _align = "bottom";
+                                    if (textStr == "") {
+                                        textStr = "—";
+                                    }
+                                    var label = new MapText(map, point, arr[0], textStr, _globallevel, _align, cls, 13);
+                                    labels.push(label);
+                                    var colorStr = getAreaColor(BYNUMBER, "", VALUE_OBJ);
+                                    if (colorStr != null && colorStr != "" && colorStr != undefined) {
+                                        var fillColorStr = getAreaColor(BYNUMBER, "fill", VALUE_OBJ);
+                                        var fs = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+                                            new SimpleLineSymbol(SimpleLineSymbol.STYLE_DASHDOT,
+                                                new Color(colorStr), 2), new Color(fillColorStr)
+                                        );
+                                        var lineSymbol = new SimpleFillSymbol("solid", new SimpleLineSymbol("solid",
+                                            new dojo.Color(colorStr), 1),
+                                            new dojo.Color(fillColorStr));
+                                        var g3 = new Graphic(polygon, lineSymbol);
+                                        g3.attributes = arr[0];
+                                        countyLayer1.add(g3);
+                                    }
+                                }
+
+                            }, this);
+                        }
+                    }),
+                    "json"
+                );
+            });
+        }
+        function getAreaColor(zValue, type, VALUE_OBJ) {
+            var color = [255, 255, 255, 0.8];
+            var colorTM = [255, 255, 255, 0];
+            var colors = ["#99FF99", "#ACF57A", "#C1EB5D", "#D4E03E", "#E9D620", "#FCCD03"];
+            var colorsTM = [
+                [153, 255, 153, 0.45],
+                [172, 245, 122, 0.45],
+                [193, 235, 93, 0.45],
+                [212, 224, 62, 0.45],
+                [233, 214, 32, 0.45],
+                [252, 205, 3, 0.45]
+            ];
+            var valueArr = VALUE_OBJ.split("#");
+            for (var num = 0; num < valueArr.length; num++) {
+                var item = valueArr[num].split(',');
+                if (zValue >= Number(item[0]) && zValue < Number(item[1])) {
+                    color = colors[num];
+                    colorTM = colorsTM[num];
+                }
+            }
+            if (type == "fill") {
+                return colorTM;
+            } else {
+                return color;
+            }
+        }
+
+        function addTuli() {
+            var result = $.data(myData, "resultData");
+            var maxNum = 0, minNum = 1000000000;
+            for (var num = 0; num < result.length; num++) {
+                var NUM = Number(result[num].BYNUMBER);
+                if (NUM > maxNum) {
+                    maxNum = NUM;
+                }
+                if (NUM < minNum) {
+                    minNum = NUM;
+                }
+            }
+            maxNum = maxNum + 10;
+            if (minNum > 10) {
+                minNum = minNum - 10;
+            } else {
+                minNum = 1;
+            }
+            var numCha = maxNum - minNum;
+            var interNum = Math.floor(numCha / 6);
+            var COLOR_OBJ = "#99FF99,#ACF57A,#C1EB5D,#D4E03E,#E9D620,#FCCD03";
+            var COLOR_ARR = COLOR_OBJ.split(',');
+            var tuliHtml = "";
+            for (var num = 5; num >= 0; num--) {
+                var min = (minNum + interNum * (num));
+                var max = (minNum + (num + 1) * interNum);
+                tuliHtml += '<p><span class="colorSpan" style="background-color:' + COLOR_ARR[num] + '"></span><span class="colorSpanValue">' + min + '</span></p>';
+            }
+            var VALUE_OBJ = "";
+            for (var num = 0; num < 6; num++) {
+                var min = (minNum + interNum * (num));
+                var max = (minNum + (num + 1) * interNum);
+                VALUE_OBJ += min + "," + max + "#";
+            }
+            if (VALUE_OBJ != "") {
+                VALUE_OBJ = VALUE_OBJ.substring(0, VALUE_OBJ.length - 1);
+            }
+            $("#SSTTL_TZ .colorL").html(tuliHtml);
+            $("#SSTTL_TZ").show();
+            return VALUE_OBJ;
+        }
+    </script>
+</body>
+</html>

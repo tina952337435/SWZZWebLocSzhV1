@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>备品备件管理</title>
+    <link href="../Common/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<!-- <link href="/arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" /> -->
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 98%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+       
+    </style>
+</head>
+<body class="contentbody">
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+                <div class="myrow">
+			<!-- &nbsp;&nbsp&nbsp;工程名称&nbsp;&nbsp;&nbsp; -->
+			<input id="GCList" name="GCList" class="mini-combobox" textField="stnm" valueField="stcd"
+				   onvaluechanged="search()" emptyText="全部" showNullItem="true" nullItemText="全部"
+				   style="width:200px; margin-left: 2px;display:none;" />
+			&nbsp;&nbsp; &nbsp;开始日期&nbsp;&nbsp;&nbsp;
+			<input id="STIME" class="mini-datepicker" style="width:120px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" ondrawdate="onMinDrawDate" />&nbsp;&nbsp;
+			&nbsp;&nbsp;&nbsp;结束日期&nbsp;&nbsp;&nbsp;
+			<input id="ETIME" class="mini-datepicker" style="width:120px;" format="yyyy-MM-dd" showtime="false" showOkButton="false" showClearButton="false" ondrawdate="onMaxDrawDate" />
+			&nbsp;&nbsp;&nbsp;关键字
+            &nbsp;&nbsp;&nbsp;<input id="key" class="mini-textbox" emptytext="请输入关键字" style="height: 30px;width: 150px;" />
+            
+			&nbsp;&nbsp;&nbsp;<button type="button" class="btn btn-primary" onclick="search()">查询</button>
+            &nbsp;&nbsp;<button type="button" id="btnSava" class="btn btn-warning" onclick="addNew()">新增</button>
+
+        </div>
+    </div>
+    </div>
+	
+	<div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 40px);height: -moz-calc(100% - 40px);height: calc(100% - 40px);margin-top:1px;" allowalternating="true"
+		 borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[10,20,30,40]" pagesize="10" 
+		 ondrawcell="ondrawcell" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showReloadButton="false" >
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+			<!-- <div field="proname" width="40" headeralign="center" align="center" allowsort="false">
+			    工程名称
+			</div> -->
+            <div field="proname" width="60" align="center" headerAlign="center" allowSort="false">测站名称</div>
+            <div field="spaname" width="60" align="center" headerAlign="center" allowSort="false">设备名称</div>
+            <div field="spadanwei" width="40" align="center" headerAlign="center" allowSort="true">使用寿命(月)</div> 
+            <div field="spatime" width="60" align="center" headerAlign="center" allowSort="true">购置时间</div>
+            <div field="spaowen" width="60" align="center" headerAlign="center" allowSort="true">负责人</div>
+            <div field="spaejctm" width="60" align="center" headerAlign="center" allowSort="true">起始时间</div>
+            <div field="spaetm" width="60" align="center" headerAlign="center" allowSort="true">到期时间</div>
+            <div field="spadescribe" width="100" align="center" headerAlign="center" allowSort="true">设备描述</div>
+            <div field="spanote" width="120" align="center" headerAlign="center" allowSort="true">备注</div>
+            <div field="action" name="action" width="70" align="center" headerAlign="center" allowSort="true">基本操作</div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var grid = mini.get("grid1");
+        var gcList = mini.get("GCList");
+        var PathName=GetQueryString("PATHNAME");
+        var myData = [];
+        $(function () {
+            if(GroupArray.contains(GetCookie("GROUPID"))){
+                $("#btnSava").show();
+                grid.showColumn("action");
+            }else{
+                $("#btnSava").hide();
+                grid.hideColumn("action");
+            }
+
+            var tm = new Date();
+            mini.get("STIME").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
+            mini.get("ETIME").setValue(tm.format("yyyy-MM-dd")); 
+            app.get("/stStbprpB/selectList", {}, function (res) {
+						JosnSel(res, "DATA_ITEM_STCDSel");
+					})
+        });
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            setTimeout(function () {
+                var strWhere={};
+                strWhere["STIME"] = mini.get("STIME").getFormValue()+" 00:00:00";
+            strWhere["ETIME"] = mini.get("ETIME").getFormValue()+" 23:59:59";
+            strWhere["key"] = mini.get("key").getValue();
+            // strWhere["PROID"] = mini.get("GCList").getValue();
+                app.get("/spareparts/selectList", strWhere, function (res) {
+				JosnSel(res, "Sel");
+			})
+            }, 100);
+        } 
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                fillData(0, grid.pageSize, data, grid);
+                // PageServerFill(grid, data);
+            } else if (typeID == "Del") {
+                showTips(data.message);
+                if (data.total > 0) {
+                    search();
+                }
+            }else if (typeID == "DATA_ITEM_STCDSel") {
+                gcList.setData(data.data);
+                gcList.select(0);
+                search();
+            }
+            else if (typeID == "DATA_PRO_MANAGEMENTSel") {
+                var currentMENTID = "";
+                var liHtml = "";
+                var _liIndex = 0;
+                for (var num = 0; num < data.data.length; num++) {
+                    var cls = '';
+                    if (_liIndex == 0) {
+                        cls = 'selected';
+                        currentMENTID = data.data[num].ID;
+                    }
+                    liHtml += '<li id="' + data.data[num].ID + '" title="' + data.data[num].MANAGE_UNIT_NAME + '"  class="' + cls + '">';
+                    liHtml += '<span >' + data.data[num].MANAGE_UNIT_NAME + '</span>';
+                    liHtml += '</li>';
+                    _liIndex++;
+                }
+                $("#choseMNLX").html(liHtml);
+                $('#choseMNLX li').click(function () {
+                    var f = this;
+                    $('#choseMNLX li').each(function () {
+                        this.className = this == f ? 'selected' : '';
+                    });
+                    $.data(myData, "MENTID", this.id);
+                    queryItems();
+                });
+
+                if (currentMENTID.length > 0) {
+                    $.data(myData, "MENTID", currentMENTID);
+                    queryItems();
+                }
+            }
+                mini.unmask(document.body);
+
+        }
+
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            if (field == "action") {
+				var s=''; 
+                s = '<img style="cursor:pointer;" onclick="lookData(\'ID@' + record.id +
+					'\',\'/tabPatrol/spareparts_View.html\',\'查看设备预警管理\',\'1200\',\'650\',\'true\')" src="../Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+				s += '<img style="cursor:pointer;" onclick="editData(\'ID@' + record.id +
+					'\', \'/tabPatrol/spareparts_Edit.html\', \'编辑设备预警管理\', \'1200\',\'650\', \'true\')" src="../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+				s += '<img style="cursor:pointer;" onclick="del(\'' + record.id +
+					'\')" src="../Common/miniui/themes/icons/remove.png" title="删除设备预警管理" />&nbsp;';
+
+                e.cellHtml = s;
+            }else if (field == "spatime") {
+                var s = formatDate((value)).format("yyyy-MM-dd");
+                e.cellHtml = s;
+            }else if (field == "spaetm") {
+                var s = formatDate((value)).format("yyyy-MM-dd");
+                if(formatDate((value))<new Date()){
+                    e.cellStyle = "background-color:#F88DF2;";
+                }
+                e.cellHtml = s;
+            }else if (field == "spaejctm") {
+                var s = formatDate((value)).format("yyyy-MM-dd"); 
+                e.cellHtml = s;
+            }
+        }
+        function addNew() {
+            addData('', '/tabPatrol/spareparts_Edit.html', '新增设备预警管理',1000, 700, 'true');
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "stcd": objID }; 
+                        app.get("/spareparts/deleteOne?", strWhere, function (res) {
+								JosnSel(res, "Del");
+							})
+                    }
+                }
+            );
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/boot.js"></script>
+</head>
+
+<body>
+    <div id="mainTabs" class="mini-tabs" activeIndex="0" style="width:100%;height:550px;">
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var tabs = mini.get("mainTabs");
+        var myData = [];
+        var stcd = GetQueryString("STCD");
+        $(function () {
+
+            app.get("/itemZhuanti/findNewList", {
+                "stcd": stcd
+            }, function (res) {
+                JosnSel(res, "Sel");
+            })
+        })
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.data != null) {
+                    if (data.data.length > 0) {
+                        for (num = 0; num < data.data.length; num++) {
+                            var item = data.data[num]; 
+                            var tab1 = {
+                                title: "",
+                                url: "",
+                                showCloseButton: false
+                            };
+                            if (item["pathname"] == "SW") {
+                                tab1["title"] = "水文站现场维护记录表";
+                                var HeadTitle = "水文站现场维护记录表";
+                                var url = '/tabPatrol/PatrolSW_View.html?ID=' + item.id + '&HEADTITLE=' + HeadTitle;
+                                tab1["url"] = url;
+                            } else if (item["pathname"]  == "YJZ") {
+                                var HeadTitle = "预警站现场维护记录表";
+                                tab1["title"] = HeadTitle;
+                                url = '/tabPatrol/Patrol_View.html?ID=' + item.id + '&HEADTITLE=' + HeadTitle;
+                                tab1["url"] = url;
+
+                            } else {
+                                tab1["title"] = "站声学多普勒流速流量测验";
+                                url = '/tabPatrol/PatrolLSLL_View.html?ID=' + item.id + '&HEADTITLE=' + HeadTitle;
+                                tab1["url"] = url;
+                            }
+                            tabs.addTab(tab1);
+                            if (num == 0) {
+                                tabs.activeTab(tab1);
+                            }
+                        }
+                        var tab2 = {
+                            title: "基础信息",
+                            url:'/management/ST_STBPRP_B_View.html?STCD=' + stcd,
+                            showCloseButton: false
+                        };
+                        tabs.addTab(tab2); 
+                    } else {
+                        var tab1 = {
+                            title: "基础信息",
+                            url:'/management/ST_STBPRP_B_View.html?STCD=' + stcd,
+                            showCloseButton: false
+                        };
+                        tabs.addTab(tab1);
+                        tabs.activeTab(tab1);
+                    }
+
+                } else {
+                    var tab1 = {
+                        title: "巡查任务",
+                        url: "/developEmp.html",
+                        showCloseButton: false
+                    };
+                    tabs.addTab(tab1);
+                    tabs.activeTab(tab1);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

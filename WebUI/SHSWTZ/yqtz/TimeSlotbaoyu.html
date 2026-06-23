@@ -1,0 +1,284 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多年暴雨级别对比分析</title>
+    <script src="/Common/boot.js?ver=1.0.1" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+        }
+        .mini-panel-border, .mini-grid-border {
+            border: 0px !important;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:260px;float:left;height:100%; margin-right: 5px;background: white;padding: 10px 10px;">
+        <ul id="tree1" class="mini-tree" style="width:100%;height:100%;padding:5px;"
+            showTreeIcon="true" textField="NAME"
+            idField="ID" expandOnNodeClick="true" onnodeselect="onSelectNode" expandOnLoad="1"></ul>
+    </div>
+    <div style="width:calc(100% - 265px);float:right;height:100%;background: white;">
+        <div class="mini-toolbar">
+            &nbsp;&nbsp;开始时间：<input id="STIME" class="mini-datepicker" style="width: 110px;" format="yyyy-MM-dd"
+                                    showtime="false" showOkButton="false" showClearButton="false" ondrawdate="onDrawDateStart" onvaluechanged="onSTCDChanged" />
+            &nbsp; &nbsp;结束时间：
+            <input id="ETIME" class="mini-datepicker" style="width: 110px;" format="yyyy-MM-dd"
+                   showtime="false" showOkButton="false" showClearButton="false" ondrawdate="onDrawDateEnd" onvaluechanged="onSTCDChanged" />
+            &nbsp;&nbsp;<a class="mini-button" onclick="Exp()">导出报表</a>
+            <div style="float:right;color:red;margin-right:10px;">
+                <ul style="list-style:none;color:gray;">
+                    <li style="height:30px;"> 注：暴雨、大暴雨和特大暴雨相互不包含</li>
+                </ul>
+            </div>
+        </div>
+        <div id="BY_charts" style="height:450px;width:100%;margin:0px 0%;background:white;"></div>
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height:500px;" allowalternating="true"
+             borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15"
+             showpager="true" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+            <div property="columns">
+                <!-- allowsort="true" 表格中列名数据排序 注在上面的div中要添加sortmode="client" -->
+                <div type="indexcolumn" headeralign="center" align="center" width="50">序号</div>
+                <!-- dataType="float":表示小数点  decimalPlaces="1"：小数点的位数 -->
+                <div width="20%" field="GRADE" headeralign="center" align="center" allowsort="true" decimalPlaces="0"
+                     dataType="float">
+                    暴雨级别
+                </div>
+                <div width="20%" field="NUMBER" headeralign="center" align="center" allowsort="true" decimalPlaces="0"
+                     dataType="float">
+                    频次
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var tree = mini.get("tree1");
+        var grid = mini.get("grid1");
+        $(function () {
+            var tm = new Date();
+            mini.get("STIME").setValue("1978-01-01");
+            mini.get("ETIME").setValue(tm.format("yyyy/MM/dd"));
+            searchStation();
+        });
+        function searchStation() {
+            var strWhere = { STTP: "PP", TYPE: "雨量" };
+            GetJosns("REPRESENTATIVESTATIONS", strWhere, "Sel");
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            var column = e.column;
+            if (field == "NUMBER") {
+                var node = tree.getSelectedNode();
+                var STCD = node.ID;
+                var STIME = mini.get("STIME").getFormValue();
+                var ETIME = mini.get("ETIME").getFormValue();
+                var stimeStr = new Date(STIME).format("yyyy年M月d日");
+                var etimeStr = new Date(STIME).format("yyyy年M月d日");
+                var NAME = node.NAME;
+                var TYPE = record.GRADE;
+                var strTitle = NAME + stimeStr + "至" + etimeStr + TYPE;
+                var str = "<a onclick='lookData(\"STCD@" + STCD + ",STIME@" + STIME + ",ETIME@" + ETIME + ",TYPE@" + TYPE + "\",\"/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html\",\"" + strTitle + "\",\"50%\",565,\"true\")' style='cursor:pointer;'>" + value + "</a>";
+                e.cellHtml = str;
+            }
+        }
+        function loadTree(data) {
+            var dataResult = [];
+            dataResult.push({ ID: "310000", NAME: "全市", PID: "-1" });
+            var dataTempC = groupBy(data, "COUNTIES");
+            dataResult.push({ ID: "1", NAME: "行政分区", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "1" });
+            });
+            var dataTempW = groupBy(data, "WATERAREA");
+            dataResult.push({ ID: "2", NAME: "水利片区", PID: "-1" });
+            dataTempW.forEach(function (item) {
+                dataResult.push({ ID: item[0].WATERAREAID, NAME: item[0].WATERAREA, PID: "2" });
+            });
+            dataResult.push({ ID: "3", NAME: "32个代表站", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                for (var num = 0; num < item.length; num++) {
+                    dataResult.push({ ID: item[num].STCD, NAME: item[num].STNM, PID: "3" });
+                }
+            });
+            tree.loadList(dataResult, "ID", "PID");
+            tree.select(0);
+        }
+        function search() {
+            var node = tree.getSelectedNode();
+            var strWhere = { STCD: node.ID, STIME: mini.get("STIME").getFormValue(), ETIME: mini.get("ETIME").getFormValue()  };
+            GetJosns("duonianbaoyuGradeNum", strWhere, "SelNum");
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                loadTree(data.data);
+                //search();
+            }
+            else if (typeID == "SelNum") {
+                var dataResult = mini.decode(data.data);
+                var totalPin = SumJson(dataResult, "NUMBER");
+                //dataResult.push({ GRADE:"合计", NUMBER: totalPin });
+                grid.setData(dataResult);
+                loadChart(dataResult);
+            }
+        }
+        function onSelectNode(e) {
+            search();
+        };
+        function onSTCDChanged(e) {
+            search();
+        }
+        function onDrawDateStart(e) {
+            var tm = new Date('1978-01-01 00:00:00');
+            var date = e.date;
+            var d = new Date(mini.get("ETIME").getFormValue());
+
+            if (date.getTime() < tm || date.getTime() > d) {
+                e.allowSelect = false;
+            }
+        }
+        function onDrawDateEnd(e) {
+            var tm = new Date('1978-01-01 00:00:00');
+            var date = e.date;
+            var d = new Date(mini.get("STIME").getFormValue());
+
+            if (date.getTime() < tm || date.getTime() <d) {
+                e.allowSelect = false;
+            }
+        }
+        function loadChart(data) {
+            var dataResult = [];
+            for (var num = 0; num < data.length; num++) {
+                dataResult.push(data[num].NUMBER);
+            }
+            Chart('BY_charts', dataResult);
+        }
+        function Chart(chartName,data) {
+            var node = tree.getSelectedNode();
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.off('click');
+            myChart.clear();
+            option = {
+                title: {
+                    left: 'center',
+                    text: node.NAME + new Date(mini.get("STIME").getFormValue()).format("yyyy年M月d日") + "至" + new Date(mini.get("ETIME").getFormValue()).format("yyyy年M月d日") + "暴雨频次统计",
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    //axisPointer: {
+                    //    type: 'shadow'
+                    //}
+                },
+                // 更改图例默认颜色(依次应用)
+                // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+                color: ['#5470C6', '#91CC75', '#FAC858', '#EE6666'],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    orient: 'vertical',
+                    x: 'right',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    padding: [10, 50, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    show: false,
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: ['特大暴雨', '大暴雨', '暴雨']
+                },
+                yAxis: {
+                    name: "暴雨频次",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 10;
+                    }
+                },
+                series: [
+                    {
+                        name: '暴雨频次',
+                        type: 'bar',
+                        barGap: '0%',
+                        barWidth: 30,
+                        data: data,
+                        itemStyle: {
+                            normal: {
+                                label: {
+                                    show: true,  //开启显示
+                                    formatter: '{c}',  //显示数值
+                                    position: 'top',
+                                    textStyle: { //数值样式
+                                        fontSize: 10
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var year = param.name;
+                loadChangci(year);
+            }
+        }
+        //柱子的点击事件
+        function loadChangci(year) {
+            var node = tree.getSelectedNode();
+            var strTitle = node.NAME;
+            var STCD = node.ID;
+            var strParam = "STCD@" + STCD;
+            var rainLevel = "";
+            if (isNaN(year)) {
+                strTitle += "1978年至2020年" + year + "频次";
+                rainLevel = year;
+                strParam += ",TYPE@" + rainLevel;
+            } else {
+                strTitle += year + "年暴雨频次";
+                var stime = year + "-01-01 00:00:00";
+                var etime = year + "-12-31 23:59:59";
+                strParam += ",STIME@" + stime + ",ETIME@" + etime
+            }
+            var url = "/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html";
+            lookData(strParam, url, strTitle, "50%", 565, "true");
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var node = tree.getSelectedNode();
+            var name = node.NAME + "时段暴雨级别统计";
+            ExportExcel(name, columns, data);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,609 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/CopyExcel.js"></script>
+    
+    <!-- 新版模型接口调用js文件 -->
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.1"></script>
+    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
+    
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <title></title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+			background:#fff;
+        }
+        #onlytab {
+            width: 240px !important;
+            height: 40px;
+            margin: auto;
+        }
+        .mini-grid-summaryCell {
+            line-height: 35px;
+            text-align: center;
+            color: blue;
+            font-size: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div style="width: 100%;">
+        <div style="width: 100%;height:80px;margin: 0px auto;text-align: center;">
+            <div class="pointsRule">
+                <ul id="list">
+                    <li style="z-index:5;" id="one" onclick="ClickFirst()"><a><span>1.依据时间设定</span><i></i></a></li>
+                    <li style="z-index:4" id="two" onclick="ClickSecond()"><a><em class="before"></em><span>2.预报降雨输入</span><i></i></a></li>
+                    <li style="z-index:3" id="three" onclick="ClickThird()"><a><em class="before"></em><span>3.边界条件输入</span><i></i></a></li>
+                    <li style="z-index:2" id="four" onclick="ClickFourth()"><a><em class="before"></em><span>4.工程调度</span><i></i></a></li>
+                    <li style="z-index:1" id="five" onclick="ClickFifth()"><a><em class="before"></em><span>5.预测结果</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div style="height:calc(100% - 160px);width:96%;margin:0px auto;">
+        <div class="mini-fit">
+            <div class="mini-toolbar">
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-left: 50px;width:300px;">
+                    <tr>
+                        <td id="gcUL"></td>
+                        <td>
+                            (单位：m)
+                        </td>
+                    </tr>
+                </table>
+                <div style="position: absolute; right: 10px;margin-top: -30px;">
+                    <!--<a class="mini-button">台风风暴潮</a>
+    <a class="mini-button">温带风暴潮</a>-->
+
+                    <div id="RbRain" name="RbRain" style="float:left;" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical"
+                         textField="text" valueField="id" value="Astronomicaltide" data="[
+                         { id: 'Astronomicaltide',  text: '天文潮' },
+                         { id: 'modeTide',  text: '模型预报潮位' },
+                         { id: 'typhoon',  text: '叠加台风风暴潮' },
+                         { id: 'temperatezone', text: '叠加温带风暴潮' },
+                         { id: 'OceanForecastTideNorth', text: '叠加浦东北部近岸海域海潮' },
+                         { id: 'OceanForecastTideSouth', text: '叠加浦东南部近岸海域海潮' },
+                         { id: 'zengshuixianxing', text: '增水线型插值' },
+                         { id: 'zengshuixiangsitf', text: '相似台风' },
+                         ]">
+                    </div>
+
+                    <a onclick="lookDataXS()" style="color: #908e8e;text-decoration:none;margin-right:20px;cursor:pointer;">
+                        <i class="fa fa-exclamation-circle" aria-hidden="true" style="font-size: 20px;cursor:pointer;" title="风暴潮位系数"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="gridSW" class="mini-datagrid" style="width: 100%; height:calc(100% - 100px);" ondrawcell="ondrawcell"
+                 allowalternating="true" allowcellselect="true" allowcelledit="true" showpager="false"
+                 showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" showFilterRow="true"
+                 showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell" cellEditAction="celldblclick">
+            </div>
+        </div>
+
+        <ul id="headerMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen1" onitemclick="onItemClick">
+            <li name="jiangyu">批量处理</li>
+        </ul>
+    </div>
+    <div style="height:50px;line-height:50px;">
+        <div style="text-align: center; ">
+            <a class="mini-button" onclick="up_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">上一步</a>
+            <a class="mini-button" onclick="next_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">下一步</a>
+        </div>
+    </div>
+
+    <style type="text/css">
+        .mini-tab-active {
+            background: #3291f9;
+            border-color: #3291f9;
+            color: #fff;
+        }
+    </style>
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("gridSW");
+        var localDD_ID = "";
+        $(function () {
+            localDD_ID = $.data(myData, "DD_ID");
+            if (localDD_ID == null || localDD_ID == "" || localDD_ID == undefined) {
+                localDD_ID = "0";
+            }
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            OnLoad();
+            GridColum();
+
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "pid": "c5abfaa42d5e43d6" },function(res){
+                JosnSel(res,"MODE_ES_SLTONGJISel");
+            });
+        });
+        function search() {
+            GridColum();
+        }
+        function GridColum() {
+            ModeZhanGridColumSW("1,2,4");
+        }
+        function onLoadData() {
+            var s_where = {
+                "datatype": "1,2,4",
+                "solutionid": localDD_ID,
+                dayhour: "hour",
+            }
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", s_where, function(res){
+                JosnSel(res,"Sel");
+            });
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "gridJYData", dataResult);
+                gc_choose(str_choose);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "GridColum") {
+                var dataResult = mini.decode(data.data);
+                $.data(myData, "gridJYColumns", dataResult);
+                onLoadData();
+            }
+            else if (typeID == "UpdataMethod") {
+                ShowMsg(data.message);
+            }
+            else if (typeID == "update_batch") {
+                ShowMsg(data.message);
+                onLoadData();
+            }
+            else if (typeID == "MODE_ES_SLTONGJISel") {
+                var strJson = data.data;
+                var arr = strJson;
+                var strParaMsg = "";
+                var strParaNum = "";
+                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">站点类型：</span><ul class="onlytab" id="onlytab">';
+
+                for (var num = 0; num < arr.length; num++) {
+                    var tempParaID = arr[num].id;
+                    var cls = "onlyli";
+                    if (num == 0) {
+                        str_choose = arr[num].stcd;
+                        str_type = arr[num].title;
+                        cls = "onlyli start onlyliHover";
+                    }
+                    if (num == arr.length - 1) {
+                        cls = "onlyli end";
+                    }
+                    var title = arr[num].title;
+                    html += '<li id="' + tempParaID + '" name="' + arr[num].stcd + '" class="' + cls + '" onclick="OnClickTitle(this.id,this.id,\'' + arr[num].id + '\',\'' + title + '\')">' + title + '</li>';
+
+                }
+                html += '</ul>';
+                $("#gcUL").html(html + strParaMsg);
+            }
+            else if (typeID == "chooseTideMethod") {
+                var total = data.total;
+                if (total > 0) {
+                    ShowMsg(data.message);
+					mini.unmask(document.body);
+                    onLoadData();
+                } else {
+                    var msg = rbl.getText().replace("叠加", "");
+                    msg = "无" + msg + "预报";
+                    ShowMsg(msg);
+                    mini.unmask(document.body);
+                }
+            }
+            else if (typeID == "saveExcelData") {
+                ShowMsg(data.Message);
+                mini.unmask(document.body);
+                var url = "GongCheng.html";
+                Next_Click(url);
+            }
+        }
+        var str_choose = "";
+        var str_stcds = "";
+        var str_type = "";
+        function OnClickTitle(SpanID, objID, objFax, objHNNM) {
+            var rbList = [
+                { id: 'Astronomicaltide', text: '天文潮' },
+                { id: 'modeTide', text: '模型预报潮位' },
+                { id: 'typhoon', text: '叠加台风风暴潮' },
+                { id: 'temperatezone', text: '叠加温带风暴潮' },
+                { id: 'OceanForecastTideNorth', text: '叠加浦东北部近岸海域海潮' },
+                { id: 'OceanForecastTideSouth', text: '叠加浦东南部近岸海域海潮' },
+                { id: 'zengshuixianxing', text: '增水线型插值' },
+                { id: 'zengshuixiangsitf', text: '相似台风' },
+            ];
+            
+            if (objHNNM == "江浙边界") {
+                rbList = [
+                    { id: 'bjshuiweixianxing', text: '水位线型插值' },
+                    { id: 'modetongjixiangguan', text: '统计相关模型' },
+                ]
+            }
+            mini.get("RbRain").setData(rbList);
+
+            str_type = objHNNM;
+            var only = $(".onlyli").removeClass("onlyliHover");
+            $("#" + objID).addClass("onlyliHover");
+            $("#gcUL li span").css({ "backgroundColor": "#FFFFFF", "color": "#0079F5" });
+            if (SpanID != objID) {
+                $("#" + SpanID).css({ "backgroundColor": "#3291F9", "color": "#FFFFFF" });
+            }
+            str_stcds = $("#" + SpanID).attr("name");
+            gc_choose(str_stcds);
+        }
+        function gc_choose(str_stcds) {
+            str_choose = str_stcds;
+            //获取表格表头
+            var dataResult = $.data(myData, "gridJYData");
+            var dataResultColumns = $.data(myData, "gridJYColumns").columns;
+            var Columns = dataResultColumns.filter(function (item) {
+                return str_choose.lastIndexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
+            });
+            var bjswStcd = "1728053248,1728053250,1728053251,1728053252";
+            for (var num = 0; num < Columns.length; num++) {
+                if ((Columns[num].field != "TM" && bjswStcd.indexOf(Columns[num].field) == -1)) {
+                    if (str.indexOf(Columns[num].field) == -1) {
+                        var html = '<span class="icon-tip" style="width:20px;height: 15px;display:inline-block;cursor:pointer;" title="查看预报潮位" id="ZD' + Columns[num].field + '" onclick="ontransFangAn(\'' + Columns[num].field + '\',\'' + Columns[num].header + '\')"></span>';
+                        Columns[num].header = Columns[num].header + html;
+                    }
+                    str += Columns[num].field + ",";
+                }
+            }
+            var hoverHtml = $(".onlyliHover").html();
+            if (hoverHtml != "江浙边界") {
+                var item = {
+                    field: "action", header: "统一操作", headerAlign: "center", align: "center",
+                    filter: {
+                        "type": "textbox", "onValueChanged": "onFilterChangedQuan", "emptyText": "批量输入增水值"
+                    },
+                    //editor: { "type":"textbox","name":"","onValueChanged":"onValueChanged"}
+                };
+                Columns.push(item);
+            }
+            dataResultColumns.columns = Columns;
+            grid.set(dataResultColumns);
+            grid.setData(dataResult);
+            new CopyExcel(grid);        //Excel互操作插件
+            mini.unmask(document.body);
+        }
+        //鼠标移动上去的提示信息。
+        var str = "";
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+
+            //超链接任务
+            //if (field != "TM") {
+            //    var html = '<span class="icon-tip" style="width: 20px;height: 15px;display:inline-block;cursor:pointer;" title="查看预报潮位" id="ZD' + field + '" onclick="ontransFangAn(\'' + field + '\',\'' + column.header + '\')"></span>';
+            //    if (str.indexOf(field) == -1) {
+            //        column.header = column.header + html;
+            //    }
+            //    str += field + ",";
+            //    var s = "";
+            //    if (value != undefined) {
+            //        s = Number(value).toFixed(2);
+            //    }
+            //    e.cellHtml = s;
+            //}
+
+            if (field == "action") {
+                var s = '<input id="fullValue" name=\'' + e.row.TM + '\' type="input" style="width:80px;height:20px;border:1px solid #8BA0BC;" onblur="onfull(\'' + e.row.TM + '\',this)"/> ';
+                e.cellHtml = s;
+            }
+        }
+        function lookDataXS() {
+            var type = "1";
+            var url = './DD_MX/ShuiWei_View.html?DD_TM=' + $.data(myData, "stime") + "&ETIME=" + $.data(myData, "etime");
+            addData('action@look,TYPE@' + type, url, '风暴潮位系数', '55%', '70%', 'true');
+        }
+        function ontransFangAn(stcd, stnm) {
+            var stime =$.data(myData, "stime");
+            var etime = $.data(myData, "etime");
+            var url = "./DD_MX/ShuiWei_ViewChartZong.html?stnm=" + stnm + "&stcd=" + stcd + "&time=" + stime + "&etime=" + etime+"&SOLUTIONID="+localDD_ID;
+            lookData("action@look", url, stnm, '55%', '70%', 'true');
+        }
+        //峰值
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var field = e.field;
+            var grid = e.sender;
+            var data = grid.getData();
+
+            //服务端汇总计算
+            if (field == "TM") {
+                var s = "<span style='color:Brown;'>";
+                s += "<div class='classColor' style='color:blue;'>峰值：</div>";
+                s += "</span>";
+                e.cellHtml = s;
+
+            }
+            if (field != "TM" && field != "action") {
+                if (data.length > 0) {
+
+                    var s = '';
+                    var MaxZ = 0;
+                    for (var num = 0; num < data.length; num++) {
+                        var ybz = data[num][field];
+                        var tm = data[num]["TM"];
+                        if (ybz > MaxZ) {
+                            s = Number(ybz).toFixed(2) + "<br>" +new Date( tm).format("MM-dd HH:mm");
+                            MaxZ = ybz;
+                        }
+                    }
+                    if (MaxZ == 0) {
+                        s = '-'
+                    }
+                    e.cellHtml = s;
+                }
+            }
+        }
+
+        var rbl = mini.get("RbRain");
+        rbl.on("valuechanged", function (e) {
+            var value = e.value;
+            var stime = $.data(myData, "stime");
+            var etime = $.data(myData, "etime");
+            if (value == "zengshuixianxing") {
+                var url = "./DD_MX/ShuiWeiCW.html?&stime=" + stime + "&etime=" + etime+ "&DD_ID=" + $.data(myData, "DD_ID")+ "&SOLUTIONID=" + $.data(myData, "DD_ID");
+                lookData("action@look", url, "潮位增水线性插值", '750px', '700px', 'true');
+                rbl.setValue("0");
+            }
+            else if (value == "bjshuiweixianxing") {
+                var url = "./DD_MX/ShuiWeiSW.html?&stime=" + stime + "&etime=" + etime+ "&DD_ID=" + $.data(myData, "DD_ID")+ "&SOLUTIONID=" + $.data(myData, "DD_ID");
+                lookData("action@look", url, "江浙边界水位线性插值", '750px', '700px', 'true');
+                rbl.setValue("0");
+            }
+            else if (value == "zengshuixiangsitf") {
+                var url = "./SHSWTZ/zttz/RealTyphoonMode.html?&stime=" + stime + "&etime=" + etime+"&SOLUTIONID="+localDD_ID;
+                lookData("action@look", url, "相似台风增水叠加", '70%', '80%', 'true');
+                rbl.setValue("0");
+            }
+            else if(value=="modetongjixiangguan"){
+                var url = "./DD_MX/StatisticalCorrelationModel.html?&stime=" + stime + "&etime=" + etime+"&SOLUTIONID="+localDD_ID+"&huishuimodehdyroID="+$.data(myData, "huishuimodehdyroID")+"&sbjID="+$.data(myData, "sbjID");
+                lookData("action@look", url, "统计相关模型", '70%', '80%', 'true');
+                rbl.setValue("0");
+            }
+            else {
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '操作中...'
+                });
+                var strWhere = {
+                    type: value,
+                    startdate: stime,
+                    enddate: etime,
+                    solutionid: localDD_ID
+                };
+                app.post("SWZZ_MODE_ES_ZHANDIANDATA/chooseTideMethod",strWhere,function(res){
+                    JosnSel(res,"chooseTideMethod");
+                });
+            }
+        });
+
+        function onfull(tm, obj) {
+            tm = new Date(tm).format("yyyy-MM-dd HH:mm:ss");
+            var value = obj.value;
+            if (value == "") {
+                return;
+            }
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            var columns = $.data(myData, "gridJYColumns").columns;
+            //console.error(columns);
+            var stcds = "";
+            for (var num = 0; num < columns.length; num++) {
+                var field = columns[num].field;
+                if (field == "TM" || field == "action") {
+
+                } else {
+                    stcds += field + ",";
+                }
+            }
+            if (stcds != "") {
+                stcds = stcds.substring(0, stcds.length - 1);
+            }
+            var strXZ = "SW";
+            var s_where = { 
+                "ZhanData": value, 
+                "DayHour": strXZ, 
+                "dd_id": localDD_ID, 
+                "ZhanID": stcds, 
+                "TM": tm 
+            };
+            GetJosns("update_byTM", s_where, "update_batch");
+        }
+
+        //改变全流域降雨
+        function onFilterChangedQuan(e) {
+            var value = e.value;
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            var columns = $.data(myData, "gridJYColumns").columns;
+            var stcds = "";
+            for (var num = 0; num < columns.length; num++) {
+                var field = columns[num].field;
+                if (field == "TM" || field == "action") {
+
+                } else {
+                    stcds += field + ",";
+                }
+            }
+            if (stcds != "") {
+                stcds = stcds.substring(0, stcds.length - 1);
+            }
+            var strXZ = "SW";
+            var s_where = { 
+                "ZhanData": value, 
+                "DayHour": strXZ, 
+                "dd_id": localDD_ID, 
+                "ZhanID": stcds 
+            };
+            GetJosns("FH_update_batchJYQuan", s_where, "update_batch");
+        }
+
+        function methodJY(field, fieldText) {
+            var s_where = "";
+            var DayHour = "SW";
+            var bjswStcd = "1728053248,1728053250,1728053251,1728053252";
+            if (bjswStcd.indexOf(field) > -1) {
+                DayHour = 'HOUR';
+            }
+            var s_where = {
+                "zhanData": fieldText,
+                "zhanID": field,
+                "dayhour": DayHour,
+                "solutionid": localDD_ID
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/FH_modify_batch", s_where, function (res) {
+                JosnSel(res,"update_batch");
+            });
+        }
+        function onFilterChanged(e) {
+            var field = e.sender.getId();
+            var value = e.value;
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            if (value == "") {
+                return;
+            }
+            methodJY(field, value);
+        }
+        function onSaveExcelData(data, dataTM) {
+            //var dataNew = [];
+            //var dataResultColumns = $.data(myData, "gridJYColumns").columns;
+            //for (var num = 0; num < data.length; num++) {
+            //    for (var c = 0; c < dataResultColumns.length; c++) {
+            //        if (dataResultColumns[c].field != "TM") {
+            //            var value = data[num][dataResultColumns[c].field];
+            //            var TM = new Date(dataTM[num].TM).format("yyyy-MM-dd HH:mm:ss");
+            //            if (value != undefined) {
+            //                var item = { ZHANID: dataResultColumns[c], TM: TM, ZHANDATA: value };
+            //                dataNew.push(item);
+            //            }
+            //        }
+            //    }
+            //}
+            var json = mini.encode(dataTM);
+            var s_where = { "json": json };
+            GetJosns("SaveExcelData", s_where, "saveExcelData");
+        }
+        top["win"] = window;
+        function OpenHref() {
+            onLoadData();
+        }
+    </script>
+    <script type="text/javascript">
+        function OnLoad() {
+            var current1 = GetCookie("one");
+            var current2 = GetCookie("two");
+            var current3 = GetCookie("three");
+            var current4 = GetCookie("four");
+            var current5 = GetCookie("five");
+            //console.error(current1 + ":::" + current2 + ":::" + current3 + ":::" + current4);
+
+            if (current1 != null && current1 != "") {
+                $("#one").removeClass("gray");
+                $("#one").addClass("green");
+                $("#one").find('i').eq(0).removeClass("gray");
+                $("#one").find('i').eq(0).addClass("green");
+            } else {
+                $("#one").removeClass("orange");
+                $("#one").addClass("gray");
+                $("#one").find('i').eq(0).removeClass("orange");
+                $("#one").find('i').eq(0).addClass("gray");
+            }
+            if (current2 != null && current2 != "") {
+                $("#two").removeClass("gray");
+                $("#two").addClass("green");
+                $("#two").find('i').eq(0).removeClass("gray");
+                $("#two").find('i').eq(0).addClass("green");
+            } else {
+                $("#two").removeClass("green");
+                $("#two").addClass("gray");
+                $("#two").find('i').eq(0).removeClass("green");
+                $("#two").find('i').eq(0).addClass("gray");
+            }
+
+            if (current3 != null && current3 != "") {
+                $("#three").removeClass("gray");
+                $("#three").addClass("orange");
+                $("#three").find('i').eq(0).removeClass("gray");
+                $("#three").find('i').eq(0).addClass("orange");
+            } else {
+                $("#three").removeClass("green");
+                $("#three").addClass("gray");
+                $("#three").find('i').eq(0).removeClass("green");
+                $("#three").find('i').eq(0).addClass("gray");
+            }
+            if (current4 != null && current4 != "") {
+                $("#four").removeClass("gray");
+                $("#four").addClass("green");
+                $("#four").find('i').eq(0).removeClass("gray");
+                $("#four").find('i').eq(0).addClass("green");
+            } else {
+                $("#four").removeClass("green");
+                $("#four").addClass("gray");
+                $("#four").find('i').eq(0).removeClass("green");
+                $("#four").find('i').eq(0).addClass("gray");
+            }
+            if (current5 != null && current5 != "") {
+                $("#five").removeClass("gray");
+                $("#five").addClass("green");
+                $("#five").find('i').eq(0).removeClass("gray");
+                $("#five").find('i').eq(0).addClass("green");
+            } else {
+                $("#five").removeClass("green");
+                $("#five").addClass("gray");
+                $("#five").find('i').eq(0).removeClass("green");
+                $("#five").find('i').eq(0).addClass("gray");
+            }
+        }
+        function up_click() {
+            url = "JiangYuSet.html";
+            Next_Click(url);
+        }
+        function next_click() {
+            //检查有没有excel输入
+            grid.commitEdit();
+            var dataTM = grid.getChanges(null, false);
+            var data = grid.getChanges("modified", true);
+            var json = mini.encode(data);
+            var jsonTM = mini.encode(dataTM);
+            SetCookie("four", "1", 1);
+            var url = "GongCheng.html";
+            if (json != "[]") {
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '数据发生改变，正在处理 ，请稍等...'
+                });
+                //去更新数据库
+                onSaveExcelData(data, dataTM);
+            } else {
+                Next_Click(url);
+            }
+        }
+    </script>
+    
+
+</body>
+</html>

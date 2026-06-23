@@ -1,0 +1,478 @@
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>100mm以上暴雨查询</title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script>
+    <!--高版本下拉框无法使用-->
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="../Common/Scripts/DownLoad.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="../Common/Scripts/5.2.0_dist_echarts.min.js"></script>
+    <script type="text/javascript" src="../Common/Scripts/latest_dist_ecStat.min.js"></script>
+    <style>
+        ul.ui-choose > li {
+                width: auto;
+                padding: 0px 20px;
+            }
+            .mini-grid-summaryRow tr td {
+                background: none !important;
+            }
+    
+            .mini-grid-summaryRow {
+                background: none !important;
+                padding-top: 10px;
+            }
+    
+    
+            .mini-radiobuttonlist-item .mini-list-icon {
+            }
+    
+            .mini-grid-summaryRow div {
+                background: none !important;
+            }
+    
+            .mini-grid-summaryRow table {
+                background: none !important;
+            }
+    
+            .mini-grid-summaryRow tr td {
+                text-align: center;
+                background: none !important;
+                border: none;
+            }
+    
+                .mini-grid-summaryRow tr td span {
+                    color: #fff !important;
+                    line-height: 25px;
+                    font-weight: 400 !important;
+                }
+        </style>
+</head>
+
+<body>
+    <div class="mini-toolbar">
+        <div id="zhanList">
+            <div class="searchTitle" style="line-height:35px;float:left;">&nbsp; &nbsp;站点选择： </div>
+            <input id="STCD" name="STCD" class="mini-combobox" style="width:100px;" textField="STNM" valueField="STCD"
+                allowInput="true" onvaluechanged="searchB()" />
+
+            &nbsp;&nbsp;&nbsp;
+            风向选择：&nbsp;
+            <input id="FXNAME" name="FXNAME" class="mini-combobox" style="width:140px;" textField="TEXT" valueField="VALUE"
+                allowInput="true" onvaluechanged="search()" />
+
+            匹配时间：&nbsp;
+            <input id="TMNAME" name="TMNAME" class="mini-combobox" style="width:140px;" textField="TEXT" valueField="VALUE"
+                allowInput="true" onvaluechanged="search()" />
+
+            &nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+            <button type="button" class="btn btn-info" onclick="Exp()" id="expButton" style="margin: 0px 0px;padding: 4px 12px;display:none;">导出</button>
+
+        </div>
+    </div>
+    <div class="mini-fit">
+        <div id="cwchart" style="width:100%;height:350px;">
+        </div>
+        <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 350px);height: -moz-calc(100% - 350px);height: calc(100% - 350px);"
+            allowalternating="true" borderstyle="border-right:0;" idfield="SID" sortmode="client" sizelist="[15,20,30,50]"
+            pagesize="15" showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+            allowcellselect="true" allowcelledit="true" ondrawcell="ondrawcell" showSummaryRow="true" ondrawsummarycell="onDrawSummaryCell">
+            <div property="columns">
+                <div type="indexcolumn" headeralign="center" align="center">序号</div>
+                <div field="wind" headeralign="center" align="center" allowsort="true">
+                    风速(m/s)
+                </div>
+                <div field="zsvalue" headeralign="center" align="center" allowsort="true">
+                    增水(m)
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var myData = [];
+        mini.parse();
+        var grid = mini.get("grid1");
+        var stcd = GetQueryString('stcd');
+        $(function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            var dataResult = [
+                { STCD: "63405800", STNM: "芦潮港" },
+                { STCD: "63401750", STNM: "吴淞口" },
+                // { STCD: "62701710", STNM: "高桥（二）" },
+                // { STCD: "63401100", STNM: "米市渡" },
+                // { STCD: "63401500", STNM: "黄浦公园" },
+                // { STCD: "63405900", STNM:"金山嘴"},
+                { STCD: "HS020060", STNM: "绿华山", GSTCD: "63401750" },
+            ];
+            mini.get("STCD").setData(dataResult);
+            mini.get("STCD").select(0);
+            if (stcd != null) {
+                mini.get("STCD").setValue(stcd);
+            }
+            searchB();
+        });
+        function searchB() {
+            var strWhere = {
+                stcd: mini.get("STCD").getValue()
+            };
+            var node = mini.get("STCD").getSelected();
+            var gstcd = node.GSTCD;
+            strWhere.stcd = gstcd != undefined ? strWhere.stcd + "," + gstcd : strWhere.stcd;
+            //GetJosns("DATA_ST_FORMULA_BSel", strWhere, "SelB");
+			app.post("SWZZ_DATA_st_formula_b/findResult",strWhere,(data)=>{
+				JosnSel(data,"SelB")
+			})
+        }
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            var bData = $.data(myData, "bData");
+            var bDataTemp = bData.filter(function (res) {
+                return res.type == mini.get('TMNAME').getValue() && res.winddir == mini.get("FXNAME").getValue();
+            });
+            var PID = bDataTemp.length > 0 ? bDataTemp[0].id : "";
+            var strWhere = {
+                strExp: PID
+            };
+            //GetJosns("DATA_ST_FORMULA_RSel", strWhere, "Sel");
+			app.post("SWZZ_DATA_st_formula_r/findResult",strWhere,(data)=>{
+				JosnSel(data,"Sel")
+			})
+        }
+        function setComboxValue() {
+            var bData = $.data(myData, "bData");
+            var gArr = groupBy(bData, 'winddir');
+            var fxArr = [];
+            for (var num = 0; num < gArr.length; num++) {
+                if (gArr[num][0].winddir == undefined) {
+                    break;
+                }
+                fxArr.push({ VALUE: gArr[num][0].winddir, TEXT: gArr[num][0].winddir });
+            }
+            mini.get("FXNAME").setData(fxArr);
+            mini.get("FXNAME").select(0);
+
+            gArr = groupBy(bData, 'type');
+            var tmArr = [];
+            for (var num = 0; num < gArr.length; num++) {
+                if (gArr[num][0].type == undefined) {
+                    break;
+                }
+                tmArr.push({ VALUE: gArr[num][0].type, TEXT: gArr[num][0].type });
+            }
+            mini.get("TMNAME").setData(tmArr);
+            mini.get("TMNAME").select(0);
+            search();
+        }
+        function JosnSel(data, typeID) {
+            if (typeID == "SelB") {
+                $.data(myData, "bData", data.data);
+                setComboxValue();
+            }
+            else if (typeID == "Sel") {
+                var dataResult = data.data;
+                var dataAll = [];
+                var xMin, xMax, yMin, yMax;//按照公式求取x=0时，y对应多少，x为最大值时，y对应多少
+                if (dataResult.length > 0) {
+                    for (var num = 0; num < dataResult.length; num++) {
+                        var item = dataResult[num];
+                        dataAll.push([item.wind, item.zsvalue]);
+                    }
+
+                    var bData = $.data(myData, "bData");
+                    var bDataTemp = bData.filter(function (res) {
+                        return res.type == mini.get('TMNAME').getValue() && res.winddir == mini.get("FXNAME").getValue();
+                    });
+                    // chartNHX('cwchart',dataAll,xMin,xMax,yMin,yMax);
+                    var formula = getFormula(bDataTemp[0]);
+                    chartNHXNew('cwchart', dataAll, bDataTemp[0].ftype, formula);
+                    grid.setData(data.data);
+                } else {
+                    mini.alert("缺少公式数据！");
+                }
+                mini.unmask(document.body);
+            }
+        }
+        //根据风速风向计算增水
+        function getZSValue(item, WindSpeed) {
+            var yValue = 0;
+            if (item.FTYPE == "noe") {
+                yValue = Math.pow(WindSpeed, 2) * item.WINDSQUAREXS;
+                if (item.WINDXS > 0) {
+                    yValue = yValue + WindSpeed * item.WINDXS;
+                } else {
+                    yValue = yValue - WindSpeed * item.WINDXS;
+                }
+                if (item.CONSTANT > 0) {
+                    yValue = yValue + item.CONSTANT;
+                }
+                else {
+                    yValue = yValue - Math.abs(item.CONSTANT);
+                }
+            }
+            else if (item.FTYPE == "e") {
+                var eNum = 2.718281828459045;
+                yValue = item.WINDSQUAREXS * Math.pow(eNum, item.WINDXS * WindSpeed);
+            }
+            return yValue;
+        }
+        function getFormula(item) {
+            var formula = "y=";
+            if (item.ftype == "noe") {
+                formula += item.windsquarexs + "x^2";
+                if (item.windxs > 0) {
+                    formula += ' + ';
+                }
+                formula += item.windxs + "x";
+                if (item.constant != undefined) {
+                    if (item.constant > 0) {
+                        formula += ' + ';
+                    }
+                    formula += item.constant;
+                }
+            } else {
+                formula += item.windsquarexs + "e^" + item.windxs + "x";
+            }
+            if (item.rquare != undefined) {
+                formula += "\nR^2=" + item.rquare;
+            }
+            return formula;
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+        }
+        function onDrawSummaryCell(e) {
+            var result = e.result;
+            var grid = e.sender;
+            //服务端汇总计算
+            var JSONArray = grid.getData();
+        }
+        function Exp() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var titleText=mini.get('STCD').getText()+"潮位增水风速风向关系";
+            var subtext=mini.get('FXNAME').getValue()+mini.get('TMNAME').getValue()+"风速";
+            var name=titleText+"("+subtext+")";
+            ExportExcel(name, columns, data);
+        }
+        function SetData() { }
+        //带拟合线的散点图
+        function chartNHX(ChartName, dataAll, xMin, xMax, yMin, yMax) {
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            const markLineOpt = {
+                animation: false,
+                label: {
+                    formatter: 'y = 0.5 * x + 3',
+                    align: 'right'
+                },
+                lineStyle: {
+                    type: 'solid'
+                },
+                tooltip: {
+                    formatter: 'y = 0.5 * x + 3'
+                },
+                data: [
+                    [
+                        {
+                            coord: [xMin, yMin],
+                            symbol: 'none'
+                        },
+                        {
+                            coord: [xMax, yMax],
+                            symbol: 'none'
+                        }
+                    ]
+                ]
+            };
+
+            var option = {
+                title: {
+                    //text: '带拟合线的散点图',
+                },
+                xAxis: {
+                    gridIndex: 0,
+                    min: function (res) {
+                        var minValue = res.min
+                        return minValue;
+                    },
+                    max: function (res) {
+                        var maxValue = res.max
+                        return maxValue;
+                    },
+                    interval: 2
+                },
+                yAxis: {
+                    gridIndex: 0,
+                    interval: 0.1,
+                    min: function (res) {
+                        var minValue = res.min - 0.1;
+                        if (res.min > 0) {
+                            minValue = 0;
+                        }
+                        return minValue;
+                    },
+                    max: function (res) {
+                        var maxValue = res.max + 0.1;
+                        return maxValue;
+                    },
+                },
+                series: [
+                    {
+                        name: 'I',
+                        type: 'scatter',
+                        data: dataAll,
+                        markLine: markLineOpt
+                    },
+                ],
+            };
+            myChart.setOption(option);
+        }
+        function chartNHXNew(ChartName, dataAll, FTYPE, formula) {
+            var titleText=mini.get('STCD').getText()+"潮位增水风速风向关系";
+            var subtext=mini.get('FXNAME').getValue()+mini.get('TMNAME').getValue()+"风速";
+            var configMethod = { method: 'polynomial', order: 2 };
+            if (FTYPE == 'e') {
+                configMethod = { method: 'exponential' };
+            }
+            var myChart = echarts.init(document.getElementById(ChartName));  //获得控件对象
+            //清空绘画内容，清空后实例可用，因为并非释放示例的资源，释放资源我们需要dispose()
+            myChart.clear();
+            echarts.registerTransform(ecStat.transform.regression);
+            var data = dataAll;
+            option = {
+                dataset: [
+                    {
+                        source: data
+                    },
+                    {
+                        transform: {
+                            type: 'ecStat:regression',
+                            config: configMethod
+                        }
+                    }
+                ],
+                title: {
+                    text: titleText,
+                    textStyle: {
+                        color: '#497DBB',
+                        // fontSize: 12,
+                        // fontWeight: 'normal'
+                    },
+                    subtext: subtext,
+                    subtextStyle: {
+                        color: '#497DBB',
+                        fontSize: 16,
+                        fontWeight: 'normal'
+                    },
+                    left: 'center',
+                    top: 16
+                },
+                tooltip: {
+                    show:false,
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                xAxis: {
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    // splitNumber: 20,
+                    interval: 2,
+                    axisLabel: {
+                        formatter: function (v) {
+                            return v.toFixed(0);
+                        }
+                    },
+                },
+                yAxis: {
+                    interval: 0.1,
+                    min: function (res) {
+                        var minValue = res.min - 0.1;
+                        if (res.min > 0) {
+                            minValue = 0;
+                        }
+                        return minValue;
+                    },
+                    max: function (res) {
+                        var maxValue = res.max + 0.1;
+                        return maxValue;
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            type: 'dashed'
+                        }
+                    },
+                    axisLabel: {
+                        formatter: function (v) {
+                            return v.toFixed(1);
+                        }
+                    },
+                },
+                series: [
+                    {
+                        name: '风速',
+                        type: 'scatter',
+                        color:'#497DBB',
+                    },
+                    {
+                        name: '增水',
+                        type: 'line',
+                        smooth: true,
+                        datasetIndex: 1,
+                        symbolSize: 0.1,
+                        symbol: 'circle',
+                        color:'#497DBB',
+                        lineStyle: {
+                            type: 'dashed'
+                        },
+                        label: {
+                            show: true,
+                            fontSize: 16,
+                            formatter: function (param) {
+                                var _index = 0;
+                                var dataAllTemp = dataAll.filter(res => {
+                                    if (res[1] != undefined) {
+                                        _index++;
+                                    }
+                                });
+                                // console.error(param,dataAll.length,_index);
+                                var dataIndex = param.dataIndex;
+                                var s = '';
+                                if (dataIndex == _index - 1) {
+                                    s = formula;
+                                }
+                                return s;
+                            }
+                        },
+                        labelLayout: { dx: 50 },
+                        encode: { label: 2, tooltip: 1 }
+                    }
+                ]
+            };
+            myChart.setOption(option);
+        }
+
+    </script>
+</body>
+
+</html>

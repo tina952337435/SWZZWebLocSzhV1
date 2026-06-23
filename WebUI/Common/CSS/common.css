@@ -1,0 +1,183 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    font-family: "Arial";
+    overflow: hidden;
+    /*background: url(../images/body2.png) no-repeat;*/
+    -webkit-background-size: 100% 100%;
+    background-size: 100% 100%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+ul li {
+    list-style: none;
+}
+
+.mini-tabs-bodys {
+    padding: 0 !important;
+}
+
+.center {
+    top: 75px !important;
+}
+
+/*.mini-layout-region-body{overflow: auto;}
+页面整体宽度高度滚动条控制
+.mini-layout{font-family: "arial" !important;font-size: 16px !important;
+             min-height: 750px;overflow: hidden;}*/
+.mini-layout-region-body {
+    overflow: hidden;
+}
+
+.mini-layout {
+    font-family: "arial" !important;
+    font-size: 16px !important;
+    overflow: hidden;
+}
+
+.mini-layout-region {
+    border: none !important;
+}
+
+.mini-tabs-bodys, .mini-tabs-scrollCt {
+    border: none !important;
+}
+
+/*头部*/
+.hdleft, .hdright {
+    width: 270px;
+    height: 100%;
+    float: left;
+}
+
+.hdright {
+    text-align: left;
+}
+
+.hdleft {
+    line-height: 70px;
+    font-size: 15px;
+    color: white;
+    text-align: center;
+}
+
+.hdleft img {
+    margin-left: 15px;
+    margin-right: 5px;
+    position: relative;
+    top: 3px;
+}
+
+.hdcenter {
+    width: -webkit-calc(100% - 540px);
+    width: -moz-calc(100% - 540px);
+    width: calc(100% - 540px);
+    height: 100%;
+    float: left;
+    background-image: url('/LED/Index/images/di.png');
+    background-size: 80% 80%;
+    background-repeat: no-repeat;
+    background-position: center;
+    -webkit-background-size: 80% 80%;
+}
+
+.hdrightdiv {
+    color: #fff;
+    line-height: 70px;
+    font-size: 15px;
+    text-align: center;
+}
+
+.menuheader {
+    width: 55%;
+    height: 20px;
+    float: right;
+    margin-right: 0;
+    margin-top: 30px;
+}
+
+.menuheader ul {
+    float: right;
+    height: 100%;
+}
+
+.menuheader ul li img {
+    width: 13px;
+    height: 13px;
+    position: relative;
+    top: 2px;
+    right: 2px;
+}
+
+.menuheader ul li {
+    float: left;
+    padding-right: 18px;
+    height: 20px;
+    line-height: 20px;
+    font-size: 12px;
+    color: #5BBFF3;
+    cursor: pointer;
+}
+
+.menuactive {
+    color: #FFFE0D !important;
+}
+
+.menuheader ul li:hover {
+    color: #FFFE0D !important;
+}
+
+/*三角，黄字*/
+.yjxxtop {
+    color: #000;
+    height: 35px;
+    font-size: 14px;
+    line-height: 35px;
+    text-indent: 10px;  
+}
+
+.sanj {
+    display: none;
+    margin-left: 15px;
+    margin-right: 5px;
+    position: relative;
+    top: -1px;
+}
+
+/*left*/
+/*1*/
+.yjxx {
+    width: 100%;
+}
+
+.yjxxbottom {
+    line-height: 25px;
+    text-indent: 25px;
+    font-size: 13px;
+    border: 1px solid #66B8DD;
+    height: 150px !important;
+    width: 95% !important;
+    margin: auto;
+    margin-top: 10px;
+}
+
+.yjxxbottom .river {
+    color: #6AC7F3;
+}
+
+.yjxxbottom p {
+    color: #FFFFFF;
+}
+
+.yjxxbottom p span {
+    color: #E55354;
+}
+
+/*appearance:none;
+-moz-appearance:none; /* Firefox */
+/*-webkit-appearance:none;*/ /* Safari 和 Chrome */
+

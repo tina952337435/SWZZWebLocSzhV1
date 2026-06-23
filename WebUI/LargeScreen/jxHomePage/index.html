@@ -1,0 +1,959 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>上海市水情预报调度一体化平台-大屏</title>
+    <meta name="keywords" content="上海市水情预报调度一体化平台-大屏" />
+    <meta name="description" content="上海市水情预报调度一体化平台-大屏" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width" />
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="css/animate.min.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/flex.css">
+    <!-- swiper -->
+    <link rel="stylesheet" href="swiper/swiper-bundle.min.css" />
+
+    <!-- swiper -->
+    <script src="../../Common/boot.js?v=1.0.1" type="text/javascript"></script>
+    <link rel="stylesheet" href="css/style.css?ver=1.0.19">
+    <link rel="shortcut icon" type="image/png" href="favicon.ico" />
+    
+</head>
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+                position: absolute">
+    </div>
+    <div class="g-hd wow slideInDown">
+        <div class="title wow slideInDown" data-wow-delay=".2s" style="width:35rem;margin-top:4px;">
+            <img src="img/index_06.png">
+        </div>
+        <div class="m-menu display_flex justify-content_flex-justify align-items_center">
+            <div class="zuo box-siz">
+                <!--今天：<br>多云转晴-->
+                <div class="weather">
+                    <img src="img/cloud-qing.png" style="position:absolute;display:inline-block;" />
+                    <div style="padding-left:55px;padding-top:5px;">今天<br>晴</div>
+                </div>
+
+                <div class="totalbkind_div">
+                    <ul class="totalbkind_ul" onclick="WindowOpen('/LargeScreen/WarningInfo.html','预警信息发布')">
+                        <li></li>
+                        <li></li>
+                        <li></li>
+                    </ul>
+                    <div style="display:none;text-align: center;  font-size: 24px; font-family: 微软雅黑; letter-spacing: 2px; color: #afb5b5; font-weight: bold; padding-top:15px;" id="warningInfo">
+                        <div style="position:absolute;float:left;left:200px;">
+                            <img src="img/yjtb.png" />
+                        </div>
+                        <div style="position: absolute; float: left; left: 240px; cursor: pointer;padding-top:4px;font-size: 16px;" onclick="WindowOpen('/LargeScreen/WarningInfo.html','预警信息发布')">
+                            <span>当前无预警</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="zhong box-siz display_flex justify-content_flex-center align-items_center">
+                <!--<div class="item wow slideInUp" data-wow-delay="0s">综合监视</div>
+                <div class="item wow slideInUp" data-wow-delay=".15s">预报预警</div>
+                <div class="item wow slideInUp" data-wow-delay=".2s">预演预案</div>
+                <div class="item wow slideInUp" data-wow-delay=".25s">指挥调度</div>
+                <div class="item wow slideInUp" data-wow-delay=".3s">抢险支持</div>
+                <div class="item wow slideInUp" data-wow-delay=".3s">数字孪生</div>-->
+            </div>
+            <div class="you box-siz display_flex  justify-content_flex-center" style="position:relative;"><span>09:30:15</span>星期四<i>2021.8.12</i></div>
+        </div>
+    </div>
+    <div class="g-lside wow slideInLeft display_flex flex-direction_column justify-content_flex-justify" data-wow-delay=".2s">
+        <div class="m-box m-box-1">
+            <div class="title display_flex justify-content_flex-center align-items_center">预报降雨量</div>
+            <div class="txt">
+                <div class="m-list2">
+                    <!-- Swiper -->
+                    <div class="swiper-container gallery-thumbs1" style="display:none;">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide swiper-slide-thumb-active" id="YL0" onclick="OnClickTitle('gallery-thumbs1',this.id,'雨量')">当日</div>
+                            <div class="swiper-slide" id="YL1" onclick="OnClickTitle('gallery-thumbs1',this.id,'雨量')">前1日</div>
+                            <div class="swiper-slide" id="YL3" onclick="OnClickTitle('gallery-thumbs1',this.id,'雨量')">前3日</div>
+                            <div class="swiper-slide" id="YL7" onclick="OnClickTitle('gallery-thumbs1',this.id,'雨量')">前7日</div>
+                        </div>
+                    </div>
+                    <div class="swiper-container gallery-top1">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <div class="m-list4 box-siz" id="echartYL">
+                                </div>
+                            </div>
+                            <!--<div class="swiper-slide">
+                                <div class="m-list4  box-siz" id="echartYL1">放图表,图表上颜色更改成效果图所示颜色</div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="m-list4  box-siz" id="echartYL3">放图表,图表上颜色更改成效果图所示颜色</div>
+
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="m-list4  box-siz" id="echartYL7">放图表,图表上颜色更改成效果图所示颜色</div>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bot"></div>
+        </div>
+        <div class="m-box m-box-2">
+            <div class="title display_flex justify-content_flex-center align-items_center">重点站超警统计</div>
+            <div class="txt">
+                <div class="m-list5 box-siz" id="echart2">
+
+                </div>
+            </div>
+            <div class="bot"></div>
+        </div>
+
+        <div class="m-box m-box-5">
+            <div class="title display_flex justify-content_flex-center align-items_center" style="position: relative;">
+                水利片进出水量
+                <div style="position: absolute;top:50px;right:0px;width:190px;height:30px;">
+                    <div style="width:20px;height:10px;background: linear-gradient(0deg,rgba(48, 236, 166, 1), rgba(48, 236, 166, 0.5) 100%);border-radius: 3px;float:left;"></div><div style="float:left;font-size:11px;margin-top: -3px;padding-left: 2px;">进水(净)量</div>
+                    <div style="width:20px;height:10px;background: linear-gradient(0deg,rgba(0,255,255, 1), rgba(0,153,255,1) 100%);border-radius: 3px;float:left;margin-left:5px;"></div><div style="float:left;font-size:11px;margin-top: -3px;padding-left: 2px;">出水(净)量</div>
+                </div>
+            </div>
+            <div class="txt">
+                <!--<div class="m-list7 display_flex justify-content_flex-justify">
+                    <div class="item" style="width:40%;">名称</div>
+                    <div class="item" style="width:60%;">净水量</div>
+                </div>-->
+                <div class="m-list5 box-siz" style="padding-left:1rem;" id="divDiaodu">
+
+                </div>
+            </div>
+            <div class="bot"></div>
+        </div>
+    </div>
+    <div class="g-rside wow slideInRight display_flex flex-direction_column justify-content_flex-justify" data-wow-delay=".2s">
+        <div class="m-box m-box-2">
+            <div class="title display_flex justify-content_flex-center align-items_center">预报最高水位</div>
+            <div class="txt">
+                <div class="m-list1" style="height: 100%;">
+                    <!-- Swiper -->
+                    <div class="swiper-container gallery-thumbs" style="display:none;">
+                        <div class="swiper-wrapper">
+                        </div>
+                    </div>
+                    <div class="swiper-container  custom-scroll gallery-top">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide" id="tableSW">
+                            </div>
+                            <div class="swiper-slide">
+                            </div>
+                            <div class="swiper-slide">
+                            </div>
+                            <div class="swiper-slide">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="bot"></div>
+        </div>
+        <div class="m-box m-box-3">
+            <div class="title display_flex justify-content_flex-center align-items_center" style="position: relative;">
+                预报水位过程
+                <div style="position: absolute;top:20px;right:0px;width:110px;height:30px;">
+                    <div class="sel_wrap">
+                        <label onclick="showItem('SWDBZLIST')" style="width: calc(100% - 35px);text-align: right;"></label>
+                        <img src="img/icon_select.png" style="position:absolute;right:10px;" onclick="showItem('SWDBZLIST')">
+                        <ul class="el-dropdown-menu" id="SWDBZLIST" style="width:90px; margin-left: 6px;height:120px;overflow-y:auto;"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="txt">
+                <div class="m-list1" id="tableGCSW" style="height: 100%;">
+                </div>
+            </div>
+            <div class="bot"></div>
+        </div>
+        <div class="m-box m-box-4">
+            <div class="title display_flex justify-content_flex-center align-items_center" style="position: relative;">
+                预报潮位过程
+                <div style="position: absolute;top:20px;right:0px;width:110px;height:30px;">
+                    <div class="sel_wrap">
+                        <label onclick="showItem('CWDBZLIST')" style="width: calc(100% - 35px);text-align: right;"></label>
+                        <img src="img/icon_select.png" style="position:absolute;right:10px;" onclick="showItem('CWDBZLIST')">
+                        <ul class="el-dropdown-menu" id="CWDBZLIST" style="width:90px; margin-left: 6px;height:120px;overflow-y:auto;"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="txt" style="position: relative;">
+                <div class="m-list5 box-siz" id="echartSL">
+                </div>
+            </div>
+            <div class="bot"></div>
+        </div>
+
+    </div>
+
+    <div class="tuli">
+        <!--<div class="tuliLine"></div>
+        <div class="tuliTitle">图例</div>
+        <div class="tuliLine"></div>-->
+        <div class="tuliTextTitle">水位图例</div>
+        <ul class="swTuli">
+            <li>
+
+                <img src="img/icon_51.png" style="float: left;width: 18px;" />
+                <div style="padding-top: 6px;padding-left: 10px;">正常</div>
+            </li>
+            <li>
+
+                <img src="img/icon_53.png" style="float: left;width: 18px;" />
+                <div style="padding-top: 6px;padding-left: 10px;">超警戒</div>
+            </li>
+            <li>
+
+                <img src="img/icon_54.png" style="float: left;width: 18px;" />
+                <div style="padding-top: 6px;padding-left: 10px;">超保证</div>
+            </li>
+            <!--<li>
+                <img src="img/icon_58.png" style="float: left;width: 18px;" />
+                <div style="padding-top: 10px;padding-left: 10px;">缺测</div>
+            </li>-->
+        </ul>
+        <!--<div class="tuliTextTitle">潮位</div>
+        <ul class="swTuli">
+            <li style="width:30%;">
+                <div>正常</div>
+                <img src="img/icon_26.png" />
+            </li>
+            <li style="width:30%;">
+                <div>缺测</div>
+                <img src="img/icon_32.png" />
+            </li>
+        </ul>-->
+        <div class="tuliTextTitle" style="display:none;">河道图例</div>
+        <span id="rbl" style="display:none;" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table" repeatDirection="vertical" style="float:left;"
+              textField="text" valueField="id" value="水位" data="[{'id':'水位','text':'水位'},{'id':'流量','text':'流量'}]"></span>
+        <div id="swTuli" class="colorL" style="display:none;">
+            <p><span class="colorSpan" style="background-color:#EF0004"></span><span class="colorSpanValue">4.00</span></p>
+            <p><span class="colorSpan" style="background-color:#EF0088"></span><span class="colorSpanValue">3.80</span></p>
+            <p><span class="colorSpan" style="background-color:#000087"></span><span class="colorSpanValue">3.60</span></p>
+            <p><span class="colorSpan" style="background-color:#0000D0"></span><span class="colorSpanValue">3.40</span></p>
+            <p><span class="colorSpan" style="background-color:#2424FF"></span><span class="colorSpanValue">3.20</span></p>
+            <p><span class="colorSpan" style="background-color:#6363FF"></span><span class="colorSpanValue">3.00</span></p>
+            <p><span class="colorSpan" style="background-color:#9797FF"></span><span class="colorSpanValue">2.80</span></p>
+            <p><span class="colorSpan" style="background-color:#0098C6"></span><span class="colorSpanValue">2.60</span></p>
+            <p><span class="colorSpan" style="background-color:#00B8EF"></span><span class="colorSpanValue">2.40</span></p>
+            <p><span class="colorSpan" style="background-color:#2FCFFF"></span><span class="colorSpanValue">2.20</span></p>
+            <p><span class="colorSpan" style="background-color:#82E2FF"></span><span class="colorSpanValue">2.00</span></p>
+            <p><span class="colorSpan" style="background-color:#C1F1FF"></span><span class="colorSpanValue">0.00</span></p>
+        </div>
+
+        <div id="llTuli" class="colorL" style="display:none;">
+            <p><span class="colorSpan" style="background-color:#EF0004"></span><span class="colorSpanValue">300</span></p>
+            <p><span class="colorSpan" style="background-color:#EF0088"></span><span class="colorSpanValue">200</span></p>
+            <p><span class="colorSpan" style="background-color:#000087"></span><span class="colorSpanValue">150</span></p>
+            <p><span class="colorSpan" style="background-color:#0000D0"></span><span class="colorSpanValue">100</span></p>
+            <p><span class="colorSpan" style="background-color:#2424FF"></span><span class="colorSpanValue">80.0</span></p>
+            <p><span class="colorSpan" style="background-color:#6363FF"></span><span class="colorSpanValue">60.0</span></p>
+            <p><span class="colorSpan" style="background-color:#9797FF"></span><span class="colorSpanValue">40.0</span></p>
+            <p><span class="colorSpan" style="background-color:#0098C6"></span><span class="colorSpanValue">30.0</span></p>
+            <p><span class="colorSpan" style="background-color:#00B8EF"></span><span class="colorSpanValue">20.0</span></p>
+            <p><span class="colorSpan" style="background-color:#2FCFFF"></span><span class="colorSpanValue">10.0</span></p>
+            <p><span class="colorSpan" style="background-color:#82E2FF"></span><span class="colorSpanValue">5.0</span></p>
+            <p><span class="colorSpan" style="background-color:#C1F1FF"></span><span class="colorSpanValue">0.0</span></p>
+        </div>
+    </div>
+    <!--<div id="SSTTL" style="background: rgba(0,0,0,0.2) 30%;position:absolute;right:32rem;bottom:150px;height:275px;
+    width: 75px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;display:block;">
+
+    </div>-->
+    <!--单站弹窗-->
+    <div class="danzhanPopup" style="display: none;">
+        <div class="popupContent">
+            <div class="popupContentTitle">
+                <div class="popupContentTitleText">
+                    水位过程线
+                </div>
+                <div class="popupContentTitleClose" title="关闭窗口">
+
+                </div>
+            </div>
+            <div class="popupContentChart">
+                <iframe id="popupIframe" scrolling="none" frameborder="0" width="100%" height="100%"></iframe>
+            </div>
+        </div>
+    </div>
+    <!--播放条-->
+    <div id="progressTime"></div>
+    <div id="bigscreen" class="big-screen">
+        <div data-v-7a68a3c0="" class="city-name" style="top: 7rem;cursor: pointer;">
+            <span style="cursor: pointer;">
+                <i data-v-7a68a3c0="" class="fa fa-filter "></i>
+                <label style="cursor: pointer;" onclick="showItem('CITYNAMEUL')">上海市</label>
+            </span>
+            <ul class="el-dropdown-menu" id="CITYNAMEUL" style="display: none;width: 97px;margin-left: -16px;top: 39px;border: 1.5px solid #0b84c7 !important;">
+                <li id="上海市">上海市</li>
+                <li id="宝山区">宝山区</li>
+                <li id="崇明区">崇明区</li>
+                <li id="奉贤区">奉贤区</li>
+                <li id="嘉定区">嘉定区</li>
+                <li id="金山区">金山区</li>
+                <li id="闵行区">闵行区</li>
+                <li id="浦东新区">浦东新区</li>
+                <li id="青浦区">青浦区</li>
+                <li id="松江区">松江区</li>
+                <li id="中心城区">中心城区</li>
+            </ul>
+        </div>
+    </div>
+    <!--中间显示预报时间-->
+    <div id="tmCenter" style="background: linear-gradient(90deg,rgba(0,163,255,0.00), rgba(0,163,255,0.50) 50%, rgba(0,163,255,0.00) 100%);
+    width: 400px;
+    height: 56px;
+    line-height: 56px;
+    position: absolute;
+    top: 100px;
+    left: -webkit-calc(50% - 150px);
+    left: -moz-calc(50% - 150px);
+    left: calc(50% - 200px);
+    z-index: 2;
+    color:#00e4ff;
+    text-align: center;
+    font-size: 1.25rem;">
+        <!--2021年7月25日8时-->
+    </div>
+    <!--方案选择-->
+    <div id="sqTopToggle" style="height: 40px; position: absolute; top: 10.3rem; right: 33rem;z-index: 222;">
+        <div class="shdswDiv" id="sswz">
+            <div class="swDiv">
+                <div class="sel_wrap">
+                    <label onclick="showItem('FANGANLIST')" style="margin-top: 4px;">
+                        方案切换
+                    </label>
+                    <img src="img/icon_select.png" style="position:absolute;right:0px;margin-top: 4px;" onclick="showItem('FANGANLIST')">
+                    <ul class="el-dropdown-menu" id="FANGANLIST" style="width:252px; margin-left: 6px;height:220px;overflow-y:auto;margin-top:5px;"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--流向和预警切换-->
+    <div style="position: absolute;
+    left: 34rem;
+    top: 7rem;z-index: 988;">
+        <ul class="onlytab" id="onlytab">
+            <li>流向</li>
+            <li class="onlyliHover">预警</li>
+        </ul>
+    </div>
+    <script src="js/jquery.min.js"></script>
+    <!-- swiper -->
+    <script src="swiper/swiper-bundle.min.js"></script>
+    <script src="wow/wow.min.js"></script>
+    <script src="js/common.js"></script>
+    <!-- 滚动条 -->
+    <script src="scrollbot/scrollbot.js"></script>
+    <script>
+        var customScrolls = [];
+    </script>
+
+    <!--功能开始-->
+
+    <script src="../../Common/Scripts/echarts.min5.2.2.js"></script>
+    <script src="../../Common/Scripts/ChartJs.js"></script>
+    <script src="js/pagehome.js?ver=1.1.34"></script>
+    <link href="../../arcgis_js_api/library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+    <script src="../../arcgis_js_api/myJs/mapConfig.js?ver=1.0.1" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/bj.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/mapIndexLed.js" type="text/javascript"></script>
+
+    <!--播放条-->
+    <link href="../../Common/CSS/progressTime.css" rel="stylesheet" />
+    <script src="../../Common/Scripts/progressTime.js"></script>
+
+
+    <script src="../../Common/Scripts/modelHelperApi.js"></script>
+
+
+    <style>
+        #centerLineGraphicLayer_layer path, #centerLineGraphicLayer_layer polyline {
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-width: 1;
+        }
+
+        #centerLineGraphicLayer_layer path, #centerLineGraphicLayer_layer polyline {
+            stroke-width: 2;
+        }
+
+        .progressTime-center-t-tooltip, .progressTime-center-t-tooltipTemp {
+            background-color: #3597e6;
+        }
+    </style>
+
+    <style>
+        #progressTime {
+            display: none;
+            /*background: rgba(10,10,10,0.6) !important;*/
+            background: rgba(0,163,255,0.30) 30% !important;
+            width: calc(100% - 90rem) !important;
+            right: calc(30rem) !important;
+            left: 30rem;
+        }
+
+        .progressTime-center-t-bar {
+            background-image: linear-gradient( to right, rgba(3,156,235, 1), rgba(3,156,235, 1) ) !important;
+        }
+
+        .progressTime-center-t-ul li {
+            border: 0px;
+        }
+    </style>
+
+    <script>
+        mini.parse();
+        var AllBJLayerGraphicLayer = null;
+        var ModerRiverLayerGraphicLayer = null;
+        var strImage = null, myMapImg = null, NumCount = 0;
+        var centerLineGraphicLayer;
+        $(function () {
+            GetClik("CITYNAMEUL");
+            setTimeout(function () {
+                if (map == null) {//地图还没加载出来的时候，重新刷新一遍界面
+                    window.location.reload();
+                }
+                search();
+                var LayerID = "AllBJLayer";
+                AllBJLayerGraphicLayer = map.getLayer(LayerID);
+                if (AllBJLayerGraphicLayer != null) {
+                    map.removeLayer(AllBJLayerGraphicLayer);
+                }
+                AllBJLayerGraphicLayer = CreateLayerID(LayerID, 1);
+
+
+                var LayerID = "ModerRiverLayer";
+                ModerRiverLayerGraphicLayer = map.getLayer(LayerID);
+                if (ModerRiverLayerGraphicLayer != null) {
+                    map.removeLayer(ModerRiverLayerGraphicLayer);
+                }
+                ModerRiverLayerGraphicLayer = CreateLayerID(LayerID, 1);
+
+
+                ModerRiverLayerGraphicLayer.on("click", riverPoint);
+
+
+                LayerID = "centerLineGraphicLayer";
+                centerLineGraphicLayer = CreateLayerID(LayerID, 99);
+                centerLineGraphicLayer.on("click", riverPoint);
+
+
+                var LayerID = "WaterLayer";
+                WaterLayerGraphicLayer = CreateLayerID(LayerID, 199);
+                WaterLayerGraphicLayer.on("click", onSQClick);
+
+                map.setZoom(10);
+                addOutRings("上海市");
+
+                //queryLine();
+
+                myMapImg = map.getLayer("myMapImg");
+                if (myMapImg != null) {
+                    map.removeLayer(myMapImg);
+                }
+                myMapImg = CreateImageLayer("myMapImg");
+
+                setTimeout(() => {
+                    map.on("mouse-up", function (e) {
+                       // ViewPimgage();
+                    })
+                    map.on("zoom-end", function (e) {
+                       // ViewPimgage();
+                    })
+                    //ViewPimgage();
+
+                }, 500);
+            }, 800);
+        });
+
+        function ViewPimgage() {
+            var oldImage = strImage;
+            require([
+                "esri/layers/MapImage",
+            ], function (MapImage) {
+                var strImg = "img/bigBJNew.png?times=" + UUID(8, 16);
+                strImage = new MapImage({
+                    'extent': map.extent,
+                    'href': strImg
+                });
+                myMapImg.addImage(strImage);
+                // myMapImg.setOpacity(0.6);
+                myMapImg.setVisibility(true);
+            });
+            setTimeout(() => {
+                $("#myMap_myMapImg img").not(":last").css("display", "none");
+                //$("#myMap_myMapImg img:last").css("display","block");
+            }, 100);
+            setTimeout(() => {
+                $("#myMap_myMapImg img").not(":last").css("display", "none");
+                //$("#myMap_myMapImg img:last").css("display","block");
+            }, 1000);
+        }
+        function addOutRings(infoType) {
+            if (AllBJLayerGraphicLayer != null) {
+                AllBJLayerGraphicLayer.clear();
+            }
+            var AllPath = [];
+            if (infoType == "上海市") {
+                require(["esri/geometry/Point",
+                    "esri/geometry/Polyline",
+                    "esri/geometry/Extent",
+                    "esri/graphic",
+                    "esri/Color",
+                    "esri/layers/GraphicsLayer",
+                    "esri/symbols/CartographicLineSymbol",
+                    "esri/symbols/SimpleLineSymbol",
+                    "esri/geometry/Polygon",
+                    "esri/symbols/SimpleFillSymbol",
+                ], function (Point, Polyline, Extent, Graphic, Color, GraphicsLayer, CartographicLineSymbol,
+                    SimpleLineSymbol, Polygon, SimpleFillSymbol) {
+                        map.setZoom(10);
+                        dyCenter(121.394615, 31.088122);
+
+                        $.get(
+                            "../../Common/SHBJ2000.json",//json路径
+                            function (data, status) {
+                                if (status === "success") {
+                                    var features = data.features;
+                                    if (features.length > 0) {
+                                        var polyline1 = [], polyline2 = [], polyline3 = [], polyline4 = [];
+                                        for (num = 0; num < features.length; num++) {
+                                            var str = SHBJ;
+                                            var arr = str.split("|");
+                                            // var layer = new GraphicsLayer();
+                                            // map.addLayer(layer, 0);
+                                            var outRings = [
+                                                [90, 10],
+                                                [150, 10],
+                                                [150, 40],
+                                                [90, 40],
+                                                [90, 10]
+                                            ]; //黑色部分
+                                            var rings = [];// [outRings];
+                                            var paths = features[num].geometry.coordinates;
+                                            //1200:121.0138::::30.8709 ----北部线
+                                            //4500:120.93250142893744::::30.40905001052652 -----东排线
+                                            //4850:120.43532336023243::::30.375046653468228
+                                            //arr.length-4350:120.70105838141707::::30.907804802474246
+                                            var strNP = [];
+                                            //for (var i = 0; i < arr.length; i++) {
+                                            //    //19
+                                            //    //19-39    i >=19&&i<39
+                                            //    //i >=39 && i < arr.length
+                                            //    var p = arr[i].split(",");
+                                            //    var tempP = Convert_BD09_To_GCJ02(p[1], p[0]);
+                                            //    var NumPs = tempP.split(":");
+                                            //    var points = [Number(NumPs[0]), Number(NumPs[1])];
+                                            //    paths.push(points);
+                                            //    strNP.push(points);
+
+                                            //    //console.error((p[0]) + "::::" + (p[1]));
+
+                                            //    if (i < 19) {
+                                            //        polyline1.push(points);
+                                            //    }
+                                            //    else if (i >= 19 && i <= 35) {
+                                            //        polyline4.push(points);
+                                            //    }
+                                            //    else if (i >= 35 && i <= 50) {
+                                            //        polyline2.push(points);
+                                            //    } else if (i >= 50 && i < arr.length) {
+                                            //        polyline3.push(points);
+                                            //    }
+                                            //}
+                                            // console.error(JSON.stringify(strNP));
+                                            var _name = features[num].properties["区县名"];
+                                            if (_name == "金山区") {
+                                                for (var i = 0; i < paths.length; i++) {
+                                                    var points = paths[i];
+                                                    if (i < 1400) {
+                                                        polyline1.push(points);
+                                                    }
+                                                    else if (i >= 1400 && i <= 3400) {
+                                                        polyline4.push(points);
+                                                    }
+                                                    else if (i >= 3400 && i <= 6800) {
+                                                        polyline2.push(points);
+                                                    } else if (i >= 6800 && i < paths.length) {
+                                                        polyline3.push(points);
+                                                    }
+                                                }
+                                                //console.error(polyline1);
+                                            }
+
+                                            rings.push(paths);
+                                            var area = new Polygon(rings);
+                                            var symbol = new SimpleFillSymbol(
+                                                SimpleFillSymbol.STYLE_SOLID,
+                                                new SimpleLineSymbol(
+                                                    SimpleLineSymbol.STYLE_SOLID,
+                                                    new Color([39, 115, 230, 1]), //rgb155, 153, 153
+                                                    2
+                                                ),
+                                                new Color([4, 20, 54, 0]) //rgba
+                                            );
+                                            var gra = new Graphic(area, symbol);
+                                            AllBJLayerGraphicLayer.add(gra);
+
+                                        }
+
+                                        //polyline1.push();
+                                        var line = new Polyline({
+                                            "paths": [polyline1],
+                                            "spatialReference": { "wkid": 4326 }
+                                        });
+                                        var lineSymbol = new SimpleLineSymbol(
+                                            SimpleLineSymbol.STYLE_SOLID,
+                                            new Color([171, 233, 13]),
+                                            3);
+                                        var polyline = new Graphic(line, lineSymbol);
+                                        AllBJLayerGraphicLayer.add(polyline);
+
+
+                                        line = new Polyline({
+                                            "paths": [polyline2],
+                                            "spatialReference": { "wkid": 4326 }
+                                        });
+                                        lineSymbol = new SimpleLineSymbol(
+                                            SimpleLineSymbol.STYLE_SOLID,
+                                            new Color([255, 217, 96]),
+                                            3);
+                                        polyline = new Graphic(line, lineSymbol);
+                                        AllBJLayerGraphicLayer.add(polyline);
+
+                                        line = new Polyline({
+                                            "paths": [polyline3],
+                                            "spatialReference": { "wkid": 4326 }
+                                        });
+                                        lineSymbol = new SimpleLineSymbol(
+                                            SimpleLineSymbol.STYLE_SOLID,
+                                            new Color([38, 159, 219]),
+                                            3);
+                                        polyline = new Graphic(line, lineSymbol);
+                                        AllBJLayerGraphicLayer.add(polyline);
+
+
+                                        line = new Polyline({
+                                            "paths": [polyline4],
+                                            "spatialReference": { "wkid": 4326 }
+                                        });
+                                        lineSymbol = new SimpleLineSymbol(
+                                            SimpleLineSymbol.STYLE_SOLID,
+                                            new Color([1, 242, 165]),
+                                            3);
+                                        polyline = new Graphic(line, lineSymbol);
+                                        AllBJLayerGraphicLayer.add(polyline);
+                                    }
+                                }
+                            },
+                            "json"
+                        );
+                    });
+            }
+            else {
+                $.get(
+                    "../../Common/上海市行政分区.json",//json路径
+                    function (data, status) {
+                        if (status === "success") {
+                            var features = data.features;
+                            if (features.length > 0) {
+                                for (num = 0; num < features.length; num++) {
+                                    var _name = features[num].properties.NAME;
+                                    if (_name == infoType) {
+                                        var treeID = "", LEFTTREEID = "";
+                                        if (_name == "宝山区") {
+                                            map.setZoom(12);
+                                            dyCenter(121.404861, 31.392111);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '202107192057159372';
+                                            LEFTTREEID = '2021120815090047814';
+                                        } else if (_name == "崇明区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.568484, 31.635916);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920573420901';
+                                            LEFTTREEID = '2021120815095573746';
+                                        } else if (_name == "奉贤区") {
+                                            map.setZoom(12);
+                                            dyCenter(121.458472, 30.912345);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071919594640338';
+                                            LEFTTREEID = '2021120815105417163';
+                                        } else if (_name == "嘉定区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.250333, 31.383524);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920581856197';
+                                            LEFTTREEID = '202112081513059979';
+                                        } else if (_name == "金山区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.255144, 30.818932);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920583494398';
+                                            LEFTTREEID = '2021120815125836251';
+                                        } else if (_name == "闵行区") {
+                                            map.setZoom(12);
+                                            dyCenter(121.418901, 31.087213);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920585035071';
+                                            LEFTTREEID = '2021120815111949288';
+                                        } else if (_name == "浦东新区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.742177, 31.083823);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920585796245';
+                                            LEFTTREEID = '2021120815124994986';
+                                        } else if (_name == "青浦区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.085191, 31.124693);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920585796245';
+                                            LEFTTREEID = '2021120815124994986';
+                                        } else if (_name == "松江区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.223543, 31.030470);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920585796245';
+                                            LEFTTREEID = '2021120815124994986';
+                                        } else if (_name == "中心城区") {
+                                            map.setZoom(11);
+                                            dyCenter(121.450659, 31.270821);
+                                            AllPath = features[num].geometry.coordinates;
+                                            treeID = '2021071920585796245';
+                                            LEFTTREEID = '2021120815124994986';
+                                        }
+
+                                        require(["esri/geometry/Point",
+                                            "esri/geometry/Polyline",
+                                            "esri/geometry/Extent",
+                                            "esri/graphic",
+                                            "esri/Color",
+                                            "esri/layers/GraphicsLayer",
+                                            "esri/symbols/CartographicLineSymbol",
+                                            "esri/symbols/SimpleLineSymbol",
+                                            "esri/geometry/Polygon",
+                                            "esri/symbols/SimpleFillSymbol",
+                                        ], function (Point, Polyline, Extent, Graphic, Color, GraphicsLayer, CartographicLineSymbol,
+                                            SimpleLineSymbol, Polygon, SimpleFillSymbol) {
+                                                var outRings = [
+                                                    [90, 10],
+                                                    [150, 10],
+                                                    [150, 40],
+                                                    [90, 40],
+                                                    [90, 10]
+                                                ]; //黑色部分
+                                                var rings = [];//; [outRings];
+                                                var paths = [];
+                                                paths = AllPath;
+                                                console.error(AllPath);
+                                                rings.push(paths);
+                                                var area = new Polygon(rings);
+                                                var symbol = new SimpleFillSymbol(
+                                                    SimpleFillSymbol.STYLE_SOLID,
+                                                    new SimpleLineSymbol(
+                                                        SimpleLineSymbol.STYLE_SOLID,
+                                                        new Color([72, 103, 136]), //rgb155, 153, 153
+                                                        5
+                                                    ),
+                                                    new Color([4, 20, 54, 0]) //rgba
+                                                );
+                                                var gra = new Graphic(area, symbol);
+                                                AllBJLayerGraphicLayer.add(gra);
+                                            });
+
+
+                                        try {
+                                            $.data(myData, "TREEID", LEFTTREEID);
+                                            //$("#iframeRight")[0].contentWindow.CITYSWDataLED(LEFTTREEID);
+                                        } catch (ex) { }
+                                        try {
+                                            $.data(myData, "LEFTTREEID", LEFTTREEID);
+                                            //$("#iframeLeft")[0].contentWindow.CITYSWDataLED($.data(myData, "LEFTTREEID"));
+                                        } catch (ex) { }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "json"
+                );
+            }
+        }
+
+        function readJosn() {
+            if ($.data(myData, "CenterLinejsonfeatures") == undefined || $.data(myData, "CenterLinejsonfeatures") == null || $.data(myData, "CenterLinejsonfeatures") == "") {
+                var url = "../../Common/swzzModerRiverCenterLine2000.json";
+                $.ajaxSettings.async = false;  //设为同步请求
+                $.get(
+                    "../../Common/swzzModerRiverCenterLine2000.json",//json路径
+                    function (data, status) {
+                        if (status === "success") {
+                            var features = data.features;
+                            $.data(myData, "CenterLinejsonfeatures", features);
+                        }
+                    },
+                    "json"
+                );
+            } 
+    
+            require([
+                "esri/geometry/Polyline",
+                "esri/graphic",
+                "esri/Color",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/symbols/SimpleFillSymbol",
+            ], function ( Polyline, Graphic, Color,
+                SimpleLineSymbol, SimpleFillSymbol) {
+                    var features = $.data(myData, "CenterLinejsonfeatures");
+                    features.forEach(function (feature) {
+                        var geometry = feature.geometry;
+                        var coordinates = geometry.coordinates;
+                        var area = new Polyline(coordinates);
+                        var symbol = new SimpleFillSymbol(
+                            SimpleFillSymbol.STYLE_SOLID,
+                            new SimpleLineSymbol(
+                                SimpleLineSymbol.STYLE_SOLID,
+                                new Color([64, 158, 255]), //rgb155, 153, 153
+                                2
+                            ),
+                            new Color([4, 20, 54, 0]) //rgba
+                        );
+                        var lineSymbol = new SimpleLineSymbol(
+                            SimpleLineSymbol.STYLE_SOLID,
+                            new Color([64, 158, 255]),
+                            2);
+                        var gra = new Graphic(area, lineSymbol);
+                        gra.attributes = feature.properties;
+                        centerLineGraphicLayer.add(gra);
+                    });
+
+                    loadSVG();
+                });
+        }
+
+        //流动效果
+        function loadSVG() {
+            // Obtain all transit line paths + polylines
+            let paths = document.querySelectorAll('#centerLineGraphicLayer_layer path');
+            paths = Array.prototype.slice.call(paths);
+            //alert(paths.length);
+            let style = ``;
+
+            const CAR_SIZE = 10;
+            var arr = ["#2196f3", "#E42323", "#FFE63D", "#751299", "#0078D7"];
+            //水质类别颜色
+            var LineColor = ['#1D8ADD', '#47c714', '#FED202', "#FE9506", "#F91005", "#FD5508"];
+            //来水组成颜色
+            var lineColorLszc = ["#228B22", "#ADFF2F", "#FFA500", "#DA70D6", "#DA70D6", "#FF4500"];
+            //console.error(JSON.stringify(resultData));
+            paths.forEach((path, i) => {
+                path.setAttribute('id', 'path-' + i);
+
+                let length = path.getTotalLength();
+                let speed = 30;//length / 50;
+                let speed1 = length / 15;
+                let CAR_SIZE = 10;
+
+                if (length < 350) {
+                    speed = 10;
+                }
+                style += ` #path-${i} {
+                          stroke-dasharray: ${CAR_SIZE}, ${length / speed1};
+                          stroke-dashoffset: ${length};
+                          animation: dash ${speed}s linear infinite;
+                           }
+                           @keyframes dash-${i} {
+                           from {
+                           stroke-dashoffset: 0;
+                          }
+                          to {
+                          stroke-dashoffset: ${length};
+                           }
+                          }
+                          @keyframes dash {
+                          to {
+                          stroke-dashoffset: 0;
+                           }
+                        }`
+            });
+
+            removeStyle();
+            const sheet = document.createElement('style');
+            sheet.id = "myStyleID";
+            sheet.innerHTML = style;
+            document.head.appendChild(sheet);
+        }
+
+        function removeStyle() {
+            try {
+                document.head.removeChild(document.getElementById("myStyleID"));
+            } catch (e) {
+
+            }
+        }
+
+        function WindowOpen(url, title, width = null, height = null) {
+            if (width != null) {
+                $(".danzhanPopup .popupContent").css("width", width);
+            }
+            if (height != null) {
+                $(".danzhanPopup .popupContent").css("height", height);
+            }
+            $(".danzhanPopup", window.document).css("display", "block");
+            $("#popupIframe", window.document).attr("src", url);
+            $(".popupContentTitleText", window.document).html(title);
+            $(".danzhanPopup", window.document).show();
+        }
+
+        function riverPoint(evt) {
+            var feat = evt.graphic.attributes;
+            var typeName = "水位";
+            var strPathName = "黄浦江水系预报模型三期";
+            var hd_name = feat.HDNAME;
+            var time = $.data(myData, "STIME");
+            var etime = $.data(myData, "ETIME");
+           
+            var url = "../YBSZLine.html?stcd=" + feat.ID + "&stnm=" + hd_name
+                + "&PLAN_N=" + $.data(myData, "DD_ID")+ "&typeName=" + typeName + "&dm_id=" + feat.DMNUM
+                + "&strPathName=" + strPathName + "&stime=" + time + "&etime=" + etime+"&taskID="+$.data(myData, "taskID");
+            //查看计算成果
+            WindowOpen(url, hd_name, "1200px", "650px");
+        }
+
+        function GetClik(objID) {
+            $("#" + objID + " li").click(function () {
+                $("#" + objID).css("display", "none");
+                var infoType = $(this).attr("id");
+                $("#" + objID).parent().find("label").html($(this).html());
+                addOutRings(infoType);
+            });
+        }
+
+
+        var rbl = mini.get("rbl");
+        rbl.on("valuechanged", function (e) {
+            var value = e.value;
+            if (value == "水位") {
+                $("#swTuli").show();
+                $("#llTuli").hide();
+            }
+            else if (value == "流量") {
+                $("#swTuli").hide();
+                $("#llTuli").show();
+            }
+            SetSDEGC($.data(myData, "gcTime"));
+        });
+    </script>
+</body>
+</html>

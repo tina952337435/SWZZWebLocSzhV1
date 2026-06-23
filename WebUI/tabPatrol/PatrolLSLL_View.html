@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title></title>
+    <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            /* overflow: hidden; */
+            font-size: 12px;
+        }
+
+        #TITLE table td {
+            border: 0px;
+        }
+
+        .col-lg-1,
+        .col-lg-10,
+        .col-lg-11,
+        .col-lg-12,
+        .col-lg-2,
+        .col-lg-3,
+        .col-lg-4,
+        .col-lg-5,
+        .col-lg-6,
+        .col-lg-7,
+        .col-lg-8,
+        .col-lg-9,
+        .col-md-1,
+        .col-md-10,
+        .col-md-11,
+        .col-md-12,
+        .col-md-2,
+        .col-md-3,
+        .col-md-4,
+        .col-md-5,
+        .col-md-6,
+        .col-md-7,
+        .col-md-8,
+        .col-md-9,
+        .col-sm-1,
+        .col-sm-10,
+        .col-sm-11,
+        .col-sm-12,
+        .col-sm-2,
+        .col-sm-3,
+        .col-sm-4,
+        .col-sm-5,
+        .col-sm-6,
+        .col-sm-7,
+        .col-sm-8,
+        .col-sm-9,
+        .col-xs-1,
+        .col-xs-10,
+        .col-xs-11,
+        .col-xs-12,
+        .col-xs-2,
+        .col-xs-3,
+        .col-xs-4,
+        .col-xs-5,
+        .col-xs-6,
+        .col-xs-7,
+        .col-xs-8,
+        .col-xs-9 {
+            position: relative;
+            min-height: 1px;
+            padding-right: 0px;
+            padding-left: 0px;
+        }
+
+        .tableView {
+            margin: 20px auto;
+        }
+
+        .tableView tr td {
+            position: relative;
+            width: auto !important;
+        }
+
+        .widthinput {
+            width: 120px !important;
+        }
+
+        .RadBtn {
+            margin: 0 auto;
+            border: 0px !important;
+        }
+
+        .RadBtn table {
+            margin: 0 auto;
+            border: 0px !important;
+        }
+
+        .RadBtn tr td {
+            border: 0px !important;
+        }
+
+        .borderCss {
+            border: 0px !important;
+        }
+
+        .fontSize18 {
+            font-size: 18px;
+        }
+
+        .qingkuan {
+            margin-left: 8px;
+        }
+
+        .table1 {
+            font-size: 13px;
+        }
+
+        .table1 tr td:nth-child(2n+1) {
+            height: 30px;
+            width: 15%;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            border-image: initial;
+        }
+
+        .table1 tr td:nth-child(2n) {
+            height: 30px;
+            width: 35%;
+            border-width: 1px;
+            border-style: solid;
+            border-color: rgb(0, 0, 0);
+            border-image: initial;
+        }
+
+        .lie1 {
+            background: #FFFFFF;
+        }
+
+        .fontSizeTITLE {
+            font-size: 26px;
+        }
+
+        .table1 tr td:nth-child(odd) {
+            width: 10% !important;
+        }
+
+        .table1 tr td:nth-child(even) {
+            width: 10% !important;
+        }
+        #HeadTitle{
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body class="contentbody">
+    <button type="button" class="btn btn-primary" onclick="PrintA()" style="width:60px;margin-right:20px;">打印</button>
+    <div id="PrintA" style="text-align: center;">
+
+
+        <table cellspacing='0' cellpadding='0' border='0' class="table1" id='GridView1'
+            style=' background-color: White; width: 95%; height: 990px;border-collapse: collapse;border: 0px;margin-top: 0px;'>
+            <tr>
+                <td colspan="4" align="center" class="CssTitle borderCss">
+                    <span id="HeadTitle">
+
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" class="borderCss">
+                    <div class="row" style="margin-left: 0px;margin-right: 0px;">
+                        <table cellspacing='0' cellpadding='0' border='0' class="tableView"
+                            style=' background-color: White; width: 95%; border-collapse: collapse;position: relative;text-align: center;'>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    日期:
+                </td>
+                <td class="lie2 View" colspan="2" id="SPT">
+
+                </td>
+                <td class="lie1" align="right">
+                    天气
+                </td>
+                <td class="lie2 View" colspan="2" id="WTH">
+
+                </td>
+                <td class="lie1" align="right">
+                    风力风向
+                </td>
+                <td class="lie2 View" colspan="2" id="WNDPWR">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    测量测次
+                </td>
+                <td class="lie2 View" colspan="2"  id="MSQMT">
+
+                </td>
+                <td class="lie1" align="right">
+                    测船
+                </td>
+                <td class="lie2 View" colspan="2"  id="CSHIP">
+
+                </td>
+                <td class="lie1" align="right">
+                    计算机名
+                </td>
+                <td class="lie2 View" colspan="2"  id="PC">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始时间
+                </td>
+                <td class="lie2 View" colspan="2"  id="BGMD">
+
+                </td>
+                <td class="lie1" align="right">
+                    结束时间
+                </td>
+                <td class="lie2 View" colspan="2"  id="EDMD">
+
+                </td>
+                <td class="lie1" align="right">
+                    平均时间
+                </td>
+                <td class="lie2 View" colspan="2"  id="AVGMD">
+
+                </td>
+
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    流速仪型号
+                </td>
+                <td class="lie2 View" colspan="2"  id="EPTP">
+
+                </td>
+                <td class="lie1" align="right">
+                    固件版本
+                </td>
+                <td class="lie2 View" colspan="2"  id="FVERSION">
+
+                </td>
+                <td class="lie1" align="right">
+                    软件版本
+                </td>
+                <td class="lie2 View" colspan="2"  id="SVERSION">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    GPS型号
+                </td>
+                <td class="lie2 View" colspan="2"  id="GPSPTP">
+
+                </td>
+                <td class="lie1" align="right">
+                    罗盘型号
+                </td>
+                <td class="lie2 View" colspan="2"  id="CPTP">
+
+                </td>
+                <td class="lie1" align="right">
+                    指标流速
+                </td>
+                <td class="lie2 View" colspan="2"  id="XIV">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    数据文件路径
+                </td>
+                <td class="lie2 View" colspan="3"  id="DPATH">
+
+                </td>
+                <td class="lie1" align="right" colspan="2">
+                    配置文件名称
+                </td>
+                <td class="lie2 View" colspan="3"  id="PNAME">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    探头入水深
+                </td>
+                <td class="lie2 View"  id="DEPTH">
+
+                </td>
+                <td class="lie1" align="right">
+                    设置的盲区
+                </td>
+                <td class="lie2 View"  id="BASET">
+
+                </td>
+                <td class="lie1" align="right" colspan="2">
+                    深度单元尺寸
+                </td>
+                <td class="lie2 View"  id="UNITSIZE">
+
+                </td>
+                <td class="lie1" align="right">
+                    深度单元个数
+                </td>
+                <td class="lie2 View"  id="UNITNUM">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    含盐度
+                </td>
+                <td class="lie2 View"  id="SALINITY">
+
+                </td>
+                <td class="lie1" align="right">
+                    水跟踪脉冲数
+                </td>
+                <td class="lie2 View"  id="WATERNUM">
+
+                </td>
+                <td class="lie1" align="right" colspan="2">
+                    底跟踪脉冲数
+                </td>
+                <td class="lie2 View" id="BOTTOMNUM" >
+
+                </td>
+                <td class="lie1" align="right">
+                    幂指数
+                </td>
+                <td class="lie2 View"  id="POWEREXP">
+
+                </td>
+            </tr>
+            <tr>
+                <td rowspan="2" class="lie1" align="right">测回</td>
+                <td rowspan="2" class="lie1" align="right">航向</td>
+                <td colspan="2" class="lie1" align="right">水边记录（m）</td>
+                <td rowspan="2" colspan="2" class="lie1" align="right">数据文件名</td>
+                <td rowspan="2" class="lie1" align="right">半测回流量（m3/s）</td>
+                <td rowspan="2" class="lie1" align="right">测回平均流量（m3/s）</td>
+                <td rowspan="2" class="lie1" align="right">备注</td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">L</td>
+                <td class="lie1" align="right">R</td>
+            </tr>
+            <tr>
+                <td rowspan="2">一</td>
+                <td class="View" id="CCOURSE1"></td>
+                <td class="View" id="CLRECORD1"></td>
+                <td class="View" id="CRRECORD1"></td>
+                <td colspan="2" class="View" id="CFILENAME1"></td>
+                <td class="View" id="CTGTQ1"></td>
+                <td rowspan="2" class="View" id="CTAVGQ"></td>
+                <td rowspan="2" class="View" id="CNOTE"></td>
+            </tr>
+            <tr>
+                <td class="View" id="CCOURSE2"></td>
+                <td class="View" id="CLRECORD2"></td>
+                <td class="View" id="CRRECORD2"></td>
+                <td colspan="2" class="View" id="CFILENAME2"></td>
+                <td class="View" id="CTGTQ2"></td>
+            </tr>
+            <tr>
+                <td rowspan="2">二</td>
+                <td class="View" id="HCOURSE1"></td>
+                <td class="View" id="HLRECORD1"></td>
+                <td class="View" id="HRRECORD1"></td>
+                <td colspan="2" class="View" id="HFILENAME1"></td>
+                <td class="View" id="HTGTQ1"></td>
+                <td rowspan="2" class="View" id="HTAVGQ"></td>
+                <td rowspan="2" class="View" id="HNOTE"></td>
+            </tr>
+            <tr>
+                <td class="View" id="HCOURSE2"></td>
+                <td class="View" id="HLRECORD2"></td>
+                <td class="View" id="HRRECORD2"></td>
+                <td colspan="2" class="View" id="HFILENAME2"></td>
+                <td class="View" id="HTGTQ2"></td>
+            </tr>
+            <tr></tr>
+            <tr>
+                <td colspan="12" align="center" class="CssTitle">
+                    测验结果 
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" rowspan="2">
+                    测验项目
+                </td>
+                <td class="lie1" colspan="6">
+                    测回
+                </td>
+                <td class="lie1" rowspan="2" colspan="2">
+                    测次平均
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" colspan="3">往测</td>
+                <td class="lie1" colspan="3">返测</td>
+            </tr>
+            <tr>
+                <td class="lie1">断面流量（m³/s）</td>
+                <td colspan="3" class="View" id="RTFLOW"></td>
+                <td colspan="3" class="View" id="RRFLOW"></td>
+                <td colspan="2" class="View" id="RAVGFLOW"></td>
+            </tr>
+            <tr>
+                <td class="lie1">断面面积（m²）</td>
+                <td colspan="3" class="View" id="RTAREA"></td>
+                <td colspan="3" class="View" id="RRAREA"></td>
+                <td colspan="2" class="View" id="RAVGAREA"></td>
+            </tr>
+            <tr>
+                <td class="lie1">平均流速（m）</td>
+                <td colspan="3" class="View" id="RTPIV"></td>
+                <td colspan="3" class="View" id="RRPIV"></td>
+                <td colspan="2" class="View" id="RAVGPIV"></td>
+            </tr>
+            <tr>
+                <td class="lie1">最大流速（m）</td>
+                <td colspan="3" class="View" id="RTMIV"></td>
+                <td colspan="3" class="View" id="RRMIV"></td>
+                <td colspan="2" class="View" id="RAVGMIV"></td>
+            </tr>
+            <tr>
+                <td class="lie1">平均水深（m）</td>
+                <td colspan="3" class="View" id="RTPDEPTH"></td>
+                <td colspan="3" class="View" id="RRPDEPTH"></td>
+                <td colspan="2" class="View" id="RAVGPDEPTH"></td>
+            </tr>
+            <tr>
+                <td class="lie1">最大水深（m）</td>
+                <td colspan="3" class="View" id="RTMDEPTH"></td>
+                <td colspan="3" class="View" id="RRMDEPTH"></td>
+                <td colspan="2" class="View" id="RAVGMDEPTH"></td>
+            </tr>
+            <tr>
+                <td class="lie1">水面宽（m）</td>
+                <td colspan="3" class="View" id="RTSMK"></td>
+                <td colspan="3" class="View" id="RRSMK"></td>
+                <td colspan="2" class="View" id="RAVGSMK"></td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    开始水位
+                </td>
+                <td class="lie2 View" id="BGZ">
+
+                </td>
+                <td class="lie1" align="right">
+                    结束水位
+                </td>
+                <td class="lie2 View" id="EDZ">
+
+                </td>
+                <td class="lie1" align="right" colspan="2">
+                    平均水位
+                </td>
+                <td class="lie2 View" id="AVGZ">
+
+                </td>
+                <td class="lie1" align="right">
+                    水尺读数
+                </td>
+                <td class="lie2 View" id="DRAFT">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" align="right">
+                    备注
+                </td>
+                <td class="lie2 View" colspan="12" id="NT">
+
+                </td>
+            </tr>
+            <tr>
+                <td class="lie1" style="border:0px" colspan="3">操作记录：<span id="OWEN" class="View"></span></td>
+                <td class="lie1" style="border:0px" colspan="2">现场审查：<span id="EXAMINE" class="View"></span></td>
+                <td class="lie1" style="border:0px" colspan="3">审定：<span id="AUTHORIZE" class="View"></span></td>
+            </tr>
+
+
+        </table>
+    </div>
+    </td>
+    </tr>
+
+    </table>
+
+    </div>
+</body>
+<script type="text/javascript">
+    //标准方法接口定义
+    var itemID = GetQueryString("ID");
+    var HeadTitle = GetQueryString("HEADTITLE");
+    $(function () {
+
+
+        var postParam = {};
+        postParam["ID"] = itemID;
+        app.get("/doppler/selectList", postParam, function (res) {
+            JosnSel(res, "Sel");
+        })
+    })
+
+    function PrintA() {
+        PrintDiv("PrintA");
+    }
+
+    function SetData(data) {
+
+    }
+
+    function JosnSel(data, typeID) {
+        if (typeID == "Sel") {
+            if (data.total > 0) {
+                var o = mini.decode(data.data[0]);
+                FromSetinnerHTML(o, "View");
+                var strTitle = '<span style="padding-right: 10px;">';
+                strTitle += o.stnm;
+                strTitle += '</span>';
+                strTitle += HeadTitle;
+                $("#HeadTitle").html(strTitle);
+
+
+            }
+        }
+    }
+</script>
+
+</html>

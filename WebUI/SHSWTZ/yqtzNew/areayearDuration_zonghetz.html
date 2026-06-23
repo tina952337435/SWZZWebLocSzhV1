@@ -1,0 +1,1068 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>暴雨历时</title>
+    <link href="/Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <script src="/Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+
+    <link href="/Common/CSS/ui-choose.css" rel="stylesheet" />
+
+    <link href="/Common/CSS/bootstrap.min.css" rel="stylesheet">
+    <link href="/Common/CSS/font-awesome.min.css" rel="stylesheet">
+    <link href="/Common/CSS/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .mini-panel-border, .mini-grid-border {
+            border: 0px !important;
+        }
+
+        .btn {
+            padding: 3px 12px;
+            position: absolute;
+            left: 360px;
+            top: 8px;
+        }
+
+        .searchContext {
+            height: 40px;
+            line-height: 40px;
+            /*width: 340px;*/
+        }
+
+        .searchTitle {
+            width: 102px;
+            float: left;
+        }
+
+        .mini-button {
+            position: absolute;
+            left: 420px;
+            top: 6px;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+
+        .mini-grid-bottomCell {
+            background: white !important;
+        }
+
+        .mini-grid-headerCell {
+            border: 0px;
+            vertical-align: bottom;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+        }
+
+        .mini-grid-headerCell-nowrap {
+            background: white !important;
+        }
+
+        html body .mini-grid-row-hover {
+            background: white !important;
+        }
+
+        .mini-grid-row-alt {
+            background: white !important;
+        }
+
+        .mini-grid-cell {
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        html body .mini-grid-row-selected {
+            background: white !important;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:210px;float:left;height:100%; margin-right: 5px;background: white;padding: 10px 10px;">
+        <ul id="tree1" class="mini-tree" style="width:100%;height:100%;padding:5px;"
+            showTreeIcon="true" textField="NAME"
+            idField="ID" expandOnNodeClick="true" onnodeselect="onSelectNode" expandOnLoad="1"></ul>
+    </div>
+    <div style="width:calc(100% - 215px);float:right;height:auto;background: #ededed;">
+        <div class="mini-toolbar">
+            <div class="searchContext" style="line-height:35px;">
+                <div class="searchTitle">&nbsp;&nbsp;&nbsp;年份选择：</div>
+                <div class="input-group" style="width:110px;float:left;margin-right:4px;">
+                    <input id="startYear" class="form-control" value="开始" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <span style="float:left;">—</span>
+                <div class="input-group" style="width:110px;float:left;margin-left:4px;">
+                    <input id="endYear" class="form-control" value="结束" readonly>
+                    <div class="input-group-addon">
+                        <i class="fa fa-calendar" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-info" onclick="search()">统计</button>
+                <!--<a class="mini-button" onclick="Exp()">导出报表</a>-->
+
+                <div style="float:right;color:red;margin-right:10px;">
+                    <ul style="list-style:none;color:gray;">
+                        <li style="height:30px;"> 注：暴雨、大暴雨和特大暴雨相互不包含</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin:10PX;height:300px;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(100% - 20px);background:white;">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p" id="title1">暴雨平均历时</p>
+                <div style="float:right;">
+                    <button type="button" class="btn btn-info" onclick="Exp1()" id="expButton" style="display:block;position:static;">导出</button>
+                </div>
+            </div>
+            <div style="height:calc(100% - 30px);width:100%;padding:0px 10px;">
+                <div id="BY_charts" style="height:100%;width:45%;margin:0px 0%;background:white;float:left;"></div>
+                <div id="grid1" class="mini-datagrid" style="width: 55%;height:100%;float:left;" allowalternating="true"
+                     borderstyle="border-right:0;" sortmode="client"
+                     showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+                </div>
+            </div>
+
+        </div>
+
+        <div style="margin:10PX;height:300px;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(100% - 20px);background:white;">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p" id="title2">时段历时特征统计</p>
+
+                <input id="GRADE" name="GRADE" class="mini-combobox" style="width:100px;margin-left:50px;" textField="text" valueField="id" allowInput="true"
+                       onvaluechanged="loadPieChart" />
+
+                <div style="float:right;">
+                    <button type="button" class="btn btn-info" onclick="Exp2()" id="expButton" style="display:block;position:static;">导出</button>
+                </div>
+            </div>
+            <div style="height:calc(100% - 30px);width:100%;padding:0px 10px;">
+                <div id="pie_charts" style="height:100%;width:45%;margin:0px 0%;background:white;float:left;"></div>
+                <div id="grid2" class="mini-datagrid" style="width: 55%;height:100%;float:left;" allowalternating="true"
+                     borderstyle="border-right:0;" sortmode="client"
+                     showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin:10PX;height:400px;box-sizing: border-box;
+    -webkit-box-sizing: border-box;width:calc(100% - 20px);background:white;">
+            <div class="layout_title px-2">
+                <div data-v-62547c07="" class="d1">
+                </div>
+                <div class="d2"></div>
+                <p class="base-p" id="title3">各区暴雨平均历时(h)</p>
+
+                <div style="float:right;">
+                    <button type="button" class="btn btn-info" onclick="Exp3()" id="expButton" style="display:block;position:static;">导出</button>
+                </div>
+            </div>
+            <div style="height:calc(100% - 30px);width:100%;padding:0px 10px;">
+                <div id="area_charts" style="height:100%;width:45%;margin:0px 0%;background:white;float:left;"></div>
+                <div id="grid3" class="mini-datagrid" style="width: 55%;height:100%;float:left;" allowalternating="true"
+                     borderstyle="border-right:0;" sortmode="client"
+                     showpager="false" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/Common/Scripts/bootstrap-datetimepicker.min.js"></script>
+    <script src="/Common/Scripts/locales/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script>
+
+        mini.parse();
+        var tree = mini.get("tree1");
+        var grid = mini.get("grid1");
+        var grid2 = mini.get("grid2");
+        var grid3 = mini.get("grid3");
+        var myData = [];
+        $(function () {
+            createGrid();
+            $.data(myData, "TYPE", "");
+            var _year = new Date().format("yyyy");
+            GetObj("startYear").value = 1978;
+            GetObj("endYear").value = _year - 2;
+            searchStation();
+            var gradeCom = mini.get("GRADE");
+            var gradeArr = [{ id: "50,100", text: "暴雨" }, { id: "100,200", text: "大暴雨" }, { id: "200,1000000", text: "特大暴雨" }];
+            gradeCom.setData(gradeArr);
+            gradeCom.select(0);
+            $(".form-control").datetimepicker({
+                format: 'yyyy', // 展现格式
+                startDate: "1978",// 开始时间
+                endDate: "9999", // 结束时间
+                autoclose: true, // 选择日期后关闭
+                // 选择器打开之后首先显示的视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                startView: 4,
+                // 选择器所能够提供的最精确的时间选择视图
+                // 0表示分钟(默认),1表示小时,2表示天,3表示月,4表示年
+                minView: 4,
+                language: 'zh-CN', //显示语言为中文
+            });
+        });
+
+        function createGrid() {
+            var columns = [
+                { field: "GRADE", header: "暴雨等级", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                {
+                    field: "", header: "平均历时(h)", width: "10%", headerAlign: "center", align: "center", allowSort: true, dataType: "float", decimalPlaces: "1", columns: [
+                        { field: "HOURQ", header: "全年", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "HOURXQ", header: "汛期", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "HOURFXQ", header: "非汛期", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "最长历时(h)", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "HOURQMAX", header: "全年", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "HOURXQMAX", header: "汛期", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "HOURFXQMAX", header: "非汛期", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "最短历时(h)", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "HOURQMIN", header: "全年", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "HOURXQMIN", header: "汛期", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "HOURFXQMIN", header: "非汛期", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+            ];
+            grid.set({
+                columns: columns
+            });
+
+            columns = [
+                { field: "GRADE", header: "暴雨级别", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                {
+                    field: "", header: "1h以内", width: "10%", headerAlign: "center", align: "center", allowSort: true, dataType: "float", decimalPlaces: "1", columns: [
+                        { field: "NUMBER0", header: "场次", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "BILI0", header: "占比", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "1-3h", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "NUMBER1", header: "场次", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "BILI1", header: "占比", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "3-6h", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "NUMBER3", header: "场次", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "BILI3", header: "占比", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "6-12h", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "NUMBER6", header: "场次", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "BILI6", header: "占比", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "12-24h", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "NUMBER12", header: "场次", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "BILI12", header: "占比", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+                {
+                    field: "", header: "24h以上", width: "10%", headerAlign: "center", align: "center", allowSort: true, columns: [
+                        { field: "NUMBER24", header: "场次", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                        { field: "BILI24", header: "占比", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                    ]
+                },
+            ];
+            grid2.set({
+                columns: columns
+            });
+
+            columns = [
+                { field: "STNM", header: "区域", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                { field: "RUO", header: "暴雨", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                { field: "ZHONG", header: "大暴雨", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+                { field: "QIANG", header: "特大暴雨", width: "10%", headerAlign: "center", align: "center", allowSort: true },
+            ];
+            grid3.set({
+                columns: columns
+            });
+        }
+
+        function searchStation() {
+            var strWhere = { STTP: "PP", TYPE: "雨量" };
+            GetJosns("REPRESENTATIVESTATIONS", strWhere, "Sel");
+        }
+        function ondrawcell(e) {
+            var field = e.field;
+            var value = e.value;
+            var record = e.record;
+            var column = e.column;
+        }
+        function loadTree(data) {
+            var dataResult = [];
+            dataResult.push({ ID: "310000", NAME: "全市", PID: "-1" });
+            var dataTempC = groupBy(data, "COUNTIES");
+            dataResult.push({ ID: "1", NAME: "行政分区", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                if (item[0].COUNTIESID == "100071") {
+                    dataResult.push({ ID: "10007", NAME: "浦东新区", PID: "1" });
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "10007" });
+                } else if (item[0].COUNTIESID == "100072") {
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "10007" });
+                }
+                else {
+                    dataResult.push({ ID: item[0].COUNTIESID, NAME: item[0].COUNTIES, PID: "1" });
+                }
+            });
+            var dataTempW = groupBy(data, "WATERAREA");
+            dataResult.push({ ID: "2", NAME: "水利片区", PID: "-1" });
+            dataTempW.forEach(function (item) {
+                dataResult.push({ ID: item[0].WATERAREAID, NAME: item[0].WATERAREA, PID: "2" });
+            });
+            dataResult.push({ ID: "3", NAME: "32个代表站", PID: "-1" });
+            dataTempC.forEach(function (item) {
+                for (var num = 0; num < item.length; num++) {
+                    dataResult.push({ ID: item[num].STCD, NAME: item[num].STNM, PID: "3" });
+                }
+            });
+            tree.loadList(dataResult, "ID", "PID");
+            tree.select(0);
+        }
+        function search() {
+            var node = tree.getSelectedNode();
+            $("#title1").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + node.NAME+"暴雨平均历时(h)");
+            $("#title2").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + node.NAME + "历时特征统计");
+            $("#title3").html(GetObj("startYear").value + "-" + GetObj("endYear").value + "年" + node.NAME + "各区暴雨平均历时(h)");
+            var startYear = Number(GetObj("startYear").value) + "-01-01 00:00:00";
+            var endYear = Number(GetObj("endYear").value) + "-12-31 23:59:59";
+            var strWhere = {
+                STCD: node.ID,
+                STIME: startYear,
+                ETIME: endYear
+            };
+            GetJosns("ST_RAINSTORMFREQUENCYNAMESel", strWhere, "SelNum");
+
+            searchArea();
+        }
+
+        function searchArea() {
+            var startYear = Number(GetObj("startYear").value) + "-01-01 00:00:00";
+            var endYear = Number(GetObj("endYear").value) + "-12-31 23:59:59";;
+            var strWhere = {
+                ATYPE: "行政分区",
+                STIME: startYear,
+                ETIME: endYear
+            };
+            GetJosns("rainStormDurationSel", strWhere, "SelNumArea");
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                loadTree(data.data);
+                //search();
+            }
+            else if (typeID == "SelNum") {
+                var dataResult = data.data;
+                $.data(myData, "NumData", dataResult);
+                loadHtml(dataResult);
+
+            }
+            else if (typeID == "SelNumArea") {
+                var dataResult = data.data;
+                loadAreaHtml(dataResult);
+            }
+        }
+
+        function loadHtml(data) {
+            var data1 = [];
+            var data2 = [];
+            var gradeArr = ["暴雨", "大暴雨", "特大暴雨"];
+            var gradeValueArr = [[50, 100], [100, 200], [200, 10000000]];
+            for (var num = 0; num < gradeArr.length; num++) {
+                var item = { GRADE: gradeArr[num] };
+
+                var dataTemp = data.filter(function (e) {
+                    return e.DRP24 >= gradeValueArr[num][0] && e.DRP24 < gradeValueArr[num][1];
+                });
+                var dataTempT = dataTemp.filter(function (e) {
+                    return e.HOUR <= 1;
+                });
+                item.NUMBER0 = dataTempT.length;
+                item.BILI0 = dataTemp.length > 0 ?((dataTempT.length / dataTemp.length) * 100).toFixed(1):0;
+                
+                dataTempT = dataTemp.filter(function (e) {
+                    return e.HOUR > 1 && e.HOUR <= 3;
+                });
+                item.NUMBER1 = dataTempT.length;
+                item.BILI1 = dataTemp.length > 0 ? ((dataTempT.length / dataTemp.length) * 100).toFixed(1):0;
+
+                dataTempT = dataTemp.filter(function (e) {
+                    return e.HOUR > 3 && e.HOUR <= 6;
+                });
+                item.NUMBER3 = dataTempT.length;
+                item.BILI3 = dataTemp.length > 0 ?((dataTempT.length / dataTemp.length) * 100).toFixed(1):0;
+
+                dataTempT = dataTemp.filter(function (e) {
+                    return e.HOUR > 6 && e.HOUR <= 12;
+                });
+                item.NUMBER6 = dataTempT.length;
+                item.BILI6 = dataTemp.length > 0 ?((dataTempT.length / dataTemp.length) * 100).toFixed(1):0;
+
+                dataTempT = dataTemp.filter(function (e) {
+                    return e.HOUR > 12 && e.HOUR <= 24;
+                });
+                item.NUMBER12 = dataTempT.length;
+                item.BILI12 = dataTemp.length>0?((dataTempT.length / dataTemp.length) * 100).toFixed(1):0;
+
+                dataTempT = dataTemp.filter(function (e) {
+                    return e.HOUR > 24;
+                });
+                item.NUMBER24 = dataTempT.length;
+                item.BILI24 = dataTemp.length > 0 ?((dataTempT.length / dataTemp.length) * 100).toFixed(1):0;
+                data2.push(item);
+
+
+
+                //统计汛期，非汛期
+                var total = SumJson(dataTemp, 'HOUR'), totalXQ = 0, totalFXQ = 0;//暴雨总时长，暴雨汛期时长，暴雨非汛期时长；
+                var number = dataTemp.length, numberXQ = 0, numberFXQ = 0;
+                var maxHour = 0, maxHourQX = 0, maxHourFQX = 0;
+                var minHour = 100000000000, minHourQX = 100000000000, minHourFQX = 100000000000;
+                item = { GRADE: gradeArr[num] };
+                for (var h = 0; h < dataTemp.length; h++) {
+                    var bgtm = new Date(convertToDate(dataTemp[h].BGTM));
+                    var xqStime = new Date(bgtm.getFullYear() + "-06-01 00:00:00");
+                    var xqEtime = new Date(bgtm.getFullYear() + "-09-30 23:59:59");
+
+                    var fxqStime1 = new Date(bgtm.getFullYear() + "-01-01 00:00:00");
+                    var fxqEtime1 = new Date(bgtm.getFullYear() + "-05-31 23:59:59");
+                    var fxqStime2 = new Date(bgtm.getFullYear() + "-10-01 00:00:00");
+                    var fxqEtime2 = new Date(bgtm.getFullYear() + "-12-31 23:59:59");
+
+                    if (bgtm >= xqStime && bgtm <= xqEtime) {
+                        totalXQ += dataTemp[h].HOUR;
+                        numberXQ++;
+                        if (maxHourQX < dataTemp[h].HOUR) {
+                            maxHourQX = dataTemp[h].HOUR;
+                        }
+                        if (minHourQX > dataTemp[h].HOUR) {
+                            minHourQX = dataTemp[h].HOUR;
+                        }
+                    }
+                    if ((bgtm >= fxqStime1 && bgtm <= fxqEtime1) || (bgtm >= fxqStime2 && bgtm <= fxqEtime2)) {
+                        totalFXQ += dataTemp[h].HOUR;
+                        numberFXQ++;
+                        if (maxHourFQX < dataTemp[h].HOUR) {
+                            maxHourFQX = dataTemp[h].HOUR;
+                        }
+                        if (minHourFQX > dataTemp[h].HOUR) {
+                            minHourFQX = dataTemp[h].HOUR;
+                        }
+                    }
+                    if (maxHour < dataTemp[h].HOUR) {
+                        maxHour = dataTemp[h].HOUR;
+                    }
+                    if (minHour > dataTemp[h].HOUR) {
+                        minHour = dataTemp[h].HOUR;
+                    }
+                }
+                minHour = minHour == 100000000000 ? 0 : minHour;
+                minHourQX = minHourQX == 100000000000 ? 0 : minHourQX;
+                minHourFQX = minHourFQX == 100000000000 ? 0 : minHourFQX;
+                item.HOURQ = number>0? (total / number).toFixed(1):0;
+                item.HOURXQ = numberXQ>0?(totalXQ / numberXQ).toFixed(1):0;
+                item.HOURFXQ = numberFXQ>0? (totalFXQ / numberFXQ).toFixed(1):0;
+                item.HOURQMAX = maxHour;
+                item.HOURXQMAX = maxHourQX;
+                item.HOURFXQMAX = maxHourFQX;
+                item.HOURQMIN = minHour;
+                item.HOURXQMIN = minHourQX;
+                item.HOURFXQMIN = minHourFQX;
+                data1.push(item);
+            }
+
+            $.data(myData, "data2", data2);
+            loadPieChart();
+
+            var strNote = [];
+            var item = { "name": "名称", "codename": "GRADE", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "全年", "codename": "HOURQ", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "汛期", "codename": "HOURXQ", "tableV": "1", "isShow": false, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "非汛期", "codename": "HOURFXQ", "tableV": "1", "isShow": false, "width": "30%" };
+            strNote.push(item);
+            chartBar('BY_charts', strNote, data1);
+
+            grid2.setData(data2);
+            grid.setData(data1);
+        }
+
+        function loadPieChart() {
+            var data = $.data(myData, "NumData");
+            var data2 = $.data(myData, "data2");
+            var data2T = data2.filter(function (e) {
+                return e.GRADE == mini.get("GRADE").getText();
+            });
+            var itemT = data2T[0];
+            var dataPie = [];
+            if (itemT.BILI0 > 0) {
+                dataPie.push({
+                    value: itemT.NUMBER0,
+                    name: "1h以内",
+                    bili: itemT.BILI0,
+                    label: {
+                        color: "#5dcafd"
+                    }
+                });
+            }
+            if (itemT.BILI1>0) {
+                dataPie.push({
+                    value: itemT.NUMBER1,
+                    name: "1-3h",
+                    bili: itemT.BILI1,
+                    label: {
+                        color: "#73e363"
+                    },
+                    color: "#73e363"
+                });
+            }
+            if (itemT.BILI3>0) {
+                dataPie.push({
+                    value: itemT.NUMBER3,
+                    bili: itemT.BILI3,
+                    name: "3-6h",
+                    label: {
+                        color: "#05eca7"
+                    },
+                    color: "#05eca7"
+                });
+            }
+            if (itemT.BILI6>0) {
+                dataPie.push({
+                    value: itemT.NUMBER6,
+                    bili: itemT.BILI6,
+                    name: "6-12h",
+                    label: {
+                        color: "#fdbd2c"
+                    },
+                    color: "#fdbd2c"
+                });
+            }
+            if (itemT.BILI12>0) {
+                dataPie.push({
+                    value: itemT.NUMBER12,
+                    bili: itemT.BILI12,
+                    name: "12-24h",
+                    label: {
+                        color: "#f27b72"
+                    },
+                    color: "#f27b72"
+                });
+            }
+            if (itemT.BILI24>0) {
+                dataPie.push({
+                    value: itemT.NUMBER24,
+                    bili: itemT.BILI24,
+                    name: ">24h",
+                    label: {
+                        color: "#7464fb"
+                    },
+                    color: "#7464fb"
+                });
+            }
+            var gradeValue = mini.get("GRADE").getValue();
+            var gradeArr = gradeValue.split(",");
+            dataTemp = data.filter(function (e) {
+                return e.DRP24 >= Number(gradeArr[0]) && e.DRP24 < Number(gradeArr[1]);
+            });
+            chartPie("pie_charts", dataPie, dataTemp.length);
+        }
+
+        function loadAreaHtml(data) {
+            var dataResult = data;
+            var data = groupBy(dataResult, "STCD");
+            var gradeArr = ["暴雨", "大暴雨", "特大暴雨"];
+            var gradeArr = ["RUO", "QIANG", "ZHONG"];
+            var gradeValueArr = [[50, 100], [100, 200], [200, 10000000]];
+            var arr = [];
+            for (var num = 0; num < data.length; num++) {
+                var dataTemp = data[num];
+                var item = {
+                    STCD: dataTemp[0].STCD,
+                    STNM: dataTemp[0].STNM,
+                };
+                for (var h = 0; h < gradeArr.length; h++) {
+                    var number = SumJson(dataTemp, gradeArr[h] + "NUMBER");
+                    var hour = SumJson(dataTemp, gradeArr[h] + "HOUR");//总历时
+                    var avgDur = number>0? (hour / number).toFixed(1):0;
+                    item[gradeArr[h]] = avgDur;
+                }
+                arr.push(item);
+            }
+            grid3.setData(arr);
+            Chart('area_charts', arr);
+        }
+
+        function onSelectNode(e) {
+            search();
+        };
+        function onSTCDChanged(e) {
+            search();
+        }
+     
+
+        //柱子的点击事件
+        function loadChangci(year) {
+            var node = tree.getSelectedNode();
+            var strTitle = node.NAME;
+            var STCD = node.ID;
+            var strParam = "STCD@" + STCD;
+            var rainLevel = "";
+            if (isNaN(year)) {
+                strTitle += "1978年至2020年" + year + "频次";
+                rainLevel = year;
+                strParam += ",TYPE@" + rainLevel;
+            } else {
+                strTitle += year + "年暴雨频次";
+                var stime = year + "-01-01 00:00:00";
+                var etime = year + "-12-31 23:59:59";
+                strParam += ",STIME@" + stime + ",ETIME@" + etime
+            }
+            var url = "/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html";
+            lookData(strParam, url, strTitle, "50%", 565, "true");
+        }
+        function Exp1() {
+            var data = grid.data;
+            var columns = grid.columns;
+            var node = tree.getSelectedNode();
+            var name = node.NAME + GetObj("startYear").value + "年至" + GetObj("endYear").value + "年" +"暴雨平均历时(h)"
+            ExportExcel(name, columns, data);
+        }
+        function Exp2() {
+            var data = grid2.data;
+            var columns = grid2.columns;
+            var node = tree.getSelectedNode();
+            var name = node.NAME + GetObj("startYear").value + "年至" + GetObj("endYear").value + "年" + "历时特征统计"
+            ExportExcel(name, columns, data);
+        }
+        function Exp3() {
+            var data = grid3.data;
+            var columns = grid3.columns;
+            var node = tree.getSelectedNode();
+            var name = node.NAME + GetObj("startYear").value + "年至" + GetObj("endYear").value + "年全市各区暴雨平均历时(h)"
+            ExportExcel(name, columns, data);
+        }
+    </script>
+
+    <script>
+        function chartBar(chartName, strNote, data) {
+            var node = tree.getSelectedNode();
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            //echarts.init(document.getElementById('quxian'), 'macarons');
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            var ShowSelected = {};
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+            var type = $.data(myData, "GRADE");
+            type = type == undefined ? "暴雨" : type;
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合
+                    } else if (value1.name == "名称") {
+                        if (value[value1.codename] != undefined) {
+                            chartTM.push(value[value1.codename]);
+                        }
+                    } else if (value1.name == "时间名称") {
+                        chartTM.push(value[value1.codename]); //加入时间集合
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+            option = {
+                title: {
+                    left: 'center',
+                    //text: node.NAME + type + '平均历时'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    // 鼠标移动到柱状图会显示内容 竖线编程阴影
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                // 更改图例默认颜色(依次应用)
+                // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+                color: ['#4CABCE', '#91CC75', '#FAC858', '#EE6666'],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    // left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: chartName,
+                    selected: ShowSelected,
+                    show: true,
+                },
+                grid: {
+                    left: 30,
+                    right: 30,
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: chartTM
+                },
+                yAxis: {
+                    name: "占比",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 10;
+                    }
+                },
+                series:
+                    function () {
+                        var serie = [];
+
+                        for (var j = 0; j < chartName.length; j++) {
+                            if (chartName[j] == "时间" || chartName[j] == "名称" || chartName[j] == "时间名称") //调过时间字段
+                            {
+                                continue;
+                            }
+                            var chartValue = []; 	//声明过线value集合
+                            for (var i = 0; i < m.length; i++) {
+                                if (isNaN(m[i][j]) == false) {
+                                    chartValue.push(changeTwoDecimal(m[i][j], 1)); //循环价值
+                                } else {
+                                    chartValue.push(null); //循环价值
+                                }
+                            }
+
+                            var item = {
+                                name: chartName[j],
+                                type: 'bar',
+                                data: chartValue,
+                                barWidth: 20,
+                                itemStyle: {
+                                    normal: {
+                                        show: true,
+                                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                            offset: 0,
+                                            color: '#7ea8ee'
+                                        }, {
+                                            offset: 1,
+                                            color: '#2dc5fe'
+                                        }]),
+                                        // barBorderRadius: 50,
+                                        borderWidth: 0,
+                                        label: {
+                                            show: true,  //开启显示
+                                            formatter: '{c}%',  //显示数值
+                                            position: 'top',
+                                            textStyle: { //数值样式
+                                                fontSize: 10
+                                            }
+                                        },
+                                        barBorderRadius: [30, 30, 0, 0],
+                                    },
+                                    emphasis: {
+                                        shadowBlur: 15,
+                                        shadowColor: 'rgba(105,123, 214, 0.7)'
+                                    }
+                                }
+                            }
+                            serie.push(item);
+
+                        };
+                        return serie;
+                    }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+            // console.log(echarts.version)
+            myChart.on('legendselectchanged', function (params) {
+                let name = params.name
+                let selected = params.selected
+                let checked = selected[name]
+                if (checked) {
+                    for (let k in selected) {
+                        if (k != name) {
+                            selected[k] = false
+                        }
+                    }
+
+                    myChart.setOption({
+                        legend: {
+                            selected: selected
+                        }
+                    })
+                }
+            });
+        }
+        function chartPie(chartName, data, total) {
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            option = {
+                tooltip: {
+                    trigger: "item",
+                    formatter: "历时统计 <br/>{b} : {c} ({d}%)"
+                },
+                legend: {
+                    right: 40,
+                    top: 40,
+                    itemGap: 20,
+                    itemWidth: 14,
+                    orient: "vertical",
+                    textStyle: { fontSize: 14, color: "#333333" }
+                },
+                title: {
+                    text: total,
+                    top: "42%",
+                    left: "40%",
+                    subtext: "总数",
+                    itemGap: 5,
+                    textStyle: {
+                        color: "#45a0e8",
+                        fontSize: 24
+                    },
+                    subtextStyle: {
+                        color: "#61bbff",
+                        fontSize: 20
+                    },
+                    textAlign: "center"
+                },
+                color: [
+                    "#5dcafd",
+                    "#73e363",
+                    "#05eca7",
+                    "#fdbd2c",
+                    "#f27b72",
+                    "#7464fb",
+                    "#4091fe",
+                    "#9a60b4",
+                    "#ea7ccc"
+                ],
+                series: [
+                    {
+                        //name: "Nightingale Chart",
+                        type: "pie",
+                        radius: ["30%", "60%"],
+                        center: ["41%", "50%"],
+                        //roseType: "area",
+                        itemStyle: {
+                            borderRadius: 0
+                        },
+                        data: data,
+                        label: {
+                            formatter: function (params) {
+                                return `{normal|${params.name}：}\r\r\n{value|${params.data.value} (${params.data.bili}%)}`
+                            },
+                            rich: {
+                                normal: {
+                                    //   color: "#8A8A8A",
+                                    fontSize: 16,
+                                    align: "left"
+                                },
+                                value: {
+                                    fontSize: 14,
+                                    //   color: "#8A8A8A",
+                                    fontWeight: 600,
+                                    padding: [5, 0, 0, 0]
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+            myChart.setOption(option);
+        }
+
+        function Chart(chartName, data) {
+            var node = tree.getSelectedNode();
+            var legendData = ["暴雨", "大暴雨", "特大暴雨"];
+            var legendDataF = ["RUO", "ZHONG", "QIANG"];
+            var myChart = echarts.init(document.getElementById(chartName));
+            myChart.clear();
+            var type = $.data(myData, "TYPE");
+            var xData = [];
+            for (var num = 0; num < data.length; num++) {
+                xData.push(data[num].STNM);
+            }
+            var text = "";
+            option = {
+                title: {
+                    left: 'center',
+                    text: text
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    //axisPointer: {
+                    //    type: 'shadow'
+                    //}
+                },
+                // 更改图例默认颜色(依次应用)
+                color: ['#26A0D2', '#44CB90', '#EFBB43', '#E63D45', '#6A5ACD', '#F5DEB3', '#E9967A', "#FFA500", "#FF69B4", "#FF00FF", "#9400D3", "#FFDAB9", "#6959CD", "#FF3030", "#E066FF", "#FF34B3", "#FF1493", "#FF4500", "#F4A460",
+                    "#EEAD0E", "#53868B", "#79CDCD", "#66CDAA", "#43CD80", "#00FF00", "#FFFF00", "#8B658B", "#FF3030", "#FF00FF", "#EE00EE", "#8B0000", "#8B008B", "#008B8B", "#90EE90"],
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    // orient: 'vertical',
+                    x: 'center',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    //left: '41%',
+                    padding: [30, 0, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: legendData
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true
+                    },
+                    data: xData
+                },
+                yAxis: {
+                    name: "历时（h）",
+                    type: 'value',
+                    max: function (e) {
+                        return e.max + 20;
+                    }
+                },
+                series: function () {
+                    var serie = [];
+                    for (var h = 0; h < legendDataF.length; h++) {
+                        var yData = [];
+                        for (var num = 0; num < data.length; num++) {
+                            yData.push(data[num][legendDataF[h]]);
+                        }
+                        var item = {
+                            name: legendData[h],
+                            type: 'bar',
+                            // barGap: '0%',
+                            barWidth: 8,
+                            data: yData,
+                            itemStyle: {
+                                normal: {
+                                    label: {
+                                        show: true,  //开启显示
+                                        formatter: '{c}',  //显示数值
+                                        position: 'top',
+                                        textStyle: { //数值样式
+                                            fontSize: 10
+                                        }
+                                    },
+                                    barBorderRadius: [30, 30, 0, 0],
+                                }
+                            }
+                        };
+                        serie.push(item);
+                    }
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

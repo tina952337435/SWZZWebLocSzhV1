@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <link rel="stylesheet" href="">
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style>
+            body {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .container {
+                /*width: 800px;
+        height: 600px;*/
+                width: 100%;
+                height: 100%;
+                /*position: relative;*/
+                min-height: 550px !important;
+                min-width: 600px !important;
+            }
+
+            .content {
+                position: absolute;
+                bottom: 50px;
+                width: 100%;
+                height: calc(100% - 50px);
+                background: url(../Common/images/content_bg.png);
+                background-size: cover;
+                -moz-background-size: cover; /* 老版本的 Firefox */
+                background-repeat: no-repeat;
+                /*background: #00FF00 url(./img/content_bg.png) no-repeat fixed top;*/
+            }
+
+            .water-container {
+                position: absolute;
+                bottom: 0;
+                width: 100%;
+                height: 50px;
+                background: #3B8879;
+            }
+
+            .water-value {
+                position: absolute;
+                top: -20px;
+                border-bottom: 1px #0066cc solid;
+                margin-left: 50%;
+                width: 70px;
+                text-align: right;
+            }
+
+                .water-value:before {
+                    content: '';
+                    width: 0;
+                    height: 0;
+                    border-left: 10px solid transparent;
+                    border-right: 10px solid transparent;
+                    border-top: 20px solid #0066cc;
+                    position: absolute;
+                    bottom: 0;
+                    display: block;
+                }
+
+            .ruler-container {
+                background-color: #fffaf4;
+                font-size: 14px;
+                color: #A76538;
+                width: 40px;
+                padding-top: 25px;
+                margin-left: 65%;
+                position: absolute;
+                bottom: 0;
+            }
+
+            .ruler {
+                position: relative;
+                height: 500px;
+            }
+
+                .ruler .cm,
+                .ruler .mm {
+                    position: absolute;
+                    border-bottom: 1px solid #A76538;
+                    height: 2px;
+                    bottom: 0px;
+                }
+
+                .ruler div:nth-of-type(6n) {
+                    width: 8px;
+                }
+
+                .ruler .cm {
+                    width: 10px;
+                    padding-left: 10px;
+                    padding-bottom: 16px;
+                }
+
+                .ruler .mm {
+                    width: 5px;
+                }
+
+            .tudi {
+                position: absolute;
+                bottom: 0;
+                height: 50px;
+                width: 100%;
+            }
+
+            .tudi1 {
+                height: 10px;
+                background-color: #D6BC96;
+                width: 100%;
+            }
+
+            .tudi2 {
+                height: 40px;
+                background-color: #B8925E;
+                width: 100%;
+            }
+
+        .el-tab-pane {
+            height: 100%;
+            width: 100%;
+        }
+        .profile-chart {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+            .profile-chart img {
+                position: absolute;
+            }
+
+            .profile-chart .alarm-water {
+                width: 135px;
+                white-space: nowrap;
+                color: #FFF000;
+                border-bottom: 1px solid #FFF000;
+                position: absolute;
+            }
+            .profile-chart .ensure-water {
+                width: 135px;
+                white-space: nowrap;
+                color: red;
+                border-bottom: 1px solid red;
+                position: absolute;
+            }
+            .profile-chart .normal-water {
+                width: 135px;
+                white-space: nowrap;
+                color: #00f;
+                border-bottom: 1px solid #00f;
+                position: absolute;
+            }
+
+    </style>
+</head>
+<body>
+    <div role="tabpanel" id="pane-2" aria-labelledby="tab-2" class="el-tab-pane" style="">
+        <div class="profile-chart">
+            <div id="YBTM" style="position:absolute;right:20px;top:10px;z-index:99;font-size:16px;    border: 1px solid #ecd0d0;
+    height: 30px;
+    line-height: 30px;
+    padding: 0px 15px;
+    border-radius: 5px;">
+            </div>
+            <img src="../Common/images/bg.png" style="height: 100%; width: 100%;"><!---->
+            <img src="../Common/images/flow.gif" id="water-container" style="bottom: 0px; height: 143.996px; width: 100%;">
+            <img src="../Common/images/ZZ.png" class="" style="bottom: 0px; height: 65%; width: 100%;" id="ZZ">
+            <div class="alarm-water" style="left: 10%;" id="div_wrz-value">
+                <div class="red-trg" id="wrz-value"></div><!--警戒水位：3.3m-->
+            </div>
+            <div class="normal-water" style="left: calc(50% - 60px);" id="div_water-value">
+                <div class="blue-trg" id="water-value"></div><!--预测水位：2.27m-->
+            </div>
+            <div class="ensure-water" style="right: calc(7%);" id="div_grz-value">
+                <div class="blue-trg" id="grz-value"></div><!--保证水位：4m-->
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var STCD = GetQueryString("stcd");
+        var DD_ID = GetQueryString("PLAN_N");
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+
+        $(function () {
+            BreakLayerLoad();
+        });
+
+        function BreakLayerLoad() {
+            GetJosns("MODE_BDMS_PREDICTSelMORE", { "STIME": stime, "ETIME": etime, "STCD": STCD, "PLAN_N": DD_ID, "DATA_TYPE": "1" }, "Sel");
+        }
+
+        var dataResult = null;
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data.data;
+                
+                    var interval = setInterval(getProcess, 1000);
+                    ////waterHeightChange();
+                
+            }
+        }
+        var t = null;
+        var timeout = false;
+        var lengthIndex = 0;
+        var dataValue = 0, wrz = 0,grz=0;
+        function getProcess() {
+            window.clearTimeout(t);
+            if (timeout) return;
+            if (lengthIndex < dataResult.length) {
+                dataValue = dataResult[lengthIndex].DATA;
+                wrz = dataResult[lengthIndex].WRZ;
+                grz = dataResult[lengthIndex].GRZ;
+                var tm = mini.formatDate(convertToDate(dataResult[lengthIndex].YMDHM), 'yyyy年MM月dd日 H时');
+                testMax = wrz + 2;
+                $("#YBTM").html(tm);
+                waterHeightChange();
+                lengthIndex++;
+            } else {
+                //暂停
+                window.clearInterval(t);
+                //timeout = true;
+                lengthIndex = 0
+            }
+        }
+        
+        var testMax = 25;//高程
+        var total = $("#ZZ").height();//总高度，与样式中的高度保持一致
+        //模拟水位变化
+        function waterHeightChange() {
+            //var value = Math.ceil(Math.random() * testMax);
+            //$(".water-value").html(value + "cm");
+            //$(".water-container").height(dataValue);
+            var imgHeight = (dataValue / testMax) * total;
+            var wrzHeight = (wrz / testMax) * total;
+            var grzHeight = (grz / testMax) * total;
+            $("#water-container").height(imgHeight);
+            $("#water-value").html("预测水位：" + dataValue + "m");
+            $("#wrz-value").html("警戒水位：" + wrz + "m");
+            $("#grz-value").html("保证水位：" + grz + "m");
+            $("#div_water-value").css("bottom", imgHeight + "px");
+            $("#div_wrz-value").css("bottom", wrzHeight + "px");
+            $("#div_grz-value").css("bottom", grzHeight + "px");
+        }
+    </script>
+</body>
+</html>

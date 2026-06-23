@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+    <meta name="renderer" content="webkit" />
+    <meta name="renderer" content="ie-stand" />
+    <title>模型初始化</title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <script src="../Common/Scripts/progressBar.js"></script>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <link href="../Common/CSS/ui-choose.css" rel="stylesheet" />
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/poulic_charts.js" type="text/javascript"></script>
+    
+    <!-- 新版模型接口调用js文件 -->
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.3"></script>
+    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
+
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <!--修改后css-->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:98%;height:100%;margin:0px auto;">
+        <div style="width: 100%;height:80px;margin: 0px auto;text-align: center;">
+            <div class="pointsRule">
+                <ul id="list">
+                    <li style="z-index:5;"id="one" onclick="ClickFirst()"><a><span>1.依据时间设定</span><i></i></a></li>
+                    <li style="z-index:4" id="two" onclick="ClickSecond()"><a><em class="before"></em><span>2.预报降雨输入</span><i></i></a></li>
+                    <li style="z-index:3" id="three" onclick="ClickThird()"><a><em class="before"></em><span>3.边界条件输入</span><i></i></a></li>
+                    <li style="z-index:2" id="four" onclick="ClickFourth()"><a><em class="before"></em><span>4.工程调度</span><i></i></a></li>
+                    <li style="z-index:1" id="five" onclick="ClickFifth()"><a><em class="before"></em><span>5.预测结果</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div style="height:calc(100% - 190px);margin-top:10px;font-size:15px;">
+            <div style="width:270px;margin:10px auto;">
+                <div style="height:40px;">
+                    <!--预报依据时间：&nbsp;&nbsp;-->
+                    开始时间：&nbsp;&nbsp;
+                    <input id="TM" class="mini-datepicker" style="width: 110px;"
+                           format="yyyy-MM-dd" showtime="false" onvaluechanged="onvaluechangedTM" ondrawdate="onDrawDate" />
+                    <input id="startHour" class="mini-combobox"  textField="text" valueField="id" style="width:60px;"/>
+                </div>
+                <div style="margin-top:10px;height:40px;">
+                    结束时间：&nbsp;&nbsp;
+                    <input id="ETM" class="mini-datepicker" style="width: 110px;"
+                           format="yyyy-MM-dd" showtime="false" onvaluechanged="onvaluechangedTM" ondrawdate="onDrawDate" />
+                    <input id="endHour" class="mini-combobox" textField="text" valueField="id" style="width:60px;" />
+                </div>
+                <div style="height:40px;margin-top:10px;">
+                    快捷输入：&nbsp;&nbsp;
+                    <input id="NUM" name="NUM" class="mini-combobox" style="width:130px;" textField="text" valueField="id" allowInput="true" url="../DD_MX/yujianqi.txt" 
+                           onvaluechanged="onvaluechangedKTM"
+                           />
+                </div>
+                <div style="height:40px;margin-top:10px;display: none;">
+                    模型状态：&nbsp;&nbsp;
+                    <span id="modeState">
+                    </span>
+                </div>
+            </div>
+            <div style="text-align: center; margin: 10px auto;height:80px;line-height:80px;">
+                <a class="mini-button" onclick="StartModelCalculation()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">下一步</a>
+                <a class="mini-button" onclick="znStartModelCalculation()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;">一键演算</a>
+            </div>
+        </div>
+
+        <div style="width:100%;font-size: 19px;text-align: center;color: #737070;">
+            点击“下一步”按钮，逐步设置预报降雨、工程调度方案等模型演算条件。
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var SOLUTIONID = GetQueryString("DD_ID");
+        var Calculation = false;//判断是不是一键计算
+        $(function () {
+            var DD_TM = new Date().format("yyyy-MM-dd 08:00:00");
+            var ETIME = new Date(AddHourDate(DD_TM, 24)).format("yyyy-MM-dd HH:mm:ss");
+            mini.get("NUM").select(2);
+            
+            if($.data(myData, "stime")!=undefined){
+                DD_TM = $.data(myData, "stime");
+                ETIME = $.data(myData, "etime");
+            }
+            if (GetQueryString("stime") != null) {
+                //if (GetCookie("DD_TM") != null && GetCookie("DD_TM") != "") {
+                DD_TM = GetQueryString("stime");
+                ETIME = GetQueryString("etime");
+                //}
+            }
+            else{
+                //需要清除后面步骤
+                DelCookie("two");
+                DelCookie("three");
+                DelCookie("four");
+                DelCookie("five");
+            }
+            if (SOLUTIONID != null) {//代表重新计算的
+                DD_TM = GetQueryString("DD_TM");
+                var DD_STANA = parseInt(GetQueryString("DD_STANA"));
+                ETIME = new Date(AddHourDate(DD_TM, DD_STANA)).format("yyyy-MM-dd HH:mm:ss");
+            } else {
+                //DD_TM = "2019-08-03 08:00:00";
+            }
+            if (GetQueryString("ApplicationModel") != null) {//代表是相似台风过来的模型计算
+                $.data(myData, "AppModelstime", GetQueryString("AppModelstime"));
+                $.data(myData, "AppModeletime", GetQueryString("AppModeletime"));
+
+                if (GetQueryString("ZJ_YBSJ") != null) {
+                    DD_TM = GetQueryString("ZJ_YBSJ");
+                    ETIME = AddHourDate(DD_TM, 24);
+                }
+            }
+            var dataTM = [
+                { id: 0, text: 0 },
+                { id: 1, text: 1 },
+                { id: 2, text: 2 },
+                { id: 3, text: 3 },
+                { id: 4, text: 4 },
+                { id: 5, text: 5 },
+                { id: 6, text: 6 },
+                { id: 7, text: 7 },
+                { id: 8, text: 8 },
+                { id: 9, text: 9 },
+                { id: 10, text: 10 },
+                { id: 11, text: 11 },
+                { id: 12, text: 12 },
+                { id: 13, text: 13 },
+                { id: 14, text: 14 },
+                { id: 15, text: 15 },
+                { id: 16, text: 16 },
+                { id: 17, text: 17 },
+                { id: 18, text: 18 },
+                { id: 19, text: 19 },
+                { id: 20, text: 20 },
+                { id: 21, text: 21 },
+                { id: 22, text: 22 },
+                { id: 23, text: 23 },
+            ];
+
+            var nowTM = new Date();
+            var startH = nowTM.getHours();
+            if (nowTM.getMinutes() < 10) {
+                //startH = startH - 1;
+            }
+            var dataTMTemp = dataTM;
+            // .filter(function (e) {
+            //     return e.id <= startH;
+            // });
+
+            mini.get("startHour").setData(dataTMTemp);
+            mini.get("endHour").setData(dataTM);
+
+            var hour = new Date(DD_TM).getHours();
+            mini.get("startHour").setValue(hour);
+
+            hour = new Date(ETIME).getHours();
+           
+            mini.get("endHour").setValue(hour);
+
+            mini.get("TM").setValue(DD_TM);
+            mini.get("ETM").setValue(ETIME);
+            
+            var stime = mini.get("TM").getFormValue() + " " + mini.get("startHour").getValue() + ":00:00";
+            var etime = mini.get("ETM").getFormValue() + " " + mini.get("endHour").getValue() + ":00:00";
+            $.data(myData, "stime", stime);
+            $.data(myData, "etime", etime);
+            var num = GetDateDiff(stime, etime, 'hour');
+            $.data(myData, "HOUR", num);
+            SetCookie("one", "1", 1);
+            OnLoad();
+            if (SOLUTIONID != null) {//代表重新计算的                
+                var _dd_id = GetTableID();
+                $.data(myData, "DD_ID",_dd_id);
+                //自动提取方案的结果进入下一步
+                var s_where = {
+                    dd_id: _dd_id,
+                    dd_FOR: GetCookie("LOGINNAME"),
+                    solutionid:SOLUTIONID,//原来的方案
+                }
+                mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '提取数据中...'
+                });
+                app.post("SWZZ_MODE_ES_ZHANDIANDATA/mx_recalculate",s_where,function(res){
+                    JosnSel(res,"MX_RECALCULATE");
+                });
+            }
+            //获取模型的健康状态
+            gethuishuiModeState();
+            modelGetSubjectList();
+            modeGetHydroSeriesList();
+        });
+
+        var t = null;
+        var timeout = false;//判断是否补算完成
+        function checkData() {
+            timeout = false;
+            $.data(myData, "BtnOK", "true");
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '模型准备计算'
+            });
+            upDataZhandianData();
+        }
+
+        function JosnSel(result, typeID) {
+            if (typeID == "UPDATA_MODEZHANDDataApi") {
+                mini.unmask(document.body);
+                if (Calculation) {
+                    timeout = false;
+                    //更新边界条件之后，启动模型计算
+                    startJisuan();
+                } else {
+                    SetCookie("two", "1", 1);
+                    DelCookie("three");
+                    DelCookie("four");
+                    DelCookie("five");
+                    url = "JiangYuSet.html";
+                    Next_Click(url);
+                }
+            }
+            else if (typeID == "MX_RECALCULATE") {
+                mini.unmask(document.body);
+                StartModelCalculation();
+            }
+            else if(typeID=="health"){
+                var info=result.info;
+                var modeState = "离线";
+                var modeCls=" color:red;";
+                if (info.api == "health") {
+                    modeState = "在线";
+                    modeCls = " color:green;";
+                } else {
+                    modeState = info.msg;
+                }
+                $("#modeState").attr('style', modeCls);
+                $("#modeState").html(modeState);
+
+                //模型获取控制调度对象列表
+                modelGetScheduleObjList();
+            }
+            else if (typeID == "GetSubjectList") {
+                if (result.info.success) {
+                    var docid = result._id.doc;
+                    var bCurresult=result.data.filter(res=>{
+                        return res.bCur==true;
+                    });
+
+                    var sbjID = bCurresult[0].id;
+                    var timeStepHydro=bCurresult[0].timeStepHydro;
+                    var timeStep=bCurresult[0].timeStep;
+                    
+                    //记录doc、sbjID、timeStepHydro、timeStep
+                    $.data(myData, "docid", docid);//模型文档id
+                    $.data(myData, "sbjID", sbjID);//模型专题ID
+                    $.data(myData, "timeStepHydro", timeStepHydro);//模型步长
+                    $.data(myData, "timeStep", timeStep);//模型步数
+                }
+            }
+            else if(typeID=="GetHydroSeriesList"){
+                if(result.data!=null&&result.data!=undefined){
+                   var bCurData= result.data.filter(res=>{
+                        return res.bCur==true;
+                    });
+                    if(bCurData.length>0){
+                        $.data(myData, "huishuimodehdyroID", bCurData[0].id);
+                    }
+                }
+            }
+            else if(typeID=="DATASel"){
+                $.data(myData,"bjModelData",result.data);
+                //设置预报调度任务
+                modelSetTask();
+            }
+            else if(typeID=="GetScheduleObjList"){
+                console.error(typeID,result);
+                $.data(myData,"bjModelZhan",result.data);
+            }
+            else if(typeID=="SetTask"){//设置任务
+                var info=result.info;
+                if(info.success){
+                    $.data(myData, "taskID",result.taskID);//模型任务编号
+                    mini.unmask(document.body);
+                    //加上进度条
+                    var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;" id="progressTitle">模型预见期计算...</div>';
+                    miniMsg += '<div class="progress">';
+                    miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
+                    miniMsg += '<div class="progress-value">已完成：0%</div>';
+                    miniMsg += '</div>';
+
+                    //取消计算
+                    miniMsg += '<div style="margin:25px auto;width:160px;"><a id="A4" style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div>';
+
+                    miniMsg += '</div>';
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loadingnew',
+                        html: miniMsg
+                    });
+                    setTimeout("modelGetTaskStatus()", 2000);
+                }
+            }
+            else if(typeID=="GetTaskStatus"){
+                var info=result.info;
+                if (!info.success) {
+                    $("#progressTitle").html(info.msg);
+                    if (info.modelTime != undefined) {
+                        var stime = $.data(myData, "stime");
+                        var etime = $.data(myData, "etime");
+                        var totalhour = GetDateDiff(stime, etime, 'hour');
+                        var gooverhour=GetDateDiff(stime,info.modelTime, 'hour');//计算了多少时间
+                        var Process=((gooverhour/totalhour)*100).toFixed(0);
+                        if (Number(Process) >= 0) {
+                            $("#progress").css("width", Number(Process).toFixed(0) + "%");
+                            $(".progress-value").html(Number(Process).toFixed(0) + "%");
+                        }
+                    }
+                    if (!timeout) {//说明取消计算了
+                        setTimeout("modelGetTaskStatus()", 1500);
+                    }
+                }else{
+                    //模型计算完成，取模型计算的结果
+                    console.error(typeID,info);
+                    SetCookie("five", "1", 1);
+                    //保存方案，根据调度预案进入不同成果展示界面
+                    var url = "Jisuan.html";
+                    Next_Click(url);
+                }
+            }
+        }
+        var GCDATATYPE = "DDFN";
+        var JYDATATYPE = "SK@6";
+        function onvaluechangedTM() {
+            var stime = mini.get("TM").getFormValue() + " " + mini.get("startHour").getValue() + ":00:00";
+            var etime = mini.get("ETM").getFormValue() + " " + mini.get("endHour").getValue() + ":00:00";
+            var num = GetDateDiff(stime, etime, 'hour');
+            $.data(myData, "stime", stime);
+            $.data(myData, "etime", etime);
+            $.data(myData, "HOUR", num);
+        }
+
+        function onvaluechangedKTM(e) {
+            var value = e.value;
+            var stime = mini.get("TM").getFormValue() + " " + mini.get("startHour").getValue() + ":00:00";
+            var etime=AddHourDate(stime, value);
+            mini.get("ETM").setValue(etime);
+            mini.get("endHour").setValue(new Date(etime).getHours());
+            etime = mini.get("ETM").getFormValue() + " " + mini.get("endHour").getValue() + ":00:00";
+            var num = GetDateDiff(stime, etime, 'hour');
+            $.data(myData, "stime", stime);
+            $.data(myData, "etime", etime);
+            $.data(myData, "HOUR", num);
+        }
+        
+
+        function onDrawDate(e) {
+
+        }
+
+        //模型取消计算
+        function cancelModel() {
+            mini.unmask(document.body);
+            timeout = true;
+            window.clearTimeout(t);
+        }
+    </script>
+    <script type="text/javascript">
+        function OnLoad() {
+            var current1 = GetCookie("one");
+            var current2 = GetCookie("two");
+            var current3 = GetCookie("three");
+            var current4 = GetCookie("four");
+            var current5 = GetCookie("five");
+            //console.error(current1 + ":::" + current2 + ":::" + current3 + ":::" + current4);
+            
+            if (current1 != null && current1 != "") {
+                $("#one").removeClass("gray");
+                $("#one").addClass("orange");
+                $("#one").find('i').eq(0).removeClass("gray");
+                $("#one").find('i').eq(0).addClass("orange");
+            } else {
+                $("#one").removeClass("orange");
+                $("#one").addClass("gray");
+                $("#one").find('i').eq(0).removeClass("orange");
+                $("#one").find('i').eq(0).addClass("gray");
+            }
+            if (current2 != null && current2 != "") {
+                $("#two").removeClass("gray");
+                $("#two").addClass("green");
+                $("#two").find('i').eq(0).removeClass("gray");
+                $("#two").find('i').eq(0).addClass("green");
+            } else {
+                $("#two").removeClass("green");
+                $("#two").addClass("gray");
+                $("#two").find('i').eq(0).removeClass("green");
+                $("#two").find('i').eq(0).addClass("gray");
+            }
+            
+            if (current3 != null && current3 != "") {
+                $("#three").removeClass("gray");
+                $("#three").addClass("green");
+                $("#three").find('i').eq(0).removeClass("gray");
+                $("#three").find('i').eq(0).addClass("green");
+            } else {
+                $("#three").removeClass("green");
+                $("#three").addClass("gray");
+                $("#three").find('i').eq(0).removeClass("green");
+                $("#three").find('i').eq(0).addClass("gray");
+            }
+            if (current4 != null && current4 != "") {
+                $("#four").removeClass("gray");
+                $("#four").addClass("green");
+                $("#four").find('i').eq(0).removeClass("gray");
+                $("#four").find('i').eq(0).addClass("green");
+            } else {
+                $("#four").removeClass("green");
+                $("#four").addClass("gray");
+                $("#four").find('i').eq(0).removeClass("green");
+                $("#four").find('i').eq(0).addClass("gray");
+            }
+            if (current5 != null && current5 != "") {
+                $("#five").removeClass("gray");
+                $("#five").addClass("green");
+                $("#five").find('i').eq(0).removeClass("gray");
+                $("#five").find('i').eq(0).addClass("green");
+            } else {
+                $("#five").removeClass("green");
+                $("#five").addClass("gray");
+                $("#five").find('i').eq(0).removeClass("green");
+                $("#five").find('i').eq(0).addClass("gray");
+            }
+        }
+    </script>
+</body>
+</html>

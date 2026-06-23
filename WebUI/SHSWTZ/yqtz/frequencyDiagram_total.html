@@ -1,0 +1,449 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>年度暴雨频次对比分析</title>
+    <script src="/Common/Scripts/ChartJs.js"></script>
+    <script src="/Common/boot.js" type="text/javascript"></script>
+    <!-- 引入echarts.js -->
+    <script src="/Common/Scripts/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+            font-size: 14px;
+        }
+
+        .conrainer {
+            width: 100%;
+            position: relative;
+            height: 100%;
+        }
+
+        .type {
+            width: 100%;
+            /* height: 500px; */
+        }
+
+            .type .title {
+                height: 30px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 20px;
+            }
+
+            .type .lx {
+                background: white;
+            }
+
+            .type .pc {
+                background: white;
+                position: absolute;
+                top: 0px;
+            }
+
+        .title p {
+            font-size: 18px;
+            font-weight: bold;
+            margin-left: 10px;
+            display: inline-block;
+        }
+
+        .lx {
+            margin-top: 10px;
+            width: 55%;
+            height: 600px;
+            background: white;
+        }
+
+        .count .title {
+            font-size: 16px;
+            font-weight: bold;
+            padding: 20px;
+        }
+
+        .jb {
+            margin-top: 5px;
+            width: 44%;
+            height: 600px;
+            background: white;
+            margin-left: 56%;
+            position: absolute;
+            top: 542px;
+        }
+
+        .mini-toolbar {
+            height: 45px;
+            line-height: 40px;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .layout_title {
+            position: relative;
+            padding: 5px;
+        }
+
+        .px-2 {
+            padding-right: 10px !important;
+        }
+
+        .pl-2, .px-2 {
+            padding-left: 10px !important;
+        }
+
+        .layout_title .d1, .layout_title .d2 {
+            width: 14px;
+            height: 14px;
+            background: #3794ff;
+            border-radius: 2px;
+            position: absolute;
+            left: 4px;
+            top: 15px;
+            margin: 0px 10px;
+        }
+
+        .layout_title .d2 {
+            background: rgba(55,148,255,.3);
+            left: 11px;
+            top: 9px;
+        }
+
+        .layout_title .base-p {
+            color: #409eff;
+            font-size: 16px;
+            line-height: 0px;
+            margin-left: 40px;
+            font-weight: 800 !important;
+            display: inline-block;
+        }
+
+        .yb_left {
+            float: left;
+            width: 49.75%;
+            height: 550px;
+            /*border: 1px solid #d3d3d3;*/
+            /*background: #ffffff;*/
+        }
+
+        .tqyb_right {
+            float: right;
+            width: 49.75%;
+            height: 550px;
+            /*background: #CFE4FF;*/
+        }
+
+        .container {
+            width: 100%;
+            height: 450px;
+        }
+
+        .mwsChart {
+            -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            background-color: #fff;
+            /*padding-left: 10px;
+            padding-right: 10px;*/
+            width: 100%;
+            height: 100%;
+        }
+
+        .textContent {
+            width: 100%;
+            height: -webkit-calc(100% - 45px);
+            height: -moz-calc(100% - 45px);
+            height: calc(100% - 45px);
+            margin: auto;
+            font-size: 15px;
+        }
+
+        .form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            1978年至今
+        </div>
+    </div>
+    <div class="type" style="position:relative;">
+        <div style="clear:both;height:5px;"> </div>
+        <div class="yb_left">
+            <div style="width:100%;margin:0px auto;" class="mwsChart">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p">行政分区暴雨频次分布图</p>
+                </div>
+                <div class="textContent">
+                    <iframe id="iframeLeft"  src="frequencyDiagramLeft.html"  scrolling="no" frameborder="0" width="100%" height="100%">
+
+                    </iframe>
+                    <!--<img src="./images/全市暴雨频次分布图.png" alt="" style="height: 100%; width: 100%;" />-->
+                </div>
+            </div>
+        </div>
+
+        <div class="tqyb_right">
+            <div style="width:calc(100%);height:100%;padding-left:5px;padding-right:5px;">
+                <div class="mwsChart">
+                    <div class="layout_title px-2">
+                        <div data-v-62547c07="" class="d1">
+                        </div>
+                        <div class="d2"></div>
+                        <p class="base-p">水利片区暴雨频次分布图</p>
+                    </div>
+                    <div id="faanCombox" class="textContent">
+                        <iframe id="iframeRight" src="frequencyDiagramRight.html" scrolling="no" frameborder="0" width="100%" height="100%"></iframe>
+                        <!--<img src="./images/水利片区暴雨频次分布图.png" alt="" style="height: 100%; width: 100%;" />-->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="clear:both;height:10px;"> </div>
+        <div class="container">
+            <div class="mwsChart">
+                <div class="layout_title px-2">
+                    <div data-v-62547c07="" class="d1">
+                    </div>
+                    <div class="d2"></div>
+                    <p class="base-p">代表站暴雨频次统计</p>
+                </div>
+                <div id="YL_charts"  class="textContent"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        $(function () {
+            search();
+        });
+        function search() {
+            var stime = "1978-01-01 00:00:00";
+            var etime = new Date().format("yyyy-MM-dd HH:mm:ss");
+            var s_where = {
+                STIME: stime,
+                ETIME: etime
+            }
+            GetJosns("FREQUENCYDIAGRAM_TOTAL", s_where, "Sel");
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                $.data(myData,"DATA",data.data);
+                loadChartBar(data.data);
+            }
+        }
+
+        function loadChartBar(data) {
+            //var data = [{ "STNM": "崇西闸", "LGTD": 121.1932, "LTTD": 31.7595, "NUM": 214 }, { "STNM": "堡镇", "LGTD": 121.608, "LTTD": 31.5276, "NUM": 234 }, { "STNM": "高桥", "LGTD": 121.566, "LTTD": 31.377, "NUM": 212 }, { "STNM": "崇明南门", "LGTD": 121.3953, "LTTD": 31.6158, "NUM": 246 }, { "STNM": "张堰（二）", "LGTD": 121.2958, "LTTD": 30.7789, "NUM": 256 }, { "STNM": "洙泾", "LGTD": 121.1753, "LTTD": 30.8975, "NUM": 228 }, { "STNM": "夏字圩", "LGTD": 121.1542, "LTTD": 30.9722, "NUM": 210 }, { "STNM": "东团", "LGTD": 121.033333, "LTTD": 30.966666, "NUM": 231 }, { "STNM": "泖甸", "LGTD": 121.048, "LTTD": 31.0511, "NUM": 238 }, { "STNM": "青浦南门", "LGTD": 121.1, "LTTD": 31.134, "NUM": 220 }, { "STNM": "陈坊桥", "LGTD": 121.1789, "LTTD": 31.0383, "NUM": 233 }, { "STNM": "祝桥", "LGTD": 121.7475, "LTTD": 31.119444, "NUM": 214 }, { "STNM": "河祝", "LGTD": 121, "LTTD": 31.083333, "NUM": 234 }, { "STNM": "沙港（二）", "LGTD": 121.39, "LTTD": 30.988, "NUM": 212 }, { "STNM": "淀浦河西闸（闸外）", "LGTD": 121.009034, "LTTD": 31.108417, "NUM": 246 }, { "STNM": "金汇港南闸", "LGTD": 121.524722, "LTTD": 30.828888, "NUM": 256 }, { "STNM": "大治河东闸(闸内)", "LGTD": 121.883611, "LTTD": 31.006667, "NUM": 228 }, { "STNM": "杨思闸(闸外)", "LGTD": 121.472508, "LTTD": 31.163933, "NUM": 210 }, { "STNM": "五号沟闸(闸内)", "LGTD": 121.773888, "LTTD": 31.011111, "NUM": 231 }, { "STNM": "大团闸", "LGTD": 121.739444, "LTTD": 30.981388, "NUM": 238 }, { "STNM": "江湾", "LGTD": 121.474999, "LTTD": 31.298333, "NUM": 220 }, { "STNM": "赵屯", "LGTD": 121.146944, "LTTD": 31.271944, "NUM": 233 }, { "STNM": "黄渡", "LGTD": 121.2292, "LTTD": 31.2647, "NUM": 214 }, { "STNM": "望新", "LGTD": 121.1419, "LTTD": 31.3494, "NUM": 234 }, { "STNM": "罗店", "LGTD": 121.3339, "LTTD": 31.4167, "NUM": 212 }, { "STNM": "嘉定南门", "LGTD": 121.25, "LTTD": 31.383, "NUM": 246 }, { "STNM": "吴淞（蕴）", "LGTD": 121.4864, "LTTD": 31.3683, "NUM": 256 }, { "STNM": "青村", "LGTD": 121.5678, "LTTD": 30.9506, "NUM": 228 }, { "STNM": "洋泾闸（闸内）", "LGTD": 121.544244, "LTTD": 31.248225, "NUM": 210 }, { "STNM": "南翔", "LGTD": 121.2933, "LTTD": 31.2875, "NUM": 231 }, { "STNM": "北桥", "LGTD": 121.4208, "LTTD": 31.048, "NUM": 238 }, { "STNM": "商塌", "LGTD": 120.9169, "LTTD": 31.115, "NUM": 220 }];
+            data = data.filter(function (item) {
+                return item.TYPE == "代表站";
+            });
+            var lineColor = ['#409eff', '#0478CB'];
+            var strNote = [];
+            var item = { "name": "名称", "codename": "STNM", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            item = { "name": "暴雨频次", "codename": "BYNUMBER", "tableV": "1", "isShow": true, "width": "30%" };
+            strNote.push(item);
+            chartBar('YL_charts', data, strNote, lineColor, "暴雨频次");
+        }
+
+        function chartBar(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));
+            myChart.clear();
+
+            var chartName = []; 	//控件元素名称
+            var chartTM = []; 	//时间序列
+            var chartValue = []; //时间序列
+            var liststr = ""; 	//拼装表格
+            var m = new Array();
+
+            var ShowSelected = {};
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);   //Echarts绘制标注名称加入
+                ShowSelected[value.name] = value.isShow;
+            });
+            //循环数据，加入有效数据。
+            $.each(data, function (index, value, item) {
+                var charthan = []; 	//时间序列
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]); //加入集合
+                    if (value1.name == "时间") {
+                        chartTM.push(IsSubDate(value[value1.codename], "MM-dd hh:mm", "4")); //加入时间集合 
+                    } else if (value1.name == "时间" || value1.name =="名称") {
+                        chartTM.push(value[value1.codename]); //加入时间集合 
+                    }
+                    else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan); //加入集合
+            });
+           
+            option = {
+                // title: {
+                //     top: 10,
+                //     left: 'center',
+                //     text: '全市暴雨类型频次对比图'
+                // },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                // 更改图例默认颜色(依次应用)
+                // color: ['red', 'black', 'yellow', 'pink', 'cyan'],
+                color: LineColor,
+                // //这里设置柱状图上面的方块，名称跟series里的name保持一致
+                legend: {
+                    orient: 'vertical',
+                    x: 'right',      //可设定图例在左、右、居中
+                    y: 'top',     //可设定图例在上、下、居中
+                    align: 'left', //可设定文字在图例右边
+                    itemHeight: 10,
+                    itemWidth: 10,
+                    padding: [10, 30, 0, 0],   //可设定图例[距上方距离，距右方距离，距下方距离，距左方距离]
+                    data: chartName
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                toolbox: {
+                    show: false,
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                calculable: true,
+                xAxis: {
+                    type: 'category',
+                    // boundaryGap: true 表示x轴两边留白
+                    boundaryGap: true,
+                    axisTick: {
+                        alignWithLabel: true,
+                        show: false
+                    },
+                    boundaryGap: ['5%', '5%'],
+                    data: chartTM,
+                    axisLabel: {
+                        interval: 0,
+                        //rotate: 30,
+                        formatter: function (value) {
+                            //x轴的文字改为竖版显示
+                            var str = value.split("");
+                            return str.join("\n");
+                        }
+                    },
+                    
+                },
+                yAxis: {
+                    name: "暴雨频次（次）",
+                    type: 'value',
+                    max: function (value) {
+                        return value.max+10;
+                    }
+                },
+                series: function() {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间" || chartName[j] == "名称" || chartName[j] == "时间名称") //调过时间字段
+                        {
+                            continue;
+                        }
+                        var chartValue = []; 	//声明过线value集合
+                        for (var i = 0; i < m.length; i++) {
+                            if (isNaN(m[i][j]) == false) {
+                                chartValue.push(changeTwoDecimal(m[i][j], 0)); //循环价值
+                            }
+                        }
+                        var item = {
+                            name: chartName[j],
+                            type: 'bar',
+                            // 相邻柱状之间的空隙
+                            barGap: '0%',
+                            barMaxWidth: 20,
+                            data: chartValue,
+                            label: {
+                                normal: {
+                                    show: true,
+                                    position: 'top',
+                                    formatter: function (params) {
+                                        return params.value;
+                                    },
+                                    textStyle: {
+                                        color: '#2D8DED', //color of value
+                                        fontSize: 14
+                                    }
+                                }
+                            },
+                            itemStyle: {
+                                normal: {
+                                    color: {
+                                        type: 'linear',
+                                        x: 0,
+                                        y: 0,
+                                        x2: 0,
+                                        y2: 1,
+                                        colorStops: [{
+                                            offset: 0,
+                                            color: '#2D8DED'
+                                        }, {
+                                            offset: 1,
+                                            color: '#5ED8FB'
+                                        }]
+                                    },
+                                    barBorderRadius: [30, 30, 0, 0],
+                                }
+                            },
+                        };
+                        serie.push(item);
+                    };
+                    return serie;
+                }()
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart.setOption(option);
+
+            myChart.on("click", pieConsole);
+            function pieConsole(param) {
+                //获取data长度
+                var name = param.name;
+                loadChangci(name);
+            }
+        }
+        //柱子的点击事件
+        function loadChangci(name) {
+            var data = $.data(myData, "DATA");
+            var dataTemp = data.filter(function (e) {
+                return e.STNM == name;
+            });
+            if (dataTemp.length > 0) {
+                var strTitle = name + "1978至2020年暴雨频次列表";
+                var STCD = dataTemp[0].STCD;
+                var strParam = "STCD@" + STCD;
+                var url = "/SHFLOODTIDE/yqtz/yqDataInterpolationDanzhan.html";
+                lookData(strParam, url, strTitle, "50%", 565, "true");
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>接口管理</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script> 
+    <style type="text/css">
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            margin: 0;
+            overflow:hidden;
+        }
+    </style>
+</head>
+<body>
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            新增服务方法信息：
+            &nbsp;&nbsp; <a class="mini-button" id="addbtn" onclick="addData('', 'System/ModelInterfaceListEdit.html', '新增接口', '50%', '70%', 'true')" plain="false">增加</a>
+        </div>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;margin-top:1px;height: -webkit-calc(100% - 50px);height: -moz-calc(100% - 50px);height: calc(100% - 50px);" allowalternating="true"
+         borderstyle="border-right:0;" idfield="ID" sortmode="client" sizelist="[15,20,30,50]" pagesize="15" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+        <div property="columns">
+            <div type="indexcolumn" width="20" headeralign="center" align="center">序号</div>
+            <div field="mb_NAME" headeralign="center" align="center" allowsort="true">
+                名称
+            </div>
+            <div field="mb_METHODNAME" name="MEMO" headeralign="center" align="center" allowsort="true">
+                方法名称
+            </div>
+            <div field="mb_FUNCTION" headeralign="center" align="center" allowsort="true" renderer="onActionRendererFUN">
+                功能
+            </div>
+            <div field="mb_PATH" headeralign="center" align="center" allowsort="true">
+                路径
+            </div>
+            <div field="mb_MANAGER" headeralign="center" align="center" allowsort="true">
+                编写人
+            </div>
+            <div name="action" width="50" headeralign="center" align="center" renderer="onActionRenderer" cellstyle="padding:0;">
+                基本操作
+            </div>
+        </div>
+    </div>
+    <script language="javascript" type="text/javascript">
+        mini.parse();
+        //实例化表格对象
+        var myData = [];
+        var grid = mini.get("grid1");
+        $(function () {
+            var temp = GetQueryString("TYPE");
+            $.data(myData, "TYPE", temp);
+            //默认加载数据
+            search();
+        })
+        function onKeyEnter() {
+            //关键字
+            search();
+        }
+        var dataResult = null;
+        function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            setTimeout(function () { PageFillData(1, 20); }, 100);
+        }
+        function PageFillData(pageIndex, pageSize) {
+            //查询方法
+            var strWhere = { "pageindex": pageIndex, "pagesize": pageSize };
+            //GetJosns("MODE_ES_MBMANAGESel", strWhere, "Sel");
+			app.post("SWZZ_MODE_ES_MBMANAGE/findResult",strWhere,(data)=>{
+				JosnSel(data,"Sel")
+			})
+        }
+        //接收并处理方法
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                dataResult = data;
+                PageServerFill(grid, data);
+                mini.unmask(document.body);
+            }
+            else if (typeID == "Del") {
+                //mini.alert(data.Message);
+                if (data.total > 0) {
+                    search();
+                }
+            }
+        }
+        //==加上编辑列代码
+        function onActionRenderer(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '<img style="cursor:pointer;" onclick="editData(\'ID@' + record.mb_ID + ',TYPE@' + $.data(myData, "TYPE") + '\', \'System/ModelInterfaceListEdit.html\', \'模型接口服务编辑\', \'50%\',\'70%\', \'true\')" src="../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
+            s += '<img style="cursor:pointer;" onclick="del(\'' + record.mb_ID + '\')" src="../Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
+            return s;
+        }
+        function onActionRendererFUN(e) {
+            var grid = e.sender;
+            var record = e.record;
+            var uid = record._uid;
+            var rowIndex = e.rowIndex;
+            var s = '查询'
+            if (e.value == 0) {
+                s = '查询';
+            } else if (e.value == 1) {
+                s = '修改';
+            } else if (e.value == 2) {
+                s = '删除';
+            }
+            return s;
+        }
+        //删除
+        function del(objID) {
+            mini.confirm("确定删除记录？", "确定？",
+                function (action) {
+                    if (action == "ok") {
+                        grid.loading("执行删除中，请稍后......");
+                        var strWhere = { "stcd": objID };
+                        //GetJosns("MODE_ES_MBMANAGEDel", strWhere, "Del");
+						app.post("SWZZ_MODE_ES_MBMANAGE/remove",strWhere,(data)=>{
+							JosnSel(data,"Del")
+						})
+                    }
+                }
+            );
+        }
+        //--------------------------------
+        // 监听分页前事件，阻止后自行设置当前数据和分页信息
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex + 1, pageSize = e.data.pageSize;
+            PageFillData(pageIndex, pageSize);
+        });
+        function onTMRenderer(e) {
+            var value = e.value;
+            if (value) {
+                return mini.formatDate(convertToDate(value), 'yyyy-MM-dd');
+            }
+            else {
+                return "";
+            }
+        }
+    </script>
+</body>
+</html>
