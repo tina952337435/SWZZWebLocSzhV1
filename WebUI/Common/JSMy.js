@@ -2502,7 +2502,13 @@ var token = localStorage.getItem("token"); //后台是否需要token
                 //报错的时候提示
             },
             success: function (msg) {
-                callback(msg);
+                if (msg.code === "-401") {//登录失效了
+                    localStorage.clear();
+                    window.location.href = fullHostAddress;
+                }
+                else{
+                    callback(msg);
+                }
             }
         })
     }
