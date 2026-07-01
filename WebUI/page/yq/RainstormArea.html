@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="上海市水情预报调度一体化平台（一期）">
+    <meta name="keywords" content="上海市水情预报调度一体化平台（一期）">
+    <meta http-equiv="imagetoolbar" content="no">
+    <meta property="wb:webmaster" content="10fd28588b2f9686">
+    <meta name="sogou_site_verification" content="Mtd2WIt6Ne">
+    <meta name="msvalidate.01" content="2D36557CC0E331F85475A3B85DAAA4FC">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <title>上海市水情预报调度一体化平台（一期）</title>
+    <script type="text/javascript" src="../../Common/boot.js"></script>
+
+    <script src="../../Common/spectrum/spectrum.js?ver=1.0.1"></script>
+    <link href="../../Common/spectrum/spectrum.css?ver=1.0.1" rel="stylesheet" />
+
+    <link href="../../arcgis_js_api//myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api//myJs/style/index.css?ver=0" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api//myJs/style/map.css?ver=0" rel="stylesheet" type="text/css" />
+
+    <link href="../../arcgis_js_api//library/3.31/3.31/esri/css/esri.css" rel="stylesheet" type="text/css" />
+
+    <script src="../../arcgis_js_api//myJs/mapConfig.js" type="text/javascript"></script>
+
+    <script src="../../arcgis_js_api//library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api//myJs/bj.js?ver=1" type="text/javascript"></script>
+
+    <script src="../../arcgis_js_api//myJs/CommonTool.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api//myJs/parentIndex.js" type="text/javascript"></script>
+
+    <script src="../../arcgis_js_api//myJs/mapIndex.js?ver=1.0.7" type="text/javascript"></script>
+
+    <link href="../../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
+
+    <style>
+        .right .inline table tr {
+    height: 35px;
+}
+.biaoheader{
+    width: 100%;
+    margin: unset;
+    border-top:0px;
+}
+.box{
+    margin-top: 0px;
+}
+#contentConditionTextTwo {
+            display: block;
+        }
+
+        #contentConditionTextOne {
+            display: none;
+        }
+
+        .required {
+            height: 30px;
+            width: 70px;
+            border-radius: 4px;
+            border: solid 1px #a5acb5;
+            padding-left: 5px;
+        }
+
+        .contentConditionTextTwoBetweenItem {
+            min-height: 36px;
+            margin-bottom: 15px;
+            display: flex;
+        }
+
+        .contentResult {
+            height: 100%
+        }
+
+        .contentResultTitle {
+            width: 100%;
+            height: 40px;
+        }
+
+        .contentResultImg {
+            width: 100%;
+            height: 808px;
+            margin: 0px auto;
+           
+        }
+
+            .contentResultImg img {
+                width: 100%;
+                height: 100%;
+                display: none;
+            }
+            .contentResultImg iframe {
+                width: 100%;
+                height: 100%;
+            }
+        .contentResultTable {
+            width: 100%;
+            margin: 0px auto;
+            height: 1100px;
+        }
+
+        .mwsChart {
+            -webkit-box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            box-shadow: 0 2px 6px 2px rgba(0,0,0,.14);
+            background-color: #fff;
+            /*padding-left: 10px;
+            padding-right: 10px;*/
+            width: 100%;
+            height: 100%;
+        }
+        .tuli{
+            position:absolute;
+            left: 10px;
+            bottom: 10px;
+            width: 250px;
+        }
+        .tuli .tjheader {
+            line-height: 25px;
+            background:#017de4;
+            text-indent: 5px;
+            text-align: left;
+            font-size: 14px;
+            color: #fff;
+            border-radius: 5px 5px 0px 0px;
+            border-top: #017de4 1px solid;
+            border-left: #017de4 1px solid;
+            border-right: #017de4 1px solid;
+            filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff, direction=120, strength=4);
+            /*ie*/
+            -moz-box-shadow: 2px 2px 10px #017de4;
+            /*firefox*/
+            -webkit-box-shadow: 2px 2px 10px #017de4;
+            /*safari或chrome*/
+            box-shadow: 2px 2px 10px #017de4;
+            /*opera或ie9*/
+        }
+        .tuli table {
+            /* width: -webkit-calc(100% - 2px);width: -moz-calc(100% - 2px);width: calc(100% - 2px);*/
+            width: 100%;
+            overflow: auto;
+            border-bottom: #017DE4 1px solid;
+            border-left: #017DE4 1px solid;
+            border-right: #017DE4 1px solid;
+            background: #fff;
+            filter: progid:DXImageTransform.Microsoft.Shadow(color=#c5d1ff, direction=120, strength=4);
+            /*ie*/
+            -moz-box-shadow: 2px 2px 10px #017DE4;
+            /*firefox*/
+            -webkit-box-shadow: 2px 2px 10px #017DE4;
+            /*safari或chrome*/
+            box-shadow: 2px 2px 10px #017DE4;
+            /*opera或ie9*/
+            border-radius: 0px 0px 5px 5px;
+        }
+        .areaspan{
+            /* margin-left: 15px; */
+            display: block;
+            width: 25%;
+            text-align: center;
+            padding-left:20px;
+            flex: 1;
+        }
+        .sp-replacer{
+            height: 30px;
+        }
+        .yListrSpan{
+            display: block;
+            margin-top: 5px;
+        }
+        .colork {
+            width: 70%;
+            height: 80%;
+            margin: auto;
+        }
+
+        .colorL {
+            margin-top: 15px;
+        }
+
+            .colorL p {
+                width: 55px;
+                margin: 0px auto;
+                margin-top: -4px;
+            }
+
+        .colorSpan {
+            display: inline-block;
+            width: 15px;
+            height: 25px;
+            margin-right: 5px;
+        }
+
+        .colorSpanValue {
+            margin-top: 7px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="myMap" style="width: 100%; height: 100%; display: block; overflow: hidden;
+    position: absolute">
+    </div>
+    <div style="width: 355px; height: 822px; overflow: hidden;background:white;position:absolute;background:white;right: 3px;top: 10px;padding: 10px;
+            border-radius: 5px;z-index: 99;"
+        id="contentRight">
+        <!--水情信息-->
+        <div class="flex" style="width: 100%; height: 100%; overflow: hidden;">
+            <div class="biaoheader">
+                <p class="NONEp"></p>
+                条件选择
+                <!-- <span id="rblDataTypeSel" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table"
+                    repeatDirection="vertical" style="float: right;" textField="text" valueField="id" value="onlytabBX"
+                    data="[{'id':'onlytabYC','text':'遥测'},{'id':'onlytabBX','text':'报汛'}]" onvaluechanged="onvaluechangedRblData"></span> -->
+            </div>
+            <div class="right box" style="height:80px;width: 100%;">
+                <div class="demo1" style="float: left;width:100%;">
+                    <div class="inline" style="margin-top:0px;">
+                        <div style="width: 100%; height: 75px; float: left;">
+                            <table cellpadding="0" cellspacing="0" border="0">
+                                <tr style="display:none;">
+                                    <td>
+                                        <span class="label" style="width: 45px">区域：</span>
+                                    </td>
+                                    <td>
+                                        <input id="fuCombo" class="mini-combobox" style="width:110px;" textField="name"
+                                            valueField="id" onvaluechanged="Maplocation" showNullItem="false"/>&nbsp;&nbsp;
+                                        <input id="ziCombo" class="mini-combobox" style="width:110px;display:none;"
+                                            textField="name" valueField="id" onvaluechanged="ziChanged" allowInput="true"
+                                            showNullItem="true" nullItemText="水利分区" emptyText="水利分区" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="label" style="width: 45px">开始：</span>
+                                    </td>
+                                    <td>
+
+                                        <input id="STIMEMap" class="mini-datepicker" style="width:110px;" format="yyyy-MM-dd"
+                                            showtime="false" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+                                        <input id="STIMEMapHour" class="mini-combobox" style="width:50px;" textField="text"
+                                            valueField="id" />
+                                        <input id="zhanshifangshi" class="mini-combobox" style="width:85px;display: none;"
+                                            textField="text" valueField="id" emptytext="展示方式" data="[{'id':'静态','text':'静态'},{'id':'时段动态','text':'时段动态'},{'id':'累计动态','text':'累计动态'}]"
+                                            onvaluechanged="onFangshiChanged" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>结束：</td>
+                                    <td>
+                                        <input id="ETIMEMap" class="mini-datepicker" style="width:110px;" format="yyyy-MM-dd"
+                                            showtime="false" showOkButton="false" showClearButton="false" />&nbsp;&nbsp;
+                                        <input id="ETIMEMapHour" class="mini-combobox" style="width:50px;" textField="text"
+                                            valueField="id" />
+                                        <input id="bofangInterval" class="mini-combobox" style="width:85px;display: none;"
+                                            textField="text" valueField="id" emptytext="时间间隔" data="[{'id':'3','text':'3h'},{'id':'6','text':'6h'},{'id':'12','text':'12h'},{'id':'24','text':'24h'},{'id':'72','text':'3d'}]"
+                                            onvaluechanged="onbofangIntervalChanged" />
+                                        <!-- <a class="mini-button" style="margin-left:0px" onclick="loadDZM()">
+                                            查询
+                                        </a> -->
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="biaoheader" style="display:flex;">
+                <div style="width:100%;text-align:left;">
+                        雨量区间
+                </div>
+
+                <!-- <div  style="width:25%;text-align:center;">
+                        面积(km²)
+                </div>
+
+                <div style="width:25%;text-align:center;">
+                        占比(%)
+                </div> -->
+            </div>
+            <div class="right box" style="height:calc(100% - 135px);width: 100%;padding: 10px;">
+                <div class="contentConditionTextTwoBetween">
+                    <div id="trFD1" class="contentConditionTextTwoBetweenItem">
+                        <span class="yListrSpan">1：</span>
+                        <input alt="" type="text" id="GCVALUEA1" name="GCVALUEStart" class="required" tipinfo="不能为空"
+                            value="5">
+                        <!--—
+                         <input alt="" type="text" id="GCVALUEB1" name="GCVALUEEnd" class="required" tipinfo="不能为空"
+                            value="10"> -->
+                        <input id="full1" value="#A6F28E">
+                        <span id="area1" class="areaspan"></span>
+                        <span id="areabl1" class="areaspan"></span>
+                    </div>
+                    <div id="trFD2" class="contentConditionTextTwoBetweenItem">
+                        <span class="yListrSpan">2：</span>
+                        <input alt="" type="text" id="GCVALUEA2" name="GCVALUEStart" class="required" tipinfo="不能为空"
+                            value="10">
+                        <!-- —
+                        <input alt="" type="text" id="GCVALUEB2" name="GCVALUEEnd" class="required" tipinfo="不能为空"
+                            value="25"> -->
+                        <input id="full2" value="#007B00">
+                        <span id="area2" class="areaspan"></span>
+                        <span id="areabl2" class="areaspan"></span>
+                    </div>
+                    <div id="trFD3" class="contentConditionTextTwoBetweenItem">
+                        <span class="yListrSpan">3：</span>
+                        <input alt="" type="text" id="GCVALUEA3" name="GCVALUEStart" class="required" tipinfo="不能为空"
+                            value="25">
+                        <!-- —
+                        <input alt="" type="text" id="GCVALUEB3" name="GCVALUEEnd" class="required" tipinfo="不能为空"
+                            value="50"> -->
+                        <input id="full3" value="#3DBCF9">
+                        <span id="area3" class="areaspan"></span>
+                        <span id="areabl3" class="areaspan"></span>
+                    </div>
+                    <div id="trFD4" class="contentConditionTextTwoBetweenItem">
+                        <span class="yListrSpan">4：</span>
+                        <input alt="" type="text" id="GCVALUEA4" name="GCVALUEStart" class="required" tipinfo="不能为空"
+                            value="50">
+                        <!-- —
+                        <input alt="" type="text" id="GCVALUEB4" name="GCVALUEEnd" class="required" tipinfo="不能为空"
+                            value="100"> -->
+                        <input id="full4" value="#0000F9">
+                        <span id="area4" class="areaspan"></span>
+                        <span id="areabl4" class="areaspan"></span>
+                    </div>
+                    <div id="trFD5" class="contentConditionTextTwoBetweenItem">
+                        <span class="yListrSpan">5：</span>
+                        <input alt="" type="text" id="GCVALUEA5" name="GCVALUEStart" class="required" tipinfo="不能为空"
+                            value="100">
+                        <!-- —
+                        <input alt="" type="text" id="GCVALUEB5" name="GCVALUEEnd" class="required" tipinfo="不能为空"
+                            value="250"> -->
+                        <input id="full5" value="#FB3DFA">
+                        <span id="area5" class="areaspan"></span>
+                        <span id="areabl5" class="areaspan"></span>
+                    </div>
+                    <div id="trFD6" class="contentConditionTextTwoBetweenItem">
+                        <span class="yListrSpan">6：</span>
+                        <input alt="" type="text" id="GCVALUEA6" name="GCVALUEStart" class="required" tipinfo="不能为空"
+                            value="200">
+                        <!-- —
+                        <input alt="" type="text" id="GCVALUEB6" name="GCVALUEEnd" class="required" tipinfo="不能为空"> -->
+                        <input id="full6" value="#7B0000">
+                        <span id="area6" class="areaspan"></span>
+                        <span id="areabl6" class="areaspan"></span>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <input value="添加条件" id="btnAdd" type="button" style="text-align: center; width: 80px; height: 30px; color: #30BAF5; cursor: pointer; background:#ffffff; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #30BAF5;margin-left: 4px;"
+                        class="jNicebtn_submit" />
+                    <input value="删除条件" id="btnDel" type="button" style="text-align: center; width: 80px; height: 30px; color: #FF4D7F; cursor: pointer; background:#ffffff; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #FF4D7F;margin-left: 4px;"
+                        class="jNicebtn_submit" />
+                </div>
+                <div style="text-align:center;margin-top:20px;">
+                    <!-- 降水笼罩面积统计 -->
+                    <input value="统计" id="startButton" onclick="loadDZM()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#3291F9; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #3291F9;margin-left: 4px;" class="jNicebtn_submit">
+                </div>
+                <div style="text-align:center;margin-top:10px;">
+                    <input value="导出图片" id="startButton" onclick="loadDZMPIC()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#1fbf1b; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #1fbf1b;margin-left: 4px;" class="jNicebtn_submit">      
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 左上角统计 -->
+    <div id="rightTongJiDiv" style="position:absolute;top:10px;left:10px;background: white;width: 260px;min-height: 200px;z-index: 99;box-shadow: 2px 2px 10px #017DE4;display:none;">
+        <div style="text-align: center;height: 30px;line-height: 30px;background: #017de4;color: #fff;">
+               降水笼罩面积
+        </div>
+        <div id="rightTongJiDivHeader" style="display: flex;background: #E5F2FC;border-bottom: #A5ACB5 1px solid;border-top: #A5ACB5 1px solid;height: 30px;line-height: 30px;">
+            <div style="flex: 1;width: 26%;text-align: center;">等级</div>
+            <div style="flex: 1;width: 37%;text-align: center;">面积(km²)</div>
+            <div style="flex: 1;width: 37%;text-align: center;">占比(%)</div>
+        </div>
+        <div id="rightTongJiDivBody">
+
+        </div>
+    </div>
+
+    <div class="tuli">
+        <p class="tjheader">
+            <strong>图例</strong>
+            <img class="hidethisbiao" src="../../arcgis_js_api//myJs/images/xiajiantou.png" style="display:block;width:15px;height:15px;float:right;margin-top: 5px;margin-right: 5px;" />
+            <span style="display: block; float: right; line-height: 16px; font-size:14px;margin-right: 10px;">
+                <input id="rain0_0" type="checkbox" />
+                <img alt="" src="../../arcgis_js_api//myJs/images/d_white.png" style="width:14px;height:18px;vertical-align: -3px;" />无雨(<span
+                    id="rainfall0_0" style="color: #fff; font-size:14px; line-height: 14px;"></span>)</span>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="15" style="padding-left: 3px;">
+                    <input id="rain1_9" type="checkbox" checked="checked" />
+                </td>
+                <td width="15">
+                    <img alt="" src="../../arcgis_js_api//myJs/images/d_grey.png" style="width:14px;height:18px;vertical-align: -3px;" />
+                </td>
+                <td>
+                    <span style="display: block; float: left; line-height: 16px; font-size:14px;">&lt;10</span>
+                </td>
+                <td width="15">
+                    <input id="rain10_24" type="checkbox" checked="checked" />
+                </td>
+                <td width="15">
+                    <img alt="" src="../../arcgis_js_api//myJs/images/d_sky.png" style="width:14px;height:18px;vertical-align: -3px;" />
+                </td>
+                <td>
+                    <span style="display: block; float: left; line-height: 16px; font-size:14px;">10-25</span>
+                </td>
+                <td width="15">
+                    <input id="rain25_49" type="checkbox" checked="checked" />
+                </td>
+                <td width="15">
+                    <img alt="" src="../../arcgis_js_api//myJs/images/d_blue.png" style="width:14px;height:18px;vertical-align: -3px;" />
+                </td>
+                <td>
+                    <span style="display: block; float: left; line-height: 16px; font-size:14px;">25-50</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: center;">
+                    (<span id="rainfall1_9" style="color: #0479ef; font-size:14px; line-height: 14px;vertical-align: -3px;"></span>)
+                </td>
+                <td colspan="3" style="text-align: center;">
+                    (<span id="rainfall10_24" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                </td>
+                <td colspan="3" style="text-align: center;">
+                    (<span id="rainfall25_49" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                </td>
+            </tr>
+            <tr>
+                <td width="15" style="padding-left: 3px;">
+                    <input id="rain50_99" type="checkbox" checked="checked" />
+                </td>
+                <td width="15">
+                    <img alt="" src="../../arcgis_js_api//myJs/images/d_yellow.png" style="width:14px;height:18px;vertical-align: -3px;" />
+                </td>
+                <td>
+                    <span style="display: block; float: left; line-height: 16px; font-size:14px;">50-100</span>
+                </td>
+                <td width="15">
+                    <input id="rain100_249" type="checkbox" checked="checked" />
+                </td>
+                <td width="15">
+                    <img alt="" src="../../arcgis_js_api//myJs/images/d_red.png" style="width:14px;height:18px;vertical-align: -3px;" />
+                </td>
+                <td>
+                    <span style="display: block; float: left; line-height: 16px; font-size:14px;">100-200</span>
+                </td>
+                <td width="15">
+                    <input id="rain250" type="checkbox" checked="checked" />
+                </td>
+                <td width="15">
+                    <img alt="" src="../../arcgis_js_api//myJs/images/d_black.png" style="width:14px;height:18px;vertical-align: -3px;" />
+                </td>
+                <td colspan="4">
+                    <span style="display: block; float: left; line-height: 16px; font-size:14px;">>=200</span>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: center;">
+                    (<span id="rainfall50_99" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                </td>
+                <td colspan="3" style="text-align: center;">
+                    (<span id="rainfall100_249" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                </td>
+                <td colspan="3" style="text-align: center;">
+                    (<span id="rainfall250" style="color: #0479ef; font-size:14px; line-height: 14px;"></span>)
+                </td>
+
+            </tr>
+        </table>
+    </div>
+
+    <div id="SSTTL" style="background:#ffffff;position:absolute;right:365px;bottom:45px;
+    border: 1px solid #cecbcb;
+    width: 55px;-moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px #888888;padding: 0px 5px;">
+            <div class="colorL">
+                <div class="colorL" id="colorLContent">
+                    <!-- <p><span class="colorSpan" style="background-color:#7B0000"></span><span class="colorSpanValue">250</span></p>
+                    <p><span class="colorSpan" style="background-color:#FB3DFA"></span><span class="colorSpanValue">100</span></p>
+                    <p><span class="colorSpan" style="background-color:#0000F9"></span><span class="colorSpanValue">50</span></p>
+                    <p><span class="colorSpan" style="background-color:#3DBCF9"></span><span class="colorSpanValue">25</span></p>
+                    <p><span class="colorSpan" style="background-color:#007B00"></span><span class="colorSpanValue">10</span></p>
+                    <p><span class="colorSpan" style="background-color:#A6F28E"></span><span class="colorSpanValue">0</span></p> -->
+                </div>
+            </div>
+        </div>
+    <script>
+        mini.parse();
+        var paletteColor = [
+            ["#000", "#444", "#666", "#999", "#ccc", "#eee", "#f3f3f3", "#fff"],
+            ["#f00", "#f90", "#ff0", "#0f0", "#0ff", "#00f", "#90f", "#f0f"],
+            ["#f4cccc", "#fce5cd", "#fff2cc", "#d9ead3", "#d0e0e3", "#cfe2f3", "#d9d2e9", "#ead1dc"],
+            ["#ea9999", "#f9cb9c", "#ffe599", "#b6d7a8", "#a2c4c9", "#9fc5e8", "#b4a7d6", "#d5a6bd"],
+            ["#e06666", "#f6b26b", "#ffd966", "#93c47d", "#76a5af", "#6fa8dc", "#8e7cc3", "#c27ba0"],
+            ["#c00", "#e69138", "#f1c232", "#6aa84f", "#45818e", "#3d85c6", "#674ea7", "#a64d79"],
+            ["#900", "#b45f06", "#bf9000", "#38761d", "#134f5c", "#0b5394", "#351c75", "#741b47"],
+            ["#600", "#783f04", "#7f6000", "#274e13", "#0c343d", "#073763", "#20124d", "#4c1130"]
+        ];
+        var myData = [];
+        var DZMRainLayerGraphicLayer = null, RainLayerGraphicLayer = null;
+        //流域分区
+        var thliuyuAreaList = [
+            { id: "全流域", name: "全流域" },
+            { id: "太湖流域", name: "太湖流域" },
+            // { id: "东南诸河", name: "东南诸河" }
+        ];
+        $(function () {
+            console.error('顺序', '2');
+            setOBJValue();
+            addObjClick();
+            addTuliColor();
+            setTimeout(() => {
+                LoadJS("2", "../../Common/path-area.js");
+
+                var LayerID = "DZMRainLayerGraphicLayer";
+                DZMRainLayerGraphicLayer = CreateLayerID(LayerID, 90);
+                DZMRainLayerGraphicLayer.setOpacity(0.7);//0.7
+
+                LayerID = "RainLayerGraphicLayer";
+                RainLayerGraphicLayer = CreateLayerID(LayerID, 90);
+                setLayerToolTip(RainLayerGraphicLayer, "stnm", "drp", "累计雨量@(mm)");
+                RainLayerGraphicLayer.on("click", onYQClick);
+
+                loadDZM();
+
+                $(".tuli input").click(function () {
+                    tlChecked();
+                });
+            }, 800);
+        });
+        var jibieArr = [],colors=[];
+        function loadDZM() {
+            addTuliColor();
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            
+            var StartDate = mini.get("STIMEMap").getFormValue() + " " + mini.get("STIMEMapHour").getValue() + ":00:00";
+            var EndDate = mini.get("ETIMEMap").getFormValue() + " " + mini.get("ETIMEMapHour").getValue() + ":00:00";   
+            //雨情
+            var strParam = {};
+            strParam["pid"] ="201901101419326076-1-1,201901101419326076-5";
+            strParam["stime"] =new Date(StartDate).format("yyyy-MM-dd HH:mm:ss");
+            strParam["etime"] =new Date(EndDate).format("yyyy-MM-dd HH:mm:ss");
+            strParam["pathname"] = "SUM";
+            app.post("SWZZ_RTSQ_ST_PPTN_R/queryDRPList", strParam,(data)=>{
+                JosnSel(data,"DBODZXIDBS3STATION");
+			});
+
+        }
+        var RainfallStr = [];
+        function MapRainfall() {
+            jibieArr = [];
+            colors=[];
+            $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").each(function (_index) {
+                var valueStart = $("#GCVALUEA" + (_index + 1)).val();
+                var colorValue = $("#full" + (_index + 1)).val();
+
+                if (valueStart != "") {
+                    jibieArr.push(parseFloat( valueStart));
+                    // console.error("colorValue",colorValue);
+                    colors.push(colorValue);
+                }
+            });
+            var strParam = {
+                interpolation_method: "trigonometric",
+                levels:jibieArr,
+                resolution: 1000,//0.01,
+                stations:RainfallStr,
+                boundary:false,
+            };
+            var aj = $.ajax({
+                url: window.location.origin+"/dzxmTrae/multi-regions/isosurfaces",
+                type: "post",
+                dataType: 'json',
+                data:JSON.stringify(strParam), //根据需求编辑传递参数的格式
+                headers: {
+                    'Content-Type': 'application/json;charset=utf-8',
+                    "authorization": localStorage.getItem("token"),
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET,POST",
+                    "Access-Control-Allow-Headers": "content-type"
+                },
+                async: true,
+                contentType: 'application/json;charset=utf-8',
+                xhrFields: {
+                    withCredentials: true //跨域请求要想带上cookie，必须要在ajax请求里加上xhrFields: {withCredentials: true}。
+                },
+                error: function (err) {
+                    console.error('调用接口错误信息：',err)
+                    //报错的时候提示
+                    mini.unmask(document.body);
+                },
+                success: function (msg) {
+                    if (msg.code === "-401") {//登录失效了
+                        localStorage.clear();
+                        window.location.href = fullHostAddress;
+                    }
+                    else{
+                        MapRainfallData(msg);
+                    }
+                }
+            })
+        }
+        
+      
+        function JosnSel(data, typeID) {
+            if (typeID == "DBODZXIDBS3STATION") {
+                var dataResult = data.data;
+                $.data(myData, "STATIONDATA", dataResult);
+                addYQMarker();
+            }
+        }
+        function hexToRgb(hex) {
+            // 移除十六进制颜色代码中的'#'
+            let sanitizedHex = hex.replace("#", "");
+            // 解析红、绿、蓝值
+            let r = parseInt(sanitizedHex.substring(0, 2), 16);
+            let g = parseInt(sanitizedHex.substring(2, 4), 16);
+            let b = parseInt(sanitizedHex.substring(4, 6), 16);
+            var rgbArr = [r, g, b];
+            return rgbArr;//`rgb(${r}, ${g}, ${b})`;
+        }
+        function setOBJValue() {
+            var hourArr = [];
+            for (var num = 0; num < 24; num++) {
+                hourArr.push({ id: num, text: num });
+            }
+            mini.get("STIMEMapHour").setData(hourArr);
+            mini.get("ETIMEMapHour").setData(hourArr);
+            var now = new Date();
+            var sdt = now.format("yyyy-MM-dd 08:00:00");
+            var edt = now.format("yyyy-MM-dd HH:00:00");
+            if (parseInt(new Date().format("HH")) < 8) {
+                sdt = addDayDate(now.format("yyyy-MM-dd"), -1).replaceAll("/", "-") +" 08:00:00";
+            }
+
+            mini.get("STIMEMap").setValue(sdt);
+            mini.get("ETIMEMap").setValue(edt);
+           
+            var sdtHour = new Date(sdt).getHours();
+            var edtHour = new Date(edt).getHours();
+            mini.get("STIMEMapHour").setValue(sdtHour);
+            mini.get("ETIMEMapHour").setValue(edtHour+1);
+
+            var tmTemp = thliuyuAreaList.filter(function (e) {
+                return e.pid == undefined;
+            });
+            mini.get("fuCombo").setData(tmTemp);
+            mini.get("fuCombo").select(1);
+
+            $("#full1").spectrum({
+                color: "#A6F28E",  //初始化颜色
+                preferredFormat: "hex6", //输入框颜色格式
+                showInput: true,  //显示输入
+                showPalette: true, //显示选择器面板
+                cancelText: "取消",//取消按钮,按钮文字
+                chooseText: "选择",//选择按钮,按钮文字
+                palette: paletteColor
+            });
+            $("#full2").spectrum({
+                color: "#007B00",  //初始化颜色
+                preferredFormat: "hex6", //输入框颜色格式
+                showInput: true,  //显示输入
+                showPalette: true, //显示选择器面板
+                cancelText: "取消",//取消按钮,按钮文字
+                chooseText: "选择",//选择按钮,按钮文字
+                palette: paletteColor
+            });
+            $("#full3").spectrum({
+                color: "#3DBCF9",  //初始化颜色
+                preferredFormat: "hex6", //输入框颜色格式
+                showInput: true,  //显示输入
+                showPalette: true, //显示选择器面板
+                cancelText: "取消",//取消按钮,按钮文字
+                chooseText: "选择",//选择按钮,按钮文字
+                palette: paletteColor
+            });
+            $("#full4").spectrum({
+                color: "#0000F9",  //初始化颜色
+                preferredFormat: "hex6", //输入框颜色格式
+                showInput: true,  //显示输入
+                showPalette: true, //显示选择器面板
+                cancelText: "取消",//取消按钮,按钮文字
+                chooseText: "选择",//选择按钮,按钮文字
+                palette: paletteColor
+            });
+            $("#full5").spectrum({
+                color: "#FB3DFA",  //初始化颜色
+                preferredFormat: "hex6", //输入框颜色格式
+                showInput: true,  //显示输入
+                showPalette: true, //显示选择器面板
+                cancelText: "取消",//取消按钮,按钮文字
+                chooseText: "选择",//选择按钮,按钮文字
+                palette: paletteColor
+            });
+            $("#full6").spectrum({
+                color: "#7B0000",  //初始化颜色
+                preferredFormat: "hex6", //输入框颜色格式
+                showInput: true,  //显示输入
+                showPalette: true, //显示选择器面板
+                cancelText: "取消",//取消按钮,按钮文字
+                chooseText: "选择",//选择按钮,按钮文字
+                palette: paletteColor
+            });
+        }
+        function addObjClick() {
+            $("#btnAdd").click(function () {
+                var rowIndex = $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length;
+                var newTr = '<div id="trFD' + (rowIndex + 1) + '"  class="contentConditionTextTwoBetweenItem">' +
+                    '<span class="yListrSpan">' + (rowIndex + 1) + '：</span>' +
+                    ' <input alt="" type="text"  id="GCVALUEA' + (rowIndex + 1) + '" name="GCVALUEStart"  class="required" tipinfo="不能为空"/>' +
+                    //'—' +
+                    //' <input alt="" type="text"  id="GCVALUEB' + (rowIndex + 1) + '" name="GCVALUEEnd"  class="required" tipinfo="不能为空"/>' +
+                    ' <input id="full' + (rowIndex + 1) + '" value="#f00"/>'+
+                    '<span id="area'+ (rowIndex + 1)+'"  class="areaspan"></span>'+
+                    '<span id="areabl'+ (rowIndex + 1)+'" class="areaspan"></span>'+
+                    '</div>';
+                $(".contentConditionTextTwoBetween").append(newTr);
+                $('#trFD' + (rowIndex + 1)).focus();
+
+                $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").each(function (_index) {
+                    if (_index > rowIndex - 1) {
+                        if (_index > 0) {
+                            $("#full" + (_index + 1)).spectrum({
+                                color: "#f00",  //初始化颜色
+                                preferredFormat: "hex6", //输入框颜色格式
+                                showInput: true,  //显示输入
+                                showPalette: true, //显示选择器面板
+                                cancelText: "取消",//取消按钮,按钮文字
+                                chooseText: "选择",//选择按钮,按钮文字
+                                palette: paletteColor
+                            });
+                        }
+                    }
+                });
+            });
+            $("#btnDel").click(function () {
+                if (confirm("是否删除条件!")) {
+                    var rowIndex = $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length;
+                    //alert(rowIndex);
+                    if (rowIndex > 1) {
+                        $("#trFD" + (rowIndex)).remove();
+                    };
+                    var divHeight = $("#contentConditionTextTwoBetween").css("height") - 30;
+                    $(".contentConditionTextTwoBetween").css("height", divHeight);
+                }
+            });
+        }
+        function onvaluechangedRblData(e) {
+            var now = new Date();
+            if (e.value == "onlytabBX") {
+                $("#STIMEMapHour").hide();
+                $("#ETIMEMapHour").hide();
+                // if (parseInt(new Date().format("HH")) < 8) {
+                //     sdt = addDayDate(now.format("yyyy-MM-dd"), -2);
+                //     edt = addDayDate(now.format("yyyy-MM-dd"), -2);
+                // } else {
+                //     sdt = addDayDate(now.format("yyyy-MM-dd"), -1);
+                //     edt = addDayDate(now.format("yyyy-MM-dd"), -1);
+                // }
+            } else {
+                $("#STIMEMapHour").show();
+                $("#ETIMEMapHour").show();
+                var edt = now.format("yyyy-MM-dd HH:00:00");
+                if (parseInt(new Date().format("HH")) < 8) {
+                    sdt = addDayDate(now.format("yyyy-MM-dd"), -1) + " 08:00:00";
+                } else {
+                    sdt = now.format("yyyy-MM-dd 08:00:00");
+                }
+                mini.get("STIMEMapHour").setValue(new Date(sdt).getHours());
+                mini.get("ETIMEMapHour").setValue(new Date(edt).getHours());
+
+                mini.get("STIMEMapHour").setValue(new Date(sdt).getHours());
+                mini.get("ETIMEMapHour").setValue(new Date(edt).getHours());
+            }
+            // mini.get("STIMEMap").setValue(sdt);
+            // mini.get("ETIMEMap").setValue(edt);
+        }
+        function CreateLayerID(str, LayerID) {
+            var layer;
+            if (map.getLayer(str)) {
+                layer = map.getLayer(str);
+            } else {
+                layer = map.addLayer(new esri.layers.GraphicsLayer({
+                    id: str
+                }), LayerID);
+            }
+            return layer;
+        }
+        function tlChecked() {
+            addYQMarker();
+        }
+        var count1 = 0;
+        var count2 = 0;
+        var count3 = 0;
+        var count4 = 0;
+        var count5 = 0;
+        var count6 = 0;
+        var count7 = 0;
+        function addYQMarker() {
+            RainfallStr=[];
+            if (RainLayerGraphicLayer != null) { RainLayerGraphicLayer.clear(); }
+            var value1 = document.getElementById("rain250").checked;
+            var value2 = document.getElementById("rain100_249").checked;
+            var value3 = document.getElementById("rain50_99").checked;
+            var value4 = document.getElementById("rain25_49").checked;
+            var value5 = document.getElementById("rain10_24").checked;
+            var value6 = document.getElementById("rain1_9").checked;
+            var value7 = document.getElementById("rain0_0").checked;
+            count1 = 0;
+            count2 = 0;
+            count3 = 0;
+            count4 = 0;
+            count5 = 0;
+            count6 = 0;
+            count7 = 0;
+
+            var obj = $.data(myData, "STATIONDATA");
+            if (obj == "" || obj == null || obj == undefined) {
+                return;
+            }
+            // obj = obj.filter(function (res) {
+            //     return res.drp > 0;
+            // });
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "esri/symbols/PictureMarkerSymbol",
+                "esri/InfoTemplate",
+                "esri/dijit/InfoWindow",
+                "esri/layers/GraphicsLayer",
+                "esri/geometry/webMercatorUtils", "esri/symbols/TextSymbol", "esri/SpatialReference", "myJs/MapText", "dojo/domReady!"
+            ], function (Point, Graphic, PictureMarkerSymbol, InfoTemplate, InfoWindow,
+                GraphicsLayer, webMercatorUtils,
+                TextSymbol, SpatialReference, MapText) {
+                    var breakSymbol;
+                    _destroy();
+                    for (var i = 0; i < obj.length; i++) {
+                        var item = obj[i];
+                        if (item.lgtd == undefined && item.lttd == undefined) {
+                            continue;
+                        }
+                        var f = parseFloat(item.drp);
+                        //if(f>0){
+                            if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != "") {
+                                // console.error("f",f);
+                                RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: f });
+                                if(item.stcd=="63422650"){//边角需要插值的点
+                                    RainfallStr.push({ lon:-58570.8187561 , lat:-14245.7293732, value: f });            
+                                }
+                                if(item.stcd=="63422480"){
+                                    RainfallStr.push({ lon:-45857.005352, lat:-45373.137903, value: f });         
+                                }
+                                if(item.stcd=="X1160101"){
+                                    RainfallStr.push({ lon:-18971.869913,lat:-60205.822566, value: f });         
+                                }
+                            }
+                        //}
+                        
+                        if (f >= 200.0) {
+                            count1++;
+                            if (!value1) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_black.png", 14, 18);
+                        } else if (f >= 100.0) {
+                            count2++;
+                            if (!value2) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_red.png", 14, 18);
+                        } else if (f >= 50.0) {
+                            count3++;
+                            if (!value3) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_yellow.png", 14, 18);
+                        }
+                        else if (f >= 25.0) {
+                            count4++;
+                            if (!value4) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_blue.png", 14, 18);
+                        } else if (f >= 10.0) {
+                            count5++;
+                            if (!value5) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_sky.png", 14, 18);
+                        } else if (f > 0.0) {
+                            count6++;
+                            if (!value6) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_grey.png", 14, 18);
+                        }
+                        else {
+                            count7++;
+                            if (!value7) {
+                                continue;
+                            }
+                            breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_white.png", 14, 18);
+                        }
+                        if (breakSymbol == "") continue;
+                        point = new Point(item.lgtd, item.lttd, new SpatialReference({ wkid: 4326 }));
+                        graphic = new Graphic(point, breakSymbol, item, null);
+                        var cls = "rainText";
+                        var text = item.stnm + "<br/>" + item.drp;
+                        // var label = new MapText(map, point, item, text, _globallevel, "bottom", cls, 12);
+                        // labels.push(label);
+                        RainLayerGraphicLayer.add(graphic);
+                    }
+                    tlCount();                    
+                    MapRainfall();
+                });
+        }
+
+        function tlCount() {
+            document.getElementById("rainfall0_0").innerHTML = count7;
+            document.getElementById("rainfall1_9").innerHTML = count6;
+            document.getElementById("rainfall10_24").innerHTML = count5;
+            document.getElementById("rainfall25_49").innerHTML = count4;
+            document.getElementById("rainfall50_99").innerHTML = count3;
+            document.getElementById("rainfall100_249").innerHTML = count2;
+            document.getElementById("rainfall250").innerHTML = count1;
+        }
+        
+        
+        function MapRainfallData(res) {
+            if (DZMRainLayerGraphicLayer != null) {
+                DZMRainLayerGraphicLayer.clear();
+                DZMRainLayerGraphicLayer.setOpacity(0.6);                
+                DZMRainLayerGraphicLayer.setVisibility(true);
+            }
+            if (!res.success) {
+                return;
+            }
+            var flatIsosurfaces = [];
+
+            if (res.success && res.data) {
+                Object.keys(res.data).forEach(function (regionId) {
+                var regionData = res.data[regionId];
+                if (regionData && regionData.isosurfaces) {
+                    regionData.isosurfaces.forEach(function (iso) {
+                    flatIsosurfaces.push(iso);
+                    });
+                }
+                });
+            }
+            var isolines = flatIsosurfaces;
+            for (const u of isolines) {
+                var level = u.level;
+                var levelIndex = jibieArr.findIndex(function (l) {
+                    return l >= level;
+                });
+                if (levelIndex < 0) levelIndex = 0;
+                var color = colors[levelIndex] || colors[colors.length - 1] || "#98D8C8";
+                var polygons = u.polygons;
+                // console.error("color", color,polygons);
+                for (const coords of polygons) {
+                    try {
+                        MapRainfallSing(coords, color);
+                    } catch (err) {
+                        console.error("请求失败:", err);
+                    }
+                }
+            }
+            
+            mini.unmask(document.body);
+        }
+        
+        function MapRainfallSing(myMapFill1,Filldzm) {
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/geometry/Polygon",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/Color",
+                "dojo/domReady!"
+            ], function (Point, Graphic, SimpleLineSymbol, Polygon, SimpleFillSymbol, Color) {
+                        var myPolygon = new Polygon(myMapFill1);
+                        // var Filldzm;                
+                        var lineSymbol = new SimpleFillSymbol(
+                            SimpleFillSymbol.STYLE_SOLID,
+                            new SimpleLineSymbol(
+                                SimpleLineSymbol.STYLE_SOLID,
+                                new Color(Filldzm), //rgb155, 153, 153
+                                1
+                            ),
+                            new Color(Filldzm) //rgba
+                        );
+                        var gra = new Graphic(myPolygon, lineSymbol);
+                        DZMRainLayerGraphicLayer.add(gra);
+            });
+        }
+        
+        /**实时雨情等值面**/
+        var RainGra = [];
+        function addDZM() {
+            RainGra = [];
+            var data = $.data(myData, "YLDZMDATA");
+            if (DZMRainLayerGraphicLayer != null) {
+                DZMRainLayerGraphicLayer.clear();
+            }
+            if (data == null)
+                return;
+            require(["esri/geometry/Point",
+                "esri/graphic",
+                "esri/symbols/SimpleLineSymbol",
+                "esri/geometry/Polygon",
+                "esri/symbols/SimpleFillSymbol",
+                "esri/Color",
+                "esri/geometry/geometryEngine",
+                "esri/geometry",
+                "dojo/domReady!"
+            ], function (Point, Graphic, SimpleLineSymbol, Polygon, SimpleFillSymbol, Color, geometryEngine, geometry) {
+                var str = data;
+                if (str.length > 1) {
+                    var strcount = new Array();
+                    strcount = str[1].DZXDZM.split('|');
+                    var strx = "";
+                    var objArray = "";
+                    var objTip = "";
+                    var strnum = "";
+                    //过滤等值线字符串
+                    for (var i = 0; i < strcount.length; i++) {
+                        if (strcount[i].indexOf("a,") != -1) {
+                            objArray = objArray + strx.substr(0, strx.length - 1) + "|";
+                            objTip = objTip + strnum + String(strcount[i].replace("a,", "")).replace(",", ":") + "|";
+                            strx = "";
+                        }
+                        else {
+                            strx += strcount[i] + "-";
+                            strnum = strcount[i] + ":";
+                        }
+                    }
+
+                    var dzmLine;
+                    var dzmFill;
+
+                    //拼接需要的等值线格式
+                    objArray = objArray.substr(0, objArray.length - 1);
+                    objTip = objTip.substr(0, objTip.length - 1);
+
+                    var strline = objArray.split('|');
+                    var strPoint = objTip.split('|');
+                    var strxy = "";
+                    for (var k = 0; k < strline.length; k++) {
+                        var myMapFill1 = new Array();
+                        var myMapFill = new Array();
+                        var strcount1 = strline[k].split('-');
+                        var strFill = strPoint[k].split(':');
+
+                        var array = new Array();
+                        for (var j = 0; j < strcount1.length; j++) {
+                            var xycount = strcount1[j].split(',');
+                            myMapFill.push([Number(xycount[0]), Number(xycount[1])]);
+                        }
+                        myMapFill1.push(myMapFill);
+                        var myPolygon = new Polygon(myMapFill1);
+                        var Filldzm;
+                        var FilldzmT = 1;//0.6;
+                        var drplevel = Number(strFill[1]);
+                        var drplevelXu = Number(strFill[1]);
+                        var indexO = jibieArr.indexOf(strFill[1]);
+                        if (indexO > -1) {
+                            var colorValue = $("#full" + (indexO + 1)).val();
+                            var rgbColor = hexToRgb(colorValue);
+                            rgbColor.push(FilldzmT);
+                            Filldzm = rgbColor;
+                            //console.error(strFill[1],jibieArr.indexOf(strFill[1]));
+                            if (strFill[2] == "-1") {//说明是上一个等级
+                                if (indexO == 0) {//是最小级别
+                                    drplevelXu = jibieArr[indexO];
+                                    colorValue = $("#full" + (indexO + 1)).val();
+                                } else {
+                                    drplevelXu = jibieArr[indexO - 1]
+                                    colorValue = $("#full" + indexO).val();
+                                }
+                                rgbColor = hexToRgb(colorValue);
+                                rgbColor.push(FilldzmT);
+                                Filldzm = rgbColor;
+                            }
+                        }
+                        // console.error('strFill',strFill,"序号：",k,"drplevel",drplevel,"drplevelXu",drplevelXu);
+                        // console.error('rgbColor', rgbColor, 'Filldzm', Filldzm,'indexO',indexO)
+                        var lineSymbol = new SimpleFillSymbol(
+                            SimpleFillSymbol.STYLE_SOLID,
+                            new SimpleLineSymbol(
+                                SimpleLineSymbol.STYLE_SOLID,
+                                new Color(Filldzm), //rgb155, 153, 153
+                                1
+                            ),
+                            new Color(Filldzm) //rgba
+                        );
+                        var area = parseFloat(Math.abs(geometryEngine.geodesicArea(myPolygon, "square-kilometers")));
+                        // console.error("gis算面积", k, area);
+                        var attributes = { id: k, drplevel: drplevel, drplevelXu: drplevelXu, area: area };
+                        var gra = new Graphic(myPolygon, lineSymbol);
+                        gra.attributes = attributes;
+                        //gra.attr("name","Polygon"+strFill[1]+","+strFill[2])
+                        gra.attr("name", "Polygon" + k);
+                        gra.attr('id', "Polygon" + k);
+                        DZMRainLayerGraphicLayer.add(gra);
+                    }
+                    calculationArea();
+                }
+                mini.unmask(document.body);
+
+                // $("#DZMRainLayerGraphicLayer_layer path").each(function (res) {
+                //     //console.error(  $(this).attr('id'));
+
+                //     //var bbox1 =$(this).get(0).getBBox();
+
+
+                //     var strPathOrNode = $(this).get(0);
+                //     //    console.error('strPathOrNode',strPathOrNode);
+                //     var area = getPathArea(strPathOrNode, 100);
+                //     console.error('getPathArea面积', area);
+
+
+                //     // 使用示例
+                //     //const pathData = 'M10 10 L 50 10 L 50 50 L 10 50 Z'; // 一个简单的矩形路径
+                //     var pathData = $(this).attr("path");
+                //     var area = approximateAreaOfSVGPath(pathData);
+                //     // console.log('近似面积:', area);
+                // });
+                
+                // var path1 = $("#DZMRainLayerGraphicLayer_layer path")[0];
+                // var path2 =  $("#DZMRainLayerGraphicLayer_layer path")[1];
+                // var area = getAreaOfIntersection(path1, path2);
+                // console.log('Area of intersection:', area);
+
+            });
+        }
+
+        function pathDataToPoints(d) {
+            // 将SVG路径数据转换为点数组
+            // 这里省略具体实现，需要根据SVG路径指令实现解析
+            let points = [];
+            let instructions = d.split(/(?=[MLC])/); // 正则表达式分割路径指令
+
+            instructions.forEach(instruction => {
+                let type = instruction[0];
+                let coords = instruction.substr(1).split(/(?=\D)/); // 正则表达式分割坐标
+                coords = coords.map(Number); // 将字符串坐标转换为数字
+
+                switch (type) {
+                    case 'M': // 移动到
+                        points.push({ x: coords[0], y: coords[1], type: 'move' });
+                        break;
+                    case 'L': // 线到
+                        points.push({ x: coords[0], y: coords[1], type: 'line' });
+                        break;
+                    case 'C': // 三次贝塞尔曲线
+                        points.push({ x: coords[0], y: coords[1], type: 'curve' });
+                        // 这里可以添加控制点坐标的处理
+                        break;
+                    // 可以添加其他指令类型的处理
+                    default:
+                        break;
+                }
+            });
+
+            return points;
+        }
+
+        function areaOfPolygon(points) {
+            let area = 0;
+            // 假设点是顺时针方向，第一个点和最后一个点相连
+            for (let i = 0; i < points.length - 1; i++) {
+                area += (points[i][0] * points[i + 1][1]) - (points[i + 1][0] * points[i][1]);
+            }
+            // 因为最后一个点和第一个点相连，所以要除以2
+            area = area / 2;
+            return Math.abs(area);
+        }
+
+        function approximateAreaOfSVGPath(pathData) {
+            const points = pathDataToPoints(pathData); // 将路径数据转换为点数组
+            const triangles = []; // 存储由三个点构成的三角形
+
+            // 将多边形分割成多个三角形
+            for (let i = 1; i < points.length - 1; i++) {
+                triangles.push([points[0], points[i], points[i + 1]]);
+            }
+
+            let totalArea = 0;
+            // 计算所有三角形的面积并累加
+            triangles.forEach(triangle => {
+                totalArea += areaOfPolygon(triangle);
+            });
+
+            return totalArea;
+        }
+
+        function getAreaOfIntersection(path1, path2) {
+                // 获取两个路径的DOM元素
+                var bbox1 = path1.getBBox();
+                var bbox2 = path2.getBBox();
+
+                // 创建一个新的SVG元素用于存放相交区域的path
+                var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                var intersectPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                svg.appendChild(intersectPath);
+                document.body.appendChild(svg); // 临时添加到DOM中以计算其BBox
+
+                // 使用SVG的'rect'元素的属性来创建一个矩形，该矩形是两个路径重叠的区域
+                intersectPath.setAttribute('d', 'M' + bbox1.x + ' ' + bbox1.y + ' L' + (bbox1.x + bbox1.width) + ' ' + bbox1.y + ' L' + (bbox1.x + bbox1.width) + ' ' + (bbox1.y + bbox1.height) + ' L' + bbox1.x + ' ' + (bbox1.y + bbox1.height) + ' L' + bbox1.x + ' ' + bbox1.y);
+                intersectPath.setAttribute('fill', 'red');
+                intersectPath.setAttribute('fill-opacity', '0'); // 设置透明度为0，使其不可见
+
+                var bboxIntersection = intersectPath.getBBox();
+
+                // 计算并返回相交区域的面积
+                var area = (bboxIntersection.width * bboxIntersection.height);
+
+                // 清理，移除临时添加的元素
+                svg.parentNode.removeChild(svg);
+
+                return area;
+            }
+        //计算降水笼罩面积
+        var allAreaJisuan=36900;//太湖流域总面积
+        function calculationArea() {
+            //求每一块有多少交集的
+            var fugraphics = DZMRainLayerGraphicLayer.graphics;
+            var fuAreaArr = [];
+            require([
+                "esri/geometry/geometryEngine"
+            ], function (geometryEngine) {
+                for (var k = 0; k < fugraphics.length; k++) {
+                    var fuG = fugraphics[k];
+                    var bianhao=fuG.attributes.id;
+                    //叠在上面的或者同级别的
+                    var zigraphics=fugraphics.filter(function(res){
+                        return Number(res.attributes.id)>Number(bianhao);
+                    });
+                    // console.error('bianhao',bianhao,'zigraphicsTemp',zigraphicsTemp,"drplevel",fuG.attributes.drplevel);
+                    var lastGeometry = fuG.geometry;//前一个对象
+                    var children = [];
+                    var drplevelArr = [];
+                    var children_id = [];
+                    for (var g = 0; g < zigraphics.length; g++) {
+                        var ziItem=zigraphics[g];
+                        var myPolygon = ziItem.geometry;
+                        //使用geometryEngine检查交集
+                        var intersects = geometryEngine.intersects(myPolygon, lastGeometry);
+                        if (intersects) {
+                            children.push(ziItem);
+                            drplevelArr.push(ziItem.attributes.drplevel);
+                            children_id.push(ziItem.attributes.id);
+                        }
+                    }
+                    fuG.ischildren = children;
+                    fuG.drplevelArr = drplevelArr;
+                    fuG.drplevelArr = drplevelArr;
+                    fuG.children_id = children_id;
+                    fuAreaArr.push(fuG);
+                }
+            
+                //分组计算面积
+                var areaNoteArr=[];
+                var bianhaoArr=[]; //记录被减过的编号
+                for(var num=jibieArr.length-1;num>=0;num--){
+                    var g=jibieArr[num];
+                    var totalarea=0;
+                    var fuAreaArrTemp = fuAreaArr.filter(function (res) {
+                        return Number(res.attributes.drplevel) == Number(g);
+                    });
+                    // console.error(g,fuAreaArrTemp);
+                    fuAreaArrTemp.forEach(fu => {
+                        var children =fu.ischildren;
+                        totalarea = totalarea + Number(fu.attributes.area);
+                        children.forEach(cdr => {
+                            if (bianhaoArr.indexOf(cdr.attributes.id) == -1) {//没有减过
+                                totalarea = totalarea - Number(cdr.attributes.area);
+                                bianhaoArr.push(cdr.attributes.id);
+                            }
+                        });
+                    });
+                    if(totalarea<0){
+                        totalarea=0;
+                    }
+                    areaNoteArr.push({grade:g,area:totalarea.toFixed(0)});
+                }
+                // console.error("分组计算面积",areaNoteArr);
+                
+                var strHtml="";
+                var _index=0;
+                for(var num=areaNoteArr.length-1;num>=0;num--){
+                    var gradeStr='';
+                    if(num==0){
+                        gradeStr=">"+areaNoteArr[num].grade;
+                    }else{
+                        gradeStr=areaNoteArr[num].grade+"~"+areaNoteArr[num-1].grade;
+                    }
+                    var area =Number(areaNoteArr[num].area);
+                    var totalAreabl=(area/allAreaJisuan*100).toFixed(1);
+
+                    strHtml+='<div style="display: flex;height: 30px; line-height: 30px;">';
+                    strHtml += '<div style="flex: 1;width: 26%;text-align: center;">' + gradeStr + '</div>';
+                    strHtml += '<div style="flex: 1;width: 37%;text-align: center;">' + areaNoteArr[num].area + '</div>';
+                    strHtml += '<div style="flex: 1;width: 37%;text-align: center;">' + totalAreabl + '</div>';
+                    strHtml+='</div>';
+
+                    $("#area"+(_index+1)).html(areaNoteArr[num].area);
+                    $("#areabl"+(_index+1)).html(totalAreabl);
+                    _index++;
+                }
+                $("#rightTongJiDivBody").html(strHtml);
+            });
+        }
+        const hexToRgba = (hex, opacity) => {
+            let rgbaColor = "";
+            let reg = /^#[\da-f]{6}$/i;
+            if (reg.test(hex)) {
+                rgbaColor = `rgba(${parseInt("0x" + hex.slice(1, 3))},${parseInt(
+                    "0x" + hex.slice(3, 5)
+                )},${parseInt("0x" + hex.slice(5, 7))},${opacity})`;
+            }
+            return rgbaColor;
+        }
+        function addTuliColor(){
+            var html='';
+            var jibieArr=[];
+            $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").each(function (_index) {
+                var valueStart = $("#GCVALUEA" + (_index + 1)).val();
+                var colorValue = $("#full" + (_index + 1)).val();
+                jibieArr.push([colorValue,valueStart]);
+                // console.error('colorValue',colorValue,'valueStart',valueStart);
+            });
+            for(var num=jibieArr.length-1;num>=0;num--){
+                html+='<p><span class="colorSpan" style="background-color:'+jibieArr[num][0]+'"></span><span class="colorSpanValue">'+jibieArr[num][1]+'</span></p>';
+            }
+            // console.error('jibieArr',jibieArr);
+            $("#colorLContent").html(html);
+        }
+    
+        function loadDZMPIC() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '导出图片中...'
+            });
+            jibieArr = [];
+            colors=[];
+            $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").each(function (_index) {
+                var valueStart = $("#GCVALUEA" + (_index + 1)).val();
+                var colorValue = $("#full" + (_index + 1)).val();
+
+                if (valueStart != "") {
+                    jibieArr.push(parseFloat( valueStart));
+                    // console.error("colorValue",colorValue);
+                    colors.push(colorValue);
+                }
+            });
+            var requestData = {
+                interpolation_method: "trigonometric",
+                levels:jibieArr,
+                resolution: 1000,//0.01,
+                stations:RainfallStr,
+                boundary:false,                
+                colors:colors
+            };
+            fetch(window.location.origin+'/dzxmTrae/multi-regions/image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(function(response) {
+                if (!response.ok) {
+                    mini.unmask(document.body);
+                    // throw new Error('请求失败: ' + response.status);
+                    alert('请求失败: ' + response.status);
+                }
+                return response.blob();
+            })
+            .then(function(blob) {
+                var url = URL.createObjectURL(blob);
+                var link = document.createElement('a');
+                var timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+                link.download = 'multi_region_' + timestamp + '.png';
+                link.href = url;
+                link.click();
+                URL.revokeObjectURL(url);
+                mini.unmask(document.body);
+            })
+            .catch(function(error) {
+                console.error('生成失败:', error);
+                alert('生成多区域图片失败: ' + error.message);
+                // self.textContent = '生成多区域图片';
+                mini.unmask(document.body);
+            });
+        }
+    
+        function onYQClick(evt) {
+            if (evt.graphic.attributes != null) {
+                var stcd = evt.graphic.attributes.stcd;
+                var stnm = evt.graphic.attributes.stnm;
+                Trans(stcd,stnm);
+            }
+        }
+        function Trans(stcd, stnm) {
+            var stime = mini.get("STIMEMap").getFormValue() + " " + mini.get("STIMEMapHour").getValue() + ":00:00";
+            var etime = mini.get("ETIMEMap").getFormValue() + " " + mini.get("ETIMEMapHour").getValue() + ":00:00";  
+
+            var strParam = "?stcd=" + stcd + "&stnm=" + (stnm) + "&STIME=" + stime + "&ETIME=" + etime + "&TYPENAME=降雨过程"
+            openChart("DanZhan/YQLine.html"+strParam, stnm + "雨量柱状图", stcd);
+        }
+    </script>
+</body>
+
+</html>

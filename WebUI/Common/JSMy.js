@@ -2476,6 +2476,7 @@ var token = localStorage.getItem("token"); //后台是否需要token
 (function (app, $) {
     //发送请求
     app.send = function (url, type, data, async, callback, errorback) {
+        token = localStorage.getItem("token"); //后台是否需要token
         var aj = $.ajax({
             url: ServerIP+url,
             type: type,

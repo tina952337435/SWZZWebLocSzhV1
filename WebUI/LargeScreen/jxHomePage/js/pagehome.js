@@ -62,9 +62,12 @@ loadFangList = function () {
 
 onLoadData = function () {
     //GetJosns("MODE_ES_ZHANDIANSel", { }, "MODE_ES_ZHANDIANSel");
-	app.post("SWZZ_MODE_ES_ZHANDIAN/findResult",{},(data)=>{
+	// app.post("SWZZ_MODE_ES_ZHANDIAN/findResult",{},(data)=>{
+	// 	JosnSel(data,"MODE_ES_ZHANDIANSel")
+	// })
+    app.post("SWZZ_MODE_ES_SLTONGJI/findResult",{pattem: "134"},(data)=>{
 		JosnSel(data,"MODE_ES_ZHANDIANSel")
-	})
+	});
     loadSW();
     loadTONGJI();
     loadSL();
@@ -86,7 +89,7 @@ function loadYL() {
         "dayhour": "HOUR"
     };
     //GetJosns("FH_GetBind", s_where, "YLSel");
-	app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind",s_where,(data)=>{
+	app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBindJY",s_where,(data)=>{
 		JosnSel(data,"YLSel")
 	})
 }
@@ -183,7 +186,7 @@ loadZhanList = function (data) {
             for (num = 0; num < dataTemp.length; num++) {
                 var item = dataTemp[num];
                 strMsg += ' <li id="' + item["stcd"] + '">' + item["name"] + '</li>';
-                if (item["stcd"] == "1170181") {
+                if (num==0) {
                     $("#CWDBZLIST").parent().find("label").html(item["name"]);
                     $.data(myData, "CWSTCD", item["stcd"]);
                 }
@@ -334,7 +337,7 @@ function JosnSel(data, typeID) {
     else if (typeID == "YBSHUIWEI") {
         //预测水位
         var strJson = data.data.filter(function (e) {
-            return e.ZSTCD == $.data(myData, "STCD");
+            return e.STCD == $.data(myData, "STCD");
         });
         var strNote = [{
             "name": "时间",
@@ -371,7 +374,7 @@ function JosnSel(data, typeID) {
             chartSW("tableGCSW", strJson, strNote, LineColor, "水位");
 
             strJson = data.data.filter(function (e) {
-                return e.ZSTCD == $.data(myData, "CWSTCD");
+                return e.STCD == $.data(myData, "CWSTCD");
             });
             chartSW("echartSL", strJson, strNote, LineColor, "水位");
         }
@@ -381,7 +384,7 @@ function JosnSel(data, typeID) {
         } else if (swType == "CW") {
             var LineColor = ["orange", "red"];
             strJson = data.data.filter(function (e) {
-                return e.ZSTCD == $.data(myData, "CWSTCD");
+                return e.STCD == $.data(myData, "CWSTCD");
             });
             chartSW("echartSL", strJson, strNote, LineColor, "水位");
         }
@@ -393,8 +396,13 @@ function JosnSel(data, typeID) {
         yjHtml(data.data);
     }
     else if (typeID == "GetResultAllModelByTime") {
-        $.data(myData, "AllModelByTimeData", data.results);
-        queryComplete();
+        if(data.info.success){            
+            $.data(myData, "AllModelByTimeData", data.results);
+            queryComplete();
+        }
+        else{
+            console.error(data.info.msg);
+        }
     }
     else if (typeID == "SelAll") {
         $.data(myData, "SWDATA", data.data);
@@ -403,9 +411,7 @@ function JosnSel(data, typeID) {
 }
 //日雨量柱状图
 function ylHtml(data, chartName) {
-    var arrZhan = $.data(myData, "ES_ZHANDIAN").filter(function (e) {
-        return e.zhantype == "0";
-    });
+    var arrZhan = $.data(myData, "ES_ZHANDIAN");
     var arr = data;
     var chartTM = [], chartData = [];
     var totalDRP = 0;
@@ -413,10 +419,10 @@ function ylHtml(data, chartName) {
         for (var num = 0; num < arrZhan.length; num++) {
             var totalJY = 0;
             for (var h = 0; h < arr.length; h++) {
-                totalJY += parseFloat(arr[h][arrZhan[num]["zhanid"]]);
+                totalJY += parseFloat(arr[h][arrZhan[num]["id"]]);
             }
             totalDRP += totalJY;
-            chartTM.push(arrZhan[num]["zhanname"]);
+            chartTM.push(arrZhan[num]["title"]);
             chartData.push(totalJY);
         }
         chartAreaYL(chartName, chartTM, chartData, totalDRP);
@@ -469,7 +475,7 @@ function swHtml(data) {
         if(item.xzdz != undefined &&item.xzdz!="null"&&item.xzdz!=null){
             lsMax=Number(item.xzdz).toFixed(2);
         }
-        console.error('xzdz', item.xzdz);
+        // console.error('xzdz', item.xzdz);
         strHtml += '<tr>';
         strHtml += '<td class="' + cls + '">' + item.stnm + '</td>';
         strHtml += '<td class="' + cls + '">' + UPZ + '</td>';

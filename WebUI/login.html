@@ -133,20 +133,7 @@
     function JosnSel(resultdata, typeID) {
         if (typeID == "Login") {
             if (resultdata.total > 0) {
-				app.post("SWZZ_DATA_sys_log/add",
-				{
-					emp_ID:UUID(16,19),
-					logo_DATE:new Date().format("yyyy-MM-dd HH:mm:ss"),
-					ip:window.hosts,
-					status:"true",
-					name:resultdata.data.name,
-					flag:"PC",
-					mac:"",
-					emp_NAME:resultdata.data.name
-				},
-				(data)=>{
-					
-				});
+				
                 SetCookie("MEMO", resultdata.data.memo, 3);
                 SetCookie("LOGINNAME", resultdata.data.name, 3);
                 SetCookie("username", resultdata.data.qx_LOGIN, 3);
@@ -157,9 +144,24 @@
                 localStorage.setItem("loginname",resultdata.data.qx_LOGIN);
 
                 localStorage.setItem("token",undefined != resultdata.data.token ? resultdata.data.token : "");
+
+                app.post("SWZZ_DATA_sys_log/add",
+				{
+					emp_ID:UUID(16,19),
+					logo_DATE:new Date().format("yyyy-MM-dd HH:mm:ss"),
+					ip:window.hosts,
+					status:"true",
+					name:resultdata.data.name,
+					flag:"PC",
+					mac:"",
+					emp_NAME:resultdata.data.name
+				},
+				(data)=>{});
+
+                
                 var _qx_url = "NewIndex.html?rid=" + Math.random();
                 var strWhere = { "id":UUID(19,16),"menu_ID": "0", "menu_NAME": "上海市水文预报调度一体化平台（一期）", "tm": new Date().format("yyyy/MM/dd HH:mm:ss"), "qx_LOGIN": GetCookie("LOGINNAME"), "qx_URL": _qx_url, "tel": GetCookie("MOBILE") };
-                //GetJosns("DATA_MENU_LOGAdd", strWhere, "DATA_MENU_LOGAdd");
+                //GetJosns("DATA_MENU_LOGAdd", strWhere, "DATA_MENU_LOGAdd");                
 				app.post("SWZZ_DATA_menu_log/add",strWhere,(data)=>{
 					JosnSel(data,"DATA_MENU_LOGAdd");
 				})
@@ -191,7 +193,6 @@
             }
         } else if (typeID == "DATA_MENU_LOGAdd") {
             window.location.href = "index.html?rid=" + Math.random();
-
         } else if (typeID == "") {
 
         }
