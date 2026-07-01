@@ -58,7 +58,7 @@
 
         .required {
             height: 30px;
-            width: 70px;
+            width: 60px;
             border-radius: 4px;
             border: solid 1px #a5acb5;
             padding-left: 5px;
@@ -196,6 +196,14 @@
             margin-top: 7px;
             font-size: 13px;
         }
+        /* 站点选择弹窗样式 */
+        .station-list-item { display: flex; align-items: center; padding: 3px 6px; font-size: 12px; border-bottom: 1px solid #f0f0f0; }
+        .station-list-item:hover { background: #f5f8ff; }
+        .station-list-item input[type="checkbox"] { margin-right: 6px; cursor: pointer; }
+        .station-list-item label { flex: 1; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+        .station-list-item .stcd { color: #999; font-size: 10px; margin-left: 4px; }
+        .station-list-item .drp { color: #017de4; font-weight: bold; margin-left: 4px; min-width: 40px; text-align: right; font-size: 12px; }
+        .excluded-count { color: #FF4D7F; font-size: 12px; margin-left: 4px; }
     </style>
 </head>
 
@@ -257,9 +265,9 @@
                                         <input id="bofangInterval" class="mini-combobox" style="width:85px;display: none;"
                                             textField="text" valueField="id" emptytext="时间间隔" data="[{'id':'3','text':'3h'},{'id':'6','text':'6h'},{'id':'12','text':'12h'},{'id':'24','text':'24h'},{'id':'72','text':'3d'}]"
                                             onvaluechanged="onbofangIntervalChanged" />
-                                        <!-- <a class="mini-button" style="margin-left:0px" onclick="loadDZM()">
+                                        <a class="mini-button" style="margin-left:0px" onclick="loadDZM()">
                                             查询
-                                        </a> -->
+                                        </a>
                                     </td>
                                 </tr>
                             </table>
@@ -285,10 +293,10 @@
                     <div id="trFD1" class="contentConditionTextTwoBetweenItem">
                         <span class="yListrSpan">1：</span>
                         <input alt="" type="text" id="GCVALUEA1" name="GCVALUEStart" class="required" tipinfo="不能为空"
-                            value="5">
-                        <!--—
+                            value="0">
+                        —
                          <input alt="" type="text" id="GCVALUEB1" name="GCVALUEEnd" class="required" tipinfo="不能为空"
-                            value="10"> -->
+                            value="10">
                         <input id="full1" value="#A6F28E">
                         <span id="area1" class="areaspan"></span>
                         <span id="areabl1" class="areaspan"></span>
@@ -297,9 +305,9 @@
                         <span class="yListrSpan">2：</span>
                         <input alt="" type="text" id="GCVALUEA2" name="GCVALUEStart" class="required" tipinfo="不能为空"
                             value="10">
-                        <!-- —
+                        —
                         <input alt="" type="text" id="GCVALUEB2" name="GCVALUEEnd" class="required" tipinfo="不能为空"
-                            value="25"> -->
+                            value="25">
                         <input id="full2" value="#007B00">
                         <span id="area2" class="areaspan"></span>
                         <span id="areabl2" class="areaspan"></span>
@@ -308,9 +316,9 @@
                         <span class="yListrSpan">3：</span>
                         <input alt="" type="text" id="GCVALUEA3" name="GCVALUEStart" class="required" tipinfo="不能为空"
                             value="25">
-                        <!-- —
+                        —
                         <input alt="" type="text" id="GCVALUEB3" name="GCVALUEEnd" class="required" tipinfo="不能为空"
-                            value="50"> -->
+                            value="50">
                         <input id="full3" value="#3DBCF9">
                         <span id="area3" class="areaspan"></span>
                         <span id="areabl3" class="areaspan"></span>
@@ -319,9 +327,9 @@
                         <span class="yListrSpan">4：</span>
                         <input alt="" type="text" id="GCVALUEA4" name="GCVALUEStart" class="required" tipinfo="不能为空"
                             value="50">
-                        <!-- —
+                        —
                         <input alt="" type="text" id="GCVALUEB4" name="GCVALUEEnd" class="required" tipinfo="不能为空"
-                            value="100"> -->
+                            value="100">
                         <input id="full4" value="#0000F9">
                         <span id="area4" class="areaspan"></span>
                         <span id="areabl4" class="areaspan"></span>
@@ -330,9 +338,9 @@
                         <span class="yListrSpan">5：</span>
                         <input alt="" type="text" id="GCVALUEA5" name="GCVALUEStart" class="required" tipinfo="不能为空"
                             value="100">
-                        <!-- —
+                        —
                         <input alt="" type="text" id="GCVALUEB5" name="GCVALUEEnd" class="required" tipinfo="不能为空"
-                            value="250"> -->
+                            value="200">
                         <input id="full5" value="#FB3DFA">
                         <span id="area5" class="areaspan"></span>
                         <span id="areabl5" class="areaspan"></span>
@@ -341,8 +349,8 @@
                         <span class="yListrSpan">6：</span>
                         <input alt="" type="text" id="GCVALUEA6" name="GCVALUEStart" class="required" tipinfo="不能为空"
                             value="200">
-                        <!-- —
-                        <input alt="" type="text" id="GCVALUEB6" name="GCVALUEEnd" class="required" tipinfo="不能为空"> -->
+                        —
+                        <input alt="" type="text" id="GCVALUEB6" name="GCVALUEEnd" class="required" tipinfo="不能为空">
                         <input id="full6" value="#7B0000">
                         <span id="area6" class="areaspan"></span>
                         <span id="areabl6" class="areaspan"></span>
@@ -355,11 +363,15 @@
                         class="jNicebtn_submit" />
                 </div>
                 <div style="text-align:center;margin-top:20px;">
-                    <!-- 降水笼罩面积统计 -->
-                    <input value="统计" id="startButton" onclick="loadDZM()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#3291F9; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #3291F9;margin-left: 4px;" class="jNicebtn_submit">
+                    <input value="站点筛选" id="btnStationSelect" onclick="openStationModal()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#ff8c00; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #ff8c00;margin-left: 4px;" class="jNicebtn_submit">
+                    <span id="excludedCount" class="excluded-count"></span>
                 </div>
                 <div style="text-align:center;margin-top:10px;">
-                    <input value="导出图片" id="startButton" onclick="loadDZMPIC()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#1fbf1b; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #1fbf1b;margin-left: 4px;" class="jNicebtn_submit">      
+                    <!-- 降水笼罩面积统计 -->
+                    <input value="绘制等值面" id="startButton" onclick="drawIsosurface()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#3291F9; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #3291F9;margin-left: 4px;" class="jNicebtn_submit">
+                </div>
+                <div style="text-align:center;margin-top:10px;">
+                    <input value="导出图片" id="startButton" onclick="loadDZMPIC()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#1fbf1b; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #1fbf1b;margin-left: 4px;" class="jNicebtn_submit">
                 </div>
             </div>
         </div>
@@ -491,6 +503,37 @@
                 </div>
             </div>
         </div>
+
+    <!-- 站点选择弹窗 -->
+    <div id="stationModalOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:9999;" onclick="if(event.target===this)closeStationModal()">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:420px;max-height:75%;background:#fff;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:flex;flex-direction:column;">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#017de4;color:#fff;border-radius:8px 8px 0 0;">
+                <span style="font-size:15px;font-weight:bold;">站点选择（参与等值面计算）</span>
+                <span style="cursor:pointer;font-size:18px;line-height:1;" onclick="closeStationModal()" title="关闭">✕</span>
+            </div>
+            <div style="padding:8px 12px;border-bottom:1px solid #eee;">
+                <a href="javascript:void(0)" onclick="selectAllStations()" style="font-size:12px;margin-right:12px;color:#3291F9;text-decoration:none;">全选</a>
+                <a href="javascript:void(0)" onclick="deselectAllStations()" style="font-size:12px;margin-right:12px;color:#3291F9;text-decoration:none;">取消全选</a>
+                <a href="javascript:void(0)" onclick="invertStationSelection()" style="font-size:12px;margin-right:12px;color:#3291F9;text-decoration:none;">反选</a>
+                <span style="font-size:11px;color:#999;">Ctrl+点击地图标记也可切换</span>
+            </div>
+            <div style="padding:6px 12px;border-bottom:1px solid #eee;">
+                <input id="stationSearchInput" type="text" placeholder="输入站名或站码筛选..." oninput="filterStationList()" style="width:100%;height:28px;border:1px solid #d0d0d0;border-radius:4px;padding:0 8px;font-size:12px;box-sizing:border-box;" />
+            </div>
+            <div style="padding:6px 12px;border-bottom:1px solid #eee;">
+                <select id="stationAreaSelect" onchange="filterStationList()" style="width:100%;height:28px;border:1px solid #d0d0d0;border-radius:4px;padding:0 6px;font-size:12px;box-sizing:border-box;background:#fff;">
+                    <option value="">全部区域</option>
+                </select>
+            </div>
+            <div id="stationListContent" style="flex:1;overflow-y:auto;padding:5px 12px;min-height:200px;">
+                <div style="text-align:center;color:#999;padding:40px;">请先查询雨量数据</div>
+            </div>
+            <div style="text-align:right;padding:10px 16px;border-top:1px solid #eee;">
+                <input value="关闭" onclick="closeStationModal()" type="button" style="width:70px;height:28px;color:#666;cursor:pointer;background:#f0f0f0;border:1px solid #ccc;border-radius:4px;font-size:12px;" />
+            </div>
+        </div>
+    </div>
+
     <script>
         mini.parse();
         var paletteColor = [
@@ -504,6 +547,8 @@
             ["#600", "#783f04", "#7f6000", "#274e13", "#0c343d", "#073763", "#20124d", "#4c1130"]
         ];
         var myData = [];
+        var excludedStations = new Set(); // 记录被排除不参与等值面计算的站点stcd
+        var ctrlKeyPressed = false; // 跟踪Ctrl键状态，用于Ctrl+点击切换排除
         var DZMRainLayerGraphicLayer = null, RainLayerGraphicLayer = null;
         //流域分区
         var thliuyuAreaList = [
@@ -528,6 +573,9 @@
                 setLayerToolTip(RainLayerGraphicLayer, "stnm", "drp", "累计雨量@(mm)");
                 RainLayerGraphicLayer.on("click", onYQClick);
 
+                // 地图重绘后重新应用排除站点透明度（缩放/平移时DOM节点被重建）
+                map.on('update-end', scheduleRefreshOpacity);
+
                 loadDZM();
 
                 $(".tuli input").click(function () {
@@ -543,7 +591,9 @@
                 cls: 'mini-mask-loading',
                 html: '数据加载中...'
             });
-            
+            if(DZMRainLayerGraphicLayer!=null){
+                DZMRainLayerGraphicLayer.clear();
+            }
             var StartDate = mini.get("STIMEMap").getFormValue() + " " + mini.get("STIMEMapHour").getValue() + ":00:00";
             var EndDate = mini.get("ETIMEMap").getFormValue() + " " + mini.get("ETIMEMapHour").getValue() + ":00:00";   
             //雨情
@@ -558,6 +608,23 @@
 
         }
         var RainfallStr = [];
+
+        // 绘制等值面：基于已查询的站点数据（尊重排除设置）生成等值面
+        function drawIsosurface() {
+            var obj = $.data(myData, "STATIONDATA");
+            if (!obj || obj.length === 0) {
+                alert("请先查询雨量数据");
+                return;
+            }
+            addTuliColor();
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '等值面生成中...'
+            });
+            refreshRainfallStr();
+        }
+
         function MapRainfall() {
             jibieArr = [];
             colors=[];
@@ -566,7 +633,11 @@
                 var colorValue = $("#full" + (_index + 1)).val();
 
                 if (valueStart != "") {
-                    jibieArr.push(parseFloat( valueStart));
+                    var valueGrade=parseFloat( valueStart);
+                    if(valueGrade==0){
+                        valueGrade=0.01;
+                    }
+                    jibieArr.push(valueGrade);
                     // console.error("colorValue",colorValue);
                     colors.push(colorValue);
                 }
@@ -618,6 +689,7 @@
                 var dataResult = data.data;
                 $.data(myData, "STATIONDATA", dataResult);
                 addYQMarker();
+                mini.unmask(document.body);
             }
         }
         function hexToRgb(hex) {
@@ -719,8 +791,8 @@
                 var newTr = '<div id="trFD' + (rowIndex + 1) + '"  class="contentConditionTextTwoBetweenItem">' +
                     '<span class="yListrSpan">' + (rowIndex + 1) + '：</span>' +
                     ' <input alt="" type="text"  id="GCVALUEA' + (rowIndex + 1) + '" name="GCVALUEStart"  class="required" tipinfo="不能为空"/>' +
-                    //'—' +
-                    //' <input alt="" type="text"  id="GCVALUEB' + (rowIndex + 1) + '" name="GCVALUEEnd"  class="required" tipinfo="不能为空"/>' +
+                    '—' +
+                    ' <input alt="" type="text"  id="GCVALUEB' + (rowIndex + 1) + '" name="GCVALUEEnd"  class="required" tipinfo="不能为空"/>' +
                     ' <input id="full' + (rowIndex + 1) + '" value="#f00"/>'+
                     '<span id="area'+ (rowIndex + 1)+'"  class="areaspan"></span>'+
                     '<span id="areabl'+ (rowIndex + 1)+'" class="areaspan"></span>'+
@@ -808,7 +880,6 @@
         var count6 = 0;
         var count7 = 0;
         function addYQMarker() {
-            RainfallStr=[];
             if (RainLayerGraphicLayer != null) { RainLayerGraphicLayer.clear(); }
             var value1 = document.getElementById("rain250").checked;
             var value2 = document.getElementById("rain100_249").checked;
@@ -853,15 +924,17 @@
                         //if(f>0){
                             if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != "") {
                                 // console.error("f",f);
-                                RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: f });
-                                if(item.stcd=="63422650"){//边角需要插值的点
-                                    RainfallStr.push({ lon:-58570.8187561 , lat:-14245.7293732, value: f });            
-                                }
-                                if(item.stcd=="63422480"){
-                                    RainfallStr.push({ lon:-45857.005352, lat:-45373.137903, value: f });         
-                                }
-                                if(item.stcd=="X1160101"){
-                                    RainfallStr.push({ lon:-18971.869913,lat:-60205.822566, value: f });         
+                                if (!excludedStations.has(item.stcd)) {
+                                    RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: f });
+                                    if(item.stcd=="63422650"){//边角需要插值的点
+                                        RainfallStr.push({ lon:-58570.8187561 , lat:-14245.7293732, value: f });
+                                    }
+                                    if(item.stcd=="63422480"){
+                                        RainfallStr.push({ lon:-45857.005352, lat:-45373.137903, value: f });
+                                    }
+                                    if(item.stcd=="X1160101"){
+                                        RainfallStr.push({ lon:-18971.869913,lat:-60205.822566, value: f });
+                                    }
                                 }
                             }
                         //}
@@ -919,9 +992,15 @@
                         // var label = new MapText(map, point, item, text, _globallevel, "bottom", cls, 12);
                         // labels.push(label);
                         RainLayerGraphicLayer.add(graphic);
+                        // 被排除的站点半透明显示
+                        if (excludedStations.has(item.stcd)) {
+                            var node = graphic.getNode();
+                            if (node) node.style.opacity = '0.2';
+                        }
                     }
-                    tlCount();                    
-                    MapRainfall();
+                    // 构建站点选择列表
+                    buildStationList(obj);
+                    tlCount();
                 });
         }
 
@@ -969,7 +1048,10 @@
                 // console.error("color", color,polygons);
                 for (const coords of polygons) {
                     try {
-                        MapRainfallSing(coords, color);
+                        if(coords.length>0)
+                        {
+                            MapRainfallSing(coords, color);
+                        }                        
                     } catch (err) {
                         console.error("请求失败:", err);
                     }
@@ -1358,8 +1440,11 @@
             $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").each(function (_index) {
                 var valueStart = $("#GCVALUEA" + (_index + 1)).val();
                 var colorValue = $("#full" + (_index + 1)).val();
-
                 if (valueStart != "") {
+                    var valueGrade=parseFloat( valueStart);
+                    if(valueGrade==0){
+                        valueGrade=0.01;
+                    }
                     jibieArr.push(parseFloat( valueStart));
                     // console.error("colorValue",colorValue);
                     colors.push(colorValue);
@@ -1410,16 +1495,315 @@
             if (evt.graphic.attributes != null) {
                 var stcd = evt.graphic.attributes.stcd;
                 var stnm = evt.graphic.attributes.stnm;
+                // Ctrl+点击：切换站点是否参与等值面计算
+                if (ctrlKeyPressed) {
+                    if (excludedStations.has(stcd)) {
+                        excludedStations.delete(stcd);
+                    } else {
+                        excludedStations.add(stcd);
+                    }
+                    // 同步更新列表中的复选框
+                    var cb = document.getElementById('stationCb_' + stcd);
+                    if (cb) cb.checked = !excludedStations.has(stcd);
+                    // 更新地图标记透明度
+                    setMarkerOpacity(evt.graphic, excludedStations.has(stcd) ? 0.2 : 1.0);
+                    updateExcludedCount();
+                    refreshRainfallStr();
+                    return;
+                }
                 Trans(stcd,stnm);
             }
         }
         function Trans(stcd, stnm) {
             var stime = mini.get("STIMEMap").getFormValue() + " " + mini.get("STIMEMapHour").getValue() + ":00:00";
-            var etime = mini.get("ETIMEMap").getFormValue() + " " + mini.get("ETIMEMapHour").getValue() + ":00:00";  
+            var etime = mini.get("ETIMEMap").getFormValue() + " " + mini.get("ETIMEMapHour").getValue() + ":00:00";
 
             var strParam = "?stcd=" + stcd + "&stnm=" + (stnm) + "&STIME=" + stime + "&ETIME=" + etime + "&TYPENAME=降雨过程"
             openChart("DanZhan/YQLine.html"+strParam, stnm + "雨量柱状图", stcd);
         }
+
+        // ========== 站点排除/参与等值面计算相关函数 ==========
+
+        // 设置地图标记的透明度（通过DOM节点操作，兼容ArcGIS 3.x）
+        function setMarkerOpacity(graphic, opacity) {
+            var node = graphic.getNode();
+            if (node) node.style.opacity = String(opacity);
+        }
+
+        // 地图缩放/平移重绘后，重新给排除站点设置透明度（DOM节点被重建）
+        var _refreshOpacityTimer = null;
+        function applyExcludedMarkerOpacity() {
+            if (!RainLayerGraphicLayer) return;
+            var graphics = RainLayerGraphicLayer.graphics;
+            for (var j = 0; j < graphics.length; j++) {
+                var g = graphics[j];
+                if (g.attributes && g.attributes.stcd && excludedStations.has(g.attributes.stcd)) {
+                    var node = g.getNode();
+                    if (node) node.style.opacity = '0.2';
+                }
+            }
+        }
+
+        // 地图重绘后重新应用透明度（防抖）
+        function scheduleRefreshOpacity() {
+            if (_refreshOpacityTimer) clearTimeout(_refreshOpacityTimer);
+            _refreshOpacityTimer = setTimeout(applyExcludedMarkerOpacity, 150);
+        }
+
+        // 打开站点选择弹窗
+        function openStationModal() {
+            document.getElementById('stationModalOverlay').style.display = 'block';
+        }
+
+        // 关闭站点选择弹窗
+        function closeStationModal() {
+            document.getElementById('stationModalOverlay').style.display = 'none';
+        }
+
+        // 根据已存储的站点数据构建站点选择列表
+        function buildStationList(stationData) {
+            var obj = stationData || $.data(myData, "STATIONDATA");
+            if (!obj) return;
+            var html = '';
+            var areaSet = {}; // 收集去重的行政分区
+            for (var i = 0; i < obj.length; i++) {
+                var item = obj[i];
+                if (!item.stcd) continue;
+                var addvnm = item.addvnm || '';
+                if (addvnm && !areaSet[addvnm]) areaSet[addvnm] = true;
+                var isExcluded = excludedStations.has(item.stcd);
+                var drpVal = (item.drp != null) ? item.drp : '0';
+                html += '<div class="station-list-item" data-addvnm="' + addvnm + '">';
+                html += '<input type="checkbox" id="stationCb_' + item.stcd + '" ' + (isExcluded ? '' : 'checked') + ' onchange="onStationCheckChange(\'' + item.stcd + '\', this.checked)" />';
+                html += '<label for="stationCb_' + item.stcd + '" title="' + (item.stnm || '') + ' ' + (item.stcd || '') + '">' + (item.stnm || item.stcd) + '<span class="stcd">' + (item.stcd || '') + '</span></label>';
+                html += '<span class="drp">' + drpVal + '</span>';
+                html += '</div>';
+            }
+            // 填充行政分区下拉框
+            var select = document.getElementById('stationAreaSelect');
+            if (select) {
+                var savedValue = select.value;
+                var opts = '<option value="">全部区域</option>';
+                var areas = Object.keys(areaSet).sort();
+                for (var a = 0; a < areas.length; a++) {
+                    opts += '<option value="' + areas[a] + '">' + areas[a] + '</option>';
+                }
+                select.innerHTML = opts;
+                // 恢复之前选中的值
+                if (savedValue) select.value = savedValue;
+            }
+            document.getElementById('stationListContent').innerHTML = html || '<div style="text-align:center;color:#999;padding:10px;">暂无站点数据</div>';
+            updateExcludedCount();
+            // 构建后应用当前搜索过滤
+            filterStationList();
+        }
+
+        // 按站名/站码 + 行政分区 组合筛选站点列表
+        function filterStationList() {
+            var keyword = (document.getElementById('stationSearchInput').value || '').trim().toLowerCase();
+            var areaFilter = document.getElementById('stationAreaSelect').value || '';
+            var items = document.querySelectorAll('#stationListContent .station-list-item');
+            var visibleCount = 0;
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                // 文本匹配：站名或站码
+                var textMatch = true;
+                if (keyword) {
+                    var text = (item.textContent || '').toLowerCase();
+                    textMatch = text.indexOf(keyword) !== -1;
+                }
+                // 区域匹配：行政分区
+                var areaMatch = true;
+                if (areaFilter) {
+                    areaMatch = item.getAttribute('data-addvnm') === areaFilter;
+                }
+                if (textMatch && areaMatch) {
+                    item.style.display = '';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            }
+            // 无匹配结果时显示提示
+            var noResult = document.getElementById('stationListNoResult');
+            if (visibleCount === 0 && items.length > 0 && (keyword || areaFilter)) {
+                if (!noResult) {
+                    noResult = document.createElement('div');
+                    noResult.id = 'stationListNoResult';
+                    noResult.style.cssText = 'text-align:center;color:#999;padding:10px;font-size:12px;';
+                    noResult.textContent = '无匹配站点';
+                    document.getElementById('stationListContent').appendChild(noResult);
+                }
+                noResult.style.display = '';
+            } else if (noResult) {
+                noResult.style.display = 'none';
+            }
+        }
+
+        // 更新已排除站点数量显示
+        function updateExcludedCount() {
+            var el = document.getElementById('excludedCount');
+            if (el) {
+                el.innerHTML = excludedStations.size > 0 ? '（已排除 ' + excludedStations.size + ' 个）' : '';
+            }
+        }
+
+        // 单个站点复选框变化
+        function onStationCheckChange(stcd, checked) {
+            if (checked) {
+                excludedStations.delete(stcd);
+            } else {
+                excludedStations.add(stcd);
+            }
+            updateExcludedCount();
+            // 更新地图标记透明度
+            if (RainLayerGraphicLayer) {
+                var graphics = RainLayerGraphicLayer.graphics;
+                for (var j = 0; j < graphics.length; j++) {
+                    var g = graphics[j];
+                    if (g.attributes && g.attributes.stcd === stcd) {
+                        setMarkerOpacity(g, checked ? 1.0 : 0.2);
+                        break;
+                    }
+                }
+            }
+            // 重新计算等值面
+            refreshRainfallStr();
+        }
+
+        // 重新构建RainfallStr（排除站点value=0，仍传给API保证插值不报错）并刷新等值面
+        function refreshRainfallStr() {
+            var obj = $.data(myData, "STATIONDATA");
+            if (!obj) return;
+            RainfallStr = [];
+            for (var i = 0; i < obj.length; i++) {
+                var item = obj[i];
+                if (item.lgtd == undefined && item.lttd == undefined) continue;
+                var f = parseFloat(item.drp);
+                // 被排除的站点value置0，但仍传给API以保证插值算法有完整的空间参考点
+                var value = excludedStations.has(item.stcd) ? 0 : f;
+                if(excludedStations.has(item.stcd)){
+                    console.error(item.stnm,value);
+                }
+                if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != "") {
+                    RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: value });
+                    if (item.stcd == "63422650") {
+                        RainfallStr.push({ lon: -58570.8187561, lat: -14245.7293732, value: value });
+                    }
+                    if (item.stcd == "63422480") {
+                        RainfallStr.push({ lon: -45857.005352, lat: -45373.137903, value: value });
+                    }
+                    if (item.stcd == "X1160101") {
+                        RainfallStr.push({ lon: -18971.869913, lat: -60205.822566, value: value });
+                    }
+                }
+            }
+            MapRainfall();
+        }
+
+        // 获取当前可见（未被筛选隐藏）的站点列表项
+        function getVisibleStationItems() {
+            var allItems = document.querySelectorAll('#stationListContent .station-list-item');
+            var visible = [];
+            for (var i = 0; i < allItems.length; i++) {
+                if (allItems[i].style.display !== 'none') {
+                    visible.push(allItems[i]);
+                }
+            }
+            return visible;
+        }
+
+        // 全选当前可见站点
+        function selectAllStations() {
+            var visibleItems = getVisibleStationItems();
+            for (var i = 0; i < visibleItems.length; i++) {
+                var cb = visibleItems[i].querySelector('input[type="checkbox"]');
+                if (cb) {
+                    cb.checked = true;
+                    // 从排除集合中移除
+                    var stcd = cb.id.replace('stationCb_', '');
+                    excludedStations.delete(stcd);
+                }
+            }
+            updateExcludedCount();
+            // 恢复可见标记透明度
+            if (RainLayerGraphicLayer) {
+                var graphics = RainLayerGraphicLayer.graphics;
+                for (var j = 0; j < graphics.length; j++) {
+                    var g = graphics[j];
+                    if (g.attributes && g.attributes.stcd && !excludedStations.has(g.attributes.stcd)) {
+                        setMarkerOpacity(g, 1.0);
+                    }
+                }
+            }
+            refreshRainfallStr();
+        }
+
+        // 取消全选（仅排除当前可见站点）
+        function deselectAllStations() {
+            var visibleItems = getVisibleStationItems();
+            for (var i = 0; i < visibleItems.length; i++) {
+                var cb = visibleItems[i].querySelector('input[type="checkbox"]');
+                if (cb) {
+                    cb.checked = false;
+                    var stcd = cb.id.replace('stationCb_', '');
+                    excludedStations.add(stcd);
+                }
+            }
+            updateExcludedCount();
+            // 可见标记半透明
+            if (RainLayerGraphicLayer) {
+                var graphics = RainLayerGraphicLayer.graphics;
+                for (var j = 0; j < graphics.length; j++) {
+                    var g = graphics[j];
+                    if (g.attributes && g.attributes.stcd && excludedStations.has(g.attributes.stcd)) {
+                        setMarkerOpacity(g, 0.2);
+                    }
+                }
+            }
+            refreshRainfallStr();
+        }
+
+        // 反选当前可见站点
+        function invertStationSelection() {
+            var visibleItems = getVisibleStationItems();
+            for (var i = 0; i < visibleItems.length; i++) {
+                var cb = visibleItems[i].querySelector('input[type="checkbox"]');
+                if (!cb) continue;
+                var stcd = cb.id.replace('stationCb_', '');
+                if (excludedStations.has(stcd)) {
+                    excludedStations.delete(stcd);
+                    cb.checked = true;
+                } else {
+                    excludedStations.add(stcd);
+                    cb.checked = false;
+                }
+            }
+            updateExcludedCount();
+            // 更新标记透明度
+            if (RainLayerGraphicLayer) {
+                var graphics = RainLayerGraphicLayer.graphics;
+                for (var j = 0; j < graphics.length; j++) {
+                    var g = graphics[j];
+                    if (g.attributes && g.attributes.stcd) {
+                        setMarkerOpacity(g, excludedStations.has(g.attributes.stcd) ? 0.2 : 1.0);
+                    }
+                }
+            }
+            refreshRainfallStr();
+        }
+
+        // 监听Ctrl键状态，用于Ctrl+点击地图标记切换排除
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Control' || e.keyCode === 17) ctrlKeyPressed = true;
+        });
+        document.addEventListener('keyup', function (e) {
+            if (e.key === 'Control' || e.keyCode === 17) ctrlKeyPressed = false;
+        });
+        // 窗口失去焦点时重置Ctrl状态，防止状态卡住
+        window.addEventListener('blur', function () {
+            ctrlKeyPressed = false;
+        });
     </script>
 </body>
 
