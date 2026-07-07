@@ -13,6 +13,7 @@
     <meta name="renderer" content="webkit">
     <title>上海市水情预报调度一体化平台（一期）</title>
     <script type="text/javascript" src="../../Common/boot.js"></script>
+    <script src="../../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
 
     <script src="../../Common/spectrum/spectrum.js?ver=1.0.1"></script>
     <link href="../../Common/spectrum/spectrum.css?ver=1.0.1" rel="stylesheet" />
@@ -32,9 +33,6 @@
     <script src="../../arcgis_js_api//myJs/parentIndex.js" type="text/javascript"></script>
 
     <script src="../../arcgis_js_api//myJs/mapIndex.js?ver=1.0.7" type="text/javascript"></script>
-
-    <link href="../../Common/Scripts/Progress/index.css" rel="stylesheet" type="text/css" />
-    <script src="../../Common/Scripts/Progress/indexHour.js" type="text/javascript"></script>
 
     <style>
         .right .inline table tr {
@@ -557,13 +555,10 @@
             // { id: "东南诸河", name: "东南诸河" }
         ];
         $(function () {
-            console.error('顺序', '2');
             setOBJValue();
             addObjClick();
             addTuliColor();
             setTimeout(() => {
-                LoadJS("2", "../../Common/path-area.js");
-
                 var LayerID = "DZMRainLayerGraphicLayer";
                 DZMRainLayerGraphicLayer = CreateLayerID(LayerID, 90);
                 DZMRainLayerGraphicLayer.setOpacity(0.7);//0.7
@@ -1085,324 +1080,8 @@
                         DZMRainLayerGraphicLayer.add(gra);
             });
         }
-        
-        /**实时雨情等值面**/
-        var RainGra = [];
-        function addDZM() {
-            RainGra = [];
-            var data = $.data(myData, "YLDZMDATA");
-            if (DZMRainLayerGraphicLayer != null) {
-                DZMRainLayerGraphicLayer.clear();
-            }
-            if (data == null)
-                return;
-            require(["esri/geometry/Point",
-                "esri/graphic",
-                "esri/symbols/SimpleLineSymbol",
-                "esri/geometry/Polygon",
-                "esri/symbols/SimpleFillSymbol",
-                "esri/Color",
-                "esri/geometry/geometryEngine",
-                "esri/geometry",
-                "dojo/domReady!"
-            ], function (Point, Graphic, SimpleLineSymbol, Polygon, SimpleFillSymbol, Color, geometryEngine, geometry) {
-                var str = data;
-                if (str.length > 1) {
-                    var strcount = new Array();
-                    strcount = str[1].DZXDZM.split('|');
-                    var strx = "";
-                    var objArray = "";
-                    var objTip = "";
-                    var strnum = "";
-                    //过滤等值线字符串
-                    for (var i = 0; i < strcount.length; i++) {
-                        if (strcount[i].indexOf("a,") != -1) {
-                            objArray = objArray + strx.substr(0, strx.length - 1) + "|";
-                            objTip = objTip + strnum + String(strcount[i].replace("a,", "")).replace(",", ":") + "|";
-                            strx = "";
-                        }
-                        else {
-                            strx += strcount[i] + "-";
-                            strnum = strcount[i] + ":";
-                        }
-                    }
-
-                    var dzmLine;
-                    var dzmFill;
-
-                    //拼接需要的等值线格式
-                    objArray = objArray.substr(0, objArray.length - 1);
-                    objTip = objTip.substr(0, objTip.length - 1);
-
-                    var strline = objArray.split('|');
-                    var strPoint = objTip.split('|');
-                    var strxy = "";
-                    for (var k = 0; k < strline.length; k++) {
-                        var myMapFill1 = new Array();
-                        var myMapFill = new Array();
-                        var strcount1 = strline[k].split('-');
-                        var strFill = strPoint[k].split(':');
-
-                        var array = new Array();
-                        for (var j = 0; j < strcount1.length; j++) {
-                            var xycount = strcount1[j].split(',');
-                            myMapFill.push([Number(xycount[0]), Number(xycount[1])]);
-                        }
-                        myMapFill1.push(myMapFill);
-                        var myPolygon = new Polygon(myMapFill1);
-                        var Filldzm;
-                        var FilldzmT = 1;//0.6;
-                        var drplevel = Number(strFill[1]);
-                        var drplevelXu = Number(strFill[1]);
-                        var indexO = jibieArr.indexOf(strFill[1]);
-                        if (indexO > -1) {
-                            var colorValue = $("#full" + (indexO + 1)).val();
-                            var rgbColor = hexToRgb(colorValue);
-                            rgbColor.push(FilldzmT);
-                            Filldzm = rgbColor;
-                            //console.error(strFill[1],jibieArr.indexOf(strFill[1]));
-                            if (strFill[2] == "-1") {//说明是上一个等级
-                                if (indexO == 0) {//是最小级别
-                                    drplevelXu = jibieArr[indexO];
-                                    colorValue = $("#full" + (indexO + 1)).val();
-                                } else {
-                                    drplevelXu = jibieArr[indexO - 1]
-                                    colorValue = $("#full" + indexO).val();
-                                }
-                                rgbColor = hexToRgb(colorValue);
-                                rgbColor.push(FilldzmT);
-                                Filldzm = rgbColor;
-                            }
-                        }
-                        // console.error('strFill',strFill,"序号：",k,"drplevel",drplevel,"drplevelXu",drplevelXu);
-                        // console.error('rgbColor', rgbColor, 'Filldzm', Filldzm,'indexO',indexO)
-                        var lineSymbol = new SimpleFillSymbol(
-                            SimpleFillSymbol.STYLE_SOLID,
-                            new SimpleLineSymbol(
-                                SimpleLineSymbol.STYLE_SOLID,
-                                new Color(Filldzm), //rgb155, 153, 153
-                                1
-                            ),
-                            new Color(Filldzm) //rgba
-                        );
-                        var area = parseFloat(Math.abs(geometryEngine.geodesicArea(myPolygon, "square-kilometers")));
-                        // console.error("gis算面积", k, area);
-                        var attributes = { id: k, drplevel: drplevel, drplevelXu: drplevelXu, area: area };
-                        var gra = new Graphic(myPolygon, lineSymbol);
-                        gra.attributes = attributes;
-                        //gra.attr("name","Polygon"+strFill[1]+","+strFill[2])
-                        gra.attr("name", "Polygon" + k);
-                        gra.attr('id', "Polygon" + k);
-                        DZMRainLayerGraphicLayer.add(gra);
-                    }
-                    calculationArea();
-                }
-                mini.unmask(document.body);
-
-                // $("#DZMRainLayerGraphicLayer_layer path").each(function (res) {
-                //     //console.error(  $(this).attr('id'));
-
-                //     //var bbox1 =$(this).get(0).getBBox();
-
-
-                //     var strPathOrNode = $(this).get(0);
-                //     //    console.error('strPathOrNode',strPathOrNode);
-                //     var area = getPathArea(strPathOrNode, 100);
-                //     console.error('getPathArea面积', area);
-
-
-                //     // 使用示例
-                //     //const pathData = 'M10 10 L 50 10 L 50 50 L 10 50 Z'; // 一个简单的矩形路径
-                //     var pathData = $(this).attr("path");
-                //     var area = approximateAreaOfSVGPath(pathData);
-                //     // console.log('近似面积:', area);
-                // });
-                
-                // var path1 = $("#DZMRainLayerGraphicLayer_layer path")[0];
-                // var path2 =  $("#DZMRainLayerGraphicLayer_layer path")[1];
-                // var area = getAreaOfIntersection(path1, path2);
-                // console.log('Area of intersection:', area);
-
-            });
-        }
-
-        function pathDataToPoints(d) {
-            // 将SVG路径数据转换为点数组
-            // 这里省略具体实现，需要根据SVG路径指令实现解析
-            let points = [];
-            let instructions = d.split(/(?=[MLC])/); // 正则表达式分割路径指令
-
-            instructions.forEach(instruction => {
-                let type = instruction[0];
-                let coords = instruction.substr(1).split(/(?=\D)/); // 正则表达式分割坐标
-                coords = coords.map(Number); // 将字符串坐标转换为数字
-
-                switch (type) {
-                    case 'M': // 移动到
-                        points.push({ x: coords[0], y: coords[1], type: 'move' });
-                        break;
-                    case 'L': // 线到
-                        points.push({ x: coords[0], y: coords[1], type: 'line' });
-                        break;
-                    case 'C': // 三次贝塞尔曲线
-                        points.push({ x: coords[0], y: coords[1], type: 'curve' });
-                        // 这里可以添加控制点坐标的处理
-                        break;
-                    // 可以添加其他指令类型的处理
-                    default:
-                        break;
-                }
-            });
-
-            return points;
-        }
-
-        function areaOfPolygon(points) {
-            let area = 0;
-            // 假设点是顺时针方向，第一个点和最后一个点相连
-            for (let i = 0; i < points.length - 1; i++) {
-                area += (points[i][0] * points[i + 1][1]) - (points[i + 1][0] * points[i][1]);
-            }
-            // 因为最后一个点和第一个点相连，所以要除以2
-            area = area / 2;
-            return Math.abs(area);
-        }
-
-        function approximateAreaOfSVGPath(pathData) {
-            const points = pathDataToPoints(pathData); // 将路径数据转换为点数组
-            const triangles = []; // 存储由三个点构成的三角形
-
-            // 将多边形分割成多个三角形
-            for (let i = 1; i < points.length - 1; i++) {
-                triangles.push([points[0], points[i], points[i + 1]]);
-            }
-
-            let totalArea = 0;
-            // 计算所有三角形的面积并累加
-            triangles.forEach(triangle => {
-                totalArea += areaOfPolygon(triangle);
-            });
-
-            return totalArea;
-        }
-
-        function getAreaOfIntersection(path1, path2) {
-                // 获取两个路径的DOM元素
-                var bbox1 = path1.getBBox();
-                var bbox2 = path2.getBBox();
-
-                // 创建一个新的SVG元素用于存放相交区域的path
-                var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                var intersectPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                svg.appendChild(intersectPath);
-                document.body.appendChild(svg); // 临时添加到DOM中以计算其BBox
-
-                // 使用SVG的'rect'元素的属性来创建一个矩形，该矩形是两个路径重叠的区域
-                intersectPath.setAttribute('d', 'M' + bbox1.x + ' ' + bbox1.y + ' L' + (bbox1.x + bbox1.width) + ' ' + bbox1.y + ' L' + (bbox1.x + bbox1.width) + ' ' + (bbox1.y + bbox1.height) + ' L' + bbox1.x + ' ' + (bbox1.y + bbox1.height) + ' L' + bbox1.x + ' ' + bbox1.y);
-                intersectPath.setAttribute('fill', 'red');
-                intersectPath.setAttribute('fill-opacity', '0'); // 设置透明度为0，使其不可见
-
-                var bboxIntersection = intersectPath.getBBox();
-
-                // 计算并返回相交区域的面积
-                var area = (bboxIntersection.width * bboxIntersection.height);
-
-                // 清理，移除临时添加的元素
-                svg.parentNode.removeChild(svg);
-
-                return area;
-            }
-        //计算降水笼罩面积
+         //计算降水笼罩面积
         var allAreaJisuan=36900;//太湖流域总面积
-        function calculationArea() {
-            //求每一块有多少交集的
-            var fugraphics = DZMRainLayerGraphicLayer.graphics;
-            var fuAreaArr = [];
-            require([
-                "esri/geometry/geometryEngine"
-            ], function (geometryEngine) {
-                for (var k = 0; k < fugraphics.length; k++) {
-                    var fuG = fugraphics[k];
-                    var bianhao=fuG.attributes.id;
-                    //叠在上面的或者同级别的
-                    var zigraphics=fugraphics.filter(function(res){
-                        return Number(res.attributes.id)>Number(bianhao);
-                    });
-                    // console.error('bianhao',bianhao,'zigraphicsTemp',zigraphicsTemp,"drplevel",fuG.attributes.drplevel);
-                    var lastGeometry = fuG.geometry;//前一个对象
-                    var children = [];
-                    var drplevelArr = [];
-                    var children_id = [];
-                    for (var g = 0; g < zigraphics.length; g++) {
-                        var ziItem=zigraphics[g];
-                        var myPolygon = ziItem.geometry;
-                        //使用geometryEngine检查交集
-                        var intersects = geometryEngine.intersects(myPolygon, lastGeometry);
-                        if (intersects) {
-                            children.push(ziItem);
-                            drplevelArr.push(ziItem.attributes.drplevel);
-                            children_id.push(ziItem.attributes.id);
-                        }
-                    }
-                    fuG.ischildren = children;
-                    fuG.drplevelArr = drplevelArr;
-                    fuG.drplevelArr = drplevelArr;
-                    fuG.children_id = children_id;
-                    fuAreaArr.push(fuG);
-                }
-            
-                //分组计算面积
-                var areaNoteArr=[];
-                var bianhaoArr=[]; //记录被减过的编号
-                for(var num=jibieArr.length-1;num>=0;num--){
-                    var g=jibieArr[num];
-                    var totalarea=0;
-                    var fuAreaArrTemp = fuAreaArr.filter(function (res) {
-                        return Number(res.attributes.drplevel) == Number(g);
-                    });
-                    // console.error(g,fuAreaArrTemp);
-                    fuAreaArrTemp.forEach(fu => {
-                        var children =fu.ischildren;
-                        totalarea = totalarea + Number(fu.attributes.area);
-                        children.forEach(cdr => {
-                            if (bianhaoArr.indexOf(cdr.attributes.id) == -1) {//没有减过
-                                totalarea = totalarea - Number(cdr.attributes.area);
-                                bianhaoArr.push(cdr.attributes.id);
-                            }
-                        });
-                    });
-                    if(totalarea<0){
-                        totalarea=0;
-                    }
-                    areaNoteArr.push({grade:g,area:totalarea.toFixed(0)});
-                }
-                // console.error("分组计算面积",areaNoteArr);
-                
-                var strHtml="";
-                var _index=0;
-                for(var num=areaNoteArr.length-1;num>=0;num--){
-                    var gradeStr='';
-                    if(num==0){
-                        gradeStr=">"+areaNoteArr[num].grade;
-                    }else{
-                        gradeStr=areaNoteArr[num].grade+"~"+areaNoteArr[num-1].grade;
-                    }
-                    var area =Number(areaNoteArr[num].area);
-                    var totalAreabl=(area/allAreaJisuan*100).toFixed(1);
-
-                    strHtml+='<div style="display: flex;height: 30px; line-height: 30px;">';
-                    strHtml += '<div style="flex: 1;width: 26%;text-align: center;">' + gradeStr + '</div>';
-                    strHtml += '<div style="flex: 1;width: 37%;text-align: center;">' + areaNoteArr[num].area + '</div>';
-                    strHtml += '<div style="flex: 1;width: 37%;text-align: center;">' + totalAreabl + '</div>';
-                    strHtml+='</div>';
-
-                    $("#area"+(_index+1)).html(areaNoteArr[num].area);
-                    $("#areabl"+(_index+1)).html(totalAreabl);
-                    _index++;
-                }
-                $("#rightTongJiDivBody").html(strHtml);
-            });
-        }
         const hexToRgba = (hex, opacity) => {
             let rgbaColor = "";
             let reg = /^#[\da-f]{6}$/i;
@@ -1413,6 +1092,8 @@
             }
             return rgbaColor;
         }
+
+        //灵活添加等值面颜色图例
         function addTuliColor(){
             var html='';
             var jibieArr=[];
@@ -1428,7 +1109,8 @@
             // console.error('jibieArr',jibieArr);
             $("#colorLContent").html(html);
         }
-    
+
+        //导出等值面图片
         function loadDZMPIC() {
             mini.mask({
                 el: document.body,

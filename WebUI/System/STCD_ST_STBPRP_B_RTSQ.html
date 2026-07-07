@@ -160,7 +160,7 @@
         function ONORDERBYID(e) { 
             var editor = e.sender;
             var rows = grid2.getEditorOwnerRow(editor);
-            rows["orberbyid"] = e.value;
+            rows["orderbyid"] = e.value;
 			app.post("SWZZ_RTSQ_ST_STBPRP_B_QU/modify",rows,(data)=>{
 				JosnSel(data,"WATER_ST_STBPRP_B_QUUpdate")
 			})
