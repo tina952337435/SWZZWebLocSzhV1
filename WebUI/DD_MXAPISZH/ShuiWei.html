@@ -450,12 +450,14 @@
             }
             var strXZ = "SW";
             var s_where = { 
-                "ZhanData": value, 
-                "DayHour": strXZ, 
+                "zhanData": value, 
+                "dayhour": strXZ, 
                 "dd_id": localDD_ID, 
-                "ZhanID": stcds 
+                "zhanID": stcds 
             };
-            GetJosns("FH_update_batchJYQuan", s_where, "update_batch");
+            app.post("/SWZZ_MODE_ES_ZHANDIANDATA/FH_modify_batchJYQuan", s_where,function(res){
+                JosnSel(res,"update_batch");
+            });
         }
 
         function methodJY(field, fieldText) {
