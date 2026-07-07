@@ -344,10 +344,10 @@
             var swetime =new Date( etime).format("yyyy-MM-dd HH:mm:ss");
             var swstime =new Date(AddHourDate(etime,-7*24)).format("yyyy-MM-dd HH:mm:ss");
             strWhere={
-                startdate: swstime,
-                enddate: swetime,
+                stime: swstime,
+                etime: swetime,
                 stcd: stcdsSW,
-                dayHour:new Date(stime).format("HH")
+                pathname:"HOUR"
             }
             var listWas=[];
             app.postAsync("/GetWaterViewNew/selectListByHis", strWhere, (res) => {
@@ -552,6 +552,7 @@
         {
             var stime1 =new Date(AddHourDate( mPredictTime,-24*1)).format("yyyy-MM-dd HH:mm:ss");
             var listWasTemp = listWas.filter(function(p){return p.stcd == "63205150" && p.tm == stime1});
+            console.error("stime1",stime1);
             var Z1 = listWasTemp.length>0?Number( listWasTemp[0].upz):0;//昆山站前一天当前时刻水位
 
             var stime2 = new Date(AddHourDate(mPredictTime,-24*2)).format("yyyy-MM-dd HH:mm:ss");
@@ -585,6 +586,7 @@
             listPPTNTemp = listPPTN.filter(function(p){return new Date(p.tm) > new Date(stime7) && new Date(p.tm) <= new Date(stime6) && p.stcd == "80991"});
             var stp_drpyb7 = Number(SumJson(listPPTNTemp,'drp'));//商榻片面平均前7日这1天的24h累计降雨
 
+            console.error("前一天",Z1,"前两天",Z2,"前三天",Z3,"前四天",Z4,"前五天",Z5,"累计降雨",jbbp_drpyb,"前两日",jbbp_drpyb2,"商榻片面平均",stp_drpyb,"商榻片面平均前7日",stp_drpyb7);
             var upz = -0.00779 + Z1 - 0.132 * Z2 + 0.132 * Z3 - 0.0935 * Z4 + 0.0935 * Z5 + 0.00189 * jbbp_drpyb 
                 - 0.00106 * jbbp_drpyb2 + 0.00147 * stp_drpyb - 0.00038 * stp_drpyb7;
             return upz;
