@@ -380,13 +380,15 @@
             }
             var strXZ = mini.get("RbRain").getValue();
             var s_where = { 
-                "ZhanData": value, 
-                "DayHour": strXZ, 
+                "zhanData": value, 
+                "dayHour": strXZ, 
                 "dd_id": localDD_ID, 
-                "ZhanID": stcds, 
-                "TM": tm 
+                "zhanID": stcds, 
+                "tm": tm 
             };
-            GetJosns("update_byTM", s_where, "UpdataInput");
+            app.post("/SWZZ_MODE_ES_ZHANDIANDATA/modify_byTMJY", s_where,function(res){
+                JosnSel(res,"UpdataInput");
+            });
         }
         //累计
         function onDrawSummaryCell(e) {

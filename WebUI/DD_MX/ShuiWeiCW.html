@@ -151,6 +151,8 @@
             <span class="yListrSpan">类型：</span>
             <em class="yListrEm yListrclickem">所有站<i></i></em>
             <em class="yListrEm">单站<i></i></em>
+            <em class="yListrEm">长江口沿线(吴淞口)<i></i></em>
+            <em class="yListrEm">杭州湾沿线(芦潮港)<i></i></em>       
         </li>
         <li class="yListrLi" id="zhanLI" style="display:none;">
             <span class="yListrSpan">站点选择：</span>
@@ -240,9 +242,18 @@
                 if (text == "所有站") {
                     cType = 1;
                     $("#zhanLI").hide();
-                } else {
+                } 
+                else if(text=="单站") {
                     cType = 0;
                     $("#zhanLI").show();
+                }
+                else if(text=="长江口沿线(吴淞口)") {
+                    cType = text;
+                    $("#zhanLI").hide();
+                }
+                else if(text=="杭州湾沿线(芦潮港)") {
+                    cType = text;
+                    $("#zhanLI").hide();
                 }
             });
             $("#btnAdd").click(function () {
@@ -320,11 +331,13 @@
                             dataResult.push(item);
                         }
                     }
-
-                    if(_index==$(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length-1){
-                        var item = { zhantime: new Date(endTM).format('yyyy-MM-dd HH:mm:ss'), zhandata: zzEndvalue };
-                        dataResult.push(item);
-                    }
+                    if(valueEnd!=""){
+                        if(_index==$(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length-1){
+                            // alert(valueEnd);
+                            var item = { zhantime: new Date(endTM).format('yyyy-MM-dd HH:mm:ss'), zhandata: zzEndvalue };
+                            dataResult.push(item);
+                        }
+                    }                    
                 }
             });
             if (value == "") {
@@ -357,14 +370,22 @@
                     "solutionid": SOLUTIONID,
                     "listMode": dataResult,//JSON.stringify(dataResult),
                 };
-                if (cType != 1) {
+                if (cType == 0) {
                     strWhere["stcd"] = mini.get("STCD").getValue();
                 }
                 strWhere["startdate"]=new Date(dataResult[0].zhantime).format('yyyy-MM-dd HH:mm:ss');
                 strWhere["enddate"]=new Date(dataResult[dataResult.length-1].zhantime).format('yyyy-MM-dd HH:mm:ss');
-                app.post("SWZZ_MODE_ES_ZHANDIANDATA/TideLineardifference",strWhere,function(res){
-                    JosnSel(res,"TideLineardifference");
-                });
+                if(cType==1||cType==0){                    
+                    app.post("SWZZ_MODE_ES_ZHANDIANDATA/TideLineardifference",strWhere,function(res){
+                        JosnSel(res,"TideLineardifference");
+                    });
+                }
+                else{
+                    strWhere["type"]=cType;
+                    app.post("SWZZ_MODE_ES_ZHANDIANDATA/TideLineardifferenceXG",strWhere,function(res){
+                        JosnSel(res,"TideLineardifference");
+                    });
+                }                
             } catch (e) {
                 mini.unmask(document.body);
             }
@@ -374,7 +395,8 @@
                 ShowMsg(data.message);
                 //调用父页面的方法
                 top["win"].OpenHref();
-                onCancel();
+                // onCancel();
+                mini.unmask(document.body);
             }
             else if (typeID == "GridColum") {
                 var dataResult =data.data;

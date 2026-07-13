@@ -320,10 +320,11 @@
                             var item = { zhantime: tm, zhandata: zzvalue };
                             dataResult.push(item);
                         }
-
-                        if (_index == $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length - 1) {
-                            var item = { zhantime: new Date(endTM).format('yyyy-MM-dd HH:mm:ss'), zhandata: zzEndvalue };
-                            dataResult.push(item);
+                        if(valueEnd!=""){
+                            if (_index == $(".contentConditionTextTwoBetween .contentConditionTextTwoBetweenItem").length - 1) {
+                                var item = { zhantime: new Date(endTM).format('yyyy-MM-dd HH:mm:ss'), zhandata: zzEndvalue };
+                                dataResult.push(item);
+                            }
                         }
                     }
                 }
@@ -374,7 +375,8 @@
                 ShowMsg(data.message);
                 //调用父页面的方法
                 top["win"].OpenHref();
-                onCancel();
+                // onCancel();
+                mini.unmask(document.body);
             }
             else if (typeID == "GridColum") {
                 var dataResult = data.data;

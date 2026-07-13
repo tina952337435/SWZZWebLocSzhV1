@@ -31,7 +31,8 @@
             width: 90%;
             height: 100%;
             background: #fff;
-            display:table; /* 确保是块级 */
+            display: table;
+            /* 确保是块级 */
         }
 
         #zhanDiv {
@@ -74,15 +75,12 @@
 
 <body>
     <div style="position:absolute;top:20px;right:calc(5% + 20px);">
-            <a class="mini-button" onclick="saveData()">设定调度预案</a>
+        <a class="mini-button" onclick="saveDataNew()">设定调度预案</a>
     </div>
     <div class="box">
         <div id="zhanDiv">
 
         </div>
-        <!-- <div style="width:100%;text-align:center;margin-bottom: 20px;">
-            <a class="mini-button" onclick="saveData()">设定调度预案</a>
-        </div> -->
     </div>
 
 
@@ -98,16 +96,28 @@
             localDD_ID = "0";
         }
         $(function () {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
             //方案
-            app.post("SWZZ_MODE_ES_MODELFANGANZHAN/findResult", {}, function(res){
-                JosnSel(res,"FSel");
+            // app.post("SWZZ_MODE_ES_MODELFANGANZHAN/findResult", {}, function(res){
+            //     JosnSel(res,"FSel");
+            // });
+
+            //站点与分区关联
+            app.post("SWZZ_MODE_ES_MODELGUANLIAN/findResult", { "kwtxt": "6" }, function (res) {
+                JosnSel(res, "SLJISel");
             });
 
             setTimeout(function () {
-                app.post("SWZZ_MODE_ES_MODELGUANLIAN/findResult", {"kwtxt": "6"}, function (res) {
-                    JosnSel(res, "SLJISel");
+                app.post("SWZZ_MODE_ES_MODELFANGAN/findResult", {}, function (res) {
+                    JosnSel(res, "FanganSel");
+                    mini.unmask(document.body);
                 });
             }, 1000);
+
         });
         function JosnSel(data, typeID) {
             if (typeID == "SLJISel") {
@@ -116,7 +126,7 @@
                     return e.stcd != null && e.stcd != undefined && e.stcd != "";
                 });
                 $.data(myData, "gldata", strJson);
-                loadZhanHtml();
+                // loadZhanHtml();
             }
             else if (typeID == "FSel") {
                 $.data(myData, "fdata", data.data);
@@ -125,6 +135,9 @@
                 ShowMsg(data.message);
                 top["win"].onLoadData();
                 mini.unmask(document.body);
+            }
+            else if (typeID == "FanganSel") {
+                loadFangAnHtml(data.data);
             }
         }
         function loadZhanHtml() {
@@ -156,17 +169,17 @@
                 var fdataTempZi = fdata.filter(function (e) {
                     return e.special == name;
                 });
-                if(name=="其他工程"){
+                if (name == "其他工程") {
                     fdataTempZi = fdata.filter(function (e) {
-                        return e.special == "苏州河河口闸"||e.special=="浏河闸";
+                        return e.special == "苏州河河口闸" || e.special == "浏河闸";
                     });
                 }
-                var fdataTemp= groupBy(fdataTempZi, 'fa_ID');
+                var fdataTemp = groupBy(fdataTempZi, 'fa_ID');
                 for (var fnum = 0; fnum < fdataTemp.length; fnum++) {
-                    var itemObj=fdataTemp[fnum];
+                    var itemObj = fdataTemp[fnum];
                     var cls = "";
-                    html += '<li class="' + cls + '"  id="' + zhanid + "li" + itemObj[0].fa_ID + '"  onclick="OnClickTitle2(\'' + zhanid + '\',\'' + zhanid + "li" + itemObj[0].fa_ID + '\')" title="'+itemObj[0].normal+'">';
-                    html += '<span name="' + itemObj[0].normal + '"  title="'+itemObj[0].normal+'">' + itemObj[0].normal + '</span>';
+                    html += '<li class="' + cls + '"  id="' + zhanid + "li" + itemObj[0].fa_ID + '"  onclick="OnClickTitle2(\'' + zhanid + '\',\'' + zhanid + "li" + itemObj[0].fa_ID + '\')" title="' + itemObj[0].normal + '">';
+                    html += '<span name="' + itemObj[0].normal + '"  title="' + itemObj[0].normal + '">' + itemObj[0].normal + '</span>';
                     html += ' </li >';
                 }
                 html += ' </ul >';
@@ -203,13 +216,87 @@
                 cls: 'mini-mask-loading',
                 html: '调度方案修改中...'
             });
-            console.error('strID',strID,'localDD_ID',localDD_ID);
+            console.error('strID', strID, 'localDD_ID', localDD_ID);
 
             // 改变调度方案
             var strWhere = { gcddfa: strID, solutionid: localDD_ID };
-            app.post('SWZZ_MODE_ES_ZHANDIANDATA/ModifyGCSSLLAREAGCGZ_SZH',strWhere,function(res){
-                JosnSel(res,'plAdd');
+            app.post('SWZZ_MODE_ES_ZHANDIANDATA/ModifyGCSSLLAREAGCGZ_SZH', strWhere, function (res) {
+                JosnSel(res, 'plAdd');
             });
+        }
+        function saveDataNew() {
+            var gldata=$.data(myData, "gldata");            
+            var data = [];
+            var strID = "";
+            $("#zhanDiv .ui-choose .selected").each(function (index, item) {
+                var fa_id = $(item).attr('id').replaceAll("li", "@");
+                var id = fa_id.split("@")[0];
+                var type = fa_id.split("@")[1];
+
+                data.push({ zhanid: id, solutionid: localDD_ID, zhandata: type });
+
+                var ddfangshi= $(item).find("span").html();
+                id=id=="苏州河河口闸"?"其他工程":id;
+                var gldataT=gldata.filter(function(e){
+                    return e.field==id;
+                });
+                if(gldataT.length>0){      
+                     strID += gldataT[0].mkeyid+"@" +ddfangshi+ ",";
+                }
+            });
+            if (data.length == 0) {
+                mini.alert("请选择调度预案！");
+                return;
+            }
+            strID=strID.substring(0,strID.length-1);
+            // alert(strID);
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '调度方案修改中...'
+            });
+            console.error('strID', strID, 'localDD_ID', localDD_ID);
+
+            // 改变分区的调度预案
+            app.post('SWZZ_MODE_ES_ZHANDIANDATA_YUAN/batchResult/true', data, function (res) {
+                if(res.total>0){
+                    // 改变单个工程的调度预案
+                    var strWhere = { gcddfa: strID, solutionid: localDD_ID };
+                    app.post('SWZZ_MODE_ES_ZHANDIANDATA/ModifyGCSSLLAREAGCGZ_SZH', strWhere, function (res) {
+                        JosnSel(res, 'plAdd');
+                    });
+                }                
+            });
+        }
+
+        function loadFangAnHtml(data) {
+            var gldata = groupBy(data, 'id');
+            var html = "<ul class='zhanUL'>";
+            var _index = 1;
+            for (var num = 0; num < gldata.length; num++) {
+                var zhanid = gldata[num][0].id;
+
+                html += '<li class="zhanLI" id="' + zhanid + '">';
+
+                var name = gldata[num][0].id;
+                html += '<div style="width:150px;"><span class="c-index  c-index-hot1 c-gap-icon-right-small">' + _index + '</span>' + name + '</div>';
+
+                html += '<ul class="ui-choose choose-type-right" id="choseGrade' + zhanid + '">';
+
+                var fdataTemp = gldata[num];
+                for (var fnum = 0; fnum < fdataTemp.length; fnum++) {
+                    var itemObj = fdataTemp[fnum];
+                    var cls = "";
+                    html += '<li class="' + cls + '"  id="' + zhanid + "li" + itemObj.type + '"  onclick="OnClickTitle2(\'' + zhanid + '\',\'' + zhanid + "li" + itemObj.type + '\')" title="' + itemObj.fa_NAME + '">';
+                    html += '<span name="' + itemObj.fa_NAME + '"  title="' + itemObj.fa_NAME + '">' + itemObj.fa_NAME + '</span>';
+                    html += ' </li >';
+                }
+                html += ' </ul >';
+                html += '</li>';
+                _index++;
+            }
+            html += "</ul>";
+            $("#zhanDiv").html(html);
         }
     </script>
 </body>

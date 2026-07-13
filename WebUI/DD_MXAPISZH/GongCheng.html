@@ -111,7 +111,7 @@
     <div style="height:50px;line-height:50px;">
         <div style="text-align: center; ">
             <a class="mini-button" onclick="up_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">上一步</a>
-            <a class="mini-button" onclick="startJisuan()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#3AB308;">启动模型计算</a>
+            <a class="mini-button" onclick="loadFQYUAN();startJisuan()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#3AB308;">启动模型计算</a>
         </div>
     </div>
     <style type="text/css">
@@ -646,6 +646,20 @@
             var url = "JiSuan.html";
             Next_Click(url);
         }
+
+        
+    function loadFQYUAN() {
+        var localDD_ID = $.data(myData, "DD_ID");
+        if (localDD_ID == null || localDD_ID == "") {
+            localDD_ID = "0";
+        }
+        var strWhere = { "strExp": localDD_ID };
+        app.postAsync("SWZZ_MODE_ES_ZHANDIANDATA_YUAN/findResult", strWhere, function (res) {
+            $.data(myData,"bjModelDataFQ",res.data);
+        });
+
+        // modelSetTaskSZHNew();
+    }
     </script>
 </body>
 </html>

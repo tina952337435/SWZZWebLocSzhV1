@@ -917,7 +917,7 @@
                         }
                         var f = parseFloat(item.drp);
                         //if(f>0){
-                            if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != "") {
+                            if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != ""&&item.drp!=null&&item.drp!=undefined) {
                                 // console.error("f",f);
                                 if (!excludedStations.has(item.stcd)) {
                                     RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: f });
@@ -940,13 +940,15 @@
                                 continue;
                             }
                             breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_black.png", 14, 18);
-                        } else if (f >= 100.0) {
+                        } 
+                        else if (f >= 100.0) {
                             count2++;
                             if (!value2) {
                                 continue;
                             }
                             breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_red.png", 14, 18);
-                        } else if (f >= 50.0) {
+                        } 
+                        else if (f >= 50.0) {
                             count3++;
                             if (!value3) {
                                 continue;
@@ -959,13 +961,15 @@
                                 continue;
                             }
                             breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_blue.png", 14, 18);
-                        } else if (f >= 10.0) {
+                        } 
+                        else if (f >= 10.0) {
                             count5++;
                             if (!value5) {
                                 continue;
                             }
                             breakSymbol = new PictureMarkerSymbol("../../arcgis_js_api//myJs/images/d_sky.png", 14, 18);
-                        } else if (f > 0.0) {
+                        } 
+                        else if (f > 0.0) {
                             count6++;
                             if (!value6) {
                                 continue;
@@ -1367,7 +1371,7 @@
                 if(excludedStations.has(item.stcd)){
                     console.error(item.stnm,value);
                 }
-                if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != "") {
+                if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != ""&&item.drp!=null&&item.drp!=undefined) {
                     RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: value });
                     if (item.stcd == "63422650") {
                         RainfallStr.push({ lon: -58570.8187561, lat: -14245.7293732, value: value });

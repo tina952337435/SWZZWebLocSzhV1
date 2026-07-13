@@ -7,7 +7,8 @@
     <link href="../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
     <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
-    <script src="../Common/boot.js?ver=1.0.2" type="text/javascript"></script>
+    <script src="../Common/boot.js?ver=1.0.2" type="text/javascript"></script>    
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
     <style type="text/css">
         body {
             margin: 0;
@@ -118,10 +119,14 @@
 
             getFORMULA();
 
+            var startDate=addDayDate(new Date().format("yyyy-MM-dd"), -10)+" 00:00:00";
+            var endDate=new Date().format("yyyy-MM-dd")+" 23:00:00"
             var s_where = {
                 //PageSize: 1,
                 //PageIndex: 0,
-                stcd: mini.get("STCD").getValue()
+                stcd: mini.get("STCD").getValue(),
+                startdate: startDate,
+				enddate: endDate,
             };
             //GetJosns("DATA_ST_WINDYWEATER_RSel", s_where, "SelDate");
 			app.post("SWZZ_QXSJ_st_windyweater_r/findResult",s_where,(data)=>{

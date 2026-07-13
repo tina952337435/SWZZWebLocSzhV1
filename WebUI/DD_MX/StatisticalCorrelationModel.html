@@ -782,7 +782,7 @@
             var minutes=GetDateDiff(stm,etm,'minute');
             minutes = minutes / 5;//5分钟一个数据
             var mData = []
-            mData.push( (szs-0.26).toFixed(2));
+            mData.push( (szs).toFixed(2));
             for (var _num = 1; _num < minutes; _num++)
             {
                 if (_num < minutes - 1)
@@ -791,16 +791,16 @@
                     ss = tm - stm;
                     var juli = GetDateDiff(stm,tm,'minute')/5;//每个预报时刻距初始时刻时段
                     var cha = (ezs - szs) / minutes * juli;
-                    var zzvalue = szs + cha - 0.26;
+                    var zzvalue = szs + cha;
                     // console.error('cha',cha,'juli',juli,GetDateDiff(stm,tm,'minute'));
                     mData.push(Number(zzvalue.toFixed(2)));
                 }
                 else
                 {
-                    mData.push((ezs -0.26).toFixed(2));
+                    mData.push((ezs ).toFixed(2));
                 }
             }
-            mData.push((ezs - 0.26).toFixed(2));
+            mData.push((ezs).toFixed(2));
             return mData;
         }
         function getZhanIDBymInputText(mInputText)

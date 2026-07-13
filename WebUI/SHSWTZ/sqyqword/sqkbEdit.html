@@ -704,7 +704,8 @@
                     <div class="toolbar-actions">
                         <!-- <button class="btn-action btn-outline" onclick="resetEdits()">↩ 重置</button> -->
                         <!-- <button class="btn-action btn-outline" onclick="window.print()">🖨 打印</button> -->
-                        <button class="btn-action btn-primary" onclick="exportReport()">📥 保存</button>
+                        <button class="btn-action btn-primary" onclick="exportReport('下载')">📤 下载文档</button>
+                        <button class="btn-action btn-primary" onclick="exportReport('保存')" style="background:#2e7d52;border-color:#2e7d52;">📥 生成记录</button>
                     </div>
                 </div>
 
@@ -992,7 +993,11 @@
             generateReport();
         }
 
-        function exportReport() {
+        function exportReport(type) {
+            getReportData.record=true;
+            if(type=="下载"){
+                getReportData.record=false;
+            }
             // const content = document.getElementById('document').innerText;
             // const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             // const a = document.createElement('a');
@@ -1049,6 +1054,23 @@
             // };
             // xhr.send(JSON.stringify(getReportData));
         }
+        // 设置startTime和endTime默认值
+        // 当前小时>=8: startTime=昨日8时, endTime=今日8时
+        // 当前小时<8:  startTime=前日8时, endTime=昨日8时
+        (function setDefaultTimes() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            var startDate, endDate;
+            if (currentHour >= 8) {
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 8, 0, 0);
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 8, 0, 0);
+            } else {
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2, 8, 0, 0);
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 8, 0, 0);
+            }
+            document.getElementById('startTime').value = startDate.format('yyyy-MM-dd HH:mm:ss');
+            document.getElementById('endTime').value = endDate.format('yyyy-MM-dd HH:mm:ss');
+        })();
     </script>
 </body>
 
