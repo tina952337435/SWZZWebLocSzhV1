@@ -240,7 +240,13 @@
             }
             else if (typeID == "MX_RECALCULATE") {
                 mini.unmask(document.body);
-                StartModelCalculation();
+                // StartModelCalculation();
+                SetCookie("two", "1", 1);
+                DelCookie("three");
+                DelCookie("four");
+                DelCookie("five");
+                url = "JiangYuSet.html";
+                Next_Click(url);
             }
             else if(typeID=="health"){
                 var info=result.info;

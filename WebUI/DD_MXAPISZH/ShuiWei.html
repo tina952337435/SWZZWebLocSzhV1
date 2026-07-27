@@ -73,6 +73,7 @@
                          { id: 'OceanForecastTideNorth', text: '叠加浦东北部近岸海域海潮' },
                          { id: 'OceanForecastTideSouth', text: '叠加浦东南部近岸海域海潮' },
                          { id: 'zengshuixianxing', text: '增水线型插值' },
+                         { id: 'bigmodeyubao', text: '大模型预报' },
                          { id: 'zengshuixiangsitf', text: '相似台风' },
                          ]">
                     </div>
@@ -220,6 +221,7 @@
                 { id: 'OceanForecastTideNorth', text: '叠加浦东北部近岸海域海潮' },
                 { id: 'OceanForecastTideSouth', text: '叠加浦东南部近岸海域海潮' },
                 { id: 'zengshuixianxing', text: '增水线型插值' },
+                { id: 'bigmodeyubao', text: '大模型预报' },
                 { id: 'zengshuixiangsitf', text: '相似台风' },
             ];
             
@@ -373,6 +375,11 @@
             else if(value=="modetongjixiangguan"){
                 var url = "./DD_MX/StatisticalCorrelationModel.html?&stime=" + stime + "&etime=" + etime+"&SOLUTIONID="+localDD_ID+"&huishuimodehdyroID="+$.data(myData, "huishuimodehdyroID")+"&sbjID="+$.data(myData, "sbjID");
                 lookData("action@look", url, "统计相关模型", '70%', '80%', 'true');
+                rbl.setValue("0");
+            }
+            else if(value=="bigmodeyubao"){
+                var url = "./DD_MXAPISZH/BigModelTideToHW.html?&stime=" + stime + "&etime=" + etime+"&SOLUTIONID="+localDD_ID;
+                lookData("action@look", url, "大模型预报", '80%', '700px', 'true');
                 rbl.setValue("0");
             }
             else {

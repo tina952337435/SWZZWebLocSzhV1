@@ -69,10 +69,9 @@ function addMark2(obj) {
         var AllSum = 0;
 
         for (var i = 0; i < obj.length; i++) {
-
             var omzs =obj[i].flpq==null?0: Number(obj[i].flpq);
+            obj[i]["divid"] = "GQ" + obj[i]["stcd"];		
             var IINum = 0;
-
             if (undefined != obj[i].tm && null != obj[i].tm) {
                 obj[i].TMS = new Date(convertToDate(obj[i].tm)).format("yyyy-MM-dd HH:mm");
             } else {
@@ -340,6 +339,8 @@ function addMark2(obj) {
             //     console.error('breakSymbol',breakSymbol,'graphic',graphic);
             // }
         }
+        window.parent.setMapZoomNew(normalGraphicLayer, map.getLevel(), "GQ", "stcd",window.parent.SpanBiaoZhu());
+        window.parent.mapZoomEnd(normalGraphicLayer, null, "GQ", "stcd",window.parent.SpanBiaoZhu());
         $.data(myData, "arrgObj", arrgObj);
     });
 }

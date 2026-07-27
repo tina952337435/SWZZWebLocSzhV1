@@ -82,7 +82,7 @@
 
                     <span id="rbl" class="mini-radiobuttonlist" repeatItems="1" repeatLayout="table"
                         repeatDirection="vertical" style="float:left;" textField="text" valueField="id" value="HOUR"
-                        data="[{'id':'HOUR','text':'小时'},{'id':'DAY','text':'日'}]"></span>
+                        data="[{'id':'MIN','text':'分钟'},{'id':'HOUR','text':'小时'},{'id':'DAY','text':'日'}]"></span>
                     <span style="float:left;">
 
                         <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
@@ -138,6 +138,7 @@
         var stnm = GetQueryString("stnm");
         var stime = GetQueryString("stime");
         var etime = GetQueryString("etime");
+        var dayhour = GetQueryString("dayhour")==null?"HOUR":GetQueryString("dayhour");
         var grid = mini.get("grid1");
         var rbl = mini.get("rbl");
         rbl.on("valuechanged", function (e) {
@@ -146,6 +147,7 @@
 
 
         $(function () {
+            rbl.setValue(dayhour);
             $("#fit2").hide();
             var tm = new Date();
             if (stime == null) {

@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>雨量特征值统计</title>
+    <script src="../../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+
+    <style>
+        body { overflow: hidden; }
+
+        .hint-tip {
+            padding: 4px 12px;
+            color: #e67e22;
+            font-size: 12px;
+            background: #fef9f0;
+            border-bottom: 1px solid #f0d89d;
+        }
+        .hint-tip i { margin-right: 4px; }
+
+        /* 快捷时间链接 */
+        .quick-links {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 13px;
+            color: #ccc;
+        }
+        .quick-links a {
+            color: #666;
+            text-decoration: none;
+            margin: 0 3px;
+            padding: 1px 6px;
+        }
+        .quick-links a:hover { color: #3291F9; }
+
+        /* 切换标签栏 */
+        .tab-bar {
+            height: 32px; line-height: 32px;
+            padding: 0 12px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-bar .tab-btn {
+            display: inline-block;
+            padding: 0 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            margin-right: 4px;
+            height: 31px;
+        }
+        .tab-bar .tab-btn:hover { color: #3291F9; }
+        .tab-bar .tab-btn.active {
+            color: #3291F9;
+            border-bottom-color: #3291F9;
+            font-weight: bold;
+        }
+
+        /* 左右分栏 */
+        .split-container {
+            display: flex;
+            height: 100%;
+            gap: 12px;
+            padding: 8px 10px;
+        }
+        .split-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            min-width: 420px;
+        }
+        .split-right {
+            flex: 0 0 480px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* ===== 左侧统计面板 ===== */
+        .stat-panel {
+            flex: 1;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(50,145,249,0.15), 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .stat-panel .panel-hd {
+            /* background: linear-gradient(135deg, #1a6dd4 0%, #3291F9 100%); */
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2196f354;
+        }
+        .stat-panel .panel-hd .title {
+            /* color: #fff; */
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .stat-panel .panel-hd .subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 11px;
+        }
+        .stat-panel .panel-hd .export-icon {
+            /* color: rgba(255,255,255,0.75); */
+            font-size: 17px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .stat-panel .panel-hd .export-icon:hover { 
+            /* color: #fff; */
+         }
+
+        .stat-list {
+            flex: 1;
+            padding: 6px 12px;
+            overflow-y: auto;
+        }
+        .stat-row {
+            display: flex;
+            align-items: center;
+            padding: 10px 14px;
+            margin: 4px 0;
+            border-radius: 6px;
+            background: #fafcfd;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid transparent;
+            min-height: 54px;
+        }
+        .stat-row:hover {
+            background: #f0f6ff;
+            border-color: #c8ddf8;
+        }
+        .stat-row.active {
+            background: #e8f2fd;
+            border-color: #b0d0f5;
+            box-shadow: 0 1px 4px rgba(50,145,249,0.1);
+        }
+        .stat-row .dur-badge {
+            width: 95px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a5fb4;
+            flex-shrink: 0;
+            text-align: center;
+        }
+        .stat-row .big-drp {
+            font-size: 26px;
+            font-weight: bold;
+            color: #3291F9;
+            width: 100px;
+            text-align: right;
+            flex-shrink: 0;
+            padding-right: 6px;
+            cursor: pointer;
+        }
+        .stat-row .big-drp:hover { text-decoration: underline; }
+        .stat-row .big-drp .unit {
+            font-size: 13px;
+            font-weight: 400;
+            color: #7fb8f7;
+            margin-left: 2px;
+        }
+        .stat-row .stn-info {
+            flex: 1;
+            margin-left: 20px;
+            line-height: 1.5;
+            min-width: 0;
+        }
+        .stat-row .stn-info .stn-name {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stat-row .stn-info .stn-time {
+            font-size: 13px;
+            color: #777;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stn-time .clock {
+            display: inline-block;
+            width: 13px; height: 13px;
+            border: 2px solid #bbb;
+            border-radius: 50%;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .stn-time .clock::after {
+            content: '';
+            position: absolute;
+            width: 3px; height: 3px;
+            background: #bbb;
+            border-radius: 50%;
+            top: 3px; left: 3px;
+        }
+
+        /* ===== 右侧 Top10 面板 ===== */
+        .top10-panel {
+            flex: 1;
+            background: #fff;
+            border-radius: 6px;
+            border: 1px solid #e8e8e8;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .top10-panel .panel-hd {
+            padding: 10px 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+        .top10-panel .panel-hd .hd-title {
+            font-size: 14px;
+            color: #888;
+        }
+        .top10-panel .panel-hd .hd-title b {
+            color: #3291F9;
+            font-size: 15px;
+        }
+        .top10-panel .panel-hd .dur-tabs { display: flex; gap: 6px; }
+        .top10-panel .panel-hd .dur-tab {
+            font-size: 13px;
+            color: #888;
+            padding: 4px 0;
+            cursor: pointer;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .top10-panel .panel-hd .dur-tab:hover { color: #555; }
+        .top10-panel .panel-hd .dur-tab.active {
+            color: #3291F9;
+            font-weight: bold;
+            border-bottom-color: #3291F9;
+            display: inline-block;
+        }
+
+        .top10-list {
+            flex: 1;
+            padding: 4px 12px;
+            overflow-y: auto;
+        }
+        .top10-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
+        }
+        .top10-item .rank {
+            width: 28px; height: 28px; line-height: 28px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 12px; font-weight: bold;
+            flex-shrink: 0;
+            background: #eef1f5; color: #999;
+        }
+        .top10-item .rank.r1 { background: #3291F9; color: #fff; }
+        .top10-item .rank.r2 { background: #5b9cf5; color: #fff; }
+        .top10-item .rank.r3 { background: #a3d0fa; color: #fff; }
+        .top10-item .stn {
+            flex: 1; margin-left: 10px;
+            color: #555;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .top10-item .drp {
+            font-weight: bold; color: #3291F9;
+            font-size: 14px; flex-shrink: 0; margin-left: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <!--页面载入显示-->
+    <div id="dataLoad" class="load">
+        <table style="width:100%;height:100%;border:0;" align="center" valign="middle">
+            <tr style="height:50%"><td align="center">&nbsp;</td></tr>
+            <tr><td align="center"><img src="../../arcgis_js_api/myJs/images/wait1.gif" /></td></tr>
+            <tr><td align="center">数据载入中，请稍后...</td></tr>
+            <tr style="height:50%"><td align="center">&nbsp;</td></tr>
+        </table>
+    </div>
+
+    <!--工具栏-->
+    <div class="mini-toolbar" style="padding-top:3px;">
+        <table style="width:100%;">
+            <tr>
+                <td>
+                    <span style="float:left;">
+                        &nbsp;&nbsp; 开始时间：&nbsp;
+                        <input id="STIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        结束时间：&nbsp;
+                        <input id="ETIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+                        <span class="quick-links">
+                            近<span class="sep">|</span>
+                            <a href="javascript:void(0)" onclick="quickTime(1)">1天</a><span class="sep">|</span>
+                            <a href="javascript:void(0)" onclick="quickTime(2)">2天</a><span class="sep">|</span>
+                            <a href="javascript:void(0)" onclick="quickTime(3)">3天</a><span class="sep">|</span>
+                            <a href="javascript:void(0)" onclick="quickTime(5)">5天</a><span class="sep">|</span>
+                            <a href="javascript:void(0)" onclick="quickTime(7)">7天</a>
+                        </span>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!--提示信息-->
+    <div class="hint-tip">
+        <i class="fa fa-info-circle"></i> 注：各时段极值雨量，均为5分钟步长滑动统计最大值。
+    </div>
+
+    <!--Tab切换栏-->
+    <div class="tab-bar">
+        <a class="tab-btn active" id="tabSummary" href="javascript:void(0)" onclick="switchTab('summary')">统计表</a>
+        <a class="tab-btn" id="tabDetail" href="javascript:void(0)" onclick="switchTab('detail')">明细表</a>
+    </div>
+
+    <!--主体内容 - 统计视图-->
+    <div id="viewSummary" class="mini-fit"
+        style="margin-top:1px;height:-webkit-calc(100% - 94px);height:-moz-calc(100% - 94px);height:calc(100% - 94px);overflow:hidden;">
+        <div class="split-container">
+            <!-- 左侧：极值统计 -->
+            <div class="split-left">
+                <div class="stat-panel">
+                    <div class="panel-hd">
+                        <div>
+                            <span class="title">极值统计</span>
+                            <!-- <span class="subtitle" id="statTimeRange"></span> -->
+                        </div>
+                        <a class="export-icon" title="导出数据" href="javascript:void(0)" onclick="doExportSummary()" style="color:#999;">
+                            <i class="fa fa-download"></i>
+                        </a>
+                    </div>
+                    <div class="stat-list" id="statList"></div>
+                </div>
+            </div>
+            <!-- 右侧：Top10 -->
+            <div class="split-right">
+                <div class="top10-panel">
+                    <div class="panel-hd">
+                        <span class="hd-title">TOP10 排行 · <b id="top10DurLabel">最大60min</b></span>
+                        <div class="dur-tabs" id="top10Tabs">
+                            <span class="dur-tab active" data-key="max60min" onclick="switchTop10('max60min')">60min</span>
+                            <span class="dur-tab" data-key="max3h" onclick="switchTop10('max3h')">3h</span>
+                            <span class="dur-tab" data-key="max6h" onclick="switchTop10('max6h')">6h</span>
+                            <span class="dur-tab" data-key="max12h" onclick="switchTop10('max12h')">12h</span>
+                            <span class="dur-tab" data-key="max24h" onclick="switchTop10('max24h')">24h</span>
+                        </div>
+                    </div>
+                    <div class="top10-list" id="top10List"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--主体内容 - 明细视图-->
+    <div id="viewDetail" class="mini-fit"
+        style="margin-top:1px;height:-webkit-calc(100% - 94px);height:-moz-calc(100% - 94px);height:calc(100% - 94px);overflow:hidden;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px 4px 10px;background:#fafafa;border-bottom:1px solid #eee;">
+            <span style="font-weight:bold;font-size:14px;color:#333;">各站明细表</span>
+            <a title="导出数据" href="javascript:void(0)" onclick="doExportDetail()"
+                style="color:#999;font-size:16px;text-decoration:none;">
+                <i class="fa fa-download"></i>
+            </a>
+        </div>
+        <div style="margin:0 10px;height:-webkit-calc(100% - 36px);height:-moz-calc(100% - 36px);height:calc(100% - 36px);">
+            <div id="gridDetail" class="mini-datagrid" style="width:100%;height:100%;"
+                allowalternating="true" sizeList="[15,20,30,50,100,500,1000]" pageSize="50" sortMode="client"
+                allowresize="false" showPager="false" showemptytext="true" emptytext="暂无数据"
+                alwaysshowemptytext="true" ondrawcell="onDetailDrawCell">
+                <div property="columns">
+                    <div type="indexcolumn" width="50" align="center" headerAlign="center">序号</div>
+                    <div field="stnm" width="100" align="center" headerAlign="center" allowSort="false">站名</div>
+                    <div field="addvnm" width="80" align="center" headerAlign="center" allowSort="false">区</div>
+                    <div header="最大60min" headerAlign="center">
+                        <div property="columns">
+                            <div field="max60min_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
+                            <div field="max60min_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大3h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max3h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
+                            <div field="max3h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大6h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max6h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
+                            <div field="max6h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大12h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max12h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
+                            <div field="max12h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大24h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max24h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
+                            <div field="max24h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var gridDetail = mini.get("gridDetail");
+        var currentTop10Key = "max60min";
+        var resultData;
+
+        var DUR_LABELS = {
+            "max60min": "最大60min",
+            "max3h": "最大3h",
+            "max6h": "最大6h",
+            "max12h": "最大12h",
+            "max24h": "最大24h"
+        };
+        var DUR_SHORT = {
+            "max60min": "60min",
+            "max3h": "3h",
+            "max6h": "6h",
+            "max12h": "12h",
+            "max24h": "24h"
+        };
+
+        $(function () {
+            var tm = new Date();
+            var etimeDate = new Date(tm);
+            etimeDate.setHours(etimeDate.getHours() + 1, 0, 0, 0);
+            var etime = etimeDate.format("yyyy/MM/dd HH:mm");
+            var stimeDate = new Date(etimeDate.getTime() - 24 * 60 * 60 * 1000);
+            var stime = stimeDate.format("yyyy-MM-dd HH:mm");
+
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+            BreakLayerLoad();
+        });
+
+        // 切换 统计表/明细表
+        function switchTab(tab) {
+            if (tab === 'summary') {
+                $("#viewSummary").show(); $("#viewDetail").hide();
+                $("#tabSummary").addClass("active"); $("#tabDetail").removeClass("active");
+            } else {
+                $("#viewSummary").hide(); $("#viewDetail").show();
+                $("#tabDetail").addClass("active"); $("#tabSummary").removeClass("active");
+            }
+            mini.layout();
+        }
+
+        // 快捷时间
+        function quickTime(days) {
+            var now = new Date();
+            now.setHours(now.getHours() + 1, 0, 0, 0);
+            var etimeDate = new Date(now);
+            var stimeDate = new Date(etimeDate.getTime() - days * 24 * 60 * 60 * 1000);
+            mini.get("STIME").setValue(stimeDate.format("yyyy-MM-dd HH:mm"));
+            mini.get("ETIME").setValue(etimeDate.format("yyyy/MM/dd HH:mm"));
+            btnSearch();
+        }
+
+        function btnSearch() {
+            $("#dataLoad").show();
+            setTimeout('BreakLayerLoad()', 100);
+        }
+
+        function BreakLayerLoad() {
+            var startDate = mini.get("STIME").getFormValue();
+            var endDate = mini.get("ETIME").getFormValue();
+            var d1 = formatDate(startDate);
+            var d2 = formatDate(endDate);
+
+            var strWhere = {
+                "stime": d1.format("yyyy-MM-dd HH:mm:ss"),
+                "etime": d2.format("yyyy-MM-dd HH:mm:ss"),
+                "pid": "201901101419326076-1-1,201901101419326076-5"
+            }
+            app.post("/SWZZ_RTSQ_ST_PPTN_R/queryMaxSlidingRainfall", strWhere, (data) => {
+                JosnSel(data);
+            });
+        }
+
+        function JosnSel(data) {
+            resultData = data;
+            if (data && data.data) {
+                // 更新时间范围显示
+                var s = mini.get("STIME").getFormValue();
+                var e = mini.get("ETIME").getFormValue();
+                var s1 = formatDate(s), s2 = formatDate(e);
+                $("#statTimeRange").text(s1.format("MM-dd HH:mm") + " → " + s2.format("MM-dd HH:mm"));
+
+                renderStatList(data.data.summary);
+                renderTop10(data.data.stations, currentTop10Key);
+                fillDetailTable(data.data.stations);
+            } else {
+                $("#statList").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
+                $("#top10List").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
+                gridDetail.setData([]);
+            }
+            $("#dataLoad").hide();
+        }
+
+        // ========== 左侧统计面板（自定义 HTML）==========
+        function renderStatList(summary) {
+            if (!summary) {
+                $("#statList").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
+                return;
+            }
+            var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+            // 找最大值高亮
+            var maxDrp = -1, maxKey = "";
+            for (var i = 0; i < durations.length; i++) {
+                var it = summary[durations[i]];
+                if (it && it.drp != null && parseFloat(it.drp) > maxDrp) {
+                    maxDrp = parseFloat(it.drp);
+                    maxKey = durations[i];
+                }
+            }
+
+            var html = "";
+            for (var i = 0; i < durations.length; i++) {
+                var key = durations[i];
+                var item = summary[key];
+                var isActive = (key === currentTop10Key);
+                var isMax = (key === maxKey && maxDrp > 0);
+                var cls = "stat-row";
+                if (isActive) cls += " active";
+
+                var drp = (item && item.drp != null) ? Number(item.drp).toFixed(1) : "--";
+                var stnm = (item && item.stnm) ? item.stnm : "--";
+                var stcd = (item && item.stcd) ? item.stcd : "";
+                var stime = (item && item.stime) ? formatStime(item.stime) : "--";
+                var rawStime = (item && item.stime) ? item.stime : "";
+                var rawEtime = (item && item.etime) ? item.etime : "";
+
+                html += '<div class="' + cls + '" data-key="' + key + '" onclick="onStatRowClick(\'' + key + '\')">';
+                html += '<span class="dur-badge">' + DUR_LABELS[key] + '</span>';
+                html += '<span class="big-drp" onclick="event.stopPropagation();openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\')" title="点击查看过程线">' + drp + '<span class="unit">mm</span></span>';
+                html += '<span class="stn-info">';
+                html += '<div class="stn-name" title="' + stnm + '">' + stnm + '</div>';
+                html += '<div class="stn-time"><span class="clock"></span>' + stime + '</div>';
+                html += '</span></div>';
+            }
+            $("#statList").html(html);
+        }
+
+        function onStatRowClick(key) {
+            switchTop10(key);
+            // 更新高亮行
+            $("#statList .stat-row").removeClass("active");
+            $("#statList .stat-row[data-key='" + key + "']").addClass("active");
+        }
+
+        // ========== 右侧 Top10（自定义 HTML）==========
+        function switchTop10(key) {
+            currentTop10Key = key;
+            // 切换选中样式
+            var tabs = document.querySelectorAll("#top10Tabs .dur-tab");
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].className = (tabs[i].getAttribute("data-key") === key) ? "dur-tab active" : "dur-tab";
+            }
+            $("#top10DurLabel").text(DUR_LABELS[key]);
+            if (resultData && resultData.data && resultData.data.stations) {
+                renderTop10(resultData.data.stations, key);
+            }
+            // 同步统计表选中行
+            var rows = document.querySelectorAll("#statList .stat-row");
+            for (var j = 0; j < rows.length; j++) {
+                rows[j].className = (rows[j].getAttribute("data-key") === key) ? "stat-row active" : "stat-row";
+            }
+        }
+
+        function renderTop10(stations, durKey) {
+            if (!stations || stations.length === 0) {
+                $("#top10List").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
+                return;
+            }
+            var list = [];
+            for (var i = 0; i < stations.length; i++) {
+                var st = stations[i];
+                var item = st[durKey];
+                if (item) {
+                    list.push({
+                        stcd: st.stcd || "",
+                        stnm: st.stnm,
+                        drp: item.drp != null ? Number(item.drp).toFixed(1) : "--",
+                        stime: item.stime || "",
+                        etime: item.etime || ""
+                    });
+                }
+            }
+            list.sort(function (a, b) {
+                return (parseFloat(b.drp) || 0) - (parseFloat(a.drp) || 0);
+            });
+            var top = list.slice(0, 10);
+            var html = "";
+            for (var i = 0; i < top.length; i++) {
+                var rankCls = "";
+                if (i === 0) rankCls = "r1";
+                else if (i === 1) rankCls = "r2";
+                else if (i === 2) rankCls = "r3";
+                html += '<div class="top10-item">';
+                html += '<span class="rank ' + rankCls + '">' + (i + 1) + '</span>';
+                html += '<span class="stn" title="' + top[i].stnm + '">' + top[i].stnm + '</span>';
+                html += '<span class="drp" style="cursor:pointer;" onclick="openProcessLine(\'' + top[i].stcd + '\',\'' + top[i].stnm + '\',\'' + top[i].stime + '\',\'' + top[i].etime + '\')" title="点击查看过程线">' + top[i].drp + '</span>';
+                html += '</div>';
+            }
+            $("#top10List").html(html);
+        }
+
+        // ========== 明细表 ==========
+        function fillDetailTable(stations) {
+            if (!stations || stations.length === 0) {
+                gridDetail.setData([]); return;
+            }
+            var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+            var detailData = [];
+            for (var i = 0; i < stations.length; i++) {
+                var st = stations[i];
+                var row = { stcd: st.stcd, stnm: st.stnm, addvnm: st.addvnm || "--" };
+                for (var j = 0; j < durations.length; j++) {
+                    var key = durations[j];
+                    var item = st[key];
+                    if (item) {
+                        row[key + "_drp"] = item.drp != null ? Number(item.drp) : null;
+                        row[key + "_time"] = item.stime ? formatStime(item.stime) : "--";
+                        row[key + "_stime_raw"] = item.stime || "";
+                        row[key + "_etime_raw"] = item.etime || "";
+                    } else {
+                        row[key + "_drp"] = null;
+                        row[key + "_time"] = "--";
+                        row[key + "_stime_raw"] = "";
+                        row[key + "_etime_raw"] = "";
+                    }
+                }
+                detailData.push(row);
+            }
+            gridDetail.setData(detailData);
+        }
+
+        // 打开过程线弹窗
+        function openProcessLine(stcd, stnm, stime, etime) {
+            if (!stcd) { mini.alert("站点信息不完整"); return; }
+            var url = "././DanZhan/YQLine.html?dayhour=MIN";
+            url += "&stcd=" + encodeURIComponent(stcd);
+            url += "&stnm=" + encodeURIComponent(stnm);
+            url += "&stime=" + stime;
+            url += "&etime=" + etime;
+            WindowsOpen(url, stnm + " 雨量过程线", stcd);
+        }
+
+        function formatStime(stime) {
+            if (!stime) return "--";
+            try {
+                var s = new Date(stime.replace(/\s/g, "T"));
+                return s.format("MM-dd HH:mm");
+            } catch (ex) { return stime; }
+        }
+
+        function onDetailDrawCell(e) {
+            if (e.field && e.field.indexOf("_drp") > -1 && e.value != null) {
+                e.cellStyle = "color:#3291F9;font-weight:bold;cursor:pointer;text-decoration:underline;";
+                var row = e.record;
+                var durKey = e.field.replace("_drp", "");
+                var rawStime = row[durKey + "_stime_raw"] || "";
+                var rawEtime = row[durKey + "_etime_raw"] || "";
+                var stcd = row.stcd || "";
+                var stnm = row.stnm || "";
+                e.cellHtml = '<a href="javascript:void(0)" onclick="openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\')" style="color:#3291F9;font-weight:bold;" title="点击查看过程线">' + e.value + '</a>';
+            }
+        }
+
+        // 导出
+        function doExportSummary() {
+            if (!resultData || !resultData.data || !resultData.data.summary) {
+                mini.alert("暂无数据可导出！"); return;
+            }
+            var summary = resultData.data.summary;
+            var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+            var rows = [];
+            for (var i = 0; i < durations.length; i++) {
+                var key = durations[i];
+                var item = summary[key];
+                rows.push({
+                    typeName: DUR_LABELS[key],
+                    stnm: item ? (item.stnm || "") : "",
+                    drp: item && item.drp != null ? item.drp : "",
+                    stime: item && item.stime ? item.stime : ""
+                });
+            }
+            var mockGrid = {
+                columns: [
+                    { field: "typeName", header: "极值类型" },
+                    { field: "stnm", header: "站名" },
+                    { field: "drp", header: "雨量(mm)" },
+                    { field: "stime", header: "起始时间" }
+                ],
+                data: rows
+            };
+            ExportExcel(rows, mockGrid, "极值统计");
+        }
+
+        function doExportDetail() {
+            var data = gridDetail.data;
+            if (data && data.length > 0) {
+                var mockGrid = {
+                    columns: [
+                        { field: "stnm", header: "站名" },
+                        { field: "addvnm", header: "区" },
+                        { field: "max60min_drp", header: "最大1h雨量(mm)" },
+                        { field: "max60min_time", header: "最大1h起始时间" },
+                        { field: "max3h_drp", header: "最大3h雨量(mm)" },
+                        { field: "max3h_time", header: "最大3h起始时间" },
+                        { field: "max6h_drp", header: "最大6h雨量(mm)" },
+                        { field: "max6h_time", header: "最大6h起始时间" },
+                        { field: "max12h_drp", header: "最大12h雨量(mm)" },
+                        { field: "max12h_time", header: "最大12h起始时间" },
+                        { field: "max24h_drp", header: "最大24h雨量(mm)" },
+                        { field: "max24h_time", header: "最大24h起始时间" }
+                    ],
+                    data: data
+                };
+                ExportExcel(data, mockGrid, "各站明细表");
+            } else {
+                mini.alert("暂无数据可导出！");
+            }
+        }
+
+        // 明细表分页
+        gridDetail.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, resultData && resultData.data ? resultData.data.stations : [], gridDetail);
+        });
+    </script>
+</body>
+</html>

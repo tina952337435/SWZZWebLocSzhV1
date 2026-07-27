@@ -577,7 +577,8 @@ DivHeight30 {
     border-bottom-color: #fff;
     -webkit-transition: all .25s;
     transition: all .25s;
-}*/
+}*/
+
 
 
 .nav li.open a.dropdown-toggle {
@@ -871,4 +872,8 @@ color:#ffffff !important;
     position: absolute;
     left: 100%;
     top: 0;
+}
+
+.btn{
+    padding: 4px 12px !important;
 }

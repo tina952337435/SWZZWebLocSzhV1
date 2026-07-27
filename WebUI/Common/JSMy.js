@@ -5,7 +5,7 @@ var ServerIP = fullHostAddress + "/swzz/";
 var FWIP = "";
 var ClientIP = fullHostAddress+"/";
 var TranslateIP = fullHostAddress+"/";
-var HttpUrl = fullHostAddress+"//ModeUploadDoc/";
+var HttpUrl = fullHostAddress+"/ModeUploadDoc/";
 var QXIP = ServerIP;  
 var PicUrl = fullHostAddress+"/ModeUploadDoc/";
 var PicUrlNT = fullHostAddress+"/ModeUploadDoc/";//临时用的雷达图
@@ -2505,7 +2505,11 @@ var token = localStorage.getItem("token"); //后台是否需要token
             success: function (msg) {
                 if (msg.code === "-401") {//登录失效了
                     localStorage.clear();
-                    window.location.href = fullHostAddress;
+                    try {
+                        parent.parent.window.location.href =fullHostAddress;
+                    } catch (e) {
+                        window.location.href =fullHostAddress;
+                    }
                 }
                 else{
                     callback(msg);

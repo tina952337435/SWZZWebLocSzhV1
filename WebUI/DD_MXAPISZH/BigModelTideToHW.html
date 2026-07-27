@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>大模型潮位预报</title>
+    <link href="../../Common/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js?ver=1.0.2" type="text/javascript"></script>
+    <script src="../../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-size: 14px;
+            background: white;
+        }
+
+        .mini-toolbar {
+            padding: 5px 10px;
+        }
+
+        .mini-toolbar .label-text {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="contentbody">
+    <div style="width:100%;">
+        <div class="mini-toolbar">
+            <span class="label-text">站点：</span>
+            <input id="STCD" class="mini-combobox" style="width:130px;" textField="stnm" valueField="stcd"
+                onvaluechanged="onStationChanged" allowInput="true" emptyText="请选择站点" />
+            <span class="label-text" style="display:none;">开始时间：</span>
+            <input id="STIME" class="mini-datepicker" style="width:140px;display:none;" showtime="true" format="yyyy-MM-dd HH:mm"
+                onvaluechanged="onvaluechanged" />
+            <span class="label-text" style="display:none;">结束时间：</span>
+            <input id="ETIME" class="mini-datepicker" style="width:140px;display:none;" showtime="true" format="yyyy-MM-dd HH:mm"
+                onvaluechanged="onvaluechanged" />
+            <!-- &nbsp;&nbsp;<a class="mini-button" onclick="BreakLayerLoad()">查询</a>
+            &nbsp;&nbsp;<button type="button" class="btn btn-success" onclick="Exp()" id="expButton" style="display:none;">报表导出</button> -->
+
+            <!-- <input value="使用所有站" id="startButton" type="button" style="text-align: center; width: 100px; height: 30px; color: #ffffff; cursor: pointer; background:#00BAAD; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #00BAAD;margin-left: 4px;"
+                    class="jNicebtn_submit" />
+            <input value="使用所有站" id="startOK" type="button" style="text-align: center; width: 100px; height: 30px; color: #ffffff; cursor: pointer; background:#4595f7; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #4595f7;margin-left: 4px;"
+                    class="jNicebtn_submit" /> -->
+            <input value="确认使用" id="startOK" type="button" style="text-align: center; width: 100px; height: 30px; color: #ffffff; cursor: pointer; background:#4595f7; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #4595f7;margin-left: 4px;"
+                    class="jNicebtn_submit" />
+
+        </div>
+    </div>
+    <div id="JY_charts" style="height:350px;width:100%;margin:0px auto;background:white;">
+    </div>
+    <div id="statsBar" style="width:100%;padding:10px 20px;text-align:center;font-size:15px;display:none;">
+        <span style="margin-right:40px;">📊 <b>最高潮(水)位：</b><span id="maxVal" style="color:#d9534f;font-size:18px;font-weight:bold;"></span></span>
+        <span>🕐 <b>出现时间：</b><span id="maxTime" style="color:#337ab7;font-size:18px;font-weight:bold;"></span></span>
+    </div>
+    <div id="grid1" class="mini-datagrid" style="width: 100%;height: -webkit-calc(100% - 405px);height: -moz-calc(100% - 405px);height: calc(100% - 405px);"
+        allowalternating="true" borderstyle="border-right:0;" showpager="false" showemptytext="true" emptytext="暂无数据"
+        alwaysshowemptytext="true" ondrawcell="ondrawcell">
+        <div property="columns">
+            <div field="tt" width="80" align="center" headeralign="center" allowsort="false">时间</div>
+            <div field="val" width="120" align="center" headeralign="center" allowsort="false" decimalPlaces="2" dataType="float">预报潮(水)位(m)</div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var myData = [];
+        var resultData = [];
+        //实例化表格对象
+        var grid = mini.get("grid1");
+
+        // 大模型接口固定参数
+        var BIGMODEL_PROJECTID = "2031978837304078336";
+        var BIGMODEL_DSID = "1516114470101972961";
+
+        var stime = GetQueryString("stime");
+        var etime = GetQueryString("etime");
+        var SOLUTIONID = GetQueryString("SOLUTIONID") == null ? "0" : GetQueryString("SOLUTIONID");
+        if (GetQueryString("SOLUTIONID") == null) {//先判断是不是传了参数，再判断是不是存了本地localStorage
+            SOLUTIONID = GetQueryString("DD_ID");
+            if (SOLUTIONID == null || SOLUTIONID == "") {
+                SOLUTIONID = "0";
+            }
+        }
+
+        window.onload = function () {
+            $("#expButton").hide();
+            if (shswzzGroupAllIDS.indexOf(GetCookie("GROUPID")) > -1) {
+                $("#expButton").show();
+            }
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+
+            // 加载站点列表
+            LoadStationList();
+
+            $("#startOK").click(function () {
+                isOk();
+            });
+        };
+        function isOk() {
+            mini.mask({
+                    el: document.body,
+                    cls: 'mini-mask-loading',
+                    html: '生成中...'
+            });
+
+            var strWhere = {
+                "solutionid": SOLUTIONID,
+                "startdate":stime,
+                "enddate":etime
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/BigModeLineardifference",strWhere,function(res){
+                JosnSel(res,"BigModeLineardifference");
+            });
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "BigModeLineardifference") {
+                ShowMsg(data.message);
+                //调用父页面的方法
+                top["win"].OpenHref();
+                // onCancel();
+                mini.unmask(document.body);
+            }
+        }
+
+        // 加载站点下拉框数据
+        function LoadStationList() {
+            app.post("SWZZ_MODE_st_bigmodebase_b/findResult", {}, function (data) {
+                if (data && data.data && data.data.length > 0) {
+                    var stationData = data.data;
+                    stationData=stationData.filter(function (item) {
+                       return item.stcd!="1481953153728381985"&&item.stcd!="1483430021572856033";
+                    });
+                    mini.get("STCD").setData(stationData);
+                    // 默认选中吴淞口
+                    var defaultIndex = 0;
+                    for (var i = 0; i < stationData.length; i++) {
+                        if (stationData[i].stnm === "吴淞口") {
+                            defaultIndex = i;
+                            break;
+                        }
+                    }
+                    mini.get("STCD").select(defaultIndex);
+                    // 自动查询
+                    BreakLayerLoad();
+                } else {
+                    mini.alert("未获取到站点数据");
+                }
+            });
+        }
+
+        // 获取当前选中站点的itemid
+        function getSelectedItemId() {
+            var stcd = mini.get("STCD");
+            var selected = stcd.getSelected();
+            if (selected) {
+                return selected.itemid;
+            }
+            return null;
+        }
+
+        // 查询数据
+        function BreakLayerLoad() {
+            var stime = mini.get("STIME").getFormValue();
+            var etime = mini.get("ETIME").getFormValue();
+            var itemid = getSelectedItemId();
+
+            if (!stime || !etime) {
+                mini.alert("请选择开始时间和结束时间");
+                return;
+            }
+            if (!itemid) {
+                mini.alert("请选择站点");
+                return;
+            }
+
+            $('#dataLoad').show();
+
+            var reqBody = JSON.stringify({
+                startTime: stime + ":00",
+                endTime: etime + ":00",
+                factorItemIds: [String(itemid)],
+                projectId: BIGMODEL_PROJECTID
+            });
+
+            var myHeaders = new Headers();
+            myHeaders.append("token", "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiIxNTE2MTE0NDcwMzA3OTU5ODA5IiwiYWNjb3VudCI6ImRzLTE1MTYxMTQ0NzAxMDE5NzI5NjEiLCJuYW1lIjoi5pWw5o2u5pyN5YqhLTE1MTYxMTQ0NzAxMDE5NzI5NjEiLCJleHAiOjI4MjA3Njc3NDN9.bI28KGfalgVENWW5CLTeigOKjMQMUYZ0O7s2i61z3KseEqNsYrRQQ5qYq8Refcmjq0oHbwK3ARD2gkoZUtjNmDDXPg-ZywVvQ2qFtkyGvrLMgWebXO5wAOYbp2QA3HOqCEQkk6ICf4PjAaeDtQP8R7-hjeM69j6jNYJxQ7D5vtY");
+            myHeaders.append("Content-Type", "application/json");
+
+            fetch("/bigModelApi/ds/" + BIGMODEL_DSID + "/data-service/factor/data-query", {
+                method: "POST",
+                headers: myHeaders,
+                body: reqBody,
+                credentials: "omit",
+                redirect: "follow"
+            }).then(function (response) {
+                if (!response.ok) {
+                    return response.text().then(function (text) {
+                        throw new Error("HTTP " + response.status + ": " + text);
+                    });
+                }
+                return response.json();
+            }).then(function (res) {
+                $('#dataLoad').hide();
+                processData(res);
+            }).catch(function (err) {
+                $('#dataLoad').hide();
+                console.error("请求失败:", err);
+                mini.alert("数据查询失败：" + err.message);
+            });
+        }
+
+        // 处理返回数据
+        function processData(res) {
+            if (!res || !res.data) {
+                mini.alert("查询无数据");
+                return;
+            }
+            // 适配不同返回格式：res.data 可能是数组或包含列表的对象
+            var list = res.data[0].dataPoints;  
+            console.error("返回数据:", list);          
+
+            if (list.length === 0) {
+                mini.alert("查询无数据");
+                return;
+            }
+
+            resultData = list;
+            resultData.sort(function (a, b) {
+                return new Date(a.tm).getTime() - new Date(b.tm).getTime();
+            });
+
+            // 绘制过程线
+            var LineColor = ["#3398DB"];
+            var strNote = [];
+            strNote.push({ "name": "时间", "codename": "tt", "tableV": "1", "isShow": true, "width": "30%" });
+            strNote.push({ "name": "潮位", "codename": "val", "tableV": "1", "isShow": true, "width": "30%" });
+
+            var stationName = mini.get("STCD").getText();
+            chartLL("JY_charts", resultData, strNote, LineColor, "水位(m)", stationName + "大模型潮位预报");
+
+            // 绑定表格
+            tableBind(resultData);
+
+            // 统计最高潮位及出现时间
+            var maxItem = resultData[0];
+            for (var i = 1; i < resultData.length; i++) {
+                if (Number(resultData[i].val) > Number(maxItem.val)) {
+                    maxItem = resultData[i];
+                }
+            }
+            $("#maxVal").text(Number(maxItem.val).toFixed(2) + " m");
+            $("#maxTime").text(new Date(convertToDate(maxItem.tt)).format("yyyy-MM-dd HH:mm"));
+            $("#statsBar").show();
+        }
+
+        function tableBind(data) {
+            grid.setData(data);
+        }
+
+        function ondrawcell(e) {
+            var row = e.row,
+                column = e.column,
+                field = e.field,
+                value = e.value;
+            if (field == "tt") {
+                e.cellHtml = new Date(convertToDate(value)).format("yyyy-MM-dd HH:mm");
+            }
+        }
+
+        function onvaluechanged(e) {
+            // 时间变化时不自动查询，需手动点击查询按钮
+        }
+
+        function onStationChanged(e) {
+            // 站点变化时不自动查询，需手动点击查询按钮
+            BreakLayerLoad();
+        }
+
+        function Exp() {
+            var stationName = mini.get("STCD").getText();
+            var stime = mini.get("STIME").getFormValue();
+            var etime = mini.get("ETIME").getFormValue();
+            var name = stationName + "大模型潮位预报_" + stime + "至" + etime;
+            var data = grid.data;
+            ExportExcel(data, grid, name);
+        }
+
+        const hexToRgba = (hex, opacity) => {
+            let rgbaColor = "";
+            let reg = /^#[\da-f]{6}$/i;
+            if (reg.test(hex)) {
+                rgbaColor = `rgba(${parseInt("0x" + hex.slice(1, 3))},${parseInt(
+                    "0x" + hex.slice(3, 5)
+                )},${parseInt("0x" + hex.slice(5, 7))},${opacity})`;
+            }
+            return rgbaColor;
+        }
+
+        function chartLL(ChartName, data, strNote, LineColor, max_min_Name, chartTitle) {
+            var myChart = echarts.init(document.getElementById(ChartName));
+            myChart.clear();
+            if (max_min_Name == "雨量") {
+                max_min_Name = "雨量（mm）";
+            }
+            var chartName = [];
+            var chartTM = [];
+            var chartValue = [];
+            var m = [];
+
+            $.each(strNote, function (index, value, item) {
+                chartName.push(value.name);
+            });
+
+            $.each(data, function (index, value, item) {
+                var charthan = [];
+                $.each(strNote, function (index1, value1, item1) {
+                    charthan.push(value[value1.codename]);
+                    if (value1.name == "时间") {
+                        chartTM.push(new Date(convertToDate(value[value1.codename])).format("MM-dd HH:mm"));
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    } else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan);
+            });
+            var max_min = GetSort(chartValue);
+            var option = {
+                title: {
+                    // text: chartTitle || "大模型潮位预报过程线",
+                    left: "center",
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 18,
+                        fontWeight: "normal"
+                    }
+                },
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: {
+                        color: '#000000'
+                    },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    show: false,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: {
+                        color: '#000',
+                        fontSize: 12
+                    }
+                },
+                grid: {
+                    left: '2%',
+                    right: '2%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                calculable: true,
+                xAxis: [
+                    {
+                        type: 'category',
+                        data: chartTM,
+                        axisTick: {
+                            alignWithLabel: false
+                        }
+                    }
+                ],
+                yAxis: [
+                    {
+                        name: max_min_Name,
+                        type: 'value',
+                        boundaryGap: false,
+                        splitNumeber: 5,
+                        splitLine: {
+                            show: true,
+                            lineStyle: {
+                                color: '#eee',
+                                width: 1,
+                                type: 'dashed',
+                            }
+                        },
+                        min: max_min.min,
+                        max: max_min.max,
+                        axisLabel: {
+                            formatter: function (v) {
+                                return v.toFixed(2);
+                            }
+                        }
+                    }
+                ],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") {
+                            continue;
+                        }
+                        var cv = [];
+                        for (var i = 0; i < m.length; i++) {
+                            cv.push(m[i][j]);
+                        }
+                        if (max_min_Name != "") {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }],
+                                    label: {
+                                        formatter: function (e) {
+                                            return e.value.toFixed(2);
+                                        }
+                                    }
+                                },
+                                type: 'line',
+                                data: cv,
+                                barWidth: '40%',
+                                symbol: 'none',
+                                smooth: true,
+                                areaStyle: {
+                                    normal: {
+                                        color: new echarts.graphic.LinearGradient(
+                                            0, 0, 0, 1,
+                                            [{
+                                                offset: 0,
+                                                color: hexToRgba(LineColor[j - 1], 0.3)
+                                            },
+                                            {
+                                                offset: 1,
+                                                color: hexToRgba(LineColor[j - 1], 0.1)
+                                            }],
+                                            false
+                                        ),
+                                        shadowColor: hexToRgba(LineColor[j - 1], 0.1),
+                                        shadowBlur: 10
+                                    }
+                                },
+                            }
+                            serie.push(item);
+                        } else {
+                            var item = {
+                                name: chartName[j],
+                                markPoint: {
+                                    data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }]
+                                },
+                                symbol: 'none',
+                                type: 'line',
+                                data: cv,
+                                smooth: true
+                            }
+                            serie.push(item);
+                        }
+                    };
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

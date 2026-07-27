@@ -367,7 +367,7 @@ modelSetTaskSZH = function () {
                     }
                 }
                 else if (res.type == 0) {//雨量需要小时转5分钟
-                    var drp = Number(gcDATA) / 12;
+                    var drp =parseFloat( (Number(gcDATA) / 12).toFixed(2));
                     for (var minu = 0; minu < 12; minu++) {
                         vals.push(drp);
                     }

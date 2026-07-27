@@ -50,7 +50,7 @@ require(["esri/geometry/Point",
 	    _destroy();
 	    for (var i = 0; i < obj.length; i++) {
 	        var item = obj[i];
-
+            item["divid"] = "SQ" + item["stcd"];		
 	        if (item.lgtd == undefined && item.lttd == undefined) {
 	            continue;
 	        }
@@ -82,7 +82,7 @@ require(["esri/geometry/Point",
 	        } else {
 	            imgUrl="gray_hd.gif";
 	        }
-			breakSymbol = new PictureMarkerSymbol(pUrl+imgUrl, 18, 18);
+			breakSymbol = new PictureMarkerSymbol(pUrl+imgUrl, 15, 15);
 
 
 	        var point = new Point({
@@ -141,9 +141,9 @@ require(["esri/geometry/Point",
 
 	        //textStr += "<br/>时间：" + tm;
 	        var _align = "top";
-            if ("63301200,63405290,63404510,63402600,63405000,63405100,63402300".lastIndexOf(item.stcd) > -1) {
-	            _align = "bottom";
-	        }
+            if (SetNull(item["dir"]) != "") {
+                _align = item["dir"];
+            }
 	        //console.error(window.parent.SpanBiaoZhu());
 	        if (!window.parent.SpanBiaoZhu()) {
 	            cls += "@";
@@ -161,6 +161,9 @@ require(["esri/geometry/Point",
                 WaterLayerGraphicLayer.add(graphic);
             }
 	    }
+
+		window.parent.setMapZoomNew(WaterLayerGraphicLayer, map.getLevel(), "SQ", "stcd",window.parent.SpanBiaoZhu());
+        window.parent.mapZoomEnd(WaterLayerGraphicLayer, null, "SQ", "stcd",window.parent.SpanBiaoZhu());
 	});
 }
 

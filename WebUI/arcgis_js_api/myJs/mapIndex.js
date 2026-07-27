@@ -1020,3 +1020,126 @@ function Convert_BD09_To_GCJ02(lat, lng) {
     lat = z * Math.sin(theta);
     return lng + ':' + lat;
 } 
+
+
+//地图放大缩小调用事件**************************************************************
+var globallevel = 7;//全局级别
+function mapZoomEnd(myLayer, mapLevel, stType, field, switchChecked) {
+    if (mapLevel == null || mapLevel == undefined) {
+        mapLevel = globallevel; //无特殊指定
+    }
+    if (SetNull(map) == "") {
+        map = window.map;
+    }
+    map.on("zoom-end", function (zoom) {
+        mapLevel = zoom.level;
+        setMapZoomNew(myLayer, mapLevel, stType, field, switchChecked);
+    });
+}
+
+function setMapZoomNew(myLayer, mapLevel, stType, field, switchChecked) {
+    for (var num = 0; num < myLayer.graphics.length; num++) {
+        var item = myLayer.graphics[num];
+        if (item.attributes != undefined) {
+            var MAPSIZE = item.attributes.mapsize;
+            // console.error(item.attributes.stnm, 'mapLevel=' + mapLevel, 'MAPSIZE=' + MAPSIZE, stType, item)
+            if (MAPSIZE != undefined) {
+                // MAPSIZE =parseInt(MAPSIZE) + 1;
+                // console.error(item.attributes.stnm, stType + item.attributes[field])
+                if (mapLevel < globallevel) {
+                    addClassParam(stType + item.attributes[field], "none");
+                } else if (globallevel == MAPSIZE) { //当站点层级等于默认地图层级时，一直要显示
+                    //11级以下，隐藏 lable信息
+                    if (switchChecked == true) {
+                        removeClassParam(stType + item.attributes[field], "none");
+                    } else {
+                        addClassParam(stType + item.attributes[field], "none");
+                    }
+                } else {                    
+                    // console.error(item.attributes.stnm, 'mapLevel=' + mapLevel, 'MAPSIZE=' + MAPSIZE, stType, item)
+                    if (mapLevel >= MAPSIZE) {
+                        item.show();
+                        if (switchChecked == true) {
+                            removeClassParam(stType + item.attributes[field], "none");
+                        } else {
+                            addClassParam(stType + item.attributes[field], "none");
+                        }
+                    } else {
+                        item.hide();
+                        addClassParam(stType + item.attributes[field], "none");
+                    }
+                }
+            } else {
+                if (mapLevel < globallevel) {
+                    addClassParam(stType + item.attributes[field], "none");
+                } else {
+                    if (mapLevel > globallevel) {
+                        if ($("#riverMarker").hasClass("checked") == true) {
+                            removeClassParam(stType + item.attributes[field], "none");
+                        } else {
+                            addClassParam(stType + item.attributes[field], "none");
+                        }
+                    } else if (mapLevel == globallevel) {
+                        if ($("#riverMarker").hasClass("checked") == true) {
+                            removeClassParam(stType + item.attributes[field], "none");
+                        } else {
+                            addClassParam(stType + item.attributes[field], "none");
+                        }
+                    } else {
+                        addClassParam(stType + item.attributes[field], "none");
+                    }
+                }
+            }
+
+        }
+    }
+
+    if(mapLevel>=12){
+        removeClassParamByClass("MapTextNew", "none");
+    }
+    else{
+        addClassParamByClass("MapTextNew", "none");
+    }
+
+    if(mapLevel>=13){
+        removeClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "none");
+    }
+    else{
+        addClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "none");
+    }
+
+    if(mapLevel>=12){
+        removeClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "none");
+    }
+    else{
+        addClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "none");
+    } 
+    
+    if(mapLevel>=13){       
+       removeClassParamByClass("lightGQ", "none");
+    }else{
+       addClassParamByClass("lightGQ", "none");
+    }
+}
+
+function removeClassParam(objID, objClass) {
+    // console.error('removeClassParam',objID, objClass)
+    $("#" + objID).removeClass(objClass);
+    $("#" + objID + "Arrow").removeClass(objClass);
+}
+
+function addClassParam(objID, objClass) {
+    // console.error('addClassParam',objID, objClass)
+    $("#" + objID).addClass(objClass);
+    $("#" + objID + "Arrow").addClass(objClass);
+}
+
+function addClassParamByClass(objID, objClass) {
+    $("." + objID).addClass(objClass);
+}
+
+function removeClassParamByClass(objID, objClass) {
+    $("." + objID).removeClass(objClass);
+}
+
+//地图放大缩小调用事件**************************************************************

@@ -52,9 +52,14 @@ define(["dojo/_base/declare",
                     this._class = "TextDiv";
                 }
                 this._offset = this._class == "TextDiv" ? 12 : offset;
+                var divid = "";
+                if (attr["divid"] != undefined) {
+
+                    divid = " id=\"" + attr["divid"] + "\" ";
+                }
                 if (text.toString().indexOf("</") > -1) {
                     //this._node = text;
-                    this._node = domConstruct.toDom("<div class='MapTextNew marker" + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
+                    this._node = domConstruct.toDom("<div " + divid + "class='MapTextNew marker" + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
                 }
                 else {
                     text = text.replace(/\n/g, "<br/>");
@@ -66,7 +71,7 @@ define(["dojo/_base/declare",
                     var DATA = text.split("@")[1];
                     var markerContent = "";
                      	if (tempClass.indexOf("@") > -1) {
-							markerContent = "<div class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew none " + tempClass.replace("@", "") + "'>" +
+							markerContent = "<div " + divid + " class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew none " + tempClass.replace("@", "") + "'>" +
                         " <span class='amap-ui-district-cluster-marker-title'>" + STNM + "</span>";
                         if(DATA!=""&&DATA!=undefined&&DATA!=null){
                         markerContent=markerContent+" <span class='amap-ui-district-cluster-marker-body'>" + DATA + "</span>" ;
@@ -74,7 +79,7 @@ define(["dojo/_base/declare",
 						 markerContent=markerContent+"</div>";
 						   this._node = domConstruct.toDom(markerContent);
 					}else{
-						markerContent = "<div class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew " + tempClass + "'>" +
+						markerContent = "<div " + divid + " class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew " + tempClass + "'>" +
                         " <span class='amap-ui-district-cluster-marker-title'>" + STNM + "</span>";
                         if(DATA!=""&&DATA!=undefined&&DATA!=null){
                         markerContent=markerContent+" <span class='amap-ui-district-cluster-marker-body'>" + DATA + "</span>" ;
@@ -182,10 +187,10 @@ define(["dojo/_base/declare",
                     this._offsetY = this._offset;
                 }
                 else if (this._place == "left") {
-					console.error(this._width );
+					// console.error(this._width );
                     this._offsetX = 0 - this._width - this._offset;
                     this._offsetY = 0 - this._height / 2;
-					console.error(this._offsetX+"::::::::::::::"+this._offsetY);
+					// console.error(this._offsetX+"::::::::::::::"+this._offsetY);
                 }
                 else if (this._place == "right") {
                     this._offsetX = this._offset;

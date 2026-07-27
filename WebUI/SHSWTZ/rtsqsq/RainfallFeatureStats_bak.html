@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>雨量特征值统计</title>
+    <script src="../../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <script src="../../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .hint-tip {
+            padding: 4px 12px;
+            color: #e67e22;
+            font-size: 12px;
+            background: #fef9f0;
+            border-bottom: 1px solid #f0d89d;
+        }
+        .hint-tip i {
+            margin-right: 4px;
+        }
+
+        /* 快速时间按钮 */
+        .quick-time-btn {
+            display: inline-block;
+            padding: 2px 10px;
+            margin: 0 2px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #333;
+            background: #fff;
+            text-decoration: none;
+        }
+        .quick-time-btn:hover, .quick-time-btn.active {
+            border-color: #3291F9;
+            color: #3291F9;
+        }
+
+        /* 切换标签栏 */
+        .tab-bar {
+            height: 32px;
+            line-height: 32px;
+            padding: 0 12px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-bar .tab-btn {
+            display: inline-block;
+            padding: 0 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            margin-right: 4px;
+            height: 31px;
+        }
+        .tab-bar .tab-btn:hover {
+            color: #3291F9;
+        }
+        .tab-bar .tab-btn.active {
+            color: #3291F9;
+            border-bottom-color: #3291F9;
+            font-weight: bold;
+        }
+
+        /* 左右分栏 */
+        .split-container {
+            display: flex;
+            height: 100%;
+            gap: 8px;
+            padding: 5px 8px;
+        }
+        .split-left {
+            flex: 0 0 500px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .split-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* top10 时长切换 */
+        .top10-dur-switch {
+            margin-bottom: 4px;
+        }
+        .top10-dur-switch .dur-btn {
+            display: inline-block;
+            padding: 2px 8px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            color: #666;
+            font-size: 12px;
+            text-decoration: none;
+            margin-right: 3px;
+            border-radius: 2px;
+        }
+        .top10-dur-switch .dur-btn.active {
+            border-color: #3291F9;
+            color: #3291F9;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <!--页面载入显示-->
+    <div id="dataLoad" class="load">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%"><td align="center">&nbsp;</td></tr>
+            <tr><td align="center"><img src="../../arcgis_js_api/myJs/images/wait1.gif" /></td></tr>
+            <tr><td align="center">数据载入中，请稍后...</td></tr>
+            <tr style="height: 50%"><td align="center">&nbsp;</td></tr>
+        </table>
+    </div>
+
+    <!--工具栏-->
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <span style="float:left;">
+                        &nbsp;&nbsp; 开始时间：&nbsp;
+                        <input id="STIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        结束时间：&nbsp;
+                        <input id="ETIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+                        &nbsp;
+                        <a class="quick-time-btn" onclick="quickTime(1)">1天</a>
+                        <a class="quick-time-btn" onclick="quickTime(2)">2天</a>
+                        <a class="quick-time-btn" onclick="quickTime(3)">3天</a>
+                        <a class="quick-time-btn" onclick="quickTime(5)">5天</a>
+                        <a class="quick-time-btn" onclick="quickTime(7)">7天</a>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!--提示信息-->
+    <div class="hint-tip">
+        <i class="fa fa-info-circle"></i> 注：各时段极值雨量，均为5分钟步长滑动统计最大值。
+    </div>
+
+    <!--Tab切换栏-->
+    <div class="tab-bar">
+        <a class="tab-btn active" id="tabSummary" onclick="switchTab('summary')">统计表</a>
+        <a class="tab-btn" id="tabDetail" onclick="switchTab('detail')">明细表</a>
+    </div>
+
+    <!--主体内容 - 统计视图-->
+    <div id="viewSummary" class="mini-fit"
+        style="margin-top:1px;height: -webkit-calc(100% - 94px);height: -moz-calc(100% - 94px);height: calc(100% - 94px);overflow-y:auto;">
+        <div class="split-container" style="height: 100%;">
+            <!-- 左侧：极值统计表 -->
+            <div class="split-left">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0 4px 0;">
+                    <span style="font-weight:bold;font-size:14px;color:#333;">极值统计</span>
+                    <a class="mini-button" onclick="doExportSummary()" style="font-size:12px;padding:2px 8px;">导出</a>
+                </div>
+                <div id="gridSummary" class="mini-datagrid" style="width:100%;height:100%;"
+                    allowalternating="true" showPager="false" showemptytext="true" emptytext="暂无数据"
+                    alwaysshowemptytext="true" ondrawcell="onSummaryDrawCell">
+                    <div property="columns">
+                        <div field="typeName" width="90" align="center" headerAlign="center">极值类型</div>
+                        <div field="stnm" width="160" align="center" headerAlign="center">站名</div>
+                        <div field="drp" width="90" align="center" headerAlign="center">雨量(mm)</div>
+                        <div field="stime" width="110" align="center" headerAlign="center">起始时间</div>
+                    </div>
+                </div>
+            </div>
+            <!-- 右侧：Top10 -->
+            <div class="split-right">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0 4px 0;">
+                    <div class="top10-dur-switch" id="top10Durations">
+                        <a class="dur-btn active" data-key="max60min" onclick="switchTop10('max60min')">最大60min</a>
+                        <a class="dur-btn" data-key="max3h" onclick="switchTop10('max3h')">最大3h</a>
+                        <a class="dur-btn" data-key="max6h" onclick="switchTop10('max6h')">最大6h</a>
+                        <a class="dur-btn" data-key="max12h" onclick="switchTop10('max12h')">最大12h</a>
+                        <a class="dur-btn" data-key="max24h" onclick="switchTop10('max24h')">最大24h</a>
+                    </div>
+                    <span style="font-size:12px;color:#999;" id="top10Title">最大60min Top10</span>
+                </div>
+                <div id="gridTop10" class="mini-datagrid" style="width:100%;height:100%;"
+                    allowalternating="true" showPager="false" showemptytext="true" emptytext="暂无数据"
+                    alwaysshowemptytext="true" ondrawcell="onTop10DrawCell">
+                    <div property="columns">
+                        <div type="indexcolumn" width="40" align="center" headerAlign="center">#</div>
+                        <div field="stnm" width="140" align="center" headerAlign="center">站名</div>
+                        <div field="drp" width="90" align="center" headerAlign="center">雨量(mm)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--主体内容 - 明细视图-->
+    <div id="viewDetail" class="mini-fit"
+        style="margin-top:1px;height: -webkit-calc(100% - 62px);height: -moz-calc(100% - 62px);height: calc(100% - 62px);overflow-y:auto;display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px 4px 8px;">
+            <span style="font-weight:bold;font-size:14px;color:#333;">各站明细表</span>
+            <a class="mini-button" onclick="doExportDetail()" style="font-size:12px;padding:2px 8px;">导出</a>
+        </div>
+        <div style="margin:0 8px;height:-webkit-calc(100% - 36px);height:-moz-calc(100% - 36px);height:calc(100% - 36px);">
+            <div id="gridDetail" class="mini-datagrid" style="width:100%;height:100%;"
+                allowalternating="true" sizeList="[15,20,30,50,100,500,1000]" pageSize="50"
+                allowresize="false" showPager="true" showemptytext="true" emptytext="暂无数据"
+                alwaysshowemptytext="true" ondrawcell="onDetailDrawCell">
+                <div property="columns">
+                    <div type="indexcolumn" width="50" align="center" headerAlign="center">序号</div>
+                    <div field="stnm" width="90" align="center" headerAlign="center" allowSort="false">站名</div>
+                    <div field="hnnm" width="80" align="center" headerAlign="center" allowSort="false">区</div>
+                    <div header="最大60min" headerAlign="center">
+                        <div property="columns">
+                            <div field="max60min_drp" width="80" align="center" headerAlign="center" allowSort="true">雨量(mm)</div>
+                            <div field="max60min_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大3h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max3h_drp" width="80" align="center" headerAlign="center" allowSort="true">雨量(mm)</div>
+                            <div field="max3h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大6h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max6h_drp" width="80" align="center" headerAlign="center" allowSort="true">雨量(mm)</div>
+                            <div field="max6h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大12h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max12h_drp" width="80" align="center" headerAlign="center" allowSort="true">雨量(mm)</div>
+                            <div field="max12h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                    <div header="最大24h" headerAlign="center">
+                        <div property="columns">
+                            <div field="max24h_drp" width="80" align="center" headerAlign="center" allowSort="true">雨量(mm)</div>
+                            <div field="max24h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+
+        var gridSummary = mini.get("gridSummary");
+        var gridTop10 = mini.get("gridTop10");
+        var gridDetail = mini.get("gridDetail");
+        var currentTop10Key = "max60min";
+
+        // 时长标签映射
+        var DUR_LABELS = {
+            "max60min": "最大60min",
+            "max3h": "最大3h",
+            "max6h": "最大6h",
+            "max12h": "最大12h",
+            "max24h": "最大24h"
+        };
+
+        $(function () {
+            var tm = new Date();
+            var etimeDate = new Date(tm);
+            etimeDate.setHours(etimeDate.getHours() + 1, 0, 0, 0);
+            var etime = etimeDate.format("yyyy/MM/dd HH:mm");
+            var stimeDate = new Date(etimeDate.getTime() - 24 * 60 * 60 * 1000);
+            var stime = stimeDate.format("yyyy-MM-dd HH:mm");
+
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+            BreakLayerLoad();
+        });
+
+        // 切换 统计表/明细表
+        function switchTab(tab) {
+            if (tab === 'summary') {
+                $("#viewSummary").show();
+                $("#viewDetail").hide();
+                $("#tabSummary").addClass("active");
+                $("#tabDetail").removeClass("active");
+                mini.layout();
+            } else {
+                $("#viewSummary").hide();
+                $("#viewDetail").show();
+                $("#tabDetail").addClass("active");
+                $("#tabSummary").removeClass("active");
+                mini.layout();
+            }
+        }
+
+        // 快捷时间
+        function quickTime(days) {
+            var now = new Date();
+            now.setHours(now.getHours() + 1, 0, 0, 0);
+            var etimeDate = new Date(now);
+            var stimeDate = new Date(etimeDate.getTime() - days * 24 * 60 * 60 * 1000);
+            mini.get("STIME").setValue(stimeDate.format("yyyy-MM-dd HH:mm"));
+            mini.get("ETIME").setValue(etimeDate.format("yyyy/MM/dd HH:mm"));
+            // 高亮当前
+            $(".quick-time-btn").removeClass("active");
+            // 找到对应按钮高亮
+            btnSearch();
+        }
+
+        function btnSearch() {
+            $("#dataLoad").show();
+            setTimeout('BreakLayerLoad()', 100);
+        }
+
+        function BreakLayerLoad() {
+            var startDate = mini.get("STIME").getFormValue();
+            var endDate = mini.get("ETIME").getFormValue();
+            var d1 = formatDate(startDate);
+            var d2 = formatDate(endDate);
+
+            var strWhere = {
+                "stime": d1.format("yyyy-MM-dd HH:mm:ss"),
+                "etime": d2.format("yyyy-MM-dd HH:mm:ss"),
+                "pid": "201901101419326076-1-1,201901101419326076-5"
+            }
+            app.post("/SWZZ_RTSQ_ST_PPTN_R/queryMaxSlidingRainfall", strWhere, (data) => {
+                JosnSel(data);
+            });
+        }
+
+        var resultData;
+
+        function JosnSel(data) {
+            resultData = data;
+            if (data && data.data) {
+                fillSummaryTable(data.data.summary);
+                fillDetailTable(data.data.stations);
+                fillTop10(data.data.stations, currentTop10Key);
+            } else {
+                gridSummary.setData([]);
+                gridDetail.setData([]);
+                gridTop10.setData([]);
+            }
+            $("#dataLoad").hide();
+        }
+
+        // ========== 统计表（纵向格式）==========
+        function fillSummaryTable(summary) {
+            if (!summary) { gridSummary.setData([]); return; }
+            var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+            var rows = [];
+            for (var i = 0; i < durations.length; i++) {
+                var key = durations[i];
+                var item = summary[key];
+                if (item) {
+                    rows.push({
+                        typeName: DUR_LABELS[key],
+                        stnm: item.stnm || "--",
+                        drp: item.drp != null ? Number(item.drp).toFixed(1) : "--",
+                        stime: item.stime ? formatStime(item.stime) : "--"
+                    });
+                } else {
+                    rows.push({
+                        typeName: DUR_LABELS[key],
+                        stnm: "--",
+                        drp: "--",
+                        stime: "--"
+                    });
+                }
+            }
+            gridSummary.setData(rows);
+        }
+
+        // ========== Top10 ==========
+        function switchTop10(key) {
+            currentTop10Key = key;
+            $("#top10Durations .dur-btn").removeClass("active");
+            $("#top10Durations .dur-btn[data-key='" + key + "']").addClass("active");
+            $("#top10Title").text(DUR_LABELS[key] + " Top10");
+            if (resultData && resultData.data && resultData.data.stations) {
+                fillTop10(resultData.data.stations, key);
+            }
+        }
+
+        function fillTop10(stations, durKey) {
+            if (!stations || stations.length === 0) {
+                gridTop10.setData([]);
+                return;
+            }
+            var list = [];
+            for (var i = 0; i < stations.length; i++) {
+                var st = stations[i];
+                var item = st[durKey];
+                if (item) {
+                    list.push({
+                        stnm: st.stnm,
+                        drp: item.drp != null ? Number(item.drp).toFixed(1) : "--"
+                    });
+                }
+            }
+            // 按雨量降序
+            list.sort(function (a, b) {
+                var va = parseFloat(a.drp) || 0;
+                var vb = parseFloat(b.drp) || 0;
+                return vb - va;
+            });
+            gridTop10.setData(list.slice(0, 10));
+        }
+
+        // ========== 明细表 ==========
+        function fillDetailTable(stations) {
+            if (!stations || stations.length === 0) {
+                gridDetail.setData([]);
+                return;
+            }
+            var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+            var detailData = [];
+            for (var i = 0; i < stations.length; i++) {
+                var st = stations[i];
+                var row = {
+                    stcd: st.stcd,
+                    stnm: st.stnm,
+                    hnnm: st.hnnm || "--"
+                };
+                for (var j = 0; j < durations.length; j++) {
+                    var key = durations[j];
+                    var item = st[key];
+                    if (item) {
+                        row[key + "_drp"] = item.drp != null ? Number(item.drp).toFixed(1) : "--";
+                        row[key + "_time"] = item.stime ? formatStime(item.stime) : "--";
+                    } else {
+                        row[key + "_drp"] = "--";
+                        row[key + "_time"] = "--";
+                    }
+                }
+                detailData.push(row);
+            }
+            gridDetail.setData(detailData);
+        }
+
+        // 格式化起始时间
+        function formatStime(stime) {
+            if (!stime) return "--";
+            try {
+                var s = new Date(stime.replace(/\s/g, "T"));
+                return s.format("MM-dd HH:mm");
+            } catch (ex) {
+                return stime;
+            }
+        }
+
+        // ========== 单元格渲染 ==========
+        function onSummaryDrawCell(e) {
+            if (e.field === "drp" && e.value != null && e.value !== "--") {
+                e.cellStyle = "color:#3291F9;font-weight:bold;";
+            }
+        }
+        function onTop10DrawCell(e) {
+            if (e.field === "drp" && e.value != null && e.value !== "--") {
+                e.cellStyle = "color:#3291F9;font-weight:bold;";
+            }
+        }
+        function onDetailDrawCell(e) {
+            if (e.field && e.field.indexOf("_drp") > -1 && e.value != null && e.value !== "--") {
+                e.cellStyle = "color:#3291F9;font-weight:bold;";
+            }
+        }
+
+        // ========== 导出 ==========
+        function doExportSummary() {
+            var data = gridSummary.data;
+            if (data && data.length > 0) {
+                ExportExcel(data, gridSummary, "滑动极值统计");
+            } else {
+                mini.alert("暂无数据可导出！");
+            }
+        }
+        function doExportDetail() {
+            var data = gridDetail.data;
+            if (data && data.length > 0) {
+                ExportExcel(data, gridDetail, "各站明细表");
+            } else {
+                mini.alert("暂无数据可导出！");
+            }
+        }
+
+        // 明细表分页
+        gridDetail.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, resultData ? resultData.data.stations : [], gridDetail);
+        });
+    </script>
+</body>
+
+</html>

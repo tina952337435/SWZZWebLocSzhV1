@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE" />
+    <meta name="renderer" content="webkit" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.1"></script>
+    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
+    <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
+    <title>模型方案边界查看</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* 主切换标签栏 */
+        .tab-bar {
+            height: 32px; line-height: 32px;
+            padding: 0 12px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab-bar .tab-btn {
+            display: inline-block;
+            padding: 0 16px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #666;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            margin-right: 4px;
+            height: 31px;
+        }
+        .tab-bar .tab-btn:hover { color: #3291F9; }
+        .tab-bar .tab-btn.active {
+            color: #3291F9;
+            border-bottom-color: #3291F9;
+            font-weight: bold;
+        }
+
+        /* 工程调度分类栏 */
+        .gc-filter-bar {
+            padding: 6px 12px;
+            background: #fafafa;
+            border-bottom: 1px solid #e8e8e8;
+            line-height: 33px;
+        }
+        .gc-filter-bar .filter-label {
+            float: left;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 6px;
+        }
+        .gc-filter-bar .onlytab {
+            width: auto !important;
+            height: 33px;
+            margin: 0;
+        }
+        .gc-filter-bar .onlytab li {
+            padding: 0 10px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 主Tab切换栏 -->
+    <div class="tab-bar">
+        <a class="tab-btn active" id="tabRain" href="javascript:void(0)" onclick="switchTab('rain')">降雨边界</a>
+        <a class="tab-btn" id="tabTide" href="javascript:void(0)" onclick="switchTab('tide')">潮位边界</a>
+        <a class="tab-btn" id="tabGC" href="javascript:void(0)" onclick="switchTab('gc')">工程调度边界</a>
+    </div>
+
+    <!-- 降雨边界视图 -->
+    <div id="viewRain" style="height:calc(100% - 33px);">
+        <div id="gridRain" class="mini-datagrid" style="width:100%;height:100%;"
+             allowalternating="true" showpager="false"
+             showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+        </div>
+    </div>
+
+    <!-- 潮位边界视图 -->
+    <div id="viewTide" style="height:calc(100% - 33px);display:none;">
+        <!-- 站点类型分类栏 -->
+        <div class="gc-filter-bar">
+            <div>
+                <span class="filter-label">站点类型：</span>
+                <ul class="onlytab" id="tideTypeUL"></ul>
+            </div>
+        </div>
+        <div style="height:calc(100% - 37px);">
+            <div id="gridTide" class="mini-datagrid" style="width:100%;height:100%;"
+                 allowalternating="true" showpager="false"
+                 showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+            </div>
+        </div>
+    </div>
+
+    <!-- 工程调度边界视图 -->
+    <div id="viewGC" style="height:calc(100% - 33px);display:none;">
+        <!-- 分类筛选栏 -->
+        <div class="gc-filter-bar">
+            <div style="margin-bottom:4px;">
+                <span class="filter-label">水利片区：</span>
+                <ul class="onlytab" id="gcUL"></ul>
+            </div>
+            <div style="margin-bottom:4px;">
+                <span class="filter-label">工程级别：</span>
+                <ul class="onlytab" id="gcLXUL"></ul>
+            </div>
+            <div>
+                <span class="filter-label">工程类型：</span>
+                <ul class="onlytab" id="gcTYPEUL"></ul>
+            </div>
+        </div>
+        <!-- 数据表格 -->
+        <div style="height:calc(100% - 120px);">
+            <div id="gridGC" class="mini-datagrid" style="width:100%;height:100%;"
+                 allowalternating="true" showpager="false"
+                 showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var gridRain = mini.get("gridRain");
+        var gridTide = mini.get("gridTide");
+        var gridGC = mini.get("gridGC");
+
+        // 从URL获取参数
+        var SOLUTIONID = GetQueryString("SOLUTIONID") || GetQueryString("DD_ID") || "0";
+        var STIME = GetQueryString("stime") || "";
+        var ETIME = GetQueryString("etime") || "";
+
+        var dataLoaded = { rain: false, tide: false, gc: false };
+
+        // 工程调度分类筛选状态
+        var str_stcds = "";       // 水利片区选中的stcd列表
+        var str_stcdsLevel = "";  // 工程级别选中的stcd列表
+        var str_stcdsType = "";   // 工程类型选中的stcd列表
+
+        // 潮位分类筛选状态
+        var str_tideStcds = "";   // 潮位站点类型选中的stcd列表
+
+        $(function () {
+            loadRainfallData();
+        });
+
+        // ========== 主Tab切换 ==========
+        function switchTab(tab) {
+            $("#viewRain").hide(); $("#viewTide").hide(); $("#viewGC").hide();
+            $("#tabRain").removeClass("active"); $("#tabTide").removeClass("active"); $("#tabGC").removeClass("active");
+
+            if (tab === "rain") {
+                $("#viewRain").show();
+                $("#tabRain").addClass("active");
+                if (!dataLoaded.rain) loadRainfallData();
+            } else if (tab === "tide") {
+                $("#viewTide").show();
+                $("#tabTide").addClass("active");
+                if (!dataLoaded.tide) loadTideData();
+            } else if (tab === "gc") {
+                $("#viewGC").show();
+                $("#tabGC").addClass("active");
+                if (!dataLoaded.gc) loadGCData();
+            }
+            mini.layout();
+        }
+
+        // ========== 降雨边界 ==========
+        function loadRainfallData() {
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
+            var colWhere = { "pattem": 134 };
+            app.post("SWZZ_MODE_ES_SLTONGJI/findResult", colWhere, function (res) {
+                var columns = buildColumnsJY(res.data);
+                gridRain.set({ columns: columns });
+
+                var dataWhere = {
+                    "solutionid": SOLUTIONID,
+                    "startdate": STIME,
+                    "enddate": ETIME,
+                    "datatype": "0",
+                    "dayhour": "hour"
+                };
+                app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBindJY", dataWhere, function (res) {
+                    gridRain.setData(mini.decode(res.data));
+                    dataLoaded.rain = true;
+                    mini.unmask(document.body);
+                });
+            });
+        }
+
+        // ========== 潮位边界 ==========
+        function loadTideData() {
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
+
+            var tideColumnsAll = null;
+            var tideDataAll = null;
+            var taskDone = { col: false, data: false, type: false };
+
+            function tryFinish() {
+                if (taskDone.col && taskDone.data && taskDone.type) {
+                    $.data(myData, "tideColumnsAll", tideColumnsAll);
+                    $.data(myData, "tideDataAll", tideDataAll);
+                    doFilterTide();
+                    dataLoaded.tide = true;
+                    mini.unmask(document.body);
+                }
+            }
+
+            // 加载站点类型
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult", { "pid": "c5abfaa42d5e43d6" }, function (res) {
+                if (res && res.data && res.data.length > 0) {
+                    renderTideCategory(res.data);
+                    // 默认选中第一个类型
+                    str_tideStcds = res.data[0].stcd || "";
+                }
+                taskDone.type = true;
+                tryFinish();
+            });
+
+            // 加载列头
+            var colWhere = { "pattem": "1,2,4" };
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", colWhere, function (res) {
+                tideColumnsAll = buildColumns(res.data, "时间");
+                taskDone.col = true;
+                tryFinish();
+            });
+
+            // 加载数据
+            var dataWhere = {
+                "solutionid": SOLUTIONID,
+                "startdate": STIME,
+                "enddate": ETIME,
+                "datatype": "1",
+                "dayhour": "hour"
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", dataWhere, function (res) {
+                tideDataAll = mini.decode(res.data);
+                taskDone.data = true;
+                tryFinish();
+            });
+        }
+
+        // 渲染潮位站点类型tab
+        function renderTideCategory(data) {
+            var html = '<li id="tideTypeULAll" name="" class="onlyli start" onclick="onTideFilterClick(\'tideTypeUL\', this)">全部</li>';
+            for (var i = 0; i < data.length; i++) {
+                var cls = "onlyli";
+                if (i === 0) cls += " onlyliHover";  // 默认选中第一个
+                if (i === data.length - 1) cls += " end";
+                html += '<li id="' + data[i].id + '" name="' + (data[i].stcd || "") + '" class="' + cls + '" onclick="onTideFilterClick(\'tideTypeUL\', this)">' + data[i].title + '</li>';
+            }
+            $("#tideTypeUL").html(html);
+        }
+
+        // 潮位分类tab点击
+        function onTideFilterClick(containerId, el) {
+            $("#" + containerId + " .onlyli").removeClass("onlyliHover");
+            $("#" + el.id).addClass("onlyliHover");
+            str_tideStcds = $(el).attr("name") || "";
+            doFilterTide();
+        }
+
+        // 按站点类型筛选潮位列
+        function doFilterTide() {
+            var columnsAll = $.data(myData, "tideColumnsAll");
+            var dataAll = $.data(myData, "tideDataAll");
+            if (!columnsAll) return;
+
+            var columns = columnsAll.slice();
+            if (str_tideStcds !== "") {
+                var typeArr = str_tideStcds.split(",");
+                columns = columns.filter(function (col) {
+                    return col.field === "TM" || typeArr.indexOf(col.field) > -1;
+                });
+            }
+
+            gridTide.set({ columns: columns });
+            if (dataAll) {
+                gridTide.setData(dataAll);
+            }
+        }
+
+        // ========== 工程调度边界 ==========
+        function loadGCData() {
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
+
+            var gcColumnsAll = null;
+            var gcDataAll = null;
+            var taskDone = { col: false, data: false, sl: false, lx: false, type: false };
+
+            function tryFinish() {
+                // 列头和数据是必须的，三个分类可选
+                if (taskDone.col && taskDone.data && taskDone.sl && taskDone.lx && taskDone.type) {
+                    finishLoad();
+                }
+            }
+            function finishLoad() {
+                $.data(myData, "gridGCColumnsAll", gcColumnsAll);
+                $.data(myData, "gridGCDataAll", gcDataAll);
+                doFilterGC();
+                dataLoaded.gc = true;
+                mini.unmask(document.body);
+            }
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult", { "type": "2", "pid": "11836313e8a414f5" }, function (res) {
+                renderGcCategory("gcUL", res.data, "sl");
+                taskDone.sl = true;
+                tryFinish();
+            });
+            // 加载工程级别
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult", { "type": "2", "pid": "d31bf0965ec84005" }, function (res) {
+                renderGcCategory("gcLXUL", res.data, "lx");
+                taskDone.lx = true;
+                tryFinish();
+            });
+            // 加载工程类型
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult", { "type": "2", "pid": "dc67c5ee0e321cd0" }, function (res) {
+                renderGcCategory("gcTYPEUL", res.data, "type");
+                taskDone.type = true;
+                tryFinish();
+            });
+
+            // 加载列头（必须）
+            var colWhere = { "pattem": "3,3001,3002,3003,3004,3005,3006,3007,3008,3009" };
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", colWhere, function (res) {
+                gcColumnsAll = buildColumnsGC(res.data, "时间");
+                taskDone.col = true;
+                tryFinish();
+            });
+
+            // 加载数据（必须）
+            var dataWhere = {
+                "solutionid": SOLUTIONID,
+                "startdate": STIME,
+                "enddate": ETIME,
+                "datatype": "3",
+                "dayhour": "hour"
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", dataWhere, function (res) {
+                gcDataAll = mini.decode(res.data);
+                taskDone.data = true;
+                tryFinish();
+            });
+        }
+
+        // 渲染工程调度分类tab
+        // SLTONGJI返回数据：stcd/title(小写)或STCD/TITLE(大写)，兼容两种格式
+        function renderGcCategory(containerId, data, catType) {
+            if (!data || data.length === 0) {
+                $("#" + containerId).html("");
+                return;
+            }
+
+            // 收集所有站号用于"全部"
+            var allStcdSet = {};
+            for (var i = 0; i < data.length; i++) {
+                var stcdStr = data[i].stcd || data[i].STCD || "";
+                if (stcdStr) {
+                    var arr = stcdStr.split(",");
+                    for (var j = 0; j < arr.length; j++) {
+                        if (arr[j]) allStcdSet[arr[j]] = true;
+                    }
+                }
+            }
+            var allStcd = Object.keys(allStcdSet).join(",");
+
+            var html = '<li id="' + containerId + 'All" name="' + allStcd + '" class="onlyli start onlyliHover" onclick="onGcFilterClick(\'' + containerId + '\', this)">全部</li>';
+
+            for (var i = 0; i < data.length; i++) {
+                var item = data[i];
+                var stcd = item.stcd || item.STCD || "";
+                var title = item.title || item.TITLE || "";
+                var cls = "onlyli";
+                if (i === data.length - 1) cls += " end";
+                html += '<li id="' + item.id + '" name="' + stcd + '" class="' + cls + '" onclick="onGcFilterClick(\'' + containerId + '\', this)">' + title + '</li>';
+            }
+            $("#" + containerId).html(html);
+        }
+
+        // 分类tab点击
+        function onGcFilterClick(containerId, el) {
+            // 更新选中样式
+            $("#" + containerId + " .onlyli").removeClass("onlyliHover");
+            $("#" + el.id).addClass("onlyliHover");
+
+            var stcds = $(el).attr("name") || "";
+            if (containerId === "gcUL") {
+                str_stcds = stcds;
+            } else if (containerId === "gcLXUL") {
+                str_stcdsLevel = stcds;
+            } else if (containerId === "gcTYPEUL") {
+                str_stcdsType = stcds;
+            }
+            doFilterGC();
+        }
+
+        // 按分类筛选列
+        function doFilterGC() {
+            var gcColumnsAll = $.data(myData, "gridGCColumnsAll");
+            var gcDataAll = $.data(myData, "gridGCDataAll");
+            if (!gcColumnsAll) return;
+
+            var columns = gcColumnsAll.slice();
+
+            if (str_stcds !== "") {
+                var slArr = str_stcds.split(",");
+                columns = columns.filter(function (col) {
+                    return col.field === "TM" || slArr.indexOf(col.field) > -1;
+                });
+            }
+            if (str_stcdsLevel !== "") {
+                var lxArr = str_stcdsLevel.split(",");
+                columns = columns.filter(function (col) {
+                    return col.field === "TM" || lxArr.indexOf(col.field) > -1;
+                });
+            }
+            if (str_stcdsType !== "") {
+                var typeArr = str_stcdsType.split(",");
+                columns = columns.filter(function (col) {
+                    return col.field === "TM" || typeArr.indexOf(col.field) > -1;
+                });
+            }
+
+            gridGC.set({ columns: columns });
+            if (gcDataAll) {
+                gridGC.setData(gcDataAll);
+            }
+        }
+
+        // ========== 列构建函数 ==========
+
+        // 潮位用：zhanname/zhanid
+        function buildColumns(list, timeHeader) {
+            var cols = [{
+                field: "TM", header: timeHeader, headerAlign: "center", align: "center",
+                autoescape: "true", width: "150", dateFormat: "yyyy-MM-dd HH:mm:ss"
+            }];
+            if (list && list.length > 0) {
+                for (var i = 0; i < list.length; i++) {
+                    cols.push({
+                        header: list[i].zhanname || "",
+                        field: list[i].zhanid || "",
+                        headerAlign: "center", align: "center",
+                        decimalPlaces: "2", dataType: "float"
+                    });
+                }
+            }
+            return cols;
+        }
+
+        // 降雨用：title/id（来自SLTONGJI接口）
+        function buildColumnsJY(list) {
+            var cols = [{
+                field: "TM", header: "降雨时间", headerAlign: "center", align: "center",
+                autoescape: "true", width: "150", dateFormat: "yyyy-MM-dd HH:mm:ss"
+            }];
+            if (list && list.length > 0) {
+                for (var i = 0; i < list.length; i++) {
+                    cols.push({
+                        header: list[i].title || "",
+                        field: list[i].id || "",
+                        headerAlign: "center", align: "center",
+                        decimalPlaces: "1", dataType: "float"
+                    });
+                }
+            }
+            return cols;
+        }
+
+        // 工程调度用：zhanname取最后一段
+        function buildColumnsGC(list, timeHeader) {
+            var cols = [{
+                field: "TM", header: timeHeader, headerAlign: "center", align: "center",
+                autoescape: "true", width: "150", dateFormat: "yyyy-MM-dd HH:mm:ss"
+            }];
+            if (list && list.length > 0) {
+                for (var i = 0; i < list.length; i++) {
+                    var zhanname = list[i].zhanname || "";
+                    var parts = zhanname.split('_');
+                    if (parts.length > 0) {
+                        zhanname = parts[parts.length - 1];
+                    }
+                    cols.push({
+                        header: zhanname,
+                        field: list[i].zhanid || "",
+                        headerAlign: "center", align: "center",
+                        decimalPlaces: "2", dataType: "float"
+                    });
+                }
+            }
+            return cols;
+        }
+    </script>
+</body>
+</html>

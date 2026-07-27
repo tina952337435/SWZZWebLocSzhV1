@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>源数据查看</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <!--工具栏-->
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <span style="float:left;">
+                        &nbsp;&nbsp;开始时间：&nbsp;
+                        <input id="STIME" class="mini-datepicker" style="width:160px;"
+                               format="yyyy-MM-dd HH:mm" showTime="true"
+                               showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        结束时间：&nbsp;
+                        <input id="ETIME" class="mini-datepicker" style="width:160px;"
+                               format="yyyy-MM-dd HH:mm" showTime="true"
+                               showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        <a class="mini-button" onclick="btnSearch()">查询</a>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!--数据表格-->
+    <div class="mini-fit"
+         style="margin-top:1px;height: -webkit-calc(100% - 36px);height: -moz-calc(100% - 36px);height: calc(100% - 36px);overflow-y:auto;">
+        <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;"
+             allowalternating="true" showPager="false" sortMode="client"
+             showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true" ondrawcell="ondrawcell">
+            <div property="columns" id="gridColumns">
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("grid1");
+
+        // 从父页面传入的参数
+        var params = {
+            stcd: GetQueryString("stcd") || "",
+            zstcd: GetQueryString("zstcd") || "",
+            type: GetQueryString("type") || "",
+            source: GetQueryString("source") || "",
+            stnm: GetQueryString("stnm") || "",
+            ztm: decodeURIComponent(GetQueryString("ztm") || "")
+        };
+
+        $(function () {
+            // 默认时间：以最新来数时间为开始，加24小时为结束
+            var ztm = params.ztm;
+            var stime;
+            if (ztm && ztm !== "undefined" && ztm !== "null") {
+                stime = new Date(ztm);
+                if (isNaN(stime.getTime())) {
+                    stime = new Date();
+                }
+            } else {
+                stime = new Date();
+            }
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(new Date(stime.getTime() + 24 * 60 * 60 * 1000));
+            btnSearch();
+        });
+
+        // 根据类型和来源获取接口配置
+        function getApiConfig() {
+            var type = params.type, source = params.source;
+
+            // 水位站 + 上海水文总站
+            if ((type === "1" || type === "5" || type === "8"|| type === "9") && source === "上海水文总站") {
+                return { url: "WDS_RTEV/findResult", method: "post" };
+            }
+            // 雨量站 + 上海水文总站
+            if (type === "2" && source === "上海水文总站") {
+                return { url: "GetWaterViewNew/SynchronizeDataTsdb5min", method: "post" };
+            }
+            // 雨量站 + 市气象局
+            if (type === "2" && source === "市气象局") {
+                return { url: "SWZZ_RTSQ_ST_PPTN_R/selectListSL323NoLimit", method: "post" };
+            }
+            // 工情站 + 水利中心
+            if (type === "3" && source === "水利中心") {
+                return { url: "shuizhaApi/getChuLaoBengZha", method: "shuizha" };
+            }
+            // 工情站 + 市排水中心
+            if (type === "3" && source === "市排水中心") {
+                return { url: "shuizhaApi/getSZBZGK", method: "shuizha" };
+            }
+            // 水位站 + 水利部太湖局/上海海事局/自然资源部东海局/水利部报汛
+            if (type === "1" && (source === "水利部太湖局" || source === "上海海事局"
+                || source === "自然资源部东海局" || source === "水利部报汛")) {
+                return { url: "shuiwupingtaiApi/service/api/swic/getShiShiShuiWei", method: "shuiwupingtai" };
+            }
+            // 流量站 + 水利部报汛
+            if (type === "5" && source === "水利部报汛") {
+                return { url: "shuiwupingtaiApi/service/api/swic/getLiuLiang", method: "shuiwupingtai" };
+            }
+            return null;
+        }
+
+        // shuiwupingtaiApi 的配置
+        var SHUIWUPINGTAI_CLIENT_ID = "a8f62494c396451488057bcbdae8ccd1";
+        var SHUIWUPINGTAI_CLIENT_SECRET = "rt8y0!t!";
+
+        // 获取 shuiwupingtaiApi 的 access_token
+        function getShuiwupingtaiToken(callback) {
+            var tokenUrl = fullHostAddress + "/shuiwupingtaiApi/oauth/token?client_id="
+                + SHUIWUPINGTAI_CLIENT_ID + "&client_secret=" + SHUIWUPINGTAI_CLIENT_SECRET;
+            $.ajax({
+                url: tokenUrl,
+                type: "get",
+                dataType: "json",
+                success: function (res) {
+                    callback(res.access_token || "");
+                },
+                error: function () {
+                    callback("");
+                }
+            });
+        }
+
+        // 调用 shuiwupingtaiApi 获取水位数据
+        function fetchShuiwupingtaiData(apiPath, stime, etime, callback) {
+            getShuiwupingtaiToken(function (token) {
+                if (!token) {
+                    mini.alert("获取shuiwupingtaiApi认证token失败");
+                    mini.unmask(document.body);
+                    return;
+                }
+                var apiUrl = fullHostAddress + "/" + apiPath
+                    + "?client_id=" + SHUIWUPINGTAI_CLIENT_ID
+                    + "&access_token=" + token
+                    + "&STARTTIME=" + encodeURIComponent(stime)
+                    + "&ENDTIME=" + encodeURIComponent(etime)
+                    + "&pageSize=1000&pageNumber=1"
+                    + "&STATIONID=" + encodeURIComponent(params.zstcd);
+                $.ajax({
+                    url: apiUrl,
+                    type: "get",
+                    dataType: "json",
+                    success: function (res) {
+                        callback(res);
+                    },
+                    error: function () {
+                        mini.alert("获取水位源数据失败");
+                        mini.unmask(document.body);
+                    }
+                });
+            });
+        }
+
+        // shuizhaApi 的 clientId 和 clientSecret
+        var SHUIZHA_CLIENT_ID = "c5610a2df3be49aa85d83e47dc22a106";
+        var SHUIZHA_CLIENT_SECRET = "2HyVCVXa1-wQ_NyKLB6XqP5qSfgP2Zx8KD0mYzklTk4";
+
+        // 获取 shuizhaApi 的 accessToken（通过本地后端代理）
+        function getShuizhaToken(callback) {
+            app.post("SWZZ_RTSQ_ST_GATE_RNEW/getShuiZhaToken", {}, function (res) {
+                var token = res.message || "";
+                callback(token);
+            });
+        }
+
+        // 调用 shuizhaApi 获取工情数据
+        function fetchShuizhaData(apiPath, stime, etime, callback) {
+            getShuizhaToken(function (token) {
+                if (!token) {
+                    mini.alert("获取shuizhaApi认证token失败");
+                    mini.unmask(document.body);
+                    return;
+                }
+                var apiUrl = fullHostAddress + "/" + apiPath
+                    + "?pageSize=1000&pageNumber=1"
+                    + "&STARTTIME=" + encodeURIComponent(stime)
+                    + "&ENDTIME=" + encodeURIComponent(etime)
+                    + "&STATIONID=" + encodeURIComponent(params.zstcd);
+                $.ajax({
+                    url: apiUrl,
+                    type: "get",
+                    dataType: "json",
+                    headers: {
+                        "authorization": localStorage.getItem("token") || "",
+                        "clientId": SHUIZHA_CLIENT_ID,
+                        "accessToken": token
+                    },
+                    success: function (res) {
+                        callback(res);
+                    },
+                    error: function () {
+                        mini.alert("获取工情源数据失败");
+                        mini.unmask(document.body);
+                    }
+                });
+            });
+        }
+
+        function btnSearch() {
+            var config = getApiConfig();
+            if (!config) {
+                mini.alert("暂不支持该站点类型和来源的源数据查看");
+                return;
+            }
+
+            var stime = formatDateTime(mini.get("STIME").getFormValue());
+            var etime = formatDateTime(mini.get("ETIME").getFormValue());
+
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+
+            // 工情站 走 shuizhaApi GET 请求
+            if (config.method === "shuizha") {
+                fetchShuizhaData(config.url, stime, etime, function (res) {
+                    mini.unmask(document.body);
+                    var list = res.rows || res.data || res || [];
+                    if (list.result && list.result.length > 0) {
+                        buildColumns(list.result[0]);
+                        list.result.sort(function (a, b) {
+                            var ta = a.DATETIME ? new Date(a.DATETIME).getTime() : 0;
+                            var tb = b.DATETIME ? new Date(b.DATETIME).getTime() : 0;
+                            return tb - ta;
+                        });
+                        grid.setData(list.result);
+                    } else {
+                        grid.setData([]);
+                    }
+                });
+                return;
+            }
+
+            // 水位站+水利部太湖局等 走 shuiwupingtaiApi GET 请求
+            if (config.method === "shuiwupingtai") {
+                fetchShuiwupingtaiData(config.url, stime, etime, function (res) {
+                    mini.unmask(document.body);
+                    var list = res.result || res.result || res || [];
+                    if (list && list.length > 0) {
+                        buildColumns(list[0]);
+                        list.sort(function (a, b) {
+                            var ta = a.DATETIME ? new Date(a.DATETIME).getTime() : 0;
+                            var tb = b.DATETIME ? new Date(b.DATETIME).getTime() : 0;
+                            return tb - ta;
+                        });
+                        grid.setData(list);
+                    } else {
+                        grid.setData([]);
+                    }
+                });
+                return;
+            }
+
+            // 其他接口走 app.post
+            var strWhere = {
+                stime: stime,
+                etime: etime,
+                stcd: params.zstcd.indexOf("%")>-1?params.zstcd.split('%')[0]:params.zstcd
+            };
+
+            app.post(config.url, strWhere, function (data) {
+                mini.unmask(document.body);
+                if (data && data.data && data.data.length > 0) {
+                    console.error("data.data",data.data);
+                    buildColumns(data.data[0]);
+                    // 按最新来数时间倒序排列
+                    data.data.sort(function (a, b) {
+                        var ta = a.tm ? new Date(a.tm).getTime() : 0;
+                        var tb = b.tm ? new Date(b.tm).getTime() : 0;
+                        return tb - ta;
+                    });
+                    data.data.sort(function (a, b) {
+                        var ta = a.time ? new Date(a.time).getTime() : 0;
+                        var tb = b.time ? new Date(b.time).getTime() : 0;
+                        return tb - ta;
+                    });
+                    grid.setData(data.data);
+                } else {
+                    grid.setData([]);
+                }
+            });
+        }
+
+        // 根据返回数据动态构建列
+        function buildColumns(firstRow) {
+            var columns = [];
+            var type = params.type, source = params.source;
+            if (type === "1" && source === "上海水文总站") {
+                columns.push({ field: "time", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "factv", header: "水位(m)", align: "center", headerAlign: "center", allowSort: "true" });
+            }
+             if (type === "1" && (source === "水利部太湖局" || source === "上海海事局"
+                || source === "自然资源部东海局" || source === "水利部报汛")) {
+                columns.push({ field: "DATETIME", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "STATIONNAME", header: "站名", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "OUTWATER", header: "水位(m)", align: "center", headerAlign: "center", allowSort: "true" });     
+            }
+            if (type === "2" && source === "上海水文总站") {
+                columns.push({ field: "tm", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "drp", header: "雨量(mm)", align: "center", headerAlign: "center", allowSort: "true" });
+            }
+            // 雨量站 + 市气象局
+            if (type === "2" && source === "市气象局") {
+                columns.push({ field: "tm", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "drp", header: "雨量(mm)", align: "center", headerAlign: "center", allowSort: "true" });
+            } 
+            if (type === "3" && source === "水利中心") {
+                columns.push({ field: "DATETIME", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "STATIONNAME", header: "站名", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "INWATER", header: "闸内水位(m)", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "OUTWATER", header: "闸外水位(m)", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "STATUSOUT", header: "运行状态", align: "center", headerAlign: "center", allowSort: "true" });                
+            } 
+            if (type === "3" && source === "市排水中心") {
+                columns.push({ field: "DATETIME", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "STATIONNAME", header: "站名", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "FLOW", header: "流量(m³/s)", align: "center", headerAlign: "center", allowSort: "true" });  
+            }
+            if (type === "5" && source === "上海水文总站") {
+                columns.push({ field: "time", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "factv", header: "流量(m³/s)", align: "center", headerAlign: "center", allowSort: "true" });  
+            }
+            if (type === "5" && source === "水利部报汛") {
+                columns.push({ field: "DATETIME", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "LIULIANG", header: "流量(m³/s)", align: "center", headerAlign: "center", allowSort: "true" });  
+                columns.push({ field: "OUTWATER", header: "水位(m)", align: "center", headerAlign: "center", allowSort: "true" });
+            }
+            if (type === "8" && source === "上海水文总站") {
+                columns.push({ field: "time", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "factv", header: "风速(m/s)", align: "center", headerAlign: "center", allowSort: "true" });  
+            }
+            if (type === "9" && source === "上海水文总站") {
+                columns.push({ field: "time", header: "时间", align: "center", headerAlign: "center", allowSort: "true" });
+                columns.push({ field: "factv", header: "流速(m/s)", align: "center", headerAlign: "center", allowSort: "true" });  
+            }
+            // else if (firstRow) {
+            //     // 其他接口：根据返回数据首行动态生成列
+            //     for (var key in firstRow) {
+            //         if (firstRow.hasOwnProperty(key)) {
+            //             columns.push({ field: key, header: key, align: "center", headerAlign: "center", allowSort: "true" });
+            //         }
+            //     }
+            // }
+            grid.set({ columns: columns });
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return "";
+            var d = new Date(dateStr);
+            var y = d.getFullYear();
+            var m = ("0" + (d.getMonth() + 1)).slice(-2);
+            var day = ("0" + d.getDate()).slice(-2);
+            var h = ("0" + d.getHours()).slice(-2);
+            var min = ("0" + d.getMinutes()).slice(-2);
+            var s = ("0" + d.getSeconds()).slice(-2);
+            return y + "-" + m + "-" + day + " " + h + ":" + min + ":" + s;
+        }
+        function ondrawcell(e) {
+            var field = e.field,
+                value = e.value,
+                record = e.record;
+            if (field == "STATUSOUT") {
+                console.error('field',field,value);
+                if (value != undefined && value != null && value != "") {
+                    if(value=="OPEN"){
+                        e.cellHtml = "开";
+                    }
+                    else if(value=="CLOSE"){
+                        e.cellHtml = "关";
+                    }
+                    else{                        
+                        e.cellHtml = '-';
+                    }
+                } else {
+                    e.cellHtml = '-';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

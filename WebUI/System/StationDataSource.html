@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>站点数据来源</title>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <!--工具栏-->
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <span style="float:left;">
+                        &nbsp;&nbsp;站点类型：&nbsp;
+                        <input id="STTP" class="mini-combobox" style="width:130px;"
+                               textField="text" valueField="id" allowInput="false"
+                               onvaluechanged="onTypeChanged" />&nbsp;&nbsp;
+                        数据来源：&nbsp;
+                        <input id="SOURCE" class="mini-combobox" style="width:160px;"
+                               textField="text" valueField="id" allowInput="false"
+                               emptyText="全部" />&nbsp;&nbsp;
+                        <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+                        <span id="stationCount" style="margin-left:15px;color:#3291F9;font-weight:bold;"></span>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!--数据表格-->
+    <div class="mini-fit"
+         style="margin-top:1px;height: -webkit-calc(100% - 36px);height: -moz-calc(100% - 36px);height: calc(100% - 36px);overflow-y:auto;">
+        <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;"
+             allowalternating="true" showPager="false" sortMode="client"
+             showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+             allowCellEdit="true" allowCellSelect="true" cellEditAction="celldblclick"
+             ondrawcell="ondrawcell" oncellcommitedit="onCellCommitEdit">
+            <div property="columns">
+                <div type="indexcolumn" width="60" align="center" headerAlign="center">序号</div>
+                <div field="stcd" width="120" align="center" headerAlign="center" allowSort="true">
+                    站码
+                </div>
+                <div field="stnm" width="150" align="center" headerAlign="center" allowSort="true">
+                    站名
+                </div>
+                <div field="source" width="120" align="center" headerAlign="center" allowSort="true">
+                    数据来源
+                </div>
+                <div field="ztm" width="170" align="center" headerAlign="center" allowSort="true">
+                    最新来数时间
+                    <input property="editor" class="mini-datepicker" style="width:100%;"
+                           format="yyyy-MM-dd HH:mm:ss" showTime="true"
+                           showOkButton="true" showClearButton="false" />
+                </div>
+                <div name="action" width="100" headeralign="center" align="center"
+                     renderer="onActionRenderer" cellstyle="padding:0;">
+                    基本操作
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("grid1");
+        var sttpCombo = mini.get("STTP");
+        var sourceCombo = mini.get("SOURCE");
+
+        // 站点类型数据：类型（1水位站、2雨量站、3工情站、4水质站、5流量站、6气象站、7预报站、8风速风向）
+        var sttpData = [
+            { "id": "1", "text": "水位站" },
+            { "id": "2", "text": "雨量站" },
+            { "id": "3", "text": "工情站" },
+            // { "id": "4", "text": "水质站" },   // 数据未接入
+            { "id": "5", "text": "流量站" },
+            // { "id": "6", "text": "气象站" },   // 数据未接入
+            // { "id": "7", "text": "预报站" },   // 数据未接入
+            { "id": "8", "text": "风速风向" },
+            { "id": "9", "text": "流速站" }
+        ];
+        sttpCombo.setData(sttpData);
+        // 默认选中水位站
+        sttpCombo.setValue("1");
+
+        // 各站点类型对应的数据来源
+        var typeSourceMap = {
+            "2": ["上海水文总站", "市气象局"],       // 雨量站
+            "3": ["市排水中心", "水利中心"],          // 工情站
+            "5": ["上海水文总站", "水利部报汛"],       // 流量站
+            "8": ["上海水文总站"],                     // 风速风向
+            "9": ["上海水文总站"]                     // 流速站
+        };
+        // 非水位站的专属来源（水位站显示除此之外的所有来源）
+        var nonWaterSources = ["市气象局", "市排水中心", "水利中心"];
+
+        // 根据站点类型获取可用的来源列表
+        function getSourcesForType(type) {
+            var allowed = typeSourceMap[type];
+            if (allowed) {
+                return $.grep(allSources, function (s) {
+                    return allowed.indexOf(s.id) !== -1;
+                });
+            }
+            // 水位站及其他类型：排除其他类型的专属来源
+            return $.grep(allSources, function (s) {
+                return nonWaterSources.indexOf(s.id) === -1;
+            });
+        }
+
+        // 站点类型切换时联动数据来源下拉框
+        function onTypeChanged(e) {
+            var type = sttpCombo.getValue();
+            var filteredSources = getSourcesForType(type);
+            var oldValue = sourceCombo.getValue();
+            sourceCombo.setData(filteredSources);
+            // 如果当前选中值在新列表中，保留；否则清空
+            var found = false;
+            for (var i = 0; i < filteredSources.length; i++) {
+                if (filteredSources[i].id === oldValue) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                sourceCombo.setValue(oldValue);
+            } else {
+                sourceCombo.setValue("");
+            }
+        }
+
+        // 存储全量数据和所有source
+        var allData = [];
+        var allSources = [];
+
+        $(function () {
+            // 首次加载全量数据
+            loadAllData();
+        });
+
+        // 加载全量数据（不带筛选参数）
+        function loadAllData() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+
+            app.post("SWZZ_RTSQ_ST_STBPRP_B_STCD/findResult", {}, function (data) {
+                mini.unmask(document.body);
+                if (data && data.data && data.data.length > 0) {
+                    allData = data.data;
+
+                    // 从全量数据中提取source去重
+                    var sourceSet = {};
+                    var newSources = [];
+                    for (var i = 0; i < allData.length; i++) {
+                        var src = allData[i].source;
+                        if (src && !sourceSet[src]) {
+                            sourceSet[src] = true;
+                            newSources.push({ "id": src, "text": src });
+                        }
+                    }
+                    allSources = newSources;
+                    // 根据默认类型(水位站)过滤来源下拉框
+                    var defaultSources = getSourcesForType("1");
+                    sourceCombo.setData(defaultSources);
+                    // 数据来源默认选中"上海水文总站"
+                    var defaultSource = "上海水文总站";
+                    if (sourceSet[defaultSource]) {
+                        sourceCombo.setValue(defaultSource);
+                    }
+                } else {
+                    allData = [];
+                }
+                // 默认筛选水位站 + 上海水文总站
+                filterData();
+            });
+        }
+
+        // 客户端筛选并刷新表格
+        function filterData() {
+            var type = sttpCombo.getValue() || "1";
+            var source = sourceCombo.getValue() || "";
+
+            var filtered = allData;
+            // 按站点类型筛选
+            if (type) {
+                filtered = $.grep(filtered, function (item) {
+                    return String(item.type) === type;
+                });
+            }
+            // 按数据来源筛选
+            if (source) {
+                filtered = $.grep(filtered, function (item) {
+                    return item.source === source;
+                });
+            }
+            // 按最新来数时间倒序排列
+            filtered.sort(function (a, b) {
+                var ta = a.ztm ? new Date(a.ztm).getTime() : 0;
+                var tb = b.ztm ? new Date(b.ztm).getTime() : 0;
+                return ta - tb;
+            });
+            grid.setData(filtered);
+            // 更新站点数量及中断数量显示
+            var now = new Date().getTime();
+            var interruptCount = 0;
+            for (var i = 0; i < filtered.length; i++) {
+                var z = filtered[i].ztm;
+                if (z && (now - new Date(z).getTime() > 3 * 60 * 60 * 1000)) {
+                    interruptCount++;
+                }
+            }
+            $("#stationCount").html("共 <b>" + filtered.length + "</b> 个站，"
+                + "<span style=\"color:red;\">数据中断 <b>" + interruptCount + "</b> 个</span>");
+        }
+
+        function btnSearch() {
+            filterData();
+        }
+
+        function ondrawcell(e) {
+            var field = e.field,
+                value = e.value,
+                record = e.record;
+            if (field == "ztm") {
+                if (value != undefined && value != null && value != "") {
+                    e.cellHtml = new Date(value).format("yyyy-MM-dd HH:mm:ss");
+                    // 超过30分钟标红
+                    var now = new Date().getTime();
+                    var ztmTime = new Date(value).getTime();
+                    if (now - ztmTime > 3 * 60 * 60 * 1000) {
+                        e.rowStyle = "color:red;";
+                    }
+                } else {
+                    e.cellHtml = '<span style="color:#999;">--</span>';
+                }
+            }
+        }
+
+        // 单元格编辑提交
+        function onCellCommitEdit(e) {
+            var field = e.field,
+                record = e.record,
+                value = e.value;
+            if (field == "ztm") {
+                var stcd = record.stcd || "";
+                var type = record.type || "";
+                var ztm = value ? mini.formatDate(value, "yyyy-MM-dd HH:mm:ss") : "";
+                var strWhere = {
+                    "stcd": stcd,
+                    "type": type,
+                    "ztm": ztm
+                };
+                app.post("SWZZ_RTSQ_ST_STBPRP_B_STCD/modifydan", strWhere, function (data) {
+                    if (data && data.total > 0) {
+                        mini.showTips({ content: "修改成功", state: "success" });
+                    } else {
+                        mini.showTips({ content: "修改失败：" + (data.message || "未知错误"), state: "danger" });
+                    }
+                });
+            }
+        }
+
+        // 操作列渲染
+        function onActionRenderer(e) {
+            var record = e.record;
+            var stcd = record.stcd || "";
+            var zstcd = record.zstcd || "";
+            var type = record.type || "";
+            var source = record.source || "";
+            var stnm = record.stnm || "";
+            var ztm = record.ztm || "";
+            var s = '<a class="mini-button" iconCls="fa fa-search" style="padding:3px 10px;font-size:12px;" ' +
+                    'onclick="viewSourceData(\'' + stcd + '\', \'' + zstcd + '\', \'' + type + '\', \'' + source + '\', \'' + stnm + '\', \'' + ztm + '\')">查看源数据</a>';
+            return s;
+        }
+
+        // 查看源数据
+        function viewSourceData(stcd, zstcd, type, source, stnm, ztm) {
+            var title = stnm + "（" + stcd + "）- 源数据";
+            // 基于当前页面路径构建绝对路径，避免mini.open的iframe相对路径问题
+            var baseHref = window.location.href;
+            var basePath = baseHref.substring(0, baseHref.lastIndexOf("/") + 1);
+            var url = basePath + "StationSourceData.html?stcd=" + encodeURIComponent(stcd)
+                + "&zstcd=" + encodeURIComponent(zstcd)
+                + "&type=" + encodeURIComponent(type)
+                + "&source=" + encodeURIComponent(source)
+                + "&stnm=" + encodeURIComponent(stnm)
+                + "&ztm=" + encodeURIComponent(ztm);
+            mini.open({
+                url: url,
+                title: title,
+                width: 900,
+                height: 550,
+                allowResize: true
+            });
+        }
+    </script>
+</body>
+</html>

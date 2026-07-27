@@ -49,6 +49,7 @@ function addMark(arr) {
 	    if (arr.length > 0) {
 	        for (var i = 0; i < arr.length; i++) {
 	            var item = arr[i];
+				item["divid"] = "YQ" + item["stcd"];	
 	            var f = parseFloat(item.drp);
 				var cls = "rainText";
 				var pUrl="././arcgis_js_api//myJs/images/";
@@ -80,7 +81,7 @@ function addMark(arr) {
 	            else {
 	                imgUrl="d_white.png";
 				}
-				breakSymbol = new PictureMarkerSymbol(pUrl+imgUrl, 14, 18);
+				breakSymbol = new PictureMarkerSymbol(pUrl+imgUrl, 12, 15);
 
 	            if (breakSymbol == "") continue;
 	            if (item.lgtd == undefined && item.lttd == undefined) {
@@ -95,35 +96,20 @@ function addMark(arr) {
 	                    cls += "@";
 	                }
 	                var _align = "top";
-	                if ("63301200".lastIndexOf(arr[i].stcd) > -1) {
-	                    _align = "bottom";
-	                }
+	                if (SetNull(item["dir"]) != "") {
+						_align = item["dir"];
+					}
+					cls="rainTextNew "+cls;
 	                var textStr = arr[i].stnm + "@" + arr[i].drp + "mm";
-	                // if (f > 0) {
-	                // textStr += "<br/>" + arr[i].drp + "mm";
-	                // }
 	                var label = new MapTextNew(map, point, arr[i], textStr, _globallevel, _align, cls,
 						12);
 	                labels.push(label);
-
-	                // var strTitle2 = "";
-	                // cls = cls.replaceAll(' ', '');
-	                // if (_align == "bottom") {
-	                // strTitle2 = "▴";
-	                // } else if (_align == "top") {
-	                // strTitle2 = "▾";
-	                // } else if (_align == "left") {
-	                // strTitle2 = "▸";
-	                // } else if (_align == "right") {
-	                // strTitle2 = "◂";
-	                // }
-	                // label = new MapTextNew(map, point, arr[i], strTitle2, _globallevel, _align, cls, 12);
-	                // labels.push(label);
 	                RainLayerGraphicLayer.add(graphic);
 	            }
 	        }
 	    }
-
+		window.parent.setMapZoomNew(RainLayerGraphicLayer, map.getLevel(), "YQ", "stcd",window.parent.SpanBiaoZhu());
+        window.parent.mapZoomEnd(RainLayerGraphicLayer, null, "YQ", "stcd",window.parent.SpanBiaoZhu());
 	});
 }
 
