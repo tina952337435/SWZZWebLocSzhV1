@@ -167,6 +167,111 @@
             transform: translateY(0);
         }
 
+        /* ========== 自定义日期时间选择器 ========== */
+        .datetime-picker-wrap {
+            position: relative;
+        }
+
+        .datetime-picker-wrap .field-input {
+            cursor: pointer;
+            padding-right: 32px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%233d4a63' stroke-width='2'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+
+        .datetime-picker-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: white;
+            border: 1.5px solid var(--accent);
+            border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+            padding: 14px;
+            margin-top: 4px;
+            animation: fadeIn 0.15s ease;
+        }
+
+        .datetime-picker-dropdown.open {
+            display: block;
+        }
+
+        .datetime-picker-dropdown .dt-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .datetime-picker-dropdown .dt-row label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-light);
+            letter-spacing: 1px;
+        }
+
+        .datetime-picker-dropdown .dt-row input {
+            padding: 8px 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 7px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
+            background: white;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .datetime-picker-dropdown .dt-row input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-light);
+        }
+
+        .datetime-picker-dropdown .dt-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .datetime-picker-dropdown .dt-btn {
+            padding: 7px 20px;
+            border-radius: 7px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid;
+            letter-spacing: 1px;
+        }
+
+        .dt-btn-cancel {
+            background: white;
+            border-color: var(--border);
+            color: var(--ink-light);
+        }
+
+        .dt-btn-cancel:hover {
+            border-color: #999;
+            color: var(--ink);
+        }
+
+        .dt-btn-confirm {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .dt-btn-confirm:hover {
+            background: #163d73;
+        }
+
         .btn-generate.loading {
             opacity: 0.7;
             cursor: not-allowed;
@@ -609,6 +714,252 @@
             line-height: 1.6;
         }
 
+        /* ========== 图5切换站点触发按钮 ========== */
+        .figure-caption {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .switch-station-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 2px 8px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            user-select: none;
+            border: 1px dashed transparent;
+        }
+
+        .switch-station-trigger:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+
+        /* ========== 弹窗遮罩 ========== */
+        .station-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(26, 31, 46, 0.45);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .station-overlay.visible {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ========== 弹窗面板 ========== */
+        .station-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+            width: 720px;
+            max-width: 92vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.25s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-header h3 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 17px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+        }
+
+        .panel-header h3 .badge {
+            font-size: 12px;
+            font-weight: 400;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        .panel-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            color: #666;
+        }
+
+        .panel-close:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        /* 片区筛选区 */
+        .panel-filter {
+            padding: 12px 24px;
+            border-bottom: 1px solid #f0ece4;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .panel-filter .filter-label {
+            font-size: 13px;
+            color: var(--ink-light);
+            white-space: nowrap;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            color: var(--ink-light);
+        }
+
+        .filter-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .filter-tag.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .panel-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        /* ========== 站点卡片 ========== */
+        .station-card {
+            border: 2px solid #e8e4db;
+            border-radius: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            position: relative;
+        }
+
+        .station-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(1, 125, 228, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .station-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            box-shadow: 0 0 0 3px rgba(1, 125, 228, 0.15);
+        }
+
+        .station-card.selected::after {
+            content: '✓ 当前';
+            position: absolute;
+            top: -1px;
+            right: 12px;
+            background: var(--accent);
+            color: white;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .station-card .slp-name {
+            font-size: 11px;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .station-card .stnm-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .station-card .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 12px;
+            font-size: 12px;
+            color: var(--ink-light);
+        }
+
+        .station-card .metrics .val {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .station-card .change-up {
+            color: var(--accent2);
+        }
+
+        .station-card .change-down {
+            color: #2e7d52;
+        }
+
+        .panel-footer {
+            padding: 12px 24px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--ink-light);
+            border-top: 1px solid #f0ece4;
+        }
+
         @media print {
 
             .app-header,
@@ -626,6 +977,10 @@
                 border: none;
                 padding: 40px;
             }
+
+            .switch-station-trigger {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -642,11 +997,45 @@
                 </div>
                 <div class="field-group">
                     <div class="field-label">统计起始时间</div>
-                    <input type="datetime-local" class="field-input" id="startTime" value="2026-04-28 08:00:00">
+                    <div class="datetime-picker-wrap" id="pickerStart">
+                        <input type="text" class="field-input" id="startTimeDisplay" readonly placeholder="请选择时间" onclick="toggleDatetimePicker('pickerStart')">
+                        <input type="hidden" id="startTime" value="2026-04-28T08:00">
+                        <div class="datetime-picker-dropdown">
+                            <div class="dt-row">
+                                <label>📅 日期</label>
+                                <input type="date" class="dt-date">
+                            </div>
+                            <div class="dt-row">
+                                <label>🕐 时间</label>
+                                <input type="time" class="dt-time" step="60">
+                            </div>
+                            <div class="dt-actions">
+                                <button class="dt-btn dt-btn-cancel" type="button">取消</button>
+                                <button class="dt-btn dt-btn-confirm" type="button">确定</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="field-group">
                     <div class="field-label">统计截止时间</div>
-                    <input type="datetime-local" class="field-input" id="endTime" value="2026-04-29 08:00:00">
+                    <div class="datetime-picker-wrap" id="pickerEnd">
+                        <input type="text" class="field-input" id="endTimeDisplay" readonly placeholder="请选择时间" onclick="toggleDatetimePicker('pickerEnd')">
+                        <input type="hidden" id="endTime" value="2026-04-29T08:00">
+                        <div class="datetime-picker-dropdown">
+                            <div class="dt-row">
+                                <label>📅 日期</label>
+                                <input type="date" class="dt-date">
+                            </div>
+                            <div class="dt-row">
+                                <label>🕐 时间</label>
+                                <input type="time" class="dt-time" step="60">
+                            </div>
+                            <div class="dt-actions">
+                                <button class="dt-btn dt-btn-cancel" type="button">取消</button>
+                                <button class="dt-btn dt-btn-confirm" type="button">确定</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="field-group" style="display:none;">
                     <div class="field-label">发布日期</div>
@@ -786,11 +1175,16 @@
                         </div>
                         <div class="doc-section-content" contenteditable="true" id="waterLevelDesc">
                         </div>
-                        <div class="doc-figure">
+                        <div class="doc-figure" id="figArea5">
                             <div class="fig-placeholder">
                                 <img id="figImg5" />
                             </div>
-                            <div>图5 &nbsp; <span id="figTitle5"></span></div>
+                            <div class="figure-caption">
+                                <span>图5 &nbsp; <span id="figTitle5"></span></span>
+                                <a class="switch-station-trigger" id="switchStationBtn" style="display:none;" onclick="openStationPanel()">
+                                    🔄 切换站点
+                                </a>
+                            </div>
                         </div>
                     </div>
 
@@ -819,8 +1213,131 @@
 
     <div class="edit-badge" id="editBadge">✓ 已保存修改</div>
 
+    <!-- ========== 水位站点选择弹窗 ========== -->
+    <div class="station-overlay" id="stationOverlay">
+        <div class="station-panel">
+            <div class="panel-header">
+                <h3>
+                    📊 选择水位站点
+                    <span class="badge" id="stationCount">0个站点</span>
+                </h3>
+                <button class="panel-close" onclick="closeStationPanel()" title="关闭">✕</button>
+            </div>
+            <div class="panel-filter">
+                <span class="filter-label">片区筛选：</span>
+                <div class="filter-tags" id="filterTags">
+                    <span class="filter-tag active" data-slp="all" onclick="filterBySlp('all', this)">全部</span>
+                </div>
+            </div>
+            <div class="panel-body" id="stationCards">
+            </div>
+            <div class="panel-footer">
+                💡 点击卡片切换图5站点，当前选中为 <strong id="currentStationLabel">--</strong>
+            </div>
+        </div>
+    </div>
+
     <script>
         let originalContent = {};
+
+        // ========== 水位站点选择相关 ==========
+        let waterLevelStationList = [];       // 存储站点列表
+        let currentStationIdx = -1;           // 当前选中的站点索引
+
+        // 打开站点选择弹窗
+        function openStationPanel() {
+            document.getElementById('stationOverlay').classList.add('visible');
+            var activeTag = document.querySelector('#filterTags .filter-tag.active');
+            var slp = activeTag ? activeTag.getAttribute('data-slp') : 'all';
+            renderStationCards(slp);
+        }
+
+        // 关闭站点选择弹窗
+        function closeStationPanel() {
+            document.getElementById('stationOverlay').classList.remove('visible');
+        }
+
+        // 按片区分组筛选
+        function filterBySlp(slp, el) {
+            var tags = document.querySelectorAll('#filterTags .filter-tag');
+            for (var i = 0; i < tags.length; i++) {
+                tags[i].classList.remove('active');
+            }
+            el.classList.add('active');
+            renderStationCards(slp);
+        }
+
+        // 渲染站点卡片
+        function renderStationCards(filterSlp) {
+            var container = document.getElementById('stationCards');
+            if (!container) return;
+            var html = '';
+            for (var i = 0; i < waterLevelStationList.length; i++) {
+                var s = waterLevelStationList[i];
+                // 筛选逻辑
+                if (filterSlp && filterSlp !== 'all' && s.slp !== filterSlp) continue;
+                var isSelected = (i === currentStationIdx);
+                var changeClass = s.change >= 0 ? 'change-up' : 'change-down';
+                var changePrefix = s.change >= 0 ? '+' : '';
+                html += '<div class="station-card' + (isSelected ? ' selected' : '') + '" onclick="selectStation(' + i + ')">';
+                html += '<div class="slp-name">' + (s.slp || '') + '</div>';
+                html += '<div class="stnm-name">' + (s.stnm || '') + '</div>';
+                html += '<div class="metrics">';
+                html += '<div>涨幅 <span class="val ' + changeClass + '">' + changePrefix + (s.change != null ? s.change.toFixed(2) : '--') + 'm</span></div>';
+                html += '<div>警戒 <span class="val">' + (s.wrz != null ? s.wrz.toFixed(2) : '--') + 'm</span></div>';
+                html += '<div>最高 <span class="val">' + (s.maxLevel != null ? s.maxLevel.toFixed(2) : '--') + 'm</span></div>';
+                html += '<div>最低 <span class="val">' + (s.minLevel != null ? s.minLevel.toFixed(2) : '--') + 'm</span></div>';
+                html += '</div></div>';
+            }
+            container.innerHTML = html;
+        }
+
+        // 选中站点 -> 更新图5图片和标题
+        function selectStation(idx) {
+            currentStationIdx = idx;
+            var s = waterLevelStationList[idx];
+            if (!s) return;
+            // 更新图5图片
+            document.getElementById('figImg5').src = '/ModeUploadDoc/sqkb/' + (s.chartPath || '');
+            // 更新图5标题
+            document.getElementById('figTitle5').innerHTML = s.chartTitle || '';
+            // 更新弹窗底部标签
+            document.getElementById('currentStationLabel').textContent = (s.slp || '') + '-' + (s.stnm || '');
+            // 重新渲染卡片
+            var activeTag = document.querySelector('#filterTags .filter-tag.active');
+            var slp = activeTag ? activeTag.getAttribute('data-slp') : 'all';
+            renderStationCards(slp);
+        }
+
+        // 根据站点列表构建片区筛选标签
+        function buildFilterTags() {
+            var slpSet = {};
+            var slpOrder = [];
+            for (var i = 0; i < waterLevelStationList.length; i++) {
+                var slp = waterLevelStationList[i].slp || '其他';
+                if (!slpSet[slp]) {
+                    slpSet[slp] = true;
+                    slpOrder.push(slp);
+                }
+            }
+            var container = document.getElementById('filterTags');
+            var html = '<span class="filter-tag active" data-slp="all" onclick="filterBySlp(\'all\', this)">全部</span>';
+            for (var j = 0; j < slpOrder.length; j++) {
+                html += '<span class="filter-tag" data-slp="' + slpOrder[j] + '" onclick="filterBySlp(\'' + slpOrder[j] + '\', this)">' + slpOrder[j] + '</span>';
+            }
+            container.innerHTML = html;
+            document.getElementById('stationCount').textContent = waterLevelStationList.length + '个站点';
+        }
+
+        // 遮罩点击关闭
+        document.addEventListener('DOMContentLoaded', function () {
+            var overlay = document.getElementById('stationOverlay');
+            if (overlay) {
+                overlay.addEventListener('click', function (e) {
+                    if (e.target === overlay) closeStationPanel();
+                });
+            }
+        });
 
         // Track edits
         document.querySelectorAll('[contenteditable]').forEach(el => {
@@ -859,6 +1376,118 @@
             const [y, m, day] = dateStr.split('-');
             return `${y}年${parseInt(m)}月${parseInt(day)}日`;
         }
+
+        // ========== 自定义日期时间选择器 ==========
+        var _activePicker = null; // 当前打开的picker ID
+
+        // 打开/关闭日期时间选择器下拉
+        function toggleDatetimePicker(wrapId) {
+            var wrap = document.getElementById(wrapId);
+            if (!wrap) return;
+            var dropdown = wrap.querySelector('.datetime-picker-dropdown');
+            var hiddenInput = wrap.querySelector('input[type="hidden"]');
+            var displayInput = wrap.querySelector('input[type="text"]');
+            var dateInput = wrap.querySelector('.dt-date');
+            var timeInput = wrap.querySelector('.dt-time');
+
+            // 如果已打开同一个，关闭
+            if (dropdown.classList.contains('open')) {
+                dropdown.classList.remove('open');
+                _activePicker = null;
+                return;
+            }
+
+            // 关闭其他打开的picker
+            closeAllPickers();
+
+            // 从隐藏input中解析当前值，填充到date和time控件
+            var currentVal = hiddenInput.value || '';
+            var datePart = '', timePart = '';
+            if (currentVal.indexOf('T') > -1) {
+                var parts = currentVal.split('T');
+                datePart = parts[0];
+                timePart = parts[1].substring(0, 5); // 取 HH:mm
+            }
+            dateInput.value = datePart;
+            timeInput.value = timePart || '08:00';
+
+            dropdown.classList.add('open');
+            _activePicker = wrapId;
+
+            // 绑定确定/取消事件
+            var confirmBtn = dropdown.querySelector('.dt-btn-confirm');
+            var cancelBtn = dropdown.querySelector('.dt-btn-cancel');
+
+            confirmBtn.onclick = function (e) {
+                e.stopPropagation();
+                var newDate = dateInput.value;
+                var newTime = timeInput.value || '08:00';
+                if (!newDate) {
+                    // 没选日期，不更新
+                    dropdown.classList.remove('open');
+                    _activePicker = null;
+                    return;
+                }
+                // 更新隐藏input值（保持datetime-local兼容格式）
+                hiddenInput.value = newDate + 'T' + newTime;
+                // 更新显示文本
+                displayInput.value = newDate + ' ' + newTime;
+                dropdown.classList.remove('open');
+                _activePicker = null;
+            };
+
+            cancelBtn.onclick = function (e) {
+                e.stopPropagation();
+                dropdown.classList.remove('open');
+                _activePicker = null;
+            };
+        }
+
+        function closeAllPickers() {
+            var allDropdowns = document.querySelectorAll('.datetime-picker-dropdown.open');
+            for (var i = 0; i < allDropdowns.length; i++) {
+                allDropdowns[i].classList.remove('open');
+            }
+            _activePicker = null;
+        }
+
+        // 设置picker的显示值（从隐藏input同步）
+        function syncPickerDisplay(wrapId) {
+            var wrap = document.getElementById(wrapId);
+            if (!wrap) return;
+            var hiddenInput = wrap.querySelector('input[type="hidden"]');
+            var displayInput = wrap.querySelector('input[type="text"]');
+            var val = hiddenInput.value || '';
+            if (val.indexOf('T') > -1) {
+                var parts = val.split('T');
+                displayInput.value = parts[0] + ' ' + parts[1].substring(0, 5);
+            }
+        }
+
+        // 初始化所有picker显示
+        function initAllPickers() {
+            syncPickerDisplay('pickerStart');
+            syncPickerDisplay('pickerEnd');
+        }
+
+        // 点击页面其他地方关闭picker
+        document.addEventListener('click', function (e) {
+            var isInsidePicker = false;
+            var target = e.target;
+            while (target) {
+                if (target.classList && target.classList.contains('datetime-picker-wrap')) {
+                    isInsidePicker = true;
+                    break;
+                }
+                target = target.parentElement;
+            }
+            if (!isInsidePicker) {
+                closeAllPickers();
+            }
+        });
+
+        // 页面加载时初始化
+        initAllPickers();
 
         const loadingSteps = [
             '正在解析时间参数…',
@@ -945,14 +1574,38 @@
             document.getElementById('figImg2').src = "/ModeUploadDoc/sqkb/" + report.image2Path;
             document.getElementById('figImg3').src = "/ModeUploadDoc/sqkb/" + report.image3Path;
             document.getElementById('figImg4').src = "/ModeUploadDoc/sqkb/" + report.image4Path;
-            document.getElementById('figImg5').src = "/ModeUploadDoc/sqkb/" + report.image5Path;
 
 
             document.getElementById('figTitle1').innerHTML = report.image1PathTitle;
             document.getElementById('figTitle2').innerHTML = report.image2PathTitle;
             document.getElementById('figTitle3').innerHTML = report.image3PathTitle;
             document.getElementById('figTitle4').innerHTML = report.image4PathTitle;
-            document.getElementById('figTitle5').innerHTML = report.image5PathTitle;
+
+            // ========== 图5：水位站点选择 ==========
+            waterLevelStationList = report.waterLevelStationList || [];
+            if (waterLevelStationList.length > 0) {
+                // 构建片区筛选标签
+                buildFilterTags();
+                // 默认选中涨幅最大的站点
+                var maxChangeIdx = 0;
+                for (var si = 1; si < waterLevelStationList.length; si++) {
+                    if (waterLevelStationList[si].change > waterLevelStationList[maxChangeIdx].change) {
+                        maxChangeIdx = si;
+                    }
+                }
+                currentStationIdx = maxChangeIdx;
+                var defaultSt = waterLevelStationList[maxChangeIdx];
+                document.getElementById('figImg5').src = '/ModeUploadDoc/sqkb/' + (defaultSt.chartPath || '');
+                document.getElementById('figTitle5').innerHTML = defaultSt.chartTitle || '';
+                document.getElementById('currentStationLabel').textContent = (defaultSt.slp || '') + '-' + (defaultSt.stnm || '');
+                // 显示切换站点按钮
+                document.getElementById('switchStationBtn').style.display = 'inline-flex';
+            } else {
+                // 没有站点列表时，使用原有逻辑
+                document.getElementById('figImg5').src = "/ModeUploadDoc/sqkb/" + report.image5Path;
+                document.getElementById('figTitle5').innerHTML = report.image5PathTitle;
+                document.getElementById('switchStationBtn').style.display = 'none';
+            }
 
 
             document.getElementById('author').innerHTML = GetCookie("LOGINNAME");//report.author;
@@ -1015,6 +1668,12 @@
             getReportData.reviewer = document.getElementById('reviewer').innerText;
             getReportData.approver = document.getElementById('approver').innerText;
             getReportData.docDate=document.getElementById('docDate').innerText;
+            // 图5：当前选中站点信息
+            if (waterLevelStationList.length > 0 && currentStationIdx >= 0) {
+                var curSt = waterLevelStationList[currentStationIdx];
+                getReportData.image5Path = curSt.chartPath || '';
+                getReportData.image5PathTitle = curSt.chartTitle || '';
+            }
 
             // console.error('getReportData',getReportData);
             mini.mask({
@@ -1068,8 +1727,11 @@
                 startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2, 8, 0, 0);
                 endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 8, 0, 0);
             }
-            document.getElementById('startTime').value = startDate.format('yyyy-MM-dd HH:mm:ss');
-            document.getElementById('endTime').value = endDate.format('yyyy-MM-dd HH:mm:ss');
+            // 设置隐藏input值（datetime-local兼容格式）
+            document.getElementById('startTime').value = startDate.format('yyyy-MM-dd') + 'T' + startDate.format('HH:mm');
+            document.getElementById('endTime').value = endDate.format('yyyy-MM-dd') + 'T' + endDate.format('HH:mm');
+            // 同步显示
+            initAllPickers();
         })();
     </script>
 </body>

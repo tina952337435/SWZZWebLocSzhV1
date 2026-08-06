@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <style>
+        .mini-grid-summaryRow div { background: none !important; }
+        .mini-grid-summaryRow table { background: none !important; }
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+        .mini-grid-summaryRow tr td span {
+            color: #000 !important;
+            line-height: 25px;
+            font-weight: 400 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width:20%;"></td>
+                <td align="right">
+                    <div class="bootstrap-switch ">
+                        <div class="bootstrap-switch-container">
+                            <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
+                            <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i class="fa fa-table"></i></span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height: -webkit-calc(100% - 36px);height: -moz-calc(100% - 36px);height: calc(100% - 36px);">
+        <div id="fit1" class="fit">
+            <div id="Chart" style="width: 98%; height:480px; text-align: center"></div>
+        </div>
+        <div id="fit2" class="fit" style="height:480px;">
+            <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;" allowalternating="true"
+                showpager="false" showsummaryrow="true" allowresize="false" ondrawcell="ondrawcell"
+                showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                ondrawsummarycell="onDrawSummaryCell">
+                <div property="columns">
+                    <div field="validTime" width="150" align="center" headeralign="center" allowsort="false">时间</div>
+                    <div field="gridValue" width="120" align="center" headeralign="center" allowsort="true" summarytype="sum">雨量(mm)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        mini.parse();
+        var regionName = GetQueryString("regionName");
+        var productId = GetQueryString("productId");
+        var productInitialTime = GetQueryString("productInitialTime");
+        var type = GetQueryString("type");
+        var grid = mini.get("grid1");
+        var myData = [];
+        $(function () {
+            $("#fit2").hide();
+            loadData();
+        });
+
+        function loadData() {
+            if (!productId || !productInitialTime || !type || !regionName) return;
+            var url = "../waterlogging_api/nwp/prePolygonForecast?productId=" + productId
+                + "&productInitialTime=" + encodeURIComponent(productInitialTime)
+                + "&type=" + type;
+            app.post(url, {}, function (res) {
+                if (res.code === 200 && res.data && res.data.length > 0) {
+                    var regionData = null;
+                    for (var i = 0; i < res.data.length; i++) {
+                        if (res.data[i].regionName == regionName) {
+                            regionData = res.data[i];
+                            break;
+                        }
+                    }
+                    if (regionData && regionData.rainValues && regionData.rainValues.length > 0) {
+                        JsonLineChart(regionData);
+                        grid.setData(regionData.rainValues);
+                    }
+                }
+            });
+        }
+
+        function JsonLineChart(regionData) {
+            var rainValues = regionData.rainValues;
+            var tempSum = parseFloat(regionData.sumRain).toFixed(1);
+            $.data(myData, "tempSum", tempSum);
+
+            var strNote = '[{"name": "时间","codename": "validTime","tableV":"1","isShow":true,"width":"40%"}';
+            strNote += ',{"name": "雨量","codename": "gridValue","tableV":"1","isShow":true,"width":"30%"}]';
+            var LineColor = ['#3398DB', '#0000FF', '#FFA500'];
+            chartYL("Chart", rainValues, eval('(' + strNote + ')'), LineColor, "雨量(mm)");
+        }
+
+        function ondrawcell(e) {
+            if (e.field == "validTime") {
+                e.cellHtml = new Date(e.value).format("yyyy-MM-dd HH:mm");
+            }
+            if (e.field == "gridValue") {
+                e.cellHtml = parseFloat(e.value || 0).toFixed(1);
+            }
+        }
+
+        function onDrawSummaryCell(e) {
+            if (e.field == "gridValue") {
+                e.cellHtml = "<span style=\"color:Blue;font-weight:bold;\">累计降雨: " + $.data(myData, "tempSum") + "mm</span>";
+            }
+        }
+
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            $(".fit").hide();
+            $("#" + objFit).show();
+        }
+
+        function chartYL(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));
+            myChart.clear();
+            var chartName = [], chartTM = [], chartValue = [], m = [];
+
+            $.each(strNote, function (index, value) {
+                chartName.push(value.name);
+            });
+            $.each(data, function (index, value) {
+                var charthan = [];
+                $.each(strNote, function (index1, value1) {
+                    charthan.push(value[value1.codename]);
+                    if (value1.name == "时间") {
+                        chartTM.push(new Date(value[value1.codename]).format("M月d日H时"));
+                    } else if (value1.name == "名称") {
+                        chartTM.push(value[value1.codename]);
+                    } else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan);
+            });
+            var option = {
+                // title: {
+                //     text: regionName + " 累计雨量 " + $.data(myData, "tempSum") + "mm",
+                //     left: "center",
+                //     textStyle: { fontSize: 14 }
+                // },
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: { color: '#000000' },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: { show: false },
+                toolbox: { show: false },
+                grid: { left: '5%', right: '5%', bottom: 20, top: 50, containLabel: true },
+                calculable: true,
+                xAxis: [{
+                    type: 'category',
+                    data: chartTM,
+                    axisTick: { alignWithLabel: false },
+                    axisLabel: { rotate: 30 }
+                }],
+                yAxis: [{
+                    name: max_min_Name,
+                    type: 'value',
+                    boundaryGap: false,
+                    min: 0,
+                    max: function (value) {
+                        return Number(value.max) + 10;
+                    },
+                    axisLabel: {
+                        formatter: function (v) { return v.toFixed(1); }
+                    }
+                }],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间" || chartName[j] == "名称") continue;
+                        var cv = [];
+                        for (var i = 0; i < m.length; i++) {
+                            cv.push(changeTwoDecimal(m[i][j], 1));
+                        }
+                        serie.push({
+                            name: chartName[j],
+                            type: 'bar',
+                            data: cv,
+                            barWidth: '20',
+                            label: { normal: { show: true, position: 'top' } },
+                            smooth: true
+                        });
+                    }
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+    </script>
+</body>
+</html>

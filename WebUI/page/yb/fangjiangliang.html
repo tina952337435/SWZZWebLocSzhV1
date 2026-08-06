@@ -1,0 +1,309 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta content="" charset="utf-8" />
+    <meta name="description" content="水利信息化平台" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="Access-Control-Allow-Origin" content="*" />
+    <title>预测放江流量</title>
+
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
+    <script src="../../Common/Scripts/jquery-1.6.2.min.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/myJs/style/map.css" rel="stylesheet" />
+    <style type="text/css">
+        .btnMINI {
+            background: #FFFFFF;
+            border-color: #dddCCC;
+            color: #000 !important;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            border-radius: 4px;
+        }
+        .mini-button-checked {
+            color: #FFFFFF !important;
+        }
+        body .mini-grid *,
+        body .mini-supergird *,
+        body .mini-gantt *,
+        body .mini-panel *,
+        body .mini-window * {
+            box-sizing: border-box !important;
+        }
+        .btn {
+            margin-top: 3px;
+            width: 70px;
+            text-indent: 0px;
+            font-size: 14px;
+            height: 25px;
+            text-align: center;
+            line-height: 25px;
+            float: right;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="flex" style="width: 100%; height: 100%; overflow: hidden;">
+        <div class="right box" id="flexDemo" style="height: 50px;">
+            <div class="demo1" style="width: 100%; float: left;">
+                <div class="inline">
+                    <p style="height: 40px; margin-top: -2px;">
+                        <span class="label" style="width: 70px; line-height: 30px; margin-left: 2px; margin-top: 3px;">预报时间：</span>
+                        <input id="rlstm" value="" class="mini-datepicker" style="width: 144px; margin-top: 2px;"
+                            format="yyyy-MM-dd HH:mm" showtime="true" showOkButton="true" showClearButton="false" />
+                        <a class="mini-button" style="margin-left: 5px;" onclick="btnSearch()">查询</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="biaoheader">
+            <p class="NONEp"></p>
+            预测放江流量<span class="dwCss">(单位:m³/s)</span>&nbsp;&nbsp;&nbsp;
+            <img class="DCBGimg" title="导出表格" src="../../arcgis_js_api/myJs/images/xls.gif"
+                onclick="exp('预测放江流量')" style="position: relative; top: 5px; right: 15px; float: right; cursor: pointer;" />
+        </div>
+        <div id="grid1" class="left mini-datagrid" style="width: 98%; height: 100%; margin: auto;"
+            showpager="false" allowalternating="true" idfield="STCD" allowresize="false" pagesize="50"
+            onselectionchanged="onRowClick">
+            <div property="columns">
+                <div type="indexcolumn" width="30" headeralign="center" align="center">序号</div>
+                <div field="stnm" width="100" align="center" headeralign="center" allowsort="false">站名</div>
+                <div field="avg_PMPQ" width="80" align="center" headeralign="center" allowsort="true">平均流量</div>
+                <div field="max_PMPQ" width="80" align="center" headeralign="center" allowsort="true">最大流量</div>
+            </div>
+            <div id="dataShow" style="position: absolute; top: 50%; left: 50%; font-size: 28px; font-weight: bold; display: none;">暂无数据</div>
+        </div>
+    </div>
+    <!--页面载入显示-->
+    <div id="dataLoad">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%"><td align="center">&nbsp;</td></tr>
+            <tr><td align="center"><img alt="" src="../../arcgis_js_api/myJs/images/wait1.gif" /></td></tr>
+            <tr><td align="center">数据载入中，请稍后...</td></tr>
+            <tr style="height: 50%"><td align="center">&nbsp;</td></tr>
+        </table>
+    </div>
+</body>
+<script type="text/javascript">
+    ShowPage();
+    mini.parse();
+    window.parent.SpanBiaoZhu("");
+
+    var map = window.parent.map;
+    var grid = mini.get("grid1");
+    var myData = [];
+    var resultData = [];
+    var flLayer = CreateLayer("fangjiangliang_Layer");
+    var labels = new Array();
+    var _globallevel = 5;
+
+    // 设置图层的悬浮提示和点击弹窗
+    setLayerToolTip(flLayer, "stnm", "avg_PMPQ,max_PMPQ", "平均流量@(m³/s),最大流量@(m³/s)");
+
+    // 点击地图图标弹窗打开界面
+    flLayer.on("click", onMarkerClick);
+
+    function onMarkerClick(evt) {
+        var attr = evt.graphic.attributes;
+        var stcd = attr.stcd;
+        var stnm = attr.stnm;
+        var rlstm = mini.get("rlstm").getFormValue();
+
+        var url = "././DanZhan/fangjiangView.html?stcd=" + stcd + "&stnm=" + encodeURIComponent(stnm) + "&rlstm=" + rlstm;
+        openChart(url, stnm + "预测放江流量", "1200@660");
+    }
+
+    var openCount=0,closeCount=0;
+    function tlCount() {
+            getTLObj("fangjiangtlOpen").innerHTML = openCount;
+            getTLObj("fangjiangtlClose").innerHTML = closeCount;
+        }
+
+    grid.on("beforeload", function (e) {
+        e.cancel = true;
+    });
+
+    function ShowPage() {
+        openTL("fangjiangtl");
+    }
+
+    // 页面加载：先查最新预报时间，再查数据
+    window.onload = function () {
+        $("#dataLoad").show();
+        var now = new Date();
+        var enddate = now.format("yyyy/MM/dd HH:mm:ss");
+        var startdate = addDayDate(now.format("yyyy/MM/dd"), -30) + " " + now.format("HH:mm:ss");
+
+        var params = {
+            "startdate": startdate,
+            "enddate": enddate
+        };
+
+        app.post("/SWZZ_MODE_ES_PUMP_RNEW/findLatest", params, function (res) {
+            if (res.isSuccess && res.data) {
+                // 获取最新预报时间，兼容多种字段名
+                var forecastTime = res.data.calc_TIME;
+                if (forecastTime) {
+                    // 处理可能的日期格式
+                    var formattedTime = forecastTime;
+                    if (forecastTime.toString().substr(0, 5) == "/Date") {
+                        formattedTime = new Date(convertToDate(forecastTime)).format("yyyy/MM/dd HH:mm");
+                    } else if (forecastTime.toString().length >= 16) {
+                        formattedTime = forecastTime.toString().substring(0, 16);
+                        formattedTime = formattedTime.replace(/-/g, "/");
+                    }
+                    mini.get("rlstm").setValue(formattedTime);
+                } else {
+                    // 无预报时间，默认当前时间
+                    mini.get("rlstm").setValue(now.format("yyyy/MM/dd HH:00"));
+                }
+            } else {
+                // 接口失败，默认当前时间
+                mini.get("rlstm").setValue(now.format("yyyy/MM/dd HH:00"));
+            }
+            // 查询数据
+            queryData();
+        });
+    };
+
+    function queryData() {
+        $("#dataLoad").show();
+        var rlstmVal = mini.get("rlstm").getFormValue();
+        if (!rlstmVal) {
+            $("#dataLoad").hide();
+            return;
+        }
+        var startdate = rlstmVal.replace(/-/g, "/") + ":00";
+
+        var params = {
+            "startdate": startdate
+        };
+
+        app.post("/SWZZ_MODE_ES_PUMP_R/findStAvByRlstm", params, function (res) {
+            if (res.isSuccess && res.data && res.data.length > 0) {
+                resultData = res.data;
+                // 格式化数值字段
+                for (var i = 0; i < resultData.length; i++) {
+                    if (resultData[i].avg_PMPQ != null) {
+                        resultData[i].avg_PMPQ = Number(resultData[i].avg_PMPQ).toFixed(2);
+                    }
+                    if (resultData[i].max_PMPQ != null) {
+                        resultData[i].max_PMPQ = Number(resultData[i].max_PMPQ).toFixed(2);
+                    }
+                }
+                grid.setData(resultData);
+                $('#dataShow').hide();
+                // 在地图上标点
+                setTimeout(function () {
+                    addMarkers(resultData);
+                }, 500);
+            } else {
+                resultData = [];
+                grid.setData([]);
+                $('#dataShow').show();
+                flLayer.clear();
+            }
+            $("#dataLoad").hide();
+        });
+    }
+
+    // 地图上添加标记点
+    function addMarkers(arr) {
+        flLayer.clear();
+        if (!arr || arr.length === 0) return;
+
+        require(["esri/geometry/Point",
+            "esri/graphic",
+            "myJs/MapTextNew",
+            "esri/symbols/PictureMarkerSymbol",
+            "esri/InfoTemplate",
+            "esri/dijit/InfoWindow",
+            "esri/layers/GraphicsLayer",
+            "esri/SpatialReference",
+            "esri/geometry/webMercatorUtils",
+            "dojo/domReady!"
+        ], function (Point, Graphic, MapTextNew, PictureMarkerSymbol, InfoTemplate, InfoWindow, GraphicsLayer, SpatialReference, webMercatorUtils) {
+            _destroy();
+            for (var i = 0; i < arr.length; i++) {
+                var item = arr[i];
+                
+                var point = new Point({
+                    "x": Number(item.lgtd),
+                    "y": Number(item.lttd),
+                    "spatialReference": { "wkid": 4326 }
+                });
+
+                // 根据最大流量判断有无放江：>0有放江用open.png，=0无放江用close.png
+                var maxPmpq = Number(item.max_PMPQ);
+                var iconPath, statusText;
+                if (maxPmpq > 0) {
+                    openCount++;
+                    iconPath = "././arcgis_js_api/myJs/images/bzOpen.png";
+                    statusText = "运行";
+                } else {
+                    closeCount++;
+                    iconPath = "././arcgis_js_api/myJs/images/bzClose.png";
+                    statusText = "停机";
+                }
+
+                if (item.lgtd == null || item.lttd == null || item.lgtd == undefined || item.lttd == undefined) {
+                    continue;
+                }
+
+                var breakSymbol = new PictureMarkerSymbol(iconPath, 20, 20);
+
+                var graphic = new Graphic(point, breakSymbol, item, null);
+                flLayer.add(graphic);
+
+                var textStr = "";
+                var cls = " level_zc";
+                var _align = "top";
+                if (!window.parent.SpanBiaoZhu()) {
+                    cls += "@";
+                }
+                if (item.stnm != undefined) {
+                    textStr += item.stnm + "@";
+                }
+                if (item.max_PMPQ != undefined&&item.max_PMPQ!=null) {
+                    textStr += "" + item.max_PMPQ;
+                }
+                var label = new MapTextNew(map, point, item, textStr, _globallevel, _align, cls, 12);
+                labels.push(label);
+            }
+
+            tlCount();
+            window.parent.setMapZoomNew(flLayer, map.getLevel(), "FangJiang", "stcd",window.parent.SpanBiaoZhu());
+            window.parent.mapZoomEnd(flLayer, null, "FangJiang", "stcd",window.parent.SpanBiaoZhu());
+        });
+    }
+
+    function btnSearch() {
+        queryData();
+    }
+
+    function onRowClick(e) {
+        var grid = e.sender;
+        var record = grid.getSelected();
+        if (record) {
+            loc(record.lgtd, record.lttd);
+        }
+    }
+
+    function loc(lgtd, lttd) {
+        if (lgtd == undefined && lttd == undefined) {
+            mini.alert("缺失经纬度");
+        } else {
+            dyCenter(lgtd, lttd);
+        }
+    }
+
+    function exp(name) {
+        var data = grid.data;
+        ExportExcel(data, grid, name);
+    }
+</script>
+</html>

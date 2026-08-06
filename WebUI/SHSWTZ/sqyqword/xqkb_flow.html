@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>流程</title>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #f5f6f8;
+        }
+        .flow-container {
+            width: 360px;
+            margin: 60px auto;
+            padding: 40px 50px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .flow-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .timeline { position: relative; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 8px;
+            bottom: 8px;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        .tl-node {
+            position: relative;
+            padding-left: 50px;
+            min-height: 60px;
+        }
+        .tl-node + .tl-node { margin-top: 30px; }
+        .tl-dot {
+            position: absolute;
+            left: 6px;
+            top: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            border: 3px solid #fff;
+            box-shadow: 0 0 0 2px #3498db;
+            z-index: 1;
+        }
+        .tl-dot.inactive {
+            background: #ccc;
+            box-shadow: 0 0 0 2px #ccc;
+        }
+        .tl-label {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .tl-name {
+            font-size: 15px;
+            color: #555;
+        }
+        .tl-time {
+            font-size: 13px;
+            color: #999;
+            margin-top: 2px;
+        }
+        .tl-pending {
+            font-size: 13px;
+            color: #bbb;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="flow-container">
+        <div class="flow-title">流程</div>
+        <div style="text-align:center;margin-bottom:25px;">
+            <span style="color:#999;font-size:13px;">标题：</span>
+            <span style="color:#555;font-size:13px;font-weight:bold;" id="lblId">-</span>
+            <span style="margin-left:20px;color:#999;font-size:13px;">期号：</span>
+            <span style="color:#555;font-size:13px;font-weight:bold;" id="lblQiHao">-</span>
+        </div>
+        <div class="timeline">
+            <div class="tl-node">
+                <div class="tl-dot"></div>
+                <div class="tl-label">拟稿</div>
+                <div class="tl-name" id="drafter">-</div>
+                <div class="tl-time" id="draftTime">-</div>
+            </div>
+            <div class="tl-node">
+                <div class="tl-dot" id="checkDot"></div>
+                <div class="tl-label">校核</div>
+                <div class="tl-name" id="checker">-</div>
+                <div class="tl-time" id="checkTime">-</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mini.parse();
+        var xqkbId;
+
+        $(function () {
+            xqkbId = GetQueryString("XQKB_ID");
+            if (!xqkbId) {
+                mini.alert("缺少参数：记录编号");
+                return;
+            }
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            app.post("SWZZ_FLOOD_XQKB_LIST/findResultOne", { pid: xqkbId }, function (res) {
+                mini.unmask(document.body);
+                var data = res.data;
+                if (data && data.length > 0) {
+                    var record = data[0];
+                    $("#lblId").text(record.XQKB_TITLE);
+                    $("#lblQiHao").text(record.XQKB_QIHAO || "-");
+                    $("#drafter").text(record.XQKB_OWEN || "-");
+                    $("#draftTime").text(record.XQKB_TM ? new Date(convertToDate(record.XQKB_TM)).format("yyyy-MM-dd HH:mm:ss") : "-");
+
+                    if (record.XQKB_CHECK_STATUS == "1" || record.XQKB_CHECK_STATUS == 1) {
+                        $("#checker").text(record.XQKB_JIAOHE || "-");
+                        $("#checkTime").text(record.XQKB_JIAOHETM ? new Date(convertToDate(record.XQKB_JIAOHETM)).format("yyyy-MM-dd HH:mm:ss") : "-");
+                    } else {
+                        $("#checkDot").addClass("inactive");
+                        $("#checker").hide();
+                        $("#checkTime").hide();
+                        $("<span class='tl-pending'>待校核</span>").insertAfter("#checker");
+                    }
+                } else {
+                    mini.alert("未找到该记录");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

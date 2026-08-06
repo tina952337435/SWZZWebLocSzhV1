@@ -32,12 +32,12 @@
 <body>
     <!--水情信息-->
     <div class="flex" style="width: 100%; height: 100%; overflow: hidden;">
-        <div class="right box" id="flexDemo" style="height: 40px;">
+        <div class="right box" id="flexDemo" style="height: 80px;">
             <div class="demo1" style="float: left;width:100%;">
                 <div class="inline">
-                    <div style="width: 100%; height: 35px; float: left;">
+                    <div style="width: 100%; height: 70px; float: left;">
                         <table cellpadding="0" cellspacing="0" border="0">
-                            <tr>
+                            <tr style="height: 35px;">
                                 <td>
                                     <span class="label" style="width: 45px">时间：</span>
                                 </td>
@@ -49,9 +49,23 @@
                                         style="width:60px;" />
                                 </td>
                                 <td>
-                                    <a class="mini-button" style="margin-left: 10px" onclick="btnSearch()">
+                                    <!-- <a class="mini-button" style="margin-left: 10px" onclick="btnSearch()">
+                                        查询
+                                    </a> -->
+                                </td>
+                            </tr>
+                            <tr style="height: 35px;">
+                                <td>
+                                    <span class="label" style="width: 45px">类型：</span>
+                                </td>
+                                <td>
+                                    <input id="typeFilter" class="mini-combobox" style="width:105px;" textField="text" valueField="id" onvaluechanged="onTypeChange" />
+                                     <a class="mini-button" style="margin-left: 5px" onclick="btnSearch()">
                                         查询
                                     </a>
+                                </td>
+                                <td>
+                                   
                                 </td>
                             </tr>
                         </table>
@@ -103,6 +117,16 @@
     var myData = [];
     //实例化表格对象
     var grid = mini.get("grid1");
+    //初始化类型下拉框
+    var typeFilter = mini.get("typeFilter");
+    typeFilter.setData([
+        { id: "2026031114184492913-2,2026031114184492913-7,2026031114184492913-8", text: "全部" },
+        { id: "2026031114184492913-3", text: "代表站" },
+        { id: "2026031114184492913-2", text: "防汛站" },
+        { id: "2026031114184492913-8", text: "海事" },
+        { id: "2026031114184492913-7", text: "外省市" }
+    ]);
+    typeFilter.setValue("2026031114184492913-2");
     var now = new Date();
     mini.get("end").setValue(now.format("yyyy/MM/dd"));
     mini.get("endHour").setValue(now.getHours() + 1);
@@ -234,8 +258,9 @@
         });
         var etime = mini.get("end").getFormValue() + " " + mini.get("endHour").getValue() + ":00:00";
         var stime = new Date(AddHourDate(etime, -2)).format("yyyy-MM-dd HH:mm:ss");
-        strWhere = { "pid":"2026031114184492913-2,2026031114184492913-7,2026031114184492913-8",
-            "stime": stime, "etime": etime 
+        var pid = mini.get("typeFilter").getValue();
+        strWhere = { "pid": pid,
+            "stime": stime, "etime": etime
         };
         app.post("/GetWaterViewNew/queryBySWNew", strWhere, (data) => {
             JosnSel(data, "Sel")
@@ -363,6 +388,10 @@
     }
 
     function btnSearch() {
+        BreakLayerLoad();
+    }
+
+    function onTypeChange() {
         BreakLayerLoad();
     }
 

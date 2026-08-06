@@ -877,3 +877,6 @@ color:#ffffff !important;
 .btn{
     padding: 4px 12px !important;
 }
+.nonenew {
+    display: none !important;
+}

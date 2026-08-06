@@ -46,14 +46,20 @@
              emptytext="暂无数据" alwaysshowemptytext="true" showpager="true" ondrawcell="ondrawcell">
             <div property="columns">
                 <div type="indexcolumn" width="40" headeralign="center" align="center">序号</div>
-                <div field="XQKB_TM" width="80" headeralign="center" align="center" allowsort="true" format="yyyy-MM-dd">
-                    日期
+                 <div field="XQKB_QIHAO" width="40" headeralign="center" align="center" >
+                    期号
                 </div>
                 <div field="XQKB_TITLE" width="120" headeralign="center" align="left">
                     标题
                 </div>
-                <div field="XQKB_QIHAO" width="80" headeralign="center" align="center" >
-                    期号
+                <div field="XQKB_TM" width="80" headeralign="center" align="center" allowsort="true" format="yyyy-MM-dd">
+                    编写日期
+                </div>
+                <div field="XQKB_OWEN" width="80" headeralign="center" align="center">
+                    编写人
+                </div>
+                <div field="XQKB_CHECK_STATUS" width="70" headeralign="center" align="center">
+                    校核状态
                 </div>
                 <div field="XQKB_FILE" width="80" headeralign="center" align="center">
                     文件
@@ -68,8 +74,9 @@
         mini.parse();
         var myData = [];
         var grid = mini.get("grid1");
+        var xq_type=GetQueryString('xq_type')!=null?GetQueryString('xq_type'):"水情快报";
         $(function () {
-            $.data(myData, "QXKB_TYPE", "水情快报");
+            $.data(myData, "QXKB_TYPE",xq_type);
             var tm = new Date();
             mini.get("stime").setValue(addDayDate(tm.format("yyyy-MM-dd"), -365));
             mini.get("etime").setValue(tm.format("yyyy-MM-dd"));
@@ -85,15 +92,16 @@
                 search();
             });
         });
+        var dataAll = [];
         function search() {
             mini.mask({
                 el: document.body,
                 cls: 'mini-mask-loading',
                 html: '加载中...'
             });
-            PageFillData(0, 15);
+            PageFillData();
         }
-        function PageFillData(pageIndex, pageSize) {
+        function PageFillData() {
             var strWhere = {
                 key: mini.get("key").getValue(),
                 stime: mini.get("stime").getFormValue()+" 00:00:00",
@@ -107,7 +115,12 @@
         }
         function JosnSel(data, typeID) {
             if (typeID == "Sel") {
-                PageServerFill(grid, data);
+                dataAll = data.data;
+                var pageSize = grid.getPageSize();
+                grid.setTotalCount(dataAll.length);
+                grid.setPageIndex(0);
+                grid.setPageSize(pageSize);
+                grid.setData(dataAll.slice(0, pageSize));
                 mini.unmask(document.body);
             }
             if (typeID == "Del") {
@@ -115,22 +128,41 @@
                     search();
                 }
             }
+            if(typeID=="generateDraft"){
+                if(data.data!=null){
+                    search();
+                    var fileName="../storm_forecast/"+data.data.fileName;
+                    OpenHref(fileName);                    
+                }
+                mini.unmask(document.body);
+            }
         }
+        // 客户端分页：翻页/刷新时从 dataAll 切片
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            var start = pageIndex * pageSize, end = start + pageSize;
+            grid.setTotalCount(dataAll.length);
+            grid.setPageIndex(pageIndex);
+            grid.setPageSize(pageSize);
+            grid.setData(dataAll.slice(start, end));
+        });
         function ondrawcell(e) {
             var field = e.field;
             var record = e.record;
             var value = e.value;
-            if (field == "XQKB_TM") {
-                var s = new Date((value)).format("yyyy-MM-dd");
-                e.cellHtml = s;
-            }
+            // if (field == "XQKB_TM") {
+            //     var s = new Date((value)).format("yyyy-MM-dd HH:mm:ss");
+            //     e.cellHtml = s;
+            // }
             if (field == "XQKB_FILE") {
                 var s = '';
                 if (value != undefined) {
                     s = '<img src="../../Common/miniui/themes/icons/word.gif" style="cursor:pointer;" onclick="OpenHref(\'' + record.XQKB_FILE + '\')" title=\"点击下载此文件\"/>';
 
+                    var subDir=getreportType(xq_type);
                     var strFILE = record.XQKB_FILE.replaceAll(".docx", ".pdf");
-                    var hrefFile = HttpUrl + "sqkb/" + strFILE;
+                    var hrefFile = HttpUrl + subDir+"/" + strFILE;
 
                     //var strExistFile = isExistFile(hrefFile);
                     //if (strExistFile != false) {
@@ -141,27 +173,66 @@
                 }
                 e.cellHtml = s;
             }
+            if (field == "XQKB_CHECK_STATUS") {
+                if (value == 1 || value == "1") {
+                    e.cellHtml = '<span style="color:#27ae60;font-weight:bold;">已校核</span>';
+                } else {
+                    e.cellHtml = '<span style="color:#c0392b;">未校核</span>';
+                }
+            }
             if (field == "action") {
                 var s = '';
-                //s+='<img style="cursor:pointer;" onclick="lookData(\'ID@' + record.ID + ',TYPE@' + $.data(myData, "TYPE") + '\',\'/System/DATA_EMPLOYEE_View.html\',\'查看用户管理\',\'50%\',485,\'true\')" src="../../Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
+                // 校核按钮：未校核且有文件时显示
+                if(xq_type=="水情快报"){
+                    if (record.XQKB_CHECK_STATUS != 1 && record.XQKB_CHECK_STATUS != "1" && record.XQKB_FILE) {
+                    s += '<img style="cursor:pointer;" onclick="reviewDoc(\'' + record.XQKB_ID + '\',\'' + record.XQKB_FILE + '\',\'' + (record.XQKB_CHECK_STATUS||0) + '\')" src="../../Common/miniui/themes/icons/ok.png" title="校核" />&nbsp;';
+                    }
+                    s += '<img style="cursor:pointer;" onclick="showFlow(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/look.gif" title="流程" />&nbsp;';
+                }
+                
+                //s+='<img style="cursor:pointer;" onclick="lookData(\'ID@' + record.ID + ',TYPE@' + $.data(myData, "TYPE") + '\',\'/System/DATA_EMPLOYEE_View.html\',\'查看\',\'50%\',485,\'true\')" src="../../Common/miniui/themes/icons/look.gif" title="查看"/>&nbsp;'
                 // s += '<img style="cursor:pointer;" onclick="UploadBtn(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/upload.gif" title="文件上传" />&nbsp;';
                 // s += '<img style="cursor:pointer;" onclick="AddBtn(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/edit.png" title="修改" />&nbsp;';
-                s += '<img style="cursor:pointer;" onclick="del(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/remove.png" title="删除用户管理" />&nbsp;';
+                s += '<img style="cursor:pointer;" onclick="del(\'' + record.XQKB_ID + '\')" src="../../Common/miniui/themes/icons/remove.png" title="删除" />&nbsp;';
                 e.cellHtml = s;
             }
         }
         function AddBtn(ID) {
-            var type = "add";
-            var param = "?action=" + type;
-            if (ID != '') {
-                type = "edit";
-                param = "?action=" + type + "&XQID=" + ID;
+            if(xq_type=="水情快报"){
+                var type = "add";
+                var param = "?action=" + type;
+                if (ID != '') {
+                    type = "edit";
+                    param = "?action=" + type + "&XQID=" + ID;
+                }
+                var url = '././SHSWTZ/sqyqword/xqkb_preview.html' + param;          
+                if( $.data(myData, "QXKB_TYPE") == "水情快报") {   
+                    url="././SHSWTZ/sqyqword/sqkbEdit.html" + param;
+                }
+                window.parent.addTab("水情快报生成", url);
             }
-            var url = '/SHSWTZ/sqyqword/xqkb_preview.html' + param;          
-            if( $.data(myData, "QXKB_TYPE") == "水情快报") {   
-                url="/SHSWTZ/sqyqword/sqkbEdit.html" + param;
+            else  if(xq_type=="3天风暴潮预报专报"||xq_type=="1天风暴潮预报专报"||xq_type=="风暴潮预报专报")
+            {
+                // mini.mask({
+                //     el: document.body,
+                //     cls: 'mini-mask-loading',
+                //     html: '生成中，请稍等...'
+                // });
+                // var strWhere = { 
+                //     "reportType": xq_type,
+                //     "author":GetCookie("LOGINNAME")
+                // };
+                // //直接调用接口生成初稿
+                // app.post("SWZZ_REPORT_GENERATOR/generateDraft", strWhere, function (res) {
+                //     JosnSel(res,"generateDraft");
+                // });
+                var url = '././SHSWTZ/sqyqword/sqybgudongdanEdit.html?reportType='+xq_type;
+                window.parent.addTab("分片水情预报专报生成", url);
             }
-            window.parent.addTab("水情快报生成", url);
+            else if(xq_type=="分片水情预报专报"){
+                var url = '././SHSWTZ/sqyqword/sqybzbEdit.html';     
+                window.parent.addTab("分片水情预报专报生成", url);
+            }
         }
         //删除
         function del(objID) {
@@ -177,9 +248,33 @@
                 }
             );
         }
+        //校核
+        function reviewDoc(id, fileName, checkStatus) {
+            var url = '././SHSWTZ/sqyqword/xqkb_review.html' +
+                '?id=' + encodeURIComponent(id) +
+                '&file=' + encodeURIComponent(fileName) +
+                '&checkStatus=' + encodeURIComponent(checkStatus);
+            window.parent.addTab("校核", url);
+        }
+        //流程
+        function showFlow(id) {
+            var url = '././SHSWTZ/sqyqword/xqkb_flow.html?XQKB_ID=' + encodeURIComponent(id);
+            mini.open({
+                url: url,
+                title: "流程",
+                width: 600,
+                height: 600,
+                showMaxButton: false,
+                showModal: true,
+                ondestroy: function (action) {
+                    search();
+                }
+            });
+        }
         top["win"] = window;
         function OpenHref(fileName) {
-            window.open(HttpUrl+"sqkb/"+fileName);
+            var subDir=getreportType(xq_type);
+            window.open(HttpUrl+subDir+"/"+fileName);
         }
         /**
  * 判断服务的文件是否存在
@@ -211,14 +306,20 @@
                 return false;
             }
         }
-        // 监听分页前事件，阻止后自行设置当前数据和分页信息
-        grid.on("beforeload", function (e) {
-            e.cancel = true;
-            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
-            PageFillData(pageIndex, pageSize);
-        });
         function UploadBtn(ID) {
-            addData('XQID@' + ID, '/SHSWTZ/sqyqword/UploadFile.html', '上传文件', '800px', '450px', 'true');
+            addData('XQID@' + ID, '././SHSWTZ/sqyqword/UploadFile.html', '上传文件', '800px', '450px', 'true');
+        }
+
+        function getreportType(){
+            var subDir="";
+            if ("风暴潮预报专报"==xq_type||"3天风暴潮预报专报"==xq_type||"1天风暴潮预报专报"==xq_type) subDir = "storm_forecast";
+            else if ("水情快报"==xq_type) subDir = "sqkb";
+            else if ("水情月报"==xq_type) subDir = "sqyb";
+            else if ("梅雨期报"==xq_type) subDir = "meiyu";
+            else if ("汛期报"==xq_type) subDir = "flood_season";
+            else if ("年报"==xq_type) subDir = "annual";
+            else if ("分片水情预报专报"==xq_type) subDir = "water_situation";
+            return subDir;
         }
     </script>
 </body>

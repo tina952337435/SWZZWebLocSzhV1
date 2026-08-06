@@ -33,8 +33,12 @@
                 <td style="width: 110px; font-size: 14px; " align="left">
                     <input id="ETIME" name="ETIME" class="mini-datepicker DivSpan100" format="yyyy-MM-dd" value="" emptytext="请输入结束时间" />
                 </td>
-            
-                <td align="left">
+                <td style="width: 80px; font-size: 14px; " align="right">
+                    统计维度：
+                </td>
+                <td style="font-size: 14px; " align="left">
+                    <label style="margin-right:10px;"><input type="radio" name="dimension" value="person" checked onchange="onDimensionChanged()"> 人员</label>
+                    <label style="margin-right:10px;"><input type="radio" name="dimension" value="unit" onchange="onDimensionChanged()"> 共享单位</label>
                     <a class="mini-button" onclick="search()">查询</a>
                 </td>
             </tr>
@@ -45,7 +49,7 @@
         <div id="container" style="background-color:white;width:100%;height:350px;"></div>
 
         <div id="datagrid1" class="mini-datagrid" style="width: 100%;  height: -webkit-calc(100% -350px);height: -moz-calc(100% - 350px);height: calc(100% - 350px);" allowresize="true" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
-             idfield="ID" multiselect="true" allowalternating="true" sortmode="client" sizelist="[15,20,30,50,100]" pagesize="15" ondrawcell="onDrawCell">
+             idfield="ID" multiselect="true" allowalternating="true" sortmode="client" sortField="logo_DATE" sortOrder="desc" sizelist="[15,20,30,50,100]" pagesize="15" ondrawcell="onDrawCell">
             <div property="columns">
                 <div type="indexcolumn" headeralign="center" width="80">序号</div>
                 <!--<div type="checkcolumn"></div>-->
@@ -59,76 +63,127 @@
     </div>
     <script type="text/javascript">
         mini.parse();
-        var _sTM = "2018-06-12 00:00:00", _eTM = '2018-06-19 23:59:59';
+        var _sTM = "", _eTM = "";
         var grid = mini.get("datagrid1");
 
         onload = function () {
-            mini.get("STIME").setValue(addDayDate(new Date().format("yyyy-MM-dd"), -7));
+            mini.get("STIME").setValue(addDayDate(new Date().format("yyyy-MM-dd"), -30));
             mini.get("ETIME").setValue(new Date().format("yyyy-MM-dd"));
             search();
         }
         function search() {
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
             _sTM = new Date(mini.get("STIME").getValue()).format("yyyy-MM-dd");
             _eTM = new Date(mini.get("ETIME").getValue()).format("yyyy-MM-dd");
             var strWhere;
             strWhere = { startdate: _sTM, enddate: _eTM+" 23:59:59" };
             //GetJosns("DATA_SYS_LOGSel", strWhere, "SYS_LOGRetrieve");
 			app.post("SWZZ_DATA_sys_log/findResult",strWhere,(data)=>{
-				JosnSel(data,"SYS_LOGRetrieve")
+				JosnSel(data,"SYS_LOGRetrieve");
+                mini.unmask(document.body);
 			})
         }
-        var dataResult;
+        var dataResult;        // 接口原始返回
+        var _filteredData;    // 按维度过滤后的数据 { data: [], total: N }
+
+        // 获取当前选中的维度
+        function getDimension() {
+            var radio = document.querySelector('input[name="dimension"]:checked');
+            return (radio && radio.value == "unit") ? "unit" : "person";
+        }
+
+        // 判断是否为共享单位：name 或 emp_NAME 含 swzz（不区分大小写）或含 Gaoqi
+        function isSharedUnit(e) {
+            var n = (e.name || "") + (e.emp_NAME || "");
+            return /swzz/i.test(n) || /gaoqi/i.test(n) || /测试用户/i.test(n);
+        }
+
+        // 按维度过滤数据
+        function applyFilter() {
+            if (!dataResult || !dataResult.data) return;
+            var dim = getDimension();
+            console.log("applyFilter dim:", dim);
+            console.log("dataResult.data length:", dataResult.data.length);
+            var filtered = [];
+            for (var i = 0; i < dataResult.data.length; i++) {
+                var e = dataResult.data[i];
+                var shared = isSharedUnit(e);
+                if (i < 3) console.log("record", i, "name:", e.name, "emp_NAME:", e.emp_NAME, "isSharedUnit:", shared);
+                if (dim == "person") {
+                    if (shared) continue;
+                } else {
+                    if (!shared) continue;
+                }
+                filtered.push(e);
+            }
+            console.log("filtered length:", filtered.length);
+            // 按时间倒序
+            filtered.sort(function (a, b) {
+                var da = a.logo_DATE || "", db = b.logo_DATE || "";
+                return da > db ? -1 : (da < db ? 1 : 0);
+            });
+            _filteredData = { data: filtered, total: filtered.length };
+            // 刷新表格
+            fillData(0, grid.getPageSize(), _filteredData, grid);
+            // 刷新折线
+            JsonLineChart(_filteredData.data);
+        }
+
         function JosnSel(data, TYPEID) {
             if (TYPEID == "SYS_LOGRetrieve") {
                 dataResult = data;
-                fillData(0, grid.getPageSize(), dataResult, grid);
-                JsonLineChart(data.data);
-
+                applyFilter();
             }
         }
         // 监听分页前事件，阻止后自行设置当前数据和分页信息
         grid.on("beforeload", function (e) {
             e.cancel = true;
-
             var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
-            fillData(pageIndex, pageSize, dataResult, grid);
+            fillData(pageIndex, pageSize, _filteredData, grid);
         });
         function JsonLineChart(strJson) {
-            console.log(JSON.stringify(strJson))
+            console.log(JSON.stringify(strJson));
             var IntDay = GetDateDiff(_sTM, _eTM, "day");
-            var strData = "";
             var _XData = [];
-            //var NodeSuccess = strJson.filter(function (e) { return new Date(convertToDate(e.TM)).format("yyyy-MM-dd") == addDayDate(sTM, II); });
-            //var NodeFail = strJson.filter(function (e) { return new Date(convertToDate(e.TM)).format("yyyy-MM-dd") == addDayDate(sTM, II); });
-            if (IntDay > 0) {
-                for (II = 0; II <= IntDay; II++) { 
-                    if (II == 0) {
-                        var Node_PC = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == _sTM && e.flag == "PC" && e.status=="true"); });
-                        var Node_IOS = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy-MM-dd") == _sTM && e.flag == "IOS" && e.status == "true"); });
-                        var Node_Android = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == _sTM && e.flag == "Android" && e.status == "true"); });
-                        _XData.push({ TM: _sTM, PC_COUNT: Node_PC.length, IOS_COUNT: Node_IOS.length, Android_COUNT: Node_Android.length });
-                    } else {
-                        var Node_PC = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == addDayDate(_sTM, II) && e.flag == "PC" && e.status == "true"); });
-                        var Node_IOS = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == addDayDate(_sTM, II) && e.flag == "IOS" && e.status == "true"); });
-                        var Node_Android = strJson.filter(function (e) { return (new Date(convertToDate(e.logo_DATE)).format("yyyy/MM/dd") == addDayDate(_sTM, II) && e.flag == "Android" && e.status == "true"); });
-                        _XData.push({ TM: addDayDate(_sTM, II), PC_COUNT: Node_PC.length, IOS_COUNT: Node_IOS.length, Android_COUNT: Node_Android.length });
 
-                    }
+            // 按日期(yyyy-MM-dd)预分组
+            var dateGroups = {};
+            for (var di = 0; di < strJson.length; di++) {
+                var e = strJson[di];
+                if (e.status != "登录成功") continue;
+                var dateKey = (e.logo_DATE || "").substring(0, 10);
+                if (!dateKey) continue;
+                if (!dateGroups[dateKey]) {
+                    dateGroups[dateKey] = [];
+                }
+                dateGroups[dateKey].push(e);
+            }
 
+            // 按日期范围逐日构建图表数据
+            if (IntDay >= 0) {
+                for (var ii = 0; ii <= IntDay; ii++) {
+                    var currentDay = addDayDate(_sTM, ii);
+                    var dateKey = currentDay.replace(/\//g, "-");
+                    var dayData = { TM: currentDay };
+                    var dayRecords = dateGroups[dateKey] || [];
+                    dayData["登录人次"] = dayRecords.length;
+                    _XData.push(dayData);
                 }
             }
-            //绘制数据说明
-            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"}';
-            strNote += ',{"name": "平台人数","codename": "PC_COUNT","tableV":"1","isShow":true,"width":"30%"}';
-           // strNote += ',{"name": "iPhone人数","codename": "IOS_COUNT","tableV":"1","isShow":true,"width":"30%"}';
-            //strNote += ',{"name": "Android人数","codename": "Android_COUNT","tableV":"1","isShow":true,"width":"30%"}';
-            strNote += ']';
 
-            //绘制过程线颜色设置
-            var LineColor = ['#0000FF', '#00FF00', '#FF0000'];
-            //绘制图形
-            chartSW("container", _XData, eval('(' + strNote + ')'), LineColor, "统计人数");
+            var strNote = '[{"name": "时间","codename": "TM","tableV":"1","isShow":true,"width":"40%"},'
+                + '{"name": "登录人次","codename": "登录人次","tableV":"1","isShow":true,"width":"30%"}]';
+            var LineColor = ['#0000FF'];
+            chartSW("container", _XData, eval('(' + strNote + ')'), LineColor, "");
+        }
 
+        // 维度切换：重新过滤并刷新图表和表格
+        function onDimensionChanged(e) {
+            applyFilter();
         }
 
         ///////////////////////////////////////////////// 

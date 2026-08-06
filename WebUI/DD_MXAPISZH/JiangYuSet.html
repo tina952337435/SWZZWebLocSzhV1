@@ -82,6 +82,9 @@
                                  <li onclick="SELECT_AVGRain()">
                                     <span>中央气象预报</span>
                                 </li>
+                                <li onclick="FQDATAQXSJ_Beixuan()"  style="width:auto !important;">
+                                    <span>上海气象预报(2.5km备选)</span>
+                                </li>
                                 <li onclick="clicklnmn1('sysList')">
                                     <span id="sjjy">设计暴雨</span>
                                     <div id="sysList" class="sysList" style="z-index:99;width:177px;background: white;MARGIN-LEFT: -17PX;float:left;border: 1px solid #ddd;display:none;">
@@ -554,6 +557,23 @@
                 fdpr:"6,48"
             };
             app.post("/SWZZ_MODE_ES_ZHANDIAN/MODIFYJYYBBY", s_where, function(res){
+                JosnSel(res,"updateButton");
+            });
+        }
+        function FQDATAQXSJ_Beixuan(){
+            mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '数据加载中...'
+            });
+            $.data(myData,"ModeJYDan","上海气象台(2.5km备选)");
+            var s_where = { 
+                startdate: $.data(myData, "stime"), 
+                enddate: $.data(myData, "etime"), 
+                solutionid: localDD_ID,
+                fdpr:"6,48"
+            };
+            app.post("/SWZZ_MODE_ES_ZHANDIAN/MODIFYJYYBBY_Beixuan", s_where, function(res){
                 JosnSel(res,"updateButton");
             });
         }

@@ -15,7 +15,7 @@ var _globallevel = 5;
 /*设置图层的最小可见度*/
 //setMinLevel(WaterLayerGraphicLayer, 8);
 /*设置图层的飞行提示*/
-setLayerToolTip(WaterLayerGraphicLayer, "stnm", "Z,wrz,TEMP", "水位@(m),警戒@(m),时间");
+setLayerToolTip(WaterLayerGraphicLayer, "stnm", "Z,TEMP,wrz,grz,ivhz,rvnm,slp,addvnm,atcunit", "水位@(m),时间,警戒水位@(m),保证水位@(m),历史最高@(m),河流,水利片,行政区,来源");
 
 WaterLayerGraphicLayer.on("click", onSQClick);
 
@@ -136,7 +136,7 @@ require(["esri/geometry/Point",
 	            tm = "—";
 	            item.TEMP = tm;
 	        } else {
-	            item.TEMP = new Date(convertToDate(tm)).format('yyyy/MM/dd HH:mm');
+	            item.TEMP = new Date(convertToDate(tm)).format('yyyy-MM-dd HH:mm');
 	        }
 
 	        //textStr += "<br/>时间：" + tm;

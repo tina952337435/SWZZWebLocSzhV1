@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>预测放江流量过程线</title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+    <style>
+        .mini-grid-summaryRow div { background: none !important; }
+        .mini-grid-summaryRow table { background: none !important; }
+        .mini-grid-summaryRow tr td {
+            text-align: center;
+            background: none !important;
+            border: none;
+        }
+        .mini-grid-summaryRow tr td span {
+            color: #000 !important;
+            line-height: 25px;
+            font-weight: 400 !important;
+        }
+        .label { height: 30px; line-height: 30px; }
+    </style>
+</head>
+<body>
+    <!--页面载入显示-->
+    <div id="dataLoad" class="load">
+        <table style="width: 100%; height: 100%; border: 0;" align="center" valign="middle">
+            <tr style="height: 50%"><td align="center">&nbsp;</td></tr>
+            <tr><td align="center"><img src="../arcgis_js_api/myJs/images/wait1.gif" /></td></tr>
+            <tr><td align="center">数据载入中，请稍后...</td></tr>
+            <tr style="height: 50%"><td align="center">&nbsp;</td></tr>
+        </table>
+    </div>
+    <div class="mini-toolbar" style="padding-top: 3px;">
+        <table style="width: 100%;">
+            <tr>
+                <td style="width: 80%;display: none;">
+                    <span id="pageTitle" style="font-weight: bold; font-size: 14px;">预测放江流量过程线</span>
+                    <span class="dwCss">(单位:m³/s)</span>
+                </td>
+                <td align="right">
+                    <div class="bootstrap-switch ">
+                        <div class="bootstrap-switch-container">
+                            <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
+                            <span class="bootstrap-switch-handle-off switch" onclick="OnBoot(this.id,'fit2')" id="switch2"><i class="fa fa-table"></i></span>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="mini-fit" style="margin-top:1px;height:100%;">
+        <div id="fit1" class="fit" style="float:left;width:100%;">
+            <div id="Chart" style="width:100%; height:500px; text-align: center"></div>
+            <table style="margin: 0 auto;width: 50%;">
+                <tr>
+                    <td style="color: #000;" align="right">流量最大：</td>
+                    <td style="color: #000;" align="left">
+                        <span id="maxFlow"></span>，<span id="maxFlowTime"></span>
+                    </td>
+                    <td style="color: #000;" align="right">流量最小：</td>
+                    <td style="color: #000;" align="left">
+                        <span id="minFlow"></span>，<span id="minFlowTime"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div id="fit2" class="fit" style="height:550px;float:left;width:50%;">
+            <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;"
+                allowalternating="true" pagesize="50" showPager="false" showsummaryrow="false"
+                idfield="STCD" allowresize="false" ondrawcell="ondrawcell"
+                showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true"
+                sortMode="client" ondrawsummarycell="onDrawSummaryCell">
+                <div property="columns">
+                    <div field="tm" width="150" align="center" headeralign="center" allowSort="true">时间</div>
+                    <div field="pmpq" width="120" align="center" headeralign="center" allowsort="true"
+                        decimalPlaces="2" dataType="float" summarytype="max">流量(m³/s)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var stcd = GetQueryString("stcd");
+        var stnm = GetQueryString("stnm");
+        var rlstm = GetQueryString("rlstm");
+        var grid = mini.get("grid1");
+        var myData = [];
+
+        if (stnm) {
+            document.getElementById("pageTitle").innerHTML = stnm + " 预测放江流量过程线";
+        }
+
+        $(function () {
+            $("#fit2").hide();
+            if (rlstm) {
+                rlstm = rlstm.replaceAll("-", "/");
+                if (rlstm.length == 16) rlstm += ":00";
+            }
+            queryData();
+        });
+
+        function queryData() {
+            $("#dataLoad").show();
+
+            var params = {
+                "startdate": rlstm,
+                "stcd": stcd
+            };
+
+            app.post("/SWZZ_MODE_ES_PUMP_R/findByRlstmAndStcd", params, function (res) {
+                JosnSel(res, "Sel");
+            });
+        }
+
+        var dataResult;
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                if (data.isSuccess && data.data && data.data.length > 0) {
+                    // 转成数字，确保 summary max 统计正确
+                    var arr = data.data;
+                    for (var i = 0; i < arr.length; i++) {
+                        if (arr[i].pmpq != null && arr[i].pmpq !== "") {
+                            arr[i].pmpq = Number(arr[i].pmpq);
+                        }
+                    }
+                    dataResult = arr;
+                    grid.setData(arr);
+                    JsonLineChart({ data: arr });
+                    $("#dataShow").hide();
+                } else {
+                    dataResult = [];
+                    noData();
+                    grid.setData([]);
+                }
+                $("#dataLoad").hide();
+            }
+        }
+
+        function noData() {
+            $("#maxFlow").html("无");
+            $("#maxFlowTime").html("无");
+            $("#minFlow").html("无");
+            $("#minFlowTime").html("无");
+        }
+
+        function JsonLineChart(strJson) {
+            var _XData = [];
+            if (strJson.data.length > 0) {
+                var FLOWMAX = -9999, FLOWMIN = 9999;
+                var FLOWMAXTM = "", FLOWMINTM = "";
+
+                for (var num =0; num <strJson.data.length; num++) {
+                    var pmpq = strJson.data[num].pmpq;
+                    if (pmpq !== "" && pmpq != null && pmpq != undefined) {
+                        var flowVal = parseFloat(pmpq);
+                        if (FLOWMAX < flowVal) {
+                            FLOWMAX = flowVal.toFixed(2);
+                            FLOWMAXTM = new Date(strJson.data[num].tm).format("MM/dd HH:mm");
+                        }
+                        if (FLOWMIN > flowVal) {
+                            FLOWMIN = flowVal.toFixed(2);
+                            FLOWMINTM = new Date(strJson.data[num].tm).format("MM/dd HH:mm");
+                        }
+                    }
+                    var flow = pmpq != null && pmpq != undefined ? Number(pmpq).toFixed(2) : null;
+                    _XData.push({
+                        tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"),
+                        pmpq: flow
+                    });
+                }
+
+                GetObj("maxFlow").innerHTML = FLOWMAX == -9999 ? "-" : FLOWMAX + "m³/s";
+                GetObj("maxFlowTime").innerHTML = FLOWMAXTM;
+                GetObj("minFlow").innerHTML = FLOWMIN == 9999 ? "-" : FLOWMIN + "m³/s";
+                GetObj("minFlowTime").innerHTML = FLOWMINTM;
+            }
+
+            var strNote = [
+                { "name": "时间", "codename": "tm", "tableV": "1", "isShow": true, "width": "40%" },
+                { "name": "流量", "codename": "pmpq", "tableV": "1", "isShow": true, "width": "40%" }
+            ];
+            var LineColor = ['#0000FF', '#00A2E8'];
+
+            var jsonData = _XData;
+            $.data(myData, "jsonData", jsonData);
+            $.data(myData, "strNote", strNote);
+            $.data(myData, "LineColor", LineColor);
+
+            chartFlow("Chart", jsonData, strNote, LineColor, "流量");
+
+            var coloumnsName = { "indexcolumn": "序号", "tm": "时间", "pmpq": "流量(m³/s)" };
+            SetSummaryColumns(coloumnsName, grid);
+        }
+
+        // 监听分页前事件
+        grid.on("beforeload", function (e) {
+            e.cancel = true;
+            var pageIndex = e.data.pageIndex, pageSize = e.data.pageSize;
+            fillData(pageIndex, pageSize, dataResult, grid);
+        });
+
+        function onDrawSummaryCell(e) {
+            // var value = e.value;
+            // if (e.field == "pmpq") {
+            //     value != null
+            //         ? e.cellHtml = "<span style=\"color:Blue;font-weight:bold;\">流量最大: " + Number(value).toFixed(2) + "m³/s</span>"
+            //         : e.cellHtml = "<span style=\"color:red;font-weight:bold;\">流量最大: 无</span>";
+            // }
+        }
+
+        function ondrawcell(e) {
+            var row = e.row, column = e.column, field = e.field, value = e.value;
+            if (field == "tm") {
+                e.cellHtml = new Date(value).format("yyyy-MM-dd HH:mm:ss");
+            } else if (field == "pmpq") {
+                if (value != undefined && value != null && value !== "") {
+                    e.cellHtml = Number(value).toFixed(2);
+                } else {
+                    e.cellHtml = "—";
+                }
+            }
+        }
+
+        function OnBoot(objID, objFit) {
+            $(".switch").removeClass("bootstrap-switch-handle-on");
+            $(".switch").addClass("bootstrap-switch-handle-off");
+            $("#" + objID).toggleClass("bootstrap-switch-handle-on");
+            if (objID == "switch1") {
+                $("#" + objFit).css("width", "100%");
+                chartFlow("Chart", $.data(myData, "jsonData"), $.data(myData, "strNote"), $.data(myData, "LineColor"), "流量");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            } else if (objID == "switch2") {
+                $("#" + objFit).css("width", "100%");
+                $(".fit").hide();
+                $("#" + objFit).show();
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        function chartFlow(ChartName, data, strNote, LineColor, max_min_Name) {
+            var myChart = echarts.init(document.getElementById(ChartName));
+            myChart.clear();
+
+            var chartName = [];
+            var chartTM = [];
+            var chartValue = [];
+            var ShowSelected = {};
+            var m = [];
+
+            $.each(strNote, function (index, value) {
+                chartName.push(value.name);
+                ShowSelected[value.name] = value.isShow;
+            });
+
+            $.each(data, function (index, value) {
+                var charthan = [];
+                $.each(strNote, function (index1, value1) {
+                    charthan.push(value[value1.codename]);
+                    if (value1.name == "时间") {
+                        chartTM.push(value[value1.codename]);
+                    } else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan);
+            });
+
+            var option = {
+                tooltip: {
+                    showDelay: 0,
+                    hideDelay: 50,
+                    transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#4040FB',
+                    borderRadius: 8,
+                    borderWidth: 2,
+                    padding: 10,
+                    textStyle: { color: '#000000' },
+                    trigger: 'axis'
+                },
+                color: LineColor,
+                legend: {
+                    data: chartName,
+                    itemWidth: 8,
+                    itemHeight: 8,
+                    textStyle: { color: '#000', fontSize: 12 },
+                    selected: ShowSelected
+                },
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '3%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: [{
+                    type: 'category',
+                    boundaryGap: false,
+                    data: chartTM,
+                    axisLine: {
+                        lineStyle: { color: '#918F8F', width: 1 }
+                    }
+                }],
+                yAxis: [{
+                    name: "流量(m³/s)",
+                    type: 'value',
+                    boundaryGap: false,
+                    scale: true,
+                    splitLine: {
+                        show: true,
+                        lineStyle: { color: '#eee', width: 1, type: 'dashed' }
+                    },
+                    min: function (value) {
+                        var jiange = (value.max - value.min).toFixed(2) * 100;
+                        var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+                        jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+                        if ((jiangenew - jiange - 1) == 0) jiangenew = jiangenew * 2;
+                        if ((jiangenew - jiange) % 2 == 0) return value.min - (jiangenew - jiange) / 200;
+                        else return value.min - (jiangenew - jiange - 1) / 200;
+                    },
+                    max: function (value) {
+                        var jiange = (value.max - value.min).toFixed(2) * 100;
+                        var jiangenew = Number(Number((jiange - (jiange % 5)) / 5 + 1).toFixed(0) * 5);
+                        jiangenew = jiangenew + ((jiangenew / 100).toFixed(0) * 5);
+                        if ((jiangenew - jiange - 1) == 0) jiangenew = jiangenew * 2;
+                        if (jiangenew < 5) jiangenew = 5;
+                        if ((jiangenew - jiange) % 2 == 0) return value.max + (jiangenew - jiange) / 200;
+                        else return value.max + (jiangenew - jiange + 1) / 200;
+                    },
+                    axisLabel: {
+                        formatter: function (v) { return v.toFixed(2); }
+                    },
+                    axisLine: { lineStyle: { color: '#918F8F', width: 1 } }
+                }],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") continue;
+                        var chartValueArr = [];
+                        for (var i = 0; i < m.length; i++) {
+                            chartValueArr.push(m[i][j]);
+                        }
+                        if (max_min_Name != "" && max_min_Name == chartName[j]) {
+                            serie.push({
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValueArr,
+                                connectNulls: true,
+                                markPoint: { data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }] },
+                                smooth: true,
+                                symbol: 'none'
+                            });
+                        } else {
+                            serie.push({
+                                name: chartName[j],
+                                type: 'line',
+                                data: chartValueArr,
+                                connectNulls: true,
+                                smooth: true,
+                                symbol: 'none'
+                            });
+                        }
+                    }
+                    return serie;
+                }()
+            };
+
+            myChart.setOption(option);
+
+            if (m.length == 0) {
+                var chartNoDataId = $.data(myData, "ChartID");
+                if (chartNoDataId != null) {
+                    $("#" + chartNoDataId).show();
+                } else {
+                    chartNoDataId = new Date().format("yyyyMMddHH");
+                    $.data(myData, "ChartID", chartNoDataId);
+                    var $li = "<div id='" + chartNoDataId + "'>\ <span class='b threefont' style='letter-spacing:-2px;position: absolute;top: 40%;font-size: 30px;color:#ddd'>暂无数据</span>\ </div>";
+                    $('#' + ChartName).append($li);
+                }
+            } else {
+                var chartNoDataId2 = $.data(myData, "ChartID");
+                if (chartNoDataId2) $("#" + chartNoDataId2).hide();
+            }
+        }
+    </script>
+</body>
+</html>

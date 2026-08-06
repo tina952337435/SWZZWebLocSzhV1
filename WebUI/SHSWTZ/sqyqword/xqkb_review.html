@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>汛情快报校核</title>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+        }
+        .toolbar {
+            height: 45px;
+            padding: 8px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .toolbar .title {
+            font-size: 15px;
+            font-weight: bold;
+            line-height: 30px;
+            color: #333;
+        }
+        .preview-area {
+            height: calc(100% - 46px);
+            width: 100%;
+        }
+        .preview-area iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="toolbar">
+        <span class="title">汛情快报校核</span>
+        <span style="float:right;">
+            <a class="mini-button" onclick="doReview()" id="btnConfirm">确认校核</a>
+            <a class="mini-button" onclick="closeWindow()" plain="true" style="margin-left:8px;">关闭</a>
+        </span>
+    </div>
+
+    <div class="preview-area">
+        <iframe id="pdfFrame" src=""></iframe>
+    </div>
+
+    <script>
+        mini.parse();
+        var xqkbId, checkStatus;
+
+        $(function () {
+            xqkbId = GetQueryString("id");
+            var fileName = GetQueryString("file");
+            checkStatus = GetQueryString("checkStatus") || "0";
+
+            if (!xqkbId) {
+                mini.alert("缺少参数：记录ID");
+                return;
+            }
+            if (!fileName) {
+                mini.alert("缺少参数：文件名");
+                return;
+            }
+
+            // PDF 路径：docx 后缀替换为 pdf
+            var pdfFile = fileName.replaceAll(".docx", ".pdf");
+            var pdfUrl = HttpUrl + "sqkb/" + pdfFile;
+            $("#pdfFrame").attr("src", pdfUrl);
+
+            // 已校核则隐藏确认按钮
+            if (checkStatus == "1") {
+                $("#btnConfirm").hide();
+            }
+        });
+
+        function doReview() {
+            if (checkStatus == "1") {
+                mini.alert("该文档已经校核，无需重复确认");
+                return;
+            }
+            mini.confirm("校核后文件将重新生成，确定校核通过？", "校核确认", function (action) {
+                if (action == "ok") {
+                    var strWhere = {
+                        xqkbId: xqkbId,
+                        reviewer: GetCookie("LOGINNAME"),
+                        checkStatus:1,
+                    };
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loading',
+                        html: '校核中，文件更新中...'
+                    });
+                    app.post("SWZZ_RTSQ_sqkb/updateReviewer", strWhere, function (res) {
+                        mini.unmask(document.body);
+                        if (res.message== "校核人更新成功！") {
+                            ShowMsg(res.message);
+                            checkStatus = "1";
+                            $("#btnConfirm").hide();
+                            // 刷新 PDF 预览
+                            var fileName = GetQueryString("file");
+                            var pdfFile = fileName.replaceAll(".docx", ".pdf");
+                            $("#pdfFrame").attr("src", HttpUrl + "sqkb/" + pdfFile + "?t=" + new Date().getTime());
+                            // 通知列表页刷新
+                            if (window.parent && window.parent.search) {
+                                window.parent.search();
+                            }
+                        } else {
+                            mini.alert("校核失败，请重试");
+                        }
+                    });
+                }
+            });
+        }
+
+        function closeWindow() {
+            if (window.parent && window.parent.search) {
+                window.parent.search();
+            }
+            window.close();
+        }
+
+        top["win"] = window;
+    </script>
+</body>
+</html>

@@ -14,7 +14,7 @@ try {
 var labels = new Array();
 var _globallevel = 5;
 /*设置图层的飞行提示*/
-setLayerToolTip(RainLayerGraphicLayer, "stnm", "drp", "累计雨量@(mm)");
+setLayerToolTip(RainLayerGraphicLayer, "stnm", "drp,rvnm,slp,addvnm,atcunit", "累计雨量@(mm),河流,水利片,行政区,来源");
 
 RainLayerGraphicLayer.on("click", onYQClick);
 

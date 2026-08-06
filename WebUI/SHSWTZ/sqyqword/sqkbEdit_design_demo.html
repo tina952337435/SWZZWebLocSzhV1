@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图5站点选择 - 设计方案预览</title>
+    <style>
+        :root {
+            --ink: #1a1f2e;
+            --ink-light: #3d4a63;
+            --paper: #f5f1ea;
+            --paper-warm: #ede8df;
+            --accent: #017DE4;
+            --accent2: #c0392b;
+            --accent-light: #e8eff8;
+            --gold: #a07c30;
+            --border: #c8bfad;
+            --shadow: rgba(30, 40, 80, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif;
+            background: #e8e3d9;
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        /* ========== 报告文档（模拟） ========== */
+        .document {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 20px var(--shadow);
+            padding: 60px 72px;
+            max-width: 860px;
+            width: 100%;
+            position: relative;
+        }
+        .document::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+            border-radius: 4px 4px 0 0;
+        }
+        .doc-section-title {
+            font-family: 'Noto Serif SC', 'SimSun', serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 14px;
+            padding: 6px 0 6px 12px;
+            border-left: 4px solid var(--accent);
+            background: var(--accent-light);
+        }
+        .doc-figure {
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            margin: 16px 0;
+            color: var(--ink-light);
+            font-size: 13px;
+        }
+        .doc-figure .fig-placeholder {
+            margin-bottom: 8px;
+        }
+        .doc-figure .fig-placeholder img {
+            width: 90%;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        .figure-caption {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ========== 切换站点小按钮 ========== */
+        .switch-station-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--accent);
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            user-select: none;
+            border: 1px dashed transparent;
+        }
+        .switch-station-trigger:hover {
+            background: var(--accent-light);
+            border-color: var(--accent);
+        }
+        .switch-station-trigger .icon {
+            font-size: 15px;
+        }
+
+        /* ========== 遮罩层 ========== */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(26, 31, 46, 0.45);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* ========== 弹窗面板 ========== */
+        .station-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
+            width: 720px;
+            max-width: 92vw;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-header h3 {
+            font-family: 'Noto Serif SC', 'SimSun', serif;
+            font-size: 17px;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-header h3 .badge {
+            font-size: 12px;
+            font-weight: 400;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        .panel-close {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            border: none;
+            background: #f0f0f0;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+            color: #666;
+        }
+        .panel-close:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        /* 搜索/筛选区 */
+        .panel-filter {
+            padding: 12px 24px;
+            border-bottom: 1px solid #f0ece4;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .panel-filter .filter-label {
+            font-size: 13px;
+            color: var(--ink-light);
+            white-space: nowrap;
+        }
+        .filter-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .filter-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            color: var(--ink-light);
+        }
+        .filter-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .filter-tag.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .panel-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        /* ========== 站点卡片 ========== */
+        .station-card {
+            border: 2px solid #e8e4db;
+            border-radius: 10px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            position: relative;
+        }
+        .station-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 2px 12px rgba(1, 125, 228, 0.1);
+            transform: translateY(-2px);
+        }
+        .station-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            box-shadow: 0 0 0 3px rgba(1, 125, 228, 0.15);
+        }
+        .station-card.selected::after {
+            content: '✓ 当前';
+            position: absolute;
+            top: -1px;
+            right: 12px;
+            background: var(--accent);
+            color: white;
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 0 0 6px 6px;
+        }
+
+        .station-card .slp-name {
+            font-size: 11px;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .station-card .stnm-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+        .station-card .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 12px;
+            font-size: 12px;
+            color: var(--ink-light);
+        }
+        .station-card .metrics .val {
+            color: var(--ink);
+            font-weight: 600;
+        }
+        .station-card .change-up {
+            color: var(--accent2);
+        }
+        .station-card .change-down {
+            color: #2e7d52;
+        }
+
+        .panel-footer {
+            padding: 12px 24px 20px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--ink-light);
+            border-top: 1px solid #f0ece4;
+        }
+
+        /* 打印时隐藏 */
+        @media print {
+            .switch-station-trigger { display: none !important; }
+        }
+
+        /* 设计标注 */
+        .design-label {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: #ffd54f;
+            font-size: 13px;
+            padding: 6px 20px;
+            border-radius: 20px;
+            z-index: 999;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="design-label">📐 设计方案预览 — 图5站点选择弹窗</div>
+
+    <!-- ========== 模拟报告文档 ========== -->
+    <div class="document">
+        <div class="doc-section-title">二、简要分析</div>
+        <p style="margin-bottom:20px;line-height:2;color:var(--ink);">受强降雨影响，全市多站水位出现不同程度上涨...</p>
+
+        <!-- ========== 图5 区域 ========== -->
+        <div class="doc-figure">
+            <div class="fig-placeholder">
+                <!-- 模拟水位过程线图 -->
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='220'%3E%3Crect fill='%23f8f7f4' width='600' height='220'/%3E%3Cpolyline fill='none' stroke='%23017DE4' stroke-width='2.5' points='20,180 80,160 140,140 200,120 260,100 320,90 380,60 440,50 500,70 560,110'/%3E%3Cline stroke='%23c0392b' stroke-width='1.5' stroke-dasharray='6,3' x1='0' y1='40' x2='600' y2='40'/%3E%3Ctext fill='%23c0392b' font-size='11' x='5' y='35'%3E警戒 3.20m%3C/text%3E%3Ctext fill='%23666' font-size='10' x='500' y='195'%3E2026-07-29 08:00 ~ 07-30 08:00%3C/text%3E%3C/svg%3E" alt="水位过程线">
+            </div>
+            <div class="figure-caption">
+                <span>图5 &nbsp; <strong id="figTitleDemo">太北片莲盛水位过程线</strong></span>
+                <!-- ★ 关键：切换站点小按钮 -->
+                <a class="switch-station-trigger" onclick="openStationPanel()" title="切换站点">
+                    <span class="icon">🔄</span> 切换站点
+                </a>
+            </div>
+        </div>
+
+        <p style="line-height:2;color:var(--ink);">太北片莲盛站最高水位2.79m，最低2.64m，变幅0.15m...</p>
+    </div>
+
+    <!-- ========== 弹窗面板（默认显示，方便预览） ========== -->
+    <div class="overlay" id="stationOverlay">
+        <div class="station-panel">
+
+            <!-- 弹窗头部 -->
+            <div class="panel-header">
+                <h3>
+                    📊 选择水位站点
+                    <span class="badge">14个站点</span>
+                </h3>
+                <button class="panel-close" onclick="closeStationPanel()" title="关闭">✕</button>
+            </div>
+
+            <!-- 片区分组筛选 -->
+            <div class="panel-filter">
+                <span class="filter-label">片区筛选：</span>
+                <div class="filter-tags" id="filterTags">
+                    <span class="filter-tag active" data-slp="all" onclick="filterBySlp('all', this)">全部</span>
+                    <span class="filter-tag" data-slp="太北片" onclick="filterBySlp('太北片', this)">太北片</span>
+                    <span class="filter-tag" data-slp="浦东片" onclick="filterBySlp('浦东片', this)">浦东片</span>
+                    <span class="filter-tag" data-slp="青松片" onclick="filterBySlp('青松片', this)">青松片</span>
+                    <span class="filter-tag" data-slp="蕰南片" onclick="filterBySlp('蕰南片', this)">蕰南片</span>
+                    <span class="filter-tag" data-slp="其他" onclick="filterBySlp('其他', this)">其他片区</span>
+                </div>
+            </div>
+
+            <!-- 卡片网格 -->
+            <div class="panel-body" id="stationCards">
+                <!-- JS动态生成 -->
+            </div>
+
+            <div class="panel-footer">
+                💡 点击卡片切换图5站点，当前选中为 <strong id="currentStationLabel">太北片-莲盛</strong>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟 waterLevelStationList 数据
+        const stationList = [
+            { stnm: "莲盛",   slp: "太北片",  change: 0.15, maxLevel: 2.79, minLevel: 2.64, wrz: 3.20, chartTitle: "太北片莲盛水位过程线" },
+            { stnm: "书院",   slp: "浦东片",  change: 0.09, maxLevel: 2.63, minLevel: 2.54, wrz: 3.30, chartTitle: "浦东片书院水位过程线" },
+            { stnm: "嘉定南门", slp: "嘉宝北片", change: 0.08, maxLevel: 2.83, minLevel: 2.75, wrz: 3.20, chartTitle: "嘉宝北片嘉定南门水位过程线" },
+            { stnm: "陈坊桥",  slp: "青松片",  change: 0.22, maxLevel: 2.80, minLevel: 2.58, wrz: 3.20, chartTitle: "青松片陈坊桥水位过程线" },
+            { stnm: "志丹泵站", slp: "蕰南片",  change: 0.46, maxLevel: 2.86, minLevel: 2.40, wrz: 3.50, chartTitle: "蕰南片志丹泵站水位过程线" },
+            { stnm: "张堰（二）", slp: "浦南东片", change: 0.11, maxLevel: 2.62, minLevel: 2.51, wrz: 3.30, chartTitle: "浦南东片张堰（二）水位过程线" },
+            { stnm: "横沙新民", slp: "横沙岛片", change: 0.76, maxLevel: 2.16, minLevel: 1.40, wrz: 2.40, chartTitle: "横沙岛片横沙新民水位过程线" },
+            { stnm: "祝桥",    slp: "浦东片",  change: 0.08, maxLevel: 2.74, minLevel: 2.66, wrz: 3.20, chartTitle: "浦东片祝桥水位过程线" },
+            { stnm: "南桥",    slp: "浦东片",  change: 0.26, maxLevel: 2.83, minLevel: 2.57, wrz: 3.30, chartTitle: "浦东片南桥水位过程线" },
+            { stnm: "朱枫闸",  slp: "太南片",  change: 0.32, maxLevel: 2.84, minLevel: 2.52, wrz: 3.20, chartTitle: "太南片朱枫闸水位过程线" },
+            { stnm: "赵桥",    slp: "浦东片",  change: 0.63, maxLevel: 3.05, minLevel: 2.42, wrz: 3.20, chartTitle: "浦东片赵桥水位过程线" },
+            { stnm: "虹桥",    slp: "淀北片",  change: 0.15, maxLevel: 2.86, minLevel: 2.71, wrz: 3.20, chartTitle: "淀北片虹桥水位过程线" },
+            { stnm: "北桥",    slp: "淀南片",  change: 0.27, maxLevel: 2.89, minLevel: 2.62, wrz: 3.20, chartTitle: "淀南片北桥水位过程线" },
+            { stnm: "青浦南门", slp: "青松片",  change: 0.18, maxLevel: 2.79, minLevel: 2.61, wrz: 3.20, chartTitle: "青松片青浦南门水位过程线" },
+        ];
+
+        // 默认选中涨幅最大的站点
+        let selectedIdx = stationList.reduce((maxIdx, s, i, arr) =>
+            s.change > arr[maxIdx].change ? i : maxIdx, 0
+        );
+
+        function renderCards(filterSlp = 'all') {
+            const container = document.getElementById('stationCards');
+            container.innerHTML = stationList
+                .map((s, i) => {
+                    const isSelected = i === selectedIdx;
+                    // 片区分组筛选逻辑
+                    let visible = filterSlp === 'all' || s.slp === filterSlp;
+                    // "其他" 筛选：非主要片区
+                    const mainSlps = ['太北片','浦东片','青松片','蕰南片'];
+                    if (filterSlp === '其他') visible = !mainSlps.includes(s.slp);
+                    return { ...s, idx: i, isSelected, visible };
+                })
+                .filter(s => s.visible)
+                .map(s => `
+                    <div class="station-card ${s.isSelected ? 'selected' : ''}"
+                         onclick="selectStation(${s.idx})"
+                         title="点击切换到${s.slp}${s.stnm}">
+                        <div class="slp-name">${s.slp}</div>
+                        <div class="stnm-name">${s.stnm}</div>
+                        <div class="metrics">
+                            <div>涨幅 <span class="val ${s.change >= 0 ? 'change-up' : 'change-down'}">${s.change >= 0 ? '+' : ''}${s.change.toFixed(2)}m</span></div>
+                            <div>警戒 <span class="val">${s.wrz.toFixed(2)}m</span></div>
+                            <div>最高 <span class="val">${s.maxLevel.toFixed(2)}m</span></div>
+                            <div>最低 <span class="val">${s.minLevel.toFixed(2)}m</span></div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function selectStation(idx) {
+            selectedIdx = idx;
+            const s = stationList[idx];
+            // 更新图5标题
+            document.getElementById('figTitleDemo').textContent = s.chartTitle;
+            // 更新弹窗底部标签
+            document.getElementById('currentStationLabel').textContent = `${s.slp}-${s.stnm}`;
+            // 重新渲染卡片
+            const activeTag = document.querySelector('.filter-tag.active');
+            renderCards(activeTag ? activeTag.dataset.slp : 'all');
+        }
+
+        function filterBySlp(slp, el) {
+            document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            renderCards(slp);
+        }
+
+        function openStationPanel() {
+            document.getElementById('stationOverlay').style.display = 'flex';
+            renderCards(document.querySelector('.filter-tag.active')?.dataset?.slp || 'all');
+        }
+
+        function closeStationPanel() {
+            document.getElementById('stationOverlay').style.display = 'none';
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('stationOverlay').addEventListener('click', function(e) {
+            if (e.target === this) closeStationPanel();
+        });
+
+        // 初始渲染
+        renderCards();
+        document.getElementById('currentStationLabel').textContent =
+            stationList[selectedIdx].slp + '-' + stationList[selectedIdx].stnm;
+    </script>
+</body>
+</html>

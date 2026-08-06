@@ -1047,46 +1047,46 @@ function setMapZoomNew(myLayer, mapLevel, stType, field, switchChecked) {
                 // MAPSIZE =parseInt(MAPSIZE) + 1;
                 // console.error(item.attributes.stnm, stType + item.attributes[field])
                 if (mapLevel < globallevel) {
-                    addClassParam(stType + item.attributes[field], "none");
+                    addClassParam(stType + item.attributes[field], "nonenew");
                 } else if (globallevel == MAPSIZE) { //当站点层级等于默认地图层级时，一直要显示
                     //11级以下，隐藏 lable信息
                     if (switchChecked == true) {
-                        removeClassParam(stType + item.attributes[field], "none");
+                        removeClassParam(stType + item.attributes[field], "nonenew");
                     } else {
-                        addClassParam(stType + item.attributes[field], "none");
+                        addClassParam(stType + item.attributes[field], "nonenew");
                     }
                 } else {                    
                     // console.error(item.attributes.stnm, 'mapLevel=' + mapLevel, 'MAPSIZE=' + MAPSIZE, stType, item)
                     if (mapLevel >= MAPSIZE) {
                         item.show();
                         if (switchChecked == true) {
-                            removeClassParam(stType + item.attributes[field], "none");
+                            removeClassParam(stType + item.attributes[field], "nonenew");
                         } else {
-                            addClassParam(stType + item.attributes[field], "none");
+                            addClassParam(stType + item.attributes[field], "nonenew");
                         }
                     } else {
                         item.hide();
-                        addClassParam(stType + item.attributes[field], "none");
+                        addClassParam(stType + item.attributes[field], "nonenew");
                     }
                 }
             } else {
                 if (mapLevel < globallevel) {
-                    addClassParam(stType + item.attributes[field], "none");
+                    addClassParam(stType + item.attributes[field], "nonenew");
                 } else {
                     if (mapLevel > globallevel) {
                         if ($("#riverMarker").hasClass("checked") == true) {
-                            removeClassParam(stType + item.attributes[field], "none");
+                            removeClassParam(stType + item.attributes[field], "nonenew");
                         } else {
-                            addClassParam(stType + item.attributes[field], "none");
+                            addClassParam(stType + item.attributes[field], "nonenew");
                         }
                     } else if (mapLevel == globallevel) {
                         if ($("#riverMarker").hasClass("checked") == true) {
-                            removeClassParam(stType + item.attributes[field], "none");
+                            removeClassParam(stType + item.attributes[field], "nonenew");
                         } else {
-                            addClassParam(stType + item.attributes[field], "none");
+                            addClassParam(stType + item.attributes[field], "nonenew");
                         }
                     } else {
-                        addClassParam(stType + item.attributes[field], "none");
+                        addClassParam(stType + item.attributes[field], "nonenew");
                     }
                 }
             }
@@ -1095,30 +1095,30 @@ function setMapZoomNew(myLayer, mapLevel, stType, field, switchChecked) {
     }
 
     if(mapLevel>=12){
-        removeClassParamByClass("MapTextNew", "none");
+        removeClassParamByClass("MapTextNew", "nonenew");
     }
     else{
-        addClassParamByClass("MapTextNew", "none");
+        addClassParamByClass("MapTextNew", "nonenew");
     }
 
     if(mapLevel>=13){
-        removeClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "none");
+        removeClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "nonenew");
     }
     else{
-        addClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "none");
+        addClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "nonenew");
     }
 
     if(mapLevel>=12){
-        removeClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "none");
+        removeClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "nonenew");
     }
     else{
-        addClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "none");
+        addClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "nonenew");
     } 
     
     if(mapLevel>=13){       
-       removeClassParamByClass("lightGQ", "none");
+       removeClassParamByClass("lightGQ", "nonenew");
     }else{
-       addClassParamByClass("lightGQ", "none");
+       addClassParamByClass("lightGQ", "nonenew");
     }
 }
 

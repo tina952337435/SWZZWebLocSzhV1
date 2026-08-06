@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">滚动单预报专报</title>
+    <style>
+        :root {
+            --ink: #1a1f2e;
+            --ink-light: #3d4a63;
+            --paper: #f5f1ea;
+            --paper-warm: #ede8df;
+            --accent: #017DE4;
+            --accent2: #c0392b;
+            --accent-light: #e8eff8;
+            --gold: #a07c30;
+            --border: #c8bfad;
+            --success: #2e7d52;
+            --shadow: rgba(30, 40, 80, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            color: var(--ink);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Layout */
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            border-right: 1px solid var(--border);
+            padding: 28px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .sidebar-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--ink-light);
+            text-transform: uppercase;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-label {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--ink);
+        }
+
+        .btn-generate {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 20px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+        }
+
+        .btn-generate.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .notice {
+            background: #fff8e1;
+            border: 1px solid #f5c842;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #7a6200;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            line-height: 1.6;
+        }
+
+        /* Main content */
+        .main-content {
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+            height: 100%;
+        }
+
+        /* Placeholder */
+        .placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 16px;
+            color: var(--ink-light);
+            opacity: 0.6;
+        }
+
+        .placeholder-icon {
+            font-size: 64px;
+        }
+
+        .placeholder h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 22px;
+        }
+
+        .placeholder p {
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* Report toolbar */
+        .report-toolbar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            border-bottom: 2px solid var(--border);
+            background: #fafaf8;
+        }
+
+        .report-toolbar.visible {
+            display: flex;
+        }
+
+        .report-toolbar h2 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 16px;
+            color: var(--accent);
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-action {
+            padding: 7px 16px;
+            border-radius: 7px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            border: 1.5px solid;
+        }
+
+        .btn-outline {
+            background: white;
+            border-color: var(--border);
+            color: var(--ink-light);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #163d73;
+        }
+
+        .btn-save-action {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .btn-save-action:hover {
+            background: #1e5e3a;
+        }
+
+        /* PDF preview area */
+        .preview-area {
+            display: none;
+            width: 100%;
+            height: calc(100% - 50px);
+        }
+
+        .preview-area.visible {
+            display: block;
+        }
+
+        .preview-area iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(245, 241, 234, 0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 200;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-overlay.visible {
+            display: flex;
+        }
+
+        .loading-wave {
+            display: flex;
+            gap: 6px;
+        }
+
+        .loading-wave span {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+
+        .loading-wave span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .loading-wave span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-14px);
+            }
+        }
+
+        .loading-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            color: var(--accent);
+        }
+
+        .loading-sub {
+            font-size: 13px;
+            color: var(--ink-light);
+        }
+
+        @media print {
+            .sidebar,
+            .report-toolbar {
+                display: none !important;
+            }
+
+            .main-content {
+                padding: 0;
+            }
+
+            .preview-area {
+                height: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="field-group">
+                    <div class="field-label">台风选择</div>
+                    <input id="typhoonCombo" class="mini-combobox" style="width:100%;"
+                           textField="label" valueField="id"
+                           emptyText="请选择台风..." showNullItem="false"
+                           allowInput="true"
+                           onvaluechanged="onTyphoonChanged" />
+                </div>
+            </div>
+
+            <button class="btn-generate" id="btnGenerate" onclick="generateReport()">
+                <div class="spinner" id="spinner"></div>
+                <span id="btnText">⚡ 生成报告</span>
+            </button>
+
+            <div class="notice">
+                💡 请先选择台风，点击「生成报告」后右侧将显示PDF预览，确认无误后点击「保存」生成记录入库。
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main-content">
+            <div class="placeholder" id="placeholder">
+                <div class="placeholder-icon">📋</div>
+                <h2>暂无报告</h2>
+                <p>请在左侧选择台风<br>点击「生成报告」即可预览报告</p>
+            </div>
+
+            <div class="report-toolbar" id="reportToolbar">
+                <h2 id="toolbarTitle">报告预览</h2>
+                <div class="toolbar-actions">
+                    <!-- <button class="btn-action btn-primary" onclick="downloadPdf()">📤 下载PDF</button> -->
+                    <button class="btn-action btn-save-action" onclick="saveRecord()">📥 保存记录</button>
+                </div>
+            </div>
+
+            <div class="preview-area" id="previewArea">
+                <iframe id="pdfFrame" src=""></iframe>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-wave">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="loading-text">正在生成报告...</div>
+        <div class="loading-sub" id="loadingStep">正在获取台风信息</div>
+    </div>
+
+    <script>
+        mini.parse();
+
+        var currentPdfPath = '';      // 当前生成的PDF文件路径
+        var currentTyphoonId = '';    // 当前选中的台风ID
+        var currentTyphoonCode = '';  // 当前选中的台风编号
+        var currentTyphoonName = '';  // 当前选中的台风名称
+        var reportType = GetQueryString("reportType") || "滚动单预报专报";  // 从URL参数获取reportType，默认值
+        var getReportData = {};       // 生成报告返回的数据
+
+        // ========== 初始化：加载下拉框 ==========
+        $(function () {
+            document.title = reportType;
+            loadTyphoonList();
+        });
+
+        // 加载台风列表
+        function loadTyphoonList() {
+            var combo = mini.get("typhoonCombo");
+            app.get("SWZZ_REPORT_GENERATOR/typhoonList", {}, function (res) {
+                var list = res.data;
+                if (list && list.length > 0) {
+                    // 构造显示文本：code + name
+                    for (var i = 0; i < list.length; i++) {
+                        list[i].label = list[i].code + " " + list[i].name;
+                    }
+                    combo.setData(list);
+                    combo.select(0);
+                    currentTyphoonId = combo.getValue();
+                    var item = combo.getSelected();
+                    currentTyphoonCode = item ? item.code : '';
+                    currentTyphoonName = item ? item.name : '';
+                }
+            });
+        }
+
+        // 台风切换事件
+        function onTyphoonChanged(e) {
+            var combo = mini.get("typhoonCombo");
+            currentTyphoonId = combo.getValue();
+            var item = combo.getSelected();
+            currentTyphoonCode = item ? item.code : '';
+            currentTyphoonName = item ? item.name : '';
+        }
+
+        // ========== 生成报告 ==========
+        var loadingSteps = [
+            '正在获取台风信息…',
+            '正在生成预报专报…',
+            '正在生成PDF文件…',
+            '正在加载预览…'
+        ];
+
+        function generateReport() {
+            var typhoonCombo = mini.get("typhoonCombo");
+            currentTyphoonId = typhoonCombo.getValue();
+            var typhoonItem = typhoonCombo.getSelected();
+            currentTyphoonCode = typhoonItem ? typhoonItem.code : '';
+            currentTyphoonName = typhoonItem ? typhoonItem.name : '';
+
+            var btn = document.getElementById('btnGenerate');
+            var spinner = document.getElementById('spinner');
+            var btnText = document.getElementById('btnText');
+            var overlay = document.getElementById('loadingOverlay');
+            var stepEl = document.getElementById('loadingStep');
+
+            // 动画步骤
+            var stepIdx = 0;
+            var stepInterval = setInterval(function () {
+                stepEl.textContent = loadingSteps[Math.min(stepIdx++, loadingSteps.length - 1)];
+            }, 800);
+
+            btn.classList.add('loading');
+            spinner.style.display = 'block';
+            btnText.textContent = '生成中…';
+            overlay.classList.add('visible');
+
+            var strWhere = {
+                "reportType": reportType,
+                "typhoonId": currentTyphoonId,
+                "typhoonCode": currentTyphoonCode,
+                "typhoonName": currentTyphoonName,
+                "author": GetCookie("LOGINNAME")
+            };
+
+            app.post("SWZZ_REPORT_GENERATOR/generateDraft", strWhere, function (res) {
+                clearInterval(stepInterval);
+                overlay.classList.remove('visible');
+                btn.classList.remove('loading');
+                spinner.style.display = 'none';
+                btnText.textContent = '⚡ 重新生成';
+
+                var data = res.data;
+                if (!data || !data.pdfPath) {
+                    mini.alert("生成报告失败，请重试！");
+                    return;
+                }
+
+                getReportData = data;
+                currentPdfPath = data.pdfPath;
+
+                // 构建PDF完整URL
+                var pdfUrl = HttpUrl + currentPdfPath + "?t=" + new Date().getTime();
+
+                // 显示PDF预览
+                document.getElementById('placeholder').style.display = 'none';
+                document.getElementById('reportToolbar').classList.add('visible');
+                document.getElementById('toolbarTitle').textContent = reportType + ' · ' + currentTyphoonName;
+                document.getElementById('previewArea').classList.add('visible');
+                document.getElementById('pdfFrame').src = pdfUrl;
+            });
+        }
+
+        // ========== 下载PDF ==========
+        function downloadPdf() {
+            if (!currentPdfPath) {
+                mini.alert("请先生成报告！");
+                return;
+            }
+            var pdfUrl = HttpUrl + currentPdfPath;
+            window.open(pdfUrl);
+        }
+
+        // ========== 保存记录入库（与 sqkbEdit 一致） ==========
+        function saveRecord() {
+            if (!currentPdfPath) {
+                mini.alert("请先生成报告！");
+                return;
+            }
+
+            mini.confirm("确认保存该预报专报记录？", "保存确认", function (action) {
+                if (action == "ok") {
+                    mini.mask({
+                        el: document.body,
+                        cls: 'mini-mask-loading',
+                        html: '保存中，请稍等...'
+                    });
+
+                    getReportData.record = true;
+                    // getReportData.title = document.getElementById('toolbarTitle').textContent;
+                    getReportData.author = GetCookie("LOGINNAME");
+
+
+                    var s_where={
+                        "XQKB_TITLE":getReportData.content.title,
+                        "XQKB_TM": new Date().format("yyyy-MM-dd HH:mm:ss"),
+                        "XQKB_QIHAO": getReportData.qihao,
+                        "XQKB_FILE": getReportData.fileName,
+                        "XQKB_OWEN": getReportData.author,
+                        "XQKB_TYPE":getReportData.reportType,
+                        "XQKB_CHECK_STATUS": "0"
+                   }
+
+                    app.post("SWZZ_REPORT_GENERATOR/saveRecord", s_where, function (res) {
+                        var data = res.data;
+                        if (SetNull(data) != "") {
+                            ShowMsg("保存成功！");
+                            var fileName = data.fileName;
+                            window.open("/ModeUploadDoc/" + getReportData.docxPath);
+                            mini.unmask(document.body);
+                        }
+                        else {
+                            ShowMsg("保存失败！");
+                            mini.unmask(document.body);
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

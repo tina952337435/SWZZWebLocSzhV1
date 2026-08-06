@@ -380,7 +380,7 @@
                 return new Date(convertToDate(item.TM)).format("yyyy-MM-dd HH:mm:ss") == tm;
             });
             $.get(
-                "../../Common/上海市2000.json",//json路径
+                "../../Common/shArea2000.json",//json路径
                 lang.hitch(this, function (data, status) {
                     if (status === "success") {
                         var features = data.features;
