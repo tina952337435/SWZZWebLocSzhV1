@@ -82,6 +82,7 @@
                             <a class="mini-button" onclick="doExport()">导出</a>
                         </td>
                         <td align="right">
+                            <a class="mini-button" onclick="doExport()" style="margin-right:5px;">导出</a>
                             <div class="bootstrap-switch ">
                                 <div class="bootstrap-switch-container">
                                     <span class="bootstrap-switch-handle-on switch" onclick="OnBoot(this.id,'fit1')" id="switch1"><i class="fa fa-line-chart"></i></span>
@@ -197,6 +198,15 @@
         function btnSearch() {
             $("#dataLoad").show(); //页面加载完毕后即将DIV隐藏
             setTimeout('BreakLayerLoad()', 100);
+        }
+
+        function doExport() {
+            var data = grid.getData();
+            if (data.length > 0) {
+                ExportExcel(data, grid, stnm + "预测水位");
+            } else {
+                mini.alert("暂无数据可导出！");
+            }
         }
 
         function BreakLayerLoad(value) {

@@ -41,6 +41,11 @@
                 var tab = { title: _TYPENAME, url: _url, showCloseButton: false };
                 tabs.addTab(tab);
                 tabs.activeTab(tab);
+
+                _url = "SQLine.html?stcd=" + _stcd + "&stnm=" + (_stnm) + "&stime=" + _stime + "&etime=" + _etime + "&PLAN_N=" + _PLAN_N + "&ZU_ID=" + _ZU_ID;
+                var tab = { title: "水位过程", url: _url, showCloseButton: false };
+                tabs.addTab(tab);
+
                 //GetJosns("WATER_GL_STCDSel", { "STCD": _stcd, "TYPE": "站点关联配置" }, "Sel");
             } else {
                 var _url = "YBSQLine.html?stcd=" + _stcd + "&stnm=" + (_stnm) + "&stime=" + _stime + "&etime=" + _etime + "&PLAN_N=" + _PLAN_N + "&ZU_ID=" + _ZU_ID;

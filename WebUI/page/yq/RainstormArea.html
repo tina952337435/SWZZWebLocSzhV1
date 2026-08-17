@@ -266,6 +266,9 @@
                                         <a class="mini-button" style="margin-left:0px" onclick="loadDZM()">
                                             查询
                                         </a>
+                                        <svg onclick="loadDZMPIC()" title="导出图片" style="width:22px;height:22px;cursor:pointer;margin-left:8px;vertical-align:middle;fill:#3291F9;" viewBox="0 0 24 24">
+                                            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                                        </svg>
                                     </td>
                                 </tr>
                             </table>
@@ -367,9 +370,6 @@
                 <div style="text-align:center;margin-top:10px;">
                     <!-- 降水笼罩面积统计 -->
                     <input value="绘制等值面" id="startButton" onclick="drawIsosurface()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#3291F9; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #3291F9;margin-left: 4px;" class="jNicebtn_submit">
-                </div>
-                <div style="text-align:center;margin-top:10px;">
-                    <input value="导出图片" id="startButton" onclick="loadDZMPIC()" type="button" style="text-align: center; width: 120px; height: 30px; color: #ffffff; cursor: pointer; background:#1fbf1b; border: 0px; -webkit-border-radius: 6px; border-radius: 6px;border:1px solid #1fbf1b;margin-left: 4px;" class="jNicebtn_submit">
                 </div>
             </div>
         </div>
@@ -684,7 +684,10 @@
                 var dataResult = data.data;
                 $.data(myData, "STATIONDATA", dataResult);
                 addYQMarker();
-                mini.unmask(document.body);
+                // 默认自动绘制等值面
+                setTimeout(function () {
+                    drawIsosurface();
+                }, 100);
             }
         }
         function hexToRgb(hex) {
@@ -1127,12 +1130,11 @@
                 var valueStart = $("#GCVALUEA" + (_index + 1)).val();
                 var colorValue = $("#full" + (_index + 1)).val();
                 if (valueStart != "") {
-                    var valueGrade=parseFloat( valueStart);
+                    var valueGrade=parseFloat(valueStart);
                     if(valueGrade==0){
                         valueGrade=0.01;
                     }
-                    jibieArr.push(parseFloat( valueStart));
-                    // console.error("colorValue",colorValue);
+                    jibieArr.push(valueGrade);
                     colors.push(colorValue);
                 }
             });
@@ -1250,10 +1252,16 @@
         function buildStationList(stationData) {
             var obj = stationData || $.data(myData, "STATIONDATA");
             if (!obj) return;
+            // 按雨量从大到小排序
+            var sortedList = obj.slice().sort(function (a, b) {
+                var drpA = parseFloat(a.drp) || 0;
+                var drpB = parseFloat(b.drp) || 0;
+                return drpB - drpA;
+            });
             var html = '';
             var areaSet = {}; // 收集去重的行政分区
-            for (var i = 0; i < obj.length; i++) {
-                var item = obj[i];
+            for (var i = 0; i < sortedList.length; i++) {
+                var item = sortedList[i];
                 if (!item.stcd) continue;
                 var addvnm = item.addvnm || '';
                 if (addvnm && !areaSet[addvnm]) areaSet[addvnm] = true;
@@ -1368,9 +1376,9 @@
                 var f = parseFloat(item.drp);
                 // 被排除的站点value置0，但仍传给API以保证插值算法有完整的空间参考点
                 var value = excludedStations.has(item.stcd) ? 0 : f;
-                if(excludedStations.has(item.stcd)){
-                    console.error(item.stnm,value);
-                }
+                // if(excludedStations.has(item.stcd)){
+                //     console.error(item.stnm,value);
+                // }
                 if (SetNull(item.lgtd) != "" && SetNull(item.lttd) != ""&&item.drp!=null&&item.drp!=undefined) {
                     RainfallStr.push({ lon: item.lgtd, lat: item.lttd, value: value });
                     if (item.stcd == "63422650") {

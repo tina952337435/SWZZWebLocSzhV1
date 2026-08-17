@@ -74,6 +74,7 @@
     </style>
 </head>
 <body>
+    <div style="font-size: 16px;height: 40px;line-height: 40px;padding-left: 20px;">模型任务编号：<span id="modTaskID"></span></div>
     <!-- 主Tab切换栏 -->
     <div class="tab-bar">
         <a class="tab-btn active" id="tabRain" href="javascript:void(0)" onclick="switchTab('rain')">降雨边界</a>
@@ -142,6 +143,7 @@
         var SOLUTIONID = GetQueryString("SOLUTIONID") || GetQueryString("DD_ID") || "0";
         var STIME = GetQueryString("stime") || "";
         var ETIME = GetQueryString("etime") || "";
+        var taskID=GetQueryString("taskID") || "";
 
         var dataLoaded = { rain: false, tide: false, gc: false };
 
@@ -154,6 +156,7 @@
         var str_tideStcds = "";   // 潮位站点类型选中的stcd列表
 
         $(function () {
+            $("#modTaskID").html(taskID);
             loadRainfallData();
         });
 

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" type="text/css" />
+    <title>槽蓄量计算</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+            font-size: 12px;
+        }
+        .toolbar-cell {
+            padding: 4px 4px;
+        }
+        .toolbar-cell label {
+            margin-right: 4px;
+        }
+        .note-bar {
+            height: 30px;
+            line-height: 30px;
+            color: #999;
+            padding-left: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .diff-col {
+            color: #0551BD;
+        }
+        .rain-col {
+            color: #0a7d32;
+        }
+        .mini-grid-headerCell-inner {
+            text-align: center;
+            line-height: 16px;
+            white-space: normal;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== 工具栏 ===== -->
+    <div class="mini-toolbar" style="padding: 6px 8px; border-bottom: 1px solid #e8e8e8;">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td class="toolbar-cell">
+                    <label>方案选择：</label>
+                    <input id="ddId" class="mini-combobox" style="width: 320px;" textField="text" valueField="id"
+                        emptyText="请选择预报方案" onvaluechanged="onFangAnChange" />
+                </td>
+                <td class="toolbar-cell">
+                    <label>时间选择：</label>
+                    <input id="stime" class="mini-datepicker" style="width: 120px;" format="yyyy-MM-dd HH"
+                        timeFormat="H:00:00" showTime="true" showOkButton="false" showClearButton="false" />
+                </td>
+                <td class="toolbar-cell">
+                    <label>筛选：</label>
+                    <input id="waterType" class="mini-combobox" style="width: 130px;" textField="text" valueField="id"
+                        value="yj" data="[{id:'yj',text:'预降目标水位'},{id:'predict',text:'预测水位'},{id:'actual',text:'实测水位'}]"
+                        onvaluechanged="onWaterTypeChange" />
+                </td>
+                <td class="toolbar-cell">
+                    <label>径流系数：</label>
+                    <input id="runoff" class="mini-textbox" style="width: 60px;" value="0.6" vtype="float"
+                        onvaluechanged="onRunoffChange" />
+                </td>
+                <td class="toolbar-cell">
+                    <a class="mini-button" onclick="doQuery" style="margin-right: 6px;">查 询</a>
+                    <a class="mini-button" onclick="doCalc" style="margin-right: 6px;">计 算</a>
+                    <a class="mini-button" onclick="doExport">导出Excel</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ===== 数据表格 ===== -->
+    <div id="grid" class="mini-datagrid" style="width: 100%; height: calc(100% - 90px);"
+        allowAlternating="true" allowCellSelect="true" allowCellEdit="true" cellEditAction="celldblclick"
+        showEmptyText="true" emptyText="暂无数据" alwaysShowEmptyText="true"
+        allowHeaderWrap="true"
+        ondrawcell="ondrawcell"
+        oncellbeginedit="onCellBeginEdit" showpager="false" >
+    </div>
+
+    <div class="note-bar">
+        说明：库容 f(x)=a·x²+b·x+c；库容差=库容(参考)−库容(当前)，单位百万m³；片纳雨量(mm)=库容差÷面积×1000；全市/大陆纳雨量=总库容÷总面积÷径流系数×1000；预降/预测/常水位列可双击输入，点“计算”重算。
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+
+        var grid = mini.get("grid");
+        var combo = mini.get("ddId");
+        var datepicker = mini.get("stime");
+
+        // ==================== 列定义 ====================
+        // 固定列（无论选择哪个水位类型都显示）
+        var fixedColumns = [
+            { type: "indexcolumn", header: "序号", width: 50, align: "center" },
+            { field: "slpName", header: "水利片名称", width: 110, align: "center" },
+            { field: "area", header: "面积(km²)", width: 85, align: "center" },
+            { field: "hhArea", header: "河湖面积(km²)", width: 100, align: "center", decimalPlaces: "4", dataType: "float" },
+            { field: "stnmList", header: "代表站", width: 150, align: "center" },
+            { field: "cSw", header: "常水位", width: 70, align: "center", decimalPlaces: "2", dataType: "float", editor: { type: "textbox", vtype: "float" } },
+            { field: "xjjSw", header: "新警戒水位", width: 85, align: "center", decimalPlaces: "2", dataType: "float" },
+            { field: "bzSw", header: "保证水位", width: 70, align: "center", decimalPlaces: "2", dataType: "float" }
+        ];
+        // 预测水位相关列（顺序：实测、常、警戒、保证）
+        var predictColumns = [
+            { field: "predictSw", header: "预测水位", width: 75, align: "center", decimalPlaces: "2", dataType: "float", editor: { type: "textbox", vtype: "float" } },
+            { field: "diff1", header: "预测距实测<br/>库容差", width: 100, align: "center", cls: "diff-col" },
+            { field: "rain1", header: "预测距实测<br/>纳雨量(mm)", width: 100, align: "center", cls: "rain-col" },
+            { field: "diff2", header: "预测距常水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain2", header: "预测距常水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "diff4", header: "预测距警戒水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain4", header: "预测距警戒水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "diff3", header: "预测距保证水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain3", header: "预测距保证水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" }
+        ];
+        // 预降目标水位相关列（顺序：实测、常、警戒、保证）
+        var yjColumns = [
+            { field: "yjSw", header: "预降目标水位", width: 110, align: "center", editor: { type: "textbox", vtype: "float" } },
+            { field: "diff11", header: "预降距实测<br/>库容差", width: 100, align: "center", cls: "diff-col" },
+            { field: "rain11", header: "预降距实测<br/>纳雨量(mm)", width: 100, align: "center", cls: "rain-col" },
+            { field: "diff8", header: "预降距常水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain8", header: "预降距常水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "diff10", header: "预降距警戒水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain10", header: "预降距警戒水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "diff9", header: "预降距保证水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain9", header: "预降距保证水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" }
+        ];
+        // 实测水位相关列（顺序：常、警戒、保证）
+        var actualColumns = [
+            { field: "actualSw", header: "实测水位", width: 75, align: "center", decimalPlaces: "2", dataType: "float" },
+            { field: "diff5", header: "实测距常水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain5", header: "实测距常水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "diff7", header: "实测距警戒水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain7", header: "实测距警戒水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "diff6", header: "实测距保证水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
+            { field: "rain6", header: "实测距保证水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" }
+        ];
+        // 按选择的水位类型组装列（固定列 + 对应水位相关列）
+        function updateColumns() {
+            var type = mini.get("waterType").getValue();
+            var group = (type === "predict") ? predictColumns :
+                        (type === "actual") ? actualColumns : yjColumns;
+            var cols = fixedColumns.concat(group);
+            for (var ci = 0; ci < cols.length; ci++) {
+                cols[ci].headerAlign = "center";
+            }
+
+            
+            cols.push({ field: "formula", header: "公式", width: 190, align: "center" });
+            grid.setColumns(cols);
+        }
+        updateColumns();
+
+        // ==================== 库容计算 ====================
+        // 库容 f(x) = a*x² + b*x + c，任一系数/水位为空返回 null
+        function capacity(sw, a, b, c) {
+            if (sw === null || sw === undefined || sw === "") return null;
+            if (a === null || a === undefined || b === null || b === undefined || c === null || c === undefined) return null;
+            var x = Number(sw);
+            if (isNaN(x)) return null;
+            return Number(a) * x * x + Number(b) * x + Number(c);
+        }
+
+        // 两个库容差；任一为空返回 "-"
+        function capDiff(swA, swB, a, b, c) {
+            var fa = capacity(swA, a, b, c);
+            var fb = capacity(swB, a, b, c);
+            if (fa === null || fb === null) return "-";
+            return (fa - fb).toFixed(2);
+        }
+
+        // 容纳雨量(mm) = 库容差(百万m³) ÷ 面积(km²) × 1000
+        function diffToRain(diffStr, area) {
+            if (diffStr === "-" || area === null || area === undefined || area === "") return "-";
+            var d = Number(diffStr);
+            var a = Number(area);
+            if (isNaN(d) || isNaN(a) || a === 0) return "-";
+            return (d / a * 1000).toFixed(1);
+        }
+
+        // 汇总辅助：字符串/空值 → 数字（"-"或空按 0）
+        function toNum(v) {
+            return (v !== "-" && v !== null && v !== undefined && v !== "") ? Number(v) : 0;
+        }
+
+        // 计算一行全部 10 个库容差（可调蓄量 = 库容(参考水位) − 库容(当前水位)）
+        function computeDiffs(row) {
+            var a = row.formulaA, b = row.formulaB, c = row.formulaC;
+            var yj = row.yjSw; // 预降水位（用户输入，初始为后端 yjSw）
+            // 水位库容关系公式（“公式”列展示用）
+            row.formula = (a !== null && a !== undefined && b !== null && b !== undefined && c !== null && c !== undefined)
+                ? "y=" + a + "x²+" + b + "x" + (Number(c) >= 0 ? "+" : "") + c
+                : "-";
+            row.diff1 = capDiff(row.actualSw, row.predictSw, a, b, c);   // 预测距实测 = f(实测) − f(预测)
+            row.diff2 = capDiff(row.cSw, row.predictSw, a, b, c);        // 预测距常水位
+            row.diff3 = capDiff(row.bzSw, row.predictSw, a, b, c);       // 预测距保证水位
+            row.diff4 = capDiff(row.xjjSw, row.predictSw, a, b, c);      // 预测距警戒水位
+            row.diff5 = capDiff(row.cSw, row.actualSw, a, b, c);         // 实测距常水位
+            row.diff6 = capDiff(row.bzSw, row.actualSw, a, b, c);        // 实测距保证水位
+            row.diff7 = capDiff(row.xjjSw, row.actualSw, a, b, c);       // 实测距警戒水位
+            row.diff8 = capDiff(row.cSw, yj, a, b, c);                   // 预降距常水位
+            row.diff9 = capDiff(row.bzSw, yj, a, b, c);                  // 预降距保证水位
+            row.diff10 = capDiff(row.xjjSw, yj, a, b, c);                // 预降距警戒水位
+            row.diff11 = capDiff(row.actualSw, yj, a, b, c);             // 预降距实测 = f(实测) − f(预降)
+            // 容纳雨量 = 库容差 ÷ 面积 × 1000 (mm)
+            row.rain1 = diffToRain(row.diff1, row.area);
+            row.rain2 = diffToRain(row.diff2, row.area);
+            row.rain3 = diffToRain(row.diff3, row.area);
+            row.rain4 = diffToRain(row.diff4, row.area);
+            row.rain5 = diffToRain(row.diff5, row.area);
+            row.rain6 = diffToRain(row.diff6, row.area);
+            row.rain7 = diffToRain(row.diff7, row.area);
+            row.rain8 = diffToRain(row.diff8, row.area);
+            row.rain9 = diffToRain(row.diff9, row.area);
+            row.rain10 = diffToRain(row.diff10, row.area);
+            row.rain11 = diffToRain(row.diff11, row.area);
+            return row;
+        }
+
+        // ==================== 初始化 ====================
+        $(function () {
+            // 默认时间 = 当前时间
+            datepicker.setValue(new Date().format("yyyy-MM-dd HH:00:00"));
+            loadFangAn();
+        });
+
+        // 加载预报方案下拉
+        function loadFangAn() {
+            app.post("SWZZ_MODE_DD_SOLUTION/findResult", {}, function (res) {
+                if (res.isSuccess) {
+                    var list = res.data || [];
+                    var items = [];
+                    for (var i = 0; i < list.length; i++) {
+                        var it = list[i];
+                        var text = it.dd_NAME || "";
+                        if (it.dd_TM) {
+                            text += "  " + String(it.dd_TM).substring(0, 16);
+                        }
+                        items.push({ id: it.dd_ID, text: text });
+                    }
+                    combo.setData(items);
+                    if (items.length > 0) {
+                        combo.setValue(items[0].id); // 默认选中第一个
+                        doQuery();
+                    }
+                } else {
+                    mini.alert("方案列表加载失败：" + (res.message || ""));
+                }
+            });
+        }
+
+        function onFangAnChange() {
+            doQuery();
+        }
+
+        // 切换水位类型筛选：重建列 + 重算合计
+        function onWaterTypeChange() {
+            updateColumns();
+            calcSummary();
+        }
+
+        // 径流系数变化：重算合计纳雨量
+        function onRunoffChange() {
+            calcSummary();
+        }
+
+        // 合计：全市 / 大陆（扣除崇明、长兴、横沙），作为两行追加到表格里（可导出）
+        function calcSummary() {
+            var all = grid.getData();
+            var detail = [];
+            for (var i = 0; i < all.length; i++) {
+                if (!all[i]._summary) detail.push(all[i]);
+            }
+            var type = mini.get("waterType").getValue();
+            // 每个筛选项对应的 3 个参考水位列 [库容差字段, 纳雨量字段]
+            var refs = {
+                predict: [["diff2", "rain2"], ["diff4", "rain4"], ["diff3", "rain3"]],
+                actual:  [["diff5", "rain5"], ["diff7", "rain7"], ["diff6", "rain6"]],
+                yj:      [["diff8", "rain8"], ["diff10", "rain10"], ["diff9", "rain9"]]
+            }[type] || [["diff8", "rain8"], ["diff10", "rain10"], ["diff9", "rain9"]];
+            var runoff = Number(mini.get("runoff").getValue());
+            if (isNaN(runoff) || runoff <= 0) runoff = 0.6;
+
+            function buildRow(label, onlyMainland) {
+                var row = { _summary: true, slpName: label };
+                var area = 0, sums = [0, 0, 0];
+                for (var i = 0; i < detail.length; i++) {
+                    var r = detail[i];
+                    var name = r.slpName || "";
+                    var isIsland = (name.indexOf("崇明") >= 0 || name.indexOf("长兴") >= 0 || name.indexOf("横沙") >= 0);
+                    if (onlyMainland && isIsland) continue;
+                    area += toNum(r.area);
+                    for (var k = 0; k < refs.length; k++) sums[k] += toNum(r[refs[k][0]]);
+                }
+                for (var k = 0; k < refs.length; k++) {
+                    row[refs[k][0]] = sums[k].toFixed(2);
+                    row[refs[k][1]] = (area > 0) ? (sums[k] / area / runoff * 1000).toFixed(1) : "0.0";
+                }
+                return row;
+            }
+
+            var cityRow = buildRow("全市合计", false);
+            var mainRow = buildRow("大陆合计", true);
+            grid.setData(detail.concat([cityRow, mainRow]));
+        }
+
+        // 查询
+        function doQuery() {
+            var ddId = combo.getValue();
+            var stime = datepicker.getValue();
+            if (!ddId) {
+                mini.alert("请先选择预报方案");
+                return;
+            }
+            if (!stime) {
+                mini.alert("请选择预报时间");
+                return;
+            }
+            var s_where = {
+                ddId: ddId,
+                stime: new Date(stime).format("yyyy-MM-dd HH:mm:ss")
+            };
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
+            app.post("SWZZ_SLP_FORECAST/query", s_where, function (res) {
+                mini.unmask(document.body);
+                if (res.isSuccess) {
+                    var list = res.data || [];
+                    for (var i = 0; i < list.length; i++) {
+                        computeDiffs(list[i]);
+                    }
+                    grid.setData(list);
+                    calcSummary();
+                } else {
+                    grid.setData([]);
+                    mini.alert("查询失败：" + (res.message || ""));
+                }
+            });
+        }
+
+        // ==================== 单元格编辑 ====================
+        // 可编辑的“预降水位”列用浅黄底色标出
+        function ondrawcell(e) {
+            if (e.record && e.record._summary) {
+                e.cellStyle = "background:#dbe9ff;font-weight:bold;";
+            } else if (e.field === "yjSw" || e.field === "predictSw" || e.field === "cSw") {
+                e.cellStyle = "background:#fff8dc;";
+            }
+        }
+        // 只允许编辑“预降目标水位”“预测水位”两列
+        function onCellBeginEdit(e) {
+            if (e.record && e.record._summary) { e.cancel = true; return; }
+            if (e.field !== "yjSw" && e.field !== "predictSw" && e.field !== "cSw") {
+                e.cancel = true;
+            }
+        }
+        // 点击“计算”按钮：按当前预降水位重算所有库容差
+        function doCalc() {
+            var data = grid.getData();
+            if (data.length === 0) {
+                mini.alert("暂无数据，请先查询");
+                return;
+            }
+            for (var i = 0; i < data.length; i++) {
+                var row = data[i];
+                if (row._summary) continue;
+                computeDiffs(row);
+                grid.updateRow(row);
+            }
+            calcSummary();
+        }
+
+        // 导出（简单导出，Excel 依赖 CopyExcel 插件；无插件时提示）
+        function doExport() {
+            // if (grid.getData().length === 0) {
+            //     mini.alert("暂无数据可导出");
+            //     return;
+            // }
+            // grid.exportExcel && grid.exportExcel("水利片水位预测", "水利片水位预测.xlsx", null, null);
+            var name="水位槽蓄量计算"+new Date().format("yyyyMMdd")
+            var data = grid.data;
+            ExportExcel(data,grid,name);
+        }
+    </script>
+</body>
+
+</html>

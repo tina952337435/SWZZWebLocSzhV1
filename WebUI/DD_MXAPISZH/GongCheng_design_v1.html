@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>工程调度 - 方案一设计原型</title>
+    <style>
+        /* ===== miniUI 风格表格样式（提取自 miniui.css default 主题） ===== */
+        html, body {
+            margin: 0; padding: 0; border: 0;
+            width: 100%; height: 100%;
+            font-size: 12px; font-family: Tahoma, Verdana, 宋体;
+            background: #f0f2f5; color: #333; overflow: hidden;
+        }
+
+        /* ===== 步骤导航 ===== */
+        .steps-wrap { background: #fff; padding: 10px 0; border-bottom: 1px solid #d2d2d2; }
+        .pointsRule { display: inline-block; font-size: 16px; margin-top: 10px; }
+        .pointsRule ul { list-style: none; margin: 0; padding: 0; display: inline-block; }
+        .pointsRule ul li {
+            display: list-item; text-align: center; float: left;
+            margin: 10px 5px 0; background: #e3e3e3;
+            border-top: 1px solid #e3e3e3; height: 45px; position: relative;
+        }
+        .pointsRule ul li:first-child { border-left: 1px solid #e3e3e3; background: #e3e3e3; }
+        .pointsRule ul li a { display: block; padding: 8px 0; cursor: pointer; }
+        .pointsRule ul li span {
+            vertical-align: middle; height: 24px; line-height: 25px;
+            display: inline-block; overflow: hidden; text-align: center; margin: 0 20px;
+        }
+        .pointsRule ul li i {
+            float: right; border: #e3e3e3 solid; border-width: 1px 1px 0 0;
+            width: 32px; height: 32px; margin: -2px -17px 0 10px; top: 2px;
+            transform: rotate(45deg); -webkit-transform: rotate(45deg);
+            background: #e3e3e3;
+        }
+        .pointsRule ul li em.before {
+            border: #e3e3e3 solid; border-width: 1px 1px 0 0;
+            width: 32px; height: 32px; transform: rotate(45deg);
+            -webkit-transform: rotate(45deg); float: left;
+            margin: -2px 10px 0px -17px; top: 2px; background: #fff;
+        }
+        .green  { background-color: #1da02b !important; color: #fff !important; }
+        .orange { background-color: #f45438 !important; color: #fff !important; }
+        .gray   { background-color: #e3e3e3 !important; }
+
+        /* ===== 主体布局 ===== */
+        .main-wrap {
+            display: flex; flex-direction: column;
+            height: calc(100vh - 82px); padding: 8px 16px; gap: 8px;
+        }
+
+        /* ===== 筛选区：与现有的 onlytab 风格一致 ===== */
+        .filter-bar {
+            background: #fff; border: 1px solid #d2d2d2; padding: 8px 14px;
+            display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+        }
+        .filter-group { display: flex; align-items: center; gap: 6px; }
+        .filter-label { font-weight: 600; color: #666; white-space: nowrap; font-size: 13px; }
+        .filter-tabs { display: flex; }
+        .filter-tab {
+            padding: 4px 12px; border: 1px solid #d2d2d2; cursor: pointer;
+            font-size: 12px; background: #fff; color: #555;
+            transition: all .15s; white-space: nowrap; font-family: Tahoma, Verdana, 宋体;
+        }
+        .filter-tab:first-child { border-radius: 3px 0 0 3px; }
+        .filter-tab:last-child  { border-radius: 0 3px 3px 0; }
+        .filter-tab:not(:first-child) { border-left: none; }
+        .filter-tab:hover { background: #ecedef; }
+        .filter-tab.active { background: #3291F9; color: #fff; border-color: #3291F9; }
+
+        .filter-actions { margin-left: auto; display: flex; gap: 8px; }
+        .btn {
+            padding: 6px 16px; border-radius: 3px; border: 1px solid #ccc;
+            cursor: pointer; font-size: 13px; font-weight: 600; color: #fff;
+            transition: all .15s; white-space: nowrap;
+            font-family: Tahoma, Verdana, 宋体;
+        }
+        .btn:hover { opacity: .88; }
+        .btn-green  { background: #3AB308; border-color: #3AB308; }
+        .btn-blue   { background: #1226DB; border-color: #1226DB; }
+        .btn-primary{ background: #0551BD; border-color: #0551BD; }
+
+        /* ===== 工具栏 ===== */
+        .toolbar {
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .search-box {
+            display: flex; align-items: center; gap: 4px;
+            border: 1px solid #d2d2d2; padding: 4px 8px; background: #fff; width: 280px;
+        }
+        .search-box input { border: none; outline: none; font-size: 12px; width: 100%; font-family: Tahoma, Verdana, 宋体; }
+        .record-count { color: #999; font-size: 12px; }
+
+        /* ===== 表格容器 ===== */
+        .grid-container {
+            flex: 1; background: #fff; border: 1px solid #d2d2d2;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .grid-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+
+        /* ===== miniUI Datagrid 风格表格 ===== */
+        .mini-grid-table {
+            width: 100%; table-layout: fixed; border-collapse: collapse;
+            font-size: 9pt; font-family: Tahoma, Verdana, 宋体; text-align: left;
+        }
+        /* 表头 */
+        .mini-grid-table thead th {
+            background: #E7EBEF url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAkCAYAAABIdFAMAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHhJREFUeNpi+P///z8DEqAEEwMTAxMDEwMTAxMDEwMzAxMDEwMLHokpYBILAxMDE4P4fyC+Yeg2XPf/v4ggAwMDAwMTAxMDE8P2KR7MEIHAgEyGgPDQoBiYIbxMsIsZGJgYKACYLHhky/8SZFIAI7MAkQkUAEKDAQYARXYVNFf6AqAAAAABJRU5ErkJggg==) repeat-x 0 0;
+            border-right: 1px solid #A5ACB5;
+            border-bottom: 1px solid #A5ACB5;
+            color: #333; font-weight: 600; font-size: 9pt;
+            padding: 0; text-align: center; white-space: nowrap;
+            line-height: 18px;
+        }
+        .mini-grid-table thead th .th-inner {
+            padding: 5px 6px; overflow: hidden; word-break: break-all;
+        }
+        /* 单元格 */
+        .mini-grid-table td {
+            border-right: 1px solid #d2d2d2;
+            border-bottom: 1px solid #d2d2d2;
+            padding: 0; font-size: 9pt; line-height: 18px;
+        }
+        .mini-grid-table td .td-inner {
+            padding: 5px 6px; overflow: hidden;
+            white-space: nowrap; text-overflow: ellipsis;
+        }
+        /* 交替行 */
+        .mini-grid-table tbody tr.row-alt { background: #f7f4fd; }
+        /* 悬浮行 */
+        .mini-grid-table tbody tr:hover { background: #ecedef; }
+        .mini-grid-table tbody tr.row-alt:hover { background: #e0dded; }
+
+        /* 分组行 */
+        .group-row { cursor: pointer; user-select: none; }
+        .group-row td {
+            background: #fafbfc !important; font-weight: 700;
+            border-bottom: 1px solid #d2d2d2; border-right: 1px solid #d2d2d2;
+        }
+        .group-row td .td-inner { padding: 6px 8px; }
+        .group-row:hover td { background: #ecedef !important; }
+        .group-icon {
+            display: inline-block; width: 14px; text-align: center;
+            transition: transform .15s; color: #666; font-size: 10px; margin-right: 4px;
+        }
+        .group-icon.expanded { transform: rotate(90deg); }
+        .group-count { color: #999; font-weight: 400; font-size: 11px; margin-left: 6px; }
+
+        /* 站点行 */
+        .serial-num { color: #999; }
+        .station-tag {
+            display: inline-block; font-size: 11px; padding: 1px 5px; margin-left: 6px;
+            font-weight: 400;
+        }
+        .tag-sluice { background: #e3f2fd; color: #1565C0; }
+        .tag-pump   { background: #fce4ec; color: #C62828; }
+        .tag-culvert{ background: #f3e5f5; color: #6A1B9A; }
+        .tag-other  { background: #fff3e0; color: #E65100; }
+
+        /* 查看过程按钮 - miniUI button 风格 */
+        .mini-btn {
+            display: inline-block; padding: 3px 12px; border: 1px solid #a5acb5;
+            background: #f5f5f5; color: #333; cursor: pointer;
+            font-size: 12px; font-family: Tahoma, Verdana, 宋体;
+            text-decoration: none; line-height: 20px; border-radius: 2px;
+        }
+        .mini-btn:hover { background: #ecedef; border-color: #8e95a0; }
+        .mini-btn .btn-icon { margin-right: 3px; font-size: 12px; }
+
+        /* 列宽 */
+        .col-seq    { width: 60px; }
+        .col-name   { width: auto; }
+        .col-method { width: 180px; }
+        .col-action { width: 110px; }
+
+        /* 底部按钮 */
+        .bottom-bar {
+            display: flex; justify-content: center; align-items: center;
+            gap: 14px; padding: 12px 0; background: #fff;
+            border-top: 1px solid #d2d2d2;
+        }
+        .btn-lg { padding: 8px 32px; font-size: 14px; border-radius: 3px; }
+
+        /* ===== 右侧滑出面板 ===== */
+        .panel-mask {
+            position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 9999;
+            display: flex; justify-content: flex-end;
+        }
+        .panel {
+            width: 560px; height: 100%; background: #fff;
+            box-shadow: -3px 0 16px rgba(0,0,0,.18);
+            display: flex; flex-direction: column;
+        }
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; border-bottom: 1px solid #A5ACB5;
+            background: #E7EBEF;
+        }
+        .panel-header h3 { font-size: 14px; color: #333; font-family: Tahoma, Verdana, 宋体; }
+        .panel-subtitle { font-size: 11px; color: #888; margin-top: 2px; }
+        .panel-close {
+            width: 28px; height: 28px; border: 1px solid #a5acb5; background: #f5f5f5;
+            cursor: pointer; font-size: 16px; color: #666; display: flex;
+            align-items: center; justify-content: center; border-radius: 2px;
+        }
+        .panel-close:hover { background: #e81123; color: #fff; border-color: #e81123; }
+        .panel-body { flex: 1; overflow-y: auto; padding: 14px 18px; }
+
+        .info-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+        .info-table td {
+            padding: 6px 10px; border: 1px solid #d2d2d2;
+            font-size: 12px; font-family: Tahoma, Verdana, 宋体;
+        }
+        .info-table .lbl { background: #f8f9fb; color: #666; width: 90px; font-weight: 600; }
+        .info-table .val { color: #333; }
+
+        .section-title {
+            font-size: 13px; font-weight: 700; color: #333;
+            margin: 14px 0 8px; padding: 4px 8px;
+            border-left: 3px solid #3291F9; background: #f8f9fb;
+            font-family: Tahoma, Verdana, 宋体;
+        }
+
+        .timeline { position: relative; padding-left: 18px; }
+        .timeline::before {
+            content: ''; position: absolute; left: 5px; top: 0; bottom: 0;
+            width: 2px; background: #d2d2d2;
+        }
+        .timeline-item {
+            position: relative; padding: 6px 0 6px 18px; font-size: 12px;
+            font-family: Tahoma, Verdana, 宋体;
+        }
+        .timeline-item::before {
+            content: ''; position: absolute; left: -15px; top: 10px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #fff; border: 2px solid #A5ACB5;
+        }
+        .timeline-item.current::before { background: #3291F9; border-color: #3291F9; }
+        .timeline-item .time { font-size: 10px; color: #999; }
+        .timeline-item .desc { color: #333; margin-top: 1px; }
+        .timeline-item .val { font-weight: 600; color: #0551BD; }
+
+        .design-badge {
+            position: fixed; top: 6px; right: 10px;
+            background: #f45438; color: #fff; padding: 4px 12px;
+            font-size: 11px; font-weight: 700; z-index: 9999;
+            font-family: Tahoma, Verdana, 宋体;
+        }
+
+        /* toast */
+        .toast {
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+            padding: 8px 24px; color: #fff; font-size: 13px;
+            z-index: 10000; font-family: Tahoma, Verdana, 宋体;
+            box-shadow: 0 2px 8px rgba(0,0,0,.2);
+        }
+        .toast.info  { background: #3291F9; }
+        .toast.error { background: #e81123; }
+    </style>
+</head>
+<body>
+    <div class="design-badge">📐 方案一 · miniUI 风格</div>
+
+    <!-- ===== 步骤导航 ===== -->
+    <div class="steps-wrap">
+        <div class="pointsRule">
+            <ul>
+                <li class="green" style="z-index:5;"><a><span>1.依据时间设定</span><i class="green"></i></a></li>
+                <li class="green" style="z-index:4;"><a><em class="before"></em><span>2.预报降雨输入</span><i class="green"></i></a></li>
+                <li class="green" style="z-index:3;"><a><em class="before"></em><span>3.边界条件输入</span><i class="green"></i></a></li>
+                <li class="orange" style="z-index:2;"><a><em class="before"></em><span>4.工程调度</span><i class="orange"></i></a></li>
+                <li class="gray" style="z-index:1;"><a><em class="before"></em><span>5.预测结果</span></a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ===== 主体 ===== -->
+    <div class="main-wrap">
+
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <span class="filter-label">水利片区：</span>
+                <div class="filter-tabs" id="districtTabs">
+                    <span class="filter-tab active">全部</span>
+                    <span class="filter-tab">苏州河片</span>
+                    <span class="filter-tab">蕴南片</span>
+                    <span class="filter-tab">淀北片</span>
+                    <span class="filter-tab">嘉宝北片</span>
+                    <span class="filter-tab">青松片</span>
+                    <span class="filter-tab">浦东片</span>
+                    <span class="filter-tab">其他</span>
+                </div>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">工程级别：</span>
+                <div class="filter-tabs" id="levelTabs">
+                    <span class="filter-tab active">全部</span>
+                    <span class="filter-tab">市管</span>
+                    <span class="filter-tab">区管</span>
+                </div>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">工程类型：</span>
+                <div class="filter-tabs" id="typeTabs">
+                    <span class="filter-tab active">全部</span>
+                    <span class="filter-tab">水闸</span>
+                    <span class="filter-tab">泵站</span>
+                    <span class="filter-tab">涵洞</span>
+                    <span class="filter-tab">其他工程</span>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-green" onclick="showToast('打开片区调度预案设定弹窗')">📋 片区调度预案设定</button>
+            </div>
+        </div>
+
+        <!-- 搜索 -->
+        <div class="toolbar">
+            <div class="search-box">
+                🔍 <input type="text" id="searchInput" placeholder="搜索工程名称…" oninput="onSearch()">
+            </div>
+            <span class="record-count" id="recordCount">共 <strong>22</strong> 个工程</span>
+        </div>
+
+        <!-- 表格 -->
+        <div class="grid-container">
+            <div class="grid-scroll" id="gridScroll">
+                <table class="mini-grid-table">
+                    <thead>
+                        <tr>
+                            <th class="col-seq"><div class="th-inner">序号</div></th>
+                            <th class="col-name"><div class="th-inner" style="text-align:left;padding-left:12px;">工程名称</div></th>
+                            <th class="col-method"><div class="th-inner">调度方式</div></th>
+                            <th class="col-action"><div class="th-inner">基本操作</div></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 底部 -->
+        <div class="bottom-bar">
+            <button class="btn btn-primary btn-lg" onclick="showToast('返回上一步：ShuiWei.html')">← 上一步</button>
+            <button class="btn btn-green btn-lg" onclick="showToast('启动模型计算')">🚀 启动模型计算</button>
+        </div>
+    </div>
+
+    <!-- ===== Toast 容器 ===== -->
+    <div id="toastContainer"></div>
+
+    <!-- ===== 查看过程面板 ===== -->
+    <div class="panel-mask" id="processPanel" style="display:none;" onclick="if(event.target===this)closePanel()">
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h3>📋 调度过程详情</h3>
+                    <div class="panel-subtitle" id="panelSub"></div>
+                </div>
+                <button class="panel-close" onclick="closePanel()">✕</button>
+            </div>
+            <div class="panel-body" id="panelBody"></div>
+        </div>
+    </div>
+
+<script>
+// ===== 数据 =====
+const districts = [
+    { id:"ds001", name:"苏州河片", stations:[
+        { id:"1001", name:"苏州河河口闸", level:"市管", type:"水闸", method:"rule", value:"调度预案A" },
+        { id:"1002", name:"彭越浦泵闸",   level:"市管", type:"泵站", method:"flow", value:"15.5" },
+        { id:"1003", name:"木渎港泵闸",   level:"区管", type:"泵站", method:"flow", value:"12.0" },
+        { id:"1004", name:"东茭泾泵闸",   level:"区管", type:"泵站", method:"flow", value:"8.5" },
+        { id:"1005", name:"西泗塘泵闸",   level:"区管", type:"涵洞", method:"rule", value:"调度预案B" },
+        { id:"1006", name:"桃浦河泵闸",   level:"区管", type:"泵站", method:"rule", value:"调度预案A" },
+        { id:"1007", name:"新槎浦泵闸",   level:"市管", type:"泵站", method:"flow", value:"20.0" },
+        { id:"1008", name:"杨盛河泵闸",   level:"区管", type:"水闸", method:"flow", value:"6.0" },
+        { id:"1009", name:"蕰藻浜西闸",   level:"市管", type:"水闸", method:"rule", value:"调度预案C" },
+        { id:"1010", name:"龙华港泵闸",   level:"市管", type:"泵站", method:"flow", value:"18.2" },
+        { id:"1011", name:"张家塘泵闸",   level:"区管", type:"泵站", method:"flow", value:"10.0" },
+        { id:"1012", name:"虹口港泵闸",   level:"区管", type:"水闸", method:"rule", value:"调度预案A" },
+    ]},
+    { id:"ds002", name:"蕴南片", stations:[
+        { id:"2001", name:"蕴南东闸",   level:"市管", type:"水闸", method:"flow", value:"22.0" },
+        { id:"2002", name:"横沥泵闸",   level:"区管", type:"泵站", method:"rule", value:"调度预案A" },
+        { id:"2003", name:"盐铁塘泵站", level:"区管", type:"泵站", method:"flow", value:"7.5" },
+    ]},
+    { id:"ds003", name:"淀北片", stations:[
+        { id:"3001", name:"淀北1号闸",   level:"市管", type:"水闸", method:"flow", value:"14.0" },
+        { id:"3002", name:"淀北2号泵站", level:"区管", type:"泵站", method:"rule", value:"调度预案B" },
+    ]},
+    { id:"ds004", name:"嘉宝北片", stations:[
+        { id:"4001", name:"嘉宝1号水闸", level:"市管", type:"水闸", method:"flow", value:"9.0" },
+        { id:"4002", name:"嘉宝2号泵站", level:"区管", type:"泵站", method:"flow", value:"11.5" },
+        { id:"4003", name:"嘉宝涵洞",     level:"区管", type:"涵洞", method:"rule", value:"调度预案C" },
+    ]},
+    { id:"ds005", name:"青松片", stations:[
+        { id:"5001", name:"青松节制闸", level:"市管", type:"水闸", method:"rule", value:"调度预案A" },
+        { id:"5002", name:"青松泵站",   level:"区管", type:"泵站", method:"flow", value:"16.0" },
+    ]},
+];
+
+// ===== 渲染 =====
+let expandedGroups = new Set(['ds001']);
+let globalIdx = 0;
+
+function tagClass(type) {
+    if (type==='水闸') return 'tag-sluice';
+    if (type==='泵站') return 'tag-pump';
+    if (type==='涵洞') return 'tag-culvert';
+    return 'tag-other';
+}
+function methodText(st) {
+    if (st.method==='rule') return '规则调度（'+st.value+'）';
+    return '恒定流量（'+st.value+' m³/s）';
+}
+
+function renderAll() {
+    const tbody = document.getElementById('tableBody');
+    const q = (document.getElementById('searchInput').value||'').toLowerCase();
+    let total = 0, html = '', rowIdx = 0;
+    globalIdx = 0;
+
+    districts.forEach(dist => {
+        const list = dist.stations.filter(s => !q||s.name.includes(q)||s.type.includes(q));
+        if (!list.length) return;
+        const open = expandedGroups.has(dist.id);
+
+        // 分组行
+        html += `<tr class="group-row" onclick="toggleGroup('${dist.id}')">`;
+        html += `<td><div class="td-inner"><span class="group-icon${open?' expanded':''}">▶</span></div></td>`;
+        html += `<td colspan="3"><div class="td-inner">📁 ${dist.name}<span class="group-count">${list.length}个工程</span></div></td>`;
+        html += `</tr>`;
+
+        if (open) {
+            list.forEach(st => {
+                total++; globalIdx++; rowIdx++;
+                const alt = rowIdx % 2 === 0 ? ' row-alt' : '';
+                html += `<tr class="${alt}">`;
+                html += `<td style="text-align:center;"><div class="td-inner"><span class="serial-num">${globalIdx}</span></div></td>`;
+                html += `<td><div class="td-inner">${st.name}<span class="station-tag ${tagClass(st.type)}">${st.type}</span></div></td>`;
+                html += `<td style="text-align:center;"><div class="td-inner">${methodText(st)}</div></td>`;
+                html += `<td style="text-align:center;"><div class="td-inner"><a class="mini-btn" href="javascript:void(0)" onclick="viewProcess('${st.id}');return false;"><span class="btn-icon">📋</span>查看过程</a></div></td>`;
+                html += `</tr>`;
+            });
+        }
+    });
+
+    tbody.innerHTML = html;
+    document.getElementById('recordCount').innerHTML = `共 <strong>${total}</strong> 个工程`;
+}
+
+function toggleGroup(id) {
+    expandedGroups.has(id) ? expandedGroups.delete(id) : expandedGroups.add(id);
+    renderAll();
+}
+function onSearch() {
+    const v = document.getElementById('searchInput').value;
+    if (v) districts.forEach(d => expandedGroups.add(d.id));
+    renderAll();
+    document.getElementById('gridScroll').scrollTop = 0;
+}
+
+// ===== 查看过程 =====
+function viewProcess(sid) {
+    let st = null, dn = '';
+    for (const d of districts) {
+        const f = d.stations.find(s => s.id===sid);
+        if (f) { st=f; dn=d.name; break; }
+    }
+    if (!st) return;
+    document.getElementById('panelSub').textContent = st.name+' ｜ '+dn+' ｜ '+st.level+' ｜ '+st.type;
+
+    // 模拟调度过程步骤
+    const steps = [
+        { t:'08-07 00:00', d:'初始化调度参数',            v:'—',                     cur:1 },
+        { t:'08-07 00:05', d:'读取片区调度预案',          v:st.method==='rule'?st.value:'—', cur:1 },
+        { t:'08-07 00:10', d:'获取实时水位数据',          v:'3.25 m',                cur:1 },
+        { t:'08-07 00:15', d:'获取预报降雨数据',          v:'12.5 mm/h',             cur:1 },
+        { t:'08-07 00:20', d:'计算放江量',               v:st.method==='flow'?st.value+' m³/s':'规则控制', cur:1 },
+        { t:'08-07 00:25', d:'校验工程运行状态',          v:'正常',                  cur:1 },
+        { t:'08-07 00:30', d:'发送调度指令至现场PLC',      v:st.method==='flow'?st.value+' m³/s':st.value, cur:0 },
+        { t:'08-07 00:35', d:'闸门/水泵开始动作',         v:'执行中',                cur:0 },
+        { t:'08-07 00:40', d:'反馈执行结果',              v:'成功',                  cur:0 },
+        { t:'08-07 02:00', d:'下一时段调度准备',          v:st.method==='flow'?st.value+' m³/s':st.value, cur:0 },
+        { t:'08-07 04:00', d:'过程监控记录',              v:'运行中',                cur:0 },
+    ];
+
+    let h = '';
+    h += '<table class="info-table"><tbody>';
+    h += '<tr><td class="lbl">工程名称</td><td class="val">'+st.name+'</td></tr>';
+    h += '<tr><td class="lbl">所属片区</td><td class="val">'+dn+'</td></tr>';
+    h += '<tr><td class="lbl">工程级别</td><td class="val">'+st.level+'</td></tr>';
+    h += '<tr><td class="lbl">工程类型</td><td class="val">'+st.type+'</td></tr>';
+    h += '<tr><td class="lbl">当前调度</td><td class="val">'+methodText(st)+'</td></tr>';
+    h += '</tbody></table>';
+
+    h += '<div class="section-title">⏱ 调度过程时间线</div><div class="timeline">';
+    steps.forEach(s => {
+        h += '<div class="timeline-item'+(s.cur?' current':'')+'">';
+        h += '<div class="time">'+s.t+'</div>';
+        h += '<div class="desc">'+s.d+' <span class="val">'+s.v+'</span></div>';
+        h += '</div>';
+    });
+    h += '</div>';
+
+    document.getElementById('panelBody').innerHTML = h;
+    document.getElementById('processPanel').style.display = 'flex';
+}
+
+function closePanel() { document.getElementById('processPanel').style.display = 'none'; }
+
+// ===== Toast =====
+function showToast(msg) {
+    const el = document.createElement('div');
+    el.className = 'toast info'; el.textContent = msg;
+    document.getElementById('toastContainer').appendChild(el);
+    setTimeout(() => el.remove(), 2200);
+}
+
+// ===== Tab ====
+function initTabs(id) {
+    document.getElementById(id).querySelectorAll('.filter-tab').forEach(el => {
+        el.addEventListener('click', function(){
+            this.parentElement.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+            this.classList.add('active');
+            renderAll();
+        });
+    });
+}
+['districtTabs','levelTabs','typeTabs'].forEach(initTabs);
+
+renderAll();
+</script>
+</body>
+</html>

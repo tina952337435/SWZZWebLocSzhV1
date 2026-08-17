@@ -179,15 +179,18 @@
                 <div field="stnm" width="90" align="left" headeralign="center" allowsort="false">
                     站名
                 </div>
-                <div field="OMCNUM" width="30" align="center" headeralign="center">
+                <div field="flpq" width="130" align="center" headeralign="center">
                     泵站
                 </div>
-                <div field="GTOPNUM" width="90" align="center" headeralign="center">
+                <div field="grq" width="90" align="center" headeralign="center">
                     闸门
                 </div>
-                <!--<div field="VIEWNAME" width="70" align="center" headeralign="center" allowsort="true" >
-        运行调度
-    </div>-->
+                <div header="水位" width="100" align="center" headeralign="center">
+                    <div property="columns">
+                        <div field="dwz" width="40" align="center" headeralign="center" allowSort="true">闸内</div>
+                        <div field="upz" width="40" align="center" headeralign="center" allowSort="true">闸外</div>
+                    </div>
+                </div>
                 <div field="tm" width="60" align="center" headeralign="center" allowsort="true">
                     时间
                 </div>
@@ -278,22 +281,26 @@
             value = e.value;
         rowIndex = e.rowIndex;
         var record = e.record;
-        if (field == "OMCNUM") {
+        if (field == "flpq") {
             var s = '';
             var tempNum = record.flpq==null?0:record.flpq;
+            
             // console.error('tempNum',tempNum);
-            if (tempNum.toString().lastIndexOf('/')) {
-                var AggNum = tempNum.toString().split('/');
-                tempNum = AggNum[AggNum.length - 1];
-            }
+            // if (tempNum.toString().lastIndexOf('/')) {
+            //     var AggNum = tempNum.toString().split('/');
+            //     tempNum = AggNum[AggNum.length - 1];
+            // }
             for (index = 1; index <= Number(tempNum); index++) {
                 var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
                 var temAgg = row.gateList.filter(function (e) {
-                    return e.eqptp == "泵站状态" && Number(e.exkey) == index && new Date(convertToDate(e.tm)) > tempTM;
+                    return e.eqptp == "泵站状态" && Number(e.exkey) == index&& new Date(convertToDate(e.tm)) > tempTM;
                 });
                 var gtqVal;
                 if (temAgg.length > 0) {
                     gtqVal = temAgg[0].gtq;
+                    // if(record.stnm=="郝桥港泵闸"){
+                    //     console.error('gtqVal',gtqVal);
+                    // }
                     if (undefined != gtqVal) {
                         if (gtqVal > 0) {
                             s += '<span class="gqGreen">&nbsp;&nbsp;</span> ';
@@ -312,7 +319,7 @@
             }
             e.cellHtml = s;
         }
-         else if (field == "GTOPNUM") {
+         else if (field == "grq") {
             var s = '';
             var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
 
@@ -320,13 +327,26 @@
                 var temAgg = [];
                 if (row.gateList.length > 0) {
                     temAgg = row.gateList.filter(function (e) {
-                        return e.eqptp == "闸坝开度" && Number(e.exkey) == index && Number(e.gtq) > 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                        return e.eqptp == "闸坝开度" && Number(e.exkey) == index && new Date(convertToDate(e.tm)) > tempTM;
                     });
+                     var gtqVal;
                     if (temAgg.length > 0) {
-                        s += '<span class="Grentsquare">&nbsp;&nbsp;</span> ';
+                        gtqVal=Number(temAgg[0].gtq);
+                        if (undefined != gtqVal) {
+                            if (gtqVal > 0.1) {
+                                 s += '<span class="Grentsquare">&nbsp;&nbsp;</span> ';
+                            }
+                            else{
+                                s += '<span class="HUIsquare">&nbsp;&nbsp;</span> ';
+                            }
+                        }
+                        else{
+                            s += '<span class="HUIsquare">&nbsp;&nbsp;</span> ';
+                        }
+                        
                     }
                     else {
-                        s += '<span class="HUIsquare">&nbsp;&nbsp;</span> ';
+                        s += '<span class="XIUsquare">&nbsp;&nbsp;</span> ';
                     }
                 } else {
                     s += '<span class="XIUsquare">&nbsp;&nbsp;</span> ';
@@ -337,18 +357,16 @@
             }
             e.cellHtml = s;
         } else if (field == "tm") {
-            if (record.tm != undefined) {
-                //e.cellHtml = new Date(convertToDate(record.tm)).format("MM/dd HH:mm");
-                e.cellHtml = new Date(convertToDate(record.tm)).format("HH:mm");
+            if (-1 != record.OMCN) {
+                e.cellHtml = new Date(convertToDate(record.gateList[0].tm)).format("HH:mm");
             } else {
-                if (undefined != record.gateList && record.gateList.length > 0) {
-                    //e.cellHtml = new Date(convertToDate(record.gateList[0].tm)).format("MM/dd HH:mm");
-                    e.cellHtml = new Date(convertToDate(record.gateList[0].tm)).format("HH:mm");
+                e.rowStyle = "color:rgb(152, 144, 144)";
+                if (record.tm != undefined) {
+                    e.cellHtml = new Date(convertToDate(record.tm)).format("HH:mm");
                 } else {
-                    e.rowStyle = "color:rgb(152, 144, 144)";
                     e.cellHtml = " — ";
-                }
-            }
+                }                
+            }            
         } else if (field == "UPZ") {
             var s = '';
             if (record.UPZ != undefined) {
@@ -370,30 +388,18 @@
         } else if (field == "stnm") {
             //超链接任务
             var typeName = "工情";
-            if (row.flpq != undefined) {
-                if (Number(row.flpq) > 0) {
-                    typeName = "工情监视";
-                }
-            } else {
-                typeName = "工情";
+            // if (row.flpq != undefined) {
+            //     if (Number(row.flpq) > 0) {
+            //         typeName = "工情监视";
+            //     }
+            // } else {
+            //     typeName = "工情";
+            // }
+            var color="black !important";
+            if(record.OMCN==-1){
+                color="rgb(152, 144, 144) !important";
             }
-            var s = '<a title="' + value + '" style="color:blue;" href="javaScript:Trans(\'' + record.stcd + '\',\'' + record.stnm + '\',\'' + typeName + '\')">' + value + '</a>';
-            e.cellHtml = s;
-        } else if (field == "VIEWNAME") {
-            var s = "";
-            if (row.gateList != undefined) {
-                var tempAgg = row.gateList.filter(function (e) {
-                    return e.eqptp == "泵站电流";
-                });
-                if (tempAgg.length > 0) {
-                    s = tempAgg[0].gtq;
-                } else {
-                    s = value;
-                }
-            } else {
-                s = value;
-            }
-
+            var s = '<a title="' + value + '" style="color:'+color+';" href="javaScript:Trans(\'' + record.stcd + '\',\'' + record.stnm + '\',\'' + typeName + '\')">' + value + '</a>';
             e.cellHtml = s;
         }
     }
@@ -458,52 +464,35 @@
             if (resultData[i].stcd == "63202652") {
                 resultData[i].DWZ = null;
             }
-            if (resultData[i].tm != undefined) {
-                if (resultData[i].tm.substr(0, 5) == "/Date") {
-                    resultData[i].tm = new Date(convertToDate(resultData[i].tm)).format('yyyy/MM/dd HH:mm');
-                }
-                if (new Date(resultData[i].tm) > new Date(new Date().format("yyyy/MM/dd 00:00:00"))) {
-                    OMCN = 0;
-                } else {
-                    OMCN = undefined;
-                }
+            if (undefined != resultData[i].gateList && resultData[i].gateList.length > 0) {
+                resultData[i].tm = resultData[i].gateList[0].tm;
             } else {
-                if (undefined != resultData[i].gateList && resultData[i].gateList.length > 0) {
-                    resultData[i].tm = resultData[i].gateList[0].tm;
-                } else {
-                    OMCN = undefined;
-                }
+                OMCN = -1;
             }
             var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
 
             var temAgg = [];
             if (resultData[i].gateList.length > 0) {
                 temAgg = resultData[i].gateList.filter(function (e) {
-                    return e.eqptp == "泵站状态" && Number(e.gtq) > 0 && new Date(convertToDate(e.tm)) > tempTM;
+                    return new Date(convertToDate(e.tm)) > tempTM;
                 })
-                if (temAgg.length == 0) {
+                if (temAgg.length > 0) {
                     temAgg = resultData[i].gateList.filter(function (e) {
-                        return e.eqptp == "闸坝开度" && Number(e.gtq) > 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                        return (e.eqptp == "闸坝开度" && Number(e.gtq) > 0.1) ||(e.eqptp == "泵站状态" && Number(e.gtq) > 1);
                     })
-                    resultData[i].OMCN = OMCN;
-                    OMCN = temAgg.length;
+                    if(temAgg.length>0){
+                        OMCN = 1;
+                    }
+                    else{
+                        OMCN = 0;
+                    }                    
+                }
+                else{
+                    OMCN = -1;
                 }
             }
-            else {
-                OMCN = undefined;
-            }
-
-            if (temAgg.length > 0) {
-                OMCN = 1;
-            }
-            // if(resultData[i].stnm=="华田泾枢纽"){
-            //     console.error(resultData[i].stnm,OMCN);
-            // }
-            if ("".lastIndexOf(resultData[i].stcd) > -1) {
-                dt.push(resultData[i]);
-            } else {
-                resultData[i].OMCN = OMCN;
-                if (OMCN == undefined) {
+            resultData[i].OMCN = OMCN;
+            if (OMCN == -1) {
                     gzCount++;
                     if (value3) {
                         dt.push(resultData[i]);
@@ -521,7 +510,6 @@
                         dt.push(resultData[i]);
                     }
                 }
-            }
         }
         tableBind(dt);
         setTimeout(function () {

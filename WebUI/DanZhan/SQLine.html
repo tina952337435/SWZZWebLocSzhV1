@@ -146,11 +146,11 @@
                     </div>
                     <div field="upz" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2"
                         dataType="float" summarytype="max">
-                        上游(m)
+                        闸上(m)
                     </div>
                     <div field="dwz" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2"
                         dataType="float" summarytype="max">
-                        下游(m)
+                        闸下(m)
                     </div>
                     <!--<div field="wrz" width="120" align="center" headeralign="center" allowsort="true" decimalPlaces="2" dataType="float">
                         警戒水位(m)
@@ -238,13 +238,14 @@
                 $.data(myData, "DWZTT", tt.length);
                 var ColoumnsName = { "indexcolumn": "序号", "tm": "时间" };
                 if (tt.length > 0) {
-                    ColoumnsName["upz"] = "上游水位(m)@";
-                    ColoumnsName["dwz"] = "下游水位(m)@";
+                    ColoumnsName["upz"] = "闸上水位(m)@";
+                    ColoumnsName["dwz"] = "闸下水位(m)@";
                 } else {
                     ColoumnsName["upz"] = "水位(m)@";
                 }
                 ColoumnsName["wrz"] = "警戒水位(m)";
                 ColoumnsName["grz"] = "保证水位(m)";
+                ColoumnsName["ivhz"] = "历史最高(m)";
 
                 SetSummaryColumns(ColoumnsName, grid)
 
@@ -396,7 +397,7 @@
                         _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, "XXSW": _fhkz });
 
                     } else {
-                        _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, grz: strJson.data[num].grz });
+                        _XData.push({ tm: new Date(strJson.data[num].tm).format("MM/dd HH:mm"), upz: upz, dwz: dwz, wrz: strJson.data[num].wrz, grz: strJson.data[num].grz,ivhz: strJson.data[num].ivhz });
                     }
                 }
                 GetObj("maxUpz").innerHTML = SWMAX == -9999 ? "-" : SWMAX + "m";
@@ -410,17 +411,16 @@
             }
             //绘制数据说明
             var strNote = '[{"name": "时间","codename": "tm","tableV":"1","isShow":true,"width":"40%"}';
-            var LineColor = ['#0000FF', '#00FF00', '#ff0909', '#FFA500'];
-
+            var LineColor = ['#0000FF', 'orange','red','#FD00EB'];
             if ($.data(myData, "DWZTT") > 0) {
-                strNote += ',{"name": "上游水位","codename": "upz","tableV":"1","isShow":true,"width":"20%"}';
-                strNote += ',{"name": "下游水位","codename": "dwz","tableV":"1","isShow":true,"width":"20%"}';
+                strNote += ',{"name": "闸上水位","codename": "upz","tableV":"1","isShow":true,"width":"20%"}';
+                strNote += ',{"name": "闸下水位","codename": "dwz","tableV":"1","isShow":true,"width":"20%"}';
 
-                LineColor = ['#0000FF', '#00FF00', '#FFA500', '#ff0909'];
+                LineColor = ['#0000FF', '#00FF00', 'orange','red','#FD00EB'];
             } else {
                 strNote += ',{"name": "水位","codename": "upz","tableV":"1","isShow":true,"width":"20%"}';
 
-                LineColor = ['#0000FF', '#FFA500', '#ff0909', '#00FF00'];
+                LineColor = ['#0000FF', 'orange','red','#FD00EB'];
             }
             //if (stcd == "63201999") {
             //    strNote += ',{"name": "防洪控制水位","codename": "FHKZ","tableV":"1","isShow":true,"width":"20%"}';
@@ -434,6 +434,7 @@
             //} else {
             strNote += ',{"name": "警戒水位","codename": "wrz","tableV":"1","isShow":false,"width":"20%"}';
             strNote += ',{"name": "保证水位","codename": "grz","tableV":"1","isShow":false,"width":"20%"}';
+            strNote += ',{"name": "历史最高","codename": "ivhz","tableV":"1","isShow":false,"width":"20%"}';
             //}
             strNote += ']';
             //绘制过程线颜色设置
@@ -458,10 +459,10 @@
             var value = e.value;
             if ($.data(myData, "DWZTT") > 0) {
                 if (e.field == "upz") {
-                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">上游最高: " + value + "m</span>" : e.cellHtml = "<span  style=\"color:red;font-weight:bold;\">上游最高: 无</span>";
+                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">闸上最高: " + value + "m</span>" : e.cellHtml = "<span  style=\"color:red;font-weight:bold;\">闸上最高: 无</span>";
                 }
                 if (e.field == "dwz") {
-                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">下游最高: " + value + "m</span>" : e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">下游最高: 无</span>";
+                    value != null ? e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">闸下最高: " + value + "m</span>" : e.cellHtml = "<span  style=\"color:Blue;font-weight:bold;\">闸下最高: 无</span>";
                 }
             } else {
                 if (e.field == "upz") {

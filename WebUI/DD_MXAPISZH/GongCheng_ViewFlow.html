@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="../Common/Scripts/echarts.js" type="text/javascript"></script>
+    <script src="../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <style type="text/css">
+        body { margin: 0; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; font-size: 14px; background: #fff; }
+        .main-wrap { display: flex; flex-direction: column; height: 100%; }
+        .chart-area { flex: 0 0 42%; width: 92%; margin: 0 auto; }
+        .tbl-area { flex: 1; overflow: auto; }
+    </style>
+</head>
+<body>
+    <div class="main-wrap">
+        <div id="flow_chart" class="chart-area"></div>
+        <div class="tbl-area">
+            <div id="flowGrid" class="mini-datagrid" style="width:100%;height:100%;"
+                 showFilterRow="true" allowcelledit="true" allowcellselect="true"
+                 allowalternating="true" showpager="false">
+                <div property="columns">
+                    <div field="zhantime" width="50%" headerAlign="center" align="center">时间</div>
+                    <div field="zhandata" width="50%" headerAlign="center" align="center">
+                        流量(m³/s)
+                        <input property="editor" class="mini-textbox" style="width:100%;" onValueChanged="onValueChanged"/>
+                        <input property="filter" class="mini-textbox" style="width:100%;" emptyText="批量输入流量" onValueChanged="onFilterChanged"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        mini.parse();
+        var stnm = GetQueryString("stnm");
+        var stcd = GetQueryString("stcd");
+        var stime = GetQueryString("time");
+        var etime = GetQueryString("etime");
+        var SOLUTIONID = GetQueryString("SOLUTIONID");
+        var grid = mini.get("flowGrid");
+        var _rawData = [];
+        window.onload = function () { loadFlowData(); }
+
+        function loadFlowData() {
+            var strWhere = { pattem: stcd, strExp: SOLUTIONID };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/findResult", strWhere, function(res){
+                JosnSel(res, "Sel");
+            });
+        }
+
+        function JosnSel(data, typeID) {
+            if (typeID == "Sel") {
+                _rawData = data.data;
+                var LineColor = ["#3291F9"];
+                var strNote = [
+                    { "name": "时间", "codename": "zhantime", "tableV": "1", "isShow": true, "width": "30%" },
+                    { "name": "流量", "codename": "zhandata", "tableV": "1", "isShow": true, "width": "30%" }
+                ];
+                drawFlowChart("flow_chart", _rawData, strNote, LineColor);
+                
+                grid.setData(_rawData);
+            }
+            else if (typeID == "update_batch") {
+                ShowMsg(data.message);
+                loadFlowData();
+                top["win"].onLoadData();
+            }
+            else if (typeID == "UpdataMethod") {
+                ShowMsg(data.message);
+                loadFlowData();
+                top["win"].onLoadData();
+            }
+        }
+
+        function drawFlowChart(ChartName, data, strNote, LineColor) {
+            var myChart = echarts.init(document.getElementById(ChartName));
+            myChart.clear();
+            var chartName = [];
+            var chartTM = [];
+            var chartValue = [];
+            var m = [];
+
+            $.each(strNote, function (index, value) { chartName.push(value.name); });
+
+            $.each(data, function (index, value) {
+                var charthan = [];
+                $.each(strNote, function (index1, value1) {
+                    charthan.push(value[value1.codename]);
+                    if (value1.name == "时间") {
+                        chartTM.push(new Date(value[value1.codename]).format("MM-dd HH:mm"));
+                    } else {
+                        chartValue.push(value[value1.codename]);
+                    }
+                });
+                m.push(charthan);
+            });
+
+            var option = {
+                tooltip: {
+                    showDelay: 0, hideDelay: 50, transitionDuration: 0,
+                    backgroundColor: 'rgba(255,255,255,0.9)', borderColor: '#3291F9',
+                    borderRadius: 8, borderWidth: 2, padding: 10,
+                    textStyle: { color: '#000000' }, trigger: 'axis'
+                },
+                color: LineColor,
+                legend: { data: chartName, show: true, itemWidth: 8, itemHeight: 8, textStyle: { color: '#000', fontSize: 12 } },
+                grid: { left: 20, right: '5%', bottom: '3%', top: '18%', containLabel: true },
+                calculable: true,
+                xAxis: [{
+                    type: 'category', data: chartTM,
+                    axisTick: { alignWithLabel: false }
+                }],
+                yAxis: [{
+                    name: '流量(m³/s)',
+                    type: 'value',
+                    min: 0,
+                    splitLine: { show: true, lineStyle: { color: '#eee', width: 1, type: 'dashed' } }
+                }],
+                series: function () {
+                    var serie = [];
+                    for (var j = 0; j < chartName.length; j++) {
+                        if (chartName[j] == "时间") continue;
+                        var vals = [];
+                        for (var i = 0; i < m.length; i++) { vals.push(m[i][j]); }
+                        serie.push({
+                            name: chartName[j],
+                            markPoint: { data: [{ type: 'max', name: '最大值' }, { type: 'min', name: '最小值' }] },
+                            type: 'line', data: vals, symbol: 'none', smooth: true,
+                            lineStyle: { width: 2 }
+                        });
+                    }
+                    return serie;
+                }()
+            };
+            myChart.setOption(option);
+        }
+        function onFilterChanged(e) {
+            var field = e.sender.getId();
+            var value = e.value;
+            if (isNaN(value)) {
+                mini.alert("请输入数字！");
+                return;
+            }
+            if (value == "") {
+                return;
+            }
+            methodJY(field, value);
+        }
+        function methodJY(field, fieldText) {
+            var s_where = "";
+            var DayHour = 'HOUR';
+            var s_where = {
+                "zhanData": fieldText,
+                "zhanID": stcd,
+                "dayhour": DayHour,
+                "solutionid": SOLUTIONID
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/FH_modify_batch", s_where, function (res) {
+                JosnSel(res,"update_batch");
+            });
+        }
+        //表格中单修改某个文本框
+        function onValueChanged(e) {
+            var localDD_ID = SOLUTIONID;
+            if (localDD_ID == null || localDD_ID == "") {
+                localDD_ID = "0";
+            }
+            var selected = grid.getSelected();
+            if (selected) {
+                var s_where = {
+                    "zhanData": e.value,
+                    "zhanTime": new Date(selected.zhantime).format("yyyy-MM-dd HH:mm:ss"),
+                    "zhanID": stcd,
+                    "solutionid": localDD_ID
+                }
+                app.post("/SWZZ_MODE_ES_ZHANDIANDATA/FH_ModifyMethod", s_where, function (res) {
+                    JosnSel(res, "UpdataMethod");
+                });
+            }
+        }
+    </script>
+</body>
+</html>

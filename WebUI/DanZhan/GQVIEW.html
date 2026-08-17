@@ -106,6 +106,12 @@
                         //         OMCNUM = tempGTOPNUM;
                         //     }
                         // }
+                        if(OMCNUM+GTOPNUM==0){
+                            //window.location.href = "/DanZhan/GQLine.html?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData,"ETIME");
+                            strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
+                            //strMsg = "";
+                            return;
+                        }
                         if (OMCNUM > 0) {
                             for (num = 0; num < OMCNUM; num++) {
                                 var strJson = ResultData.data[0].gateList;
@@ -166,11 +172,8 @@
                                 strMsg += '</fieldset>';
                                 //GetObj("fd" + (num + 1)).style.display = "block";
                             }
-                        } else {
-                            //window.location.href = "/DanZhan/GQLine.html?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData,"ETIME");
-                            strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
-                            //strMsg = "";
-                        }
+                        } 
+                        
                         if (GTOPNUM > 0) {
                             for (num = 0; num < GTOPNUM; num++) {
                                 var strJson = ResultData.data[0].gateList;
@@ -231,11 +234,7 @@
                                 strMsg += '</fieldset>';
                                 //GetObj("fd" + (num + 1)).style.display = "block";
                             }
-                        } else {
-                            //window.location.href = "/DanZhan/GQLine.html?STCD=" + $.data(myData, "STCD") + "&STNM=" + $.data(myData, "STNM") + "&STIME=" + $.data(myData, "STIME") + "&ETIME=" + $.data(myData,"ETIME");
-                            strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
-                            //strMsg = "";
-                        }
+                        } 
                     } else {
                         strMsg = "<div style=\"font-size:30px; text-align:center;height:450px;line-height:450px;\">暂无数据</div>";
                     }

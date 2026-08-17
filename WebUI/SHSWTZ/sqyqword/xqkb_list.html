@@ -213,25 +213,23 @@
             }
             else  if(xq_type=="3天风暴潮预报专报"||xq_type=="1天风暴潮预报专报"||xq_type=="风暴潮预报专报")
             {
-                // mini.mask({
-                //     el: document.body,
-                //     cls: 'mini-mask-loading',
-                //     html: '生成中，请稍等...'
-                // });
-                // var strWhere = { 
-                //     "reportType": xq_type,
-                //     "author":GetCookie("LOGINNAME")
-                // };
-                // //直接调用接口生成初稿
-                // app.post("SWZZ_REPORT_GENERATOR/generateDraft", strWhere, function (res) {
-                //     JosnSel(res,"generateDraft");
-                // });
-                var url = '././SHSWTZ/sqyqword/sqybgudongdanEdit.html?reportType='+xq_type;
-                window.parent.addTab("分片水情预报专报生成", url);
+                var url = '././SHSWTZ/sqyqword/sqybFbcEdit.html?reportType='+xq_type;
+                window.parent.addTab("风暴潮预报专报生成", url);
             }
             else if(xq_type=="分片水情预报专报"){
                 var url = '././SHSWTZ/sqyqword/sqybzbEdit.html';     
                 window.parent.addTab("分片水情预报专报生成", url);
+            }
+            else  if(xq_type=="6h风暴潮滚动预报单"||xq_type=="3h风暴潮滚动预报单"||xq_type=="1h风暴潮滚动预报单")
+            {
+                var url = '././SHSWTZ/sqyqword/sqybFbcGddEdit.html?reportType='+xq_type;
+                window.parent.addTab("风暴潮滚动预报单生成", url);
+            }
+            // 苏州河水位预测 
+            else  if(xq_type=="苏州河水位预测")
+            {
+                var url = '././SHSWTZ/sqyqword/sqszhybEdit.html?reportType='+xq_type;
+                window.parent.addTab("苏州河水位预测报告生成", url);
             }
         }
         //删除
@@ -319,6 +317,8 @@
             else if ("汛期报"==xq_type) subDir = "flood_season";
             else if ("年报"==xq_type) subDir = "annual";
             else if ("分片水情预报专报"==xq_type) subDir = "water_situation";
+            else if ("6h风暴潮滚动预报单"==xq_type||"3h风暴潮滚动预报单"==xq_type||"3h风暴潮滚动预报单"==xq_type) subDir = "rolling_forecast";
+            else if("苏州河水位预测"==xq_type) subDir = "szh_water";
             return subDir;
         }
     </script>

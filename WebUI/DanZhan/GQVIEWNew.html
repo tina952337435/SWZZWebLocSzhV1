@@ -432,6 +432,7 @@
               if (ResultData.total > 0) {
 
                 var o =ResultData.data[0];
+                // console.error(_stnm,o);
                 FromSetinnerHTML(o, "View");
                   var tempTM = "—";
                   if (o.tm != undefined) {
@@ -526,14 +527,17 @@
                       var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
                       for (num = 0; num < OMCNUM; num++) {
                           var temp1 = strJson.filter(function (e) {
-                              return e.exkey == (num + 1) && Number(e.gtq) > 0 && convertToDate(e.tm) >= tempTM && (e.eqptp == "泵站状态");
+                              return e.exkey == (num + 1)&& Number(e.gtq) > 0 && (e.eqptp == "泵站状态");
                           });
+                        //   console.error('temp1',temp1);
                           var FLAG = false;
                           var tempXX = "<span style='color:red;'>关泵</span>";
+                          var bzgtq=0;
                           if (temp1.length > 0) {
                               NumTS++;
                               tempXX = "<span style='color:#4CE242;'>开泵</span>";
                               FLAG = true;
+                              bzgtq=temp1[0].gtq;
                           }
                           var p1 = strJson.filter(function (e) {
                               return e.exkey == (num + 1) && Number(e.gtq) > 0 && convertToDate(e.tm) >= tempTM && (e.eqptp == "泵站流量" || e.eqptp=="泵站电流");
@@ -581,80 +585,18 @@
                           strMsg += tempXX;
                           strMsg += '          </td>';
                           strMsg += '     </tr>';
-                          var temp1 = p1.filter(function (e) {
-                              return e.eqptp == "泵站电流";
-                          })
-                          //if (temp1.length > 0) {
-                          //    strMsg += '      <tr>';
-                          //    strMsg += '          <td align="right">';
-                          //    strMsg += '电流：';
-                          //    strMsg += '          </td>';
-                          //    strMsg += '          <td align="left">';
-                          //    if (temp1[0].gtq != undefined) {
-                          //        strMsg += '<span class="SpanColor">' + Number(temp1[0].gtq).toFixed(1) + 'A</span>';
-                          //    } else {
-                          //        strMsg += '<span class="SpanColor">—</span>';
-                          //    }
-                              
-                          //    strMsg += '          </td>';
-                          //    strMsg += '     </tr>';
-                          //} else {
-                          //    strMsg += '      <tr>';
-                          //    strMsg += '          <td align="right">';
-                          //    strMsg += '电流：';
-                          //    strMsg += '          </td>';
-                          //    strMsg += '          <td align="left">';
-                          //    strMsg += '—';
-                          //    strMsg += '          </td>';
-                          //    strMsg += '     </tr>';
-                          //}
-                          //var temp2 = p1.filter(function (e) {
-                          //    return e.eqptp == "泵站流量";
-                          //})
-                          //if (temp2.length > 0) {
-                          //    strMsg += '    <tr>';
-                          //    strMsg += '          <td align="right">';
-                          //    strMsg += '流量：';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '          <td align="left">';
-                          //    if (temp2[0].gtq != undefined) {
-                          //        strMsg += '<span class="SpanColor">' + Number(temp2[0].gtq).toFixed(1) + 'm³/s</span>';
-                          //    } else {
-                          //        strMsg += '<span class="SpanColor">—</span>';
-                          //    }
-                          //    strMsg += '       </td>';
-                          //    strMsg += '    </tr>';
-                          //} else {
-                          //    strMsg += '    <tr>';
-                          //    strMsg += '          <td align="right">';
-                          //    strMsg += '流量：';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '          <td align="left">';
-                          //    strMsg += '—';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '    </tr>';
-                          //}
 
-                          //var temp3 = ResultData.data[0].SFQ;
-                          //if (temp3 != undefined) {
-                          //    strMsg += '    <tr>';
-                          //    strMsg += '          <td align="right">';
-                          //    strMsg += '设计：';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '          <td align="left">';
-                          //    strMsg += '<span class="SpanColor">' + Number(temp3).toFixed(1) + 'm³/s</span>';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '    </tr>';
-                          //} else {
-                          //    strMsg += '    <tr>';
-                          //    strMsg += '          <td align="right">';
-                          //    strMsg += '设计：';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '          <td align="left">';
-                          //    strMsg += '—';
-                          //    strMsg += '       </td>';
-                          //    strMsg += '    </tr>';
-                          //}
+                          if(bzgtq>0){
+                            strMsg += '      <tr>';
+                            strMsg += '          <td align="right">';
+                            strMsg += '流量：';
+                            strMsg += '          </td>';
+                            strMsg += '          <td align="left">';
+                            strMsg += bzgtq+"m³/s";
+                            strMsg += '          </td>';
+                            strMsg += '     </tr>';
+                          }
+
                           strMsg += ' </table>';
                           strMsg += '  </div>';
                           strMsg += ' </li>  ';
@@ -840,7 +782,7 @@
           else if (typeID == "WATER_ST_STBPRP_B_STCDSel") {
               if (ResultData.total > 0) {
                   var o = ResultData.data[0];
-                  console.error(o);
+                //   console.error(o);
                   var tempMAXZ = 24;
                   if ("".lastIndexOf(o.STCD) > -1) {
                       $("#GQDivView3").css("display", "block");

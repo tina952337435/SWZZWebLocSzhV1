@@ -372,16 +372,20 @@ modelSetTaskSZH = function () {
                         vals.push(drp);
                     }
                 } else {//边界潮水位
-                    if (_index > 0) {//依据时间的不要
-                        if (Number(bj.zhandata) != 0) {
+                    // if(res.id=="1778384904")
+                    //     {
+                    //         console.error(res.id,bj.zhandata,"长度",bjDataTemp.length,_index);
+                    //     }
+                    //if (_index > 0) {//依据时间的不要                        
+                        if (Number(bj.zhandata) != -1000) {
                             // console.error("有",res.id,Number(bj.zhandata));
                             vals.push(Number(bj.zhandata));
                         }
                         else {
                             // console.error("无",res.id,Number(bj.zhandata));
-                            vals = [];//如果为0，则不采用,使用模型默认的潮位
+                            vals = [];//如果为-1000，则不采用,使用模型默认的潮位
                         }
-                    }
+                    //}
                 }
             }
         }
@@ -391,6 +395,9 @@ modelSetTaskSZH = function () {
             if (vals.length > 0) {
                 item.vals = vals;
                 scheduleObjs.push(item);
+                // if (res.type == 1){
+                //      console.error(res.id,res.name,vals.length);
+                // }
             }
         }
     }
@@ -411,7 +418,7 @@ modelSetTaskSZH = function () {
             itemFQ.vals = valsFQ;
             scheduleObjs.push(itemFQ);
         }
-        console.error('itemFQ',itemFQ);
+        // console.error('itemFQ',itemFQ);
     }
     //分区调度预案
     

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+    <title>水情监测</title>
+
+    <!-- ===== Element Plus 样式（生产环境下载到 Common/ 目录） ===== -->
+    <link rel="stylesheet" href="../Common/element-plus.css">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", 微软雅黑, sans-serif; background: #f5f7fa; }
+
+        /* 顶部搜索栏 — 和现有项目风格一致 */
+        .toolbar {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            padding: 12px 16px; background: #fff; border-bottom: 1px solid #e8e8e8;
+        }
+        .toolbar .label { font-size: 13px; color: #666; white-space: nowrap; }
+        .toolbar .spacer { flex: 1; }
+
+        /* 表格区域 */
+        .table-wrap {
+            margin: 12px 16px; background: #fff; border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .table-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; border-bottom: 1px solid #e8e8e8;
+        }
+        .table-header .title { font-size: 14px; font-weight: bold; color: #333; }
+        .table-header .title .unit { font-size: 12px; color: #999; font-weight: normal; }
+
+        /* 水位超警戒高亮 */
+        .warn-cell { color: #f56c6c; font-weight: bold; }
+        .normal-cell { color: #333; }
+
+        /* 底部状态栏 */
+        .footer-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 16px; font-size: 12px; color: #999;
+            border-top: 1px solid #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== Vue 挂载点 ==================== -->
+    <div id="app">
+
+        <!-- 搜索工具栏 -->
+        <div class="toolbar">
+            <span class="label">时间：</span>
+            <el-date-picker
+                v-model="query.endDate"
+                type="date"
+                placeholder="选择日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+                size="default"
+                style="width: 160px"
+            />
+            <el-input-number
+                v-model="query.endHour"
+                :min="0" :max="23"
+                size="default"
+                style="width: 80px"
+            />
+            <span style="font-size:12px;color:#999;">时</span>
+
+            <span class="label" style="margin-left:8px;">类型：</span>
+            <el-select v-model="query.typeId" placeholder="请选择" size="default" style="width: 130px">
+                <el-option label="全部" value="all" />
+                <el-option label="代表站" value="repr" />
+                <el-option label="防汛站" value="flood" />
+                <el-option label="海事" value="maritime" />
+                <el-option label="外省市" value="outer" />
+            </el-select>
+
+            <el-button type="primary" @click="doSearch" :loading="loading">
+                <el-icon style="margin-right:4px;"><Search /></el-icon>查询
+            </el-button>
+
+            <span class="spacer"></span>
+
+            <el-button @click="doExport" :disabled="tableData.length === 0">
+                <el-icon style="margin-right:4px;"><Download /></el-icon>导出
+            </el-button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-wrap">
+            <div class="table-header">
+                <span class="title">
+                    水情信息 <span class="unit">(单位：m)</span>
+                </span>
+                <span style="font-size:12px;color:#999;">
+                    共 {{ totalCount }} 条记录
+                </span>
+            </div>
+
+            <el-table
+                :data="tableData"
+                v-loading="loading"
+                stripe
+                highlight-current-row
+                @row-click="onRowClick"
+                style="width: 100%"
+                :height="tableHeight"
+                empty-text="暂无数据"
+            >
+                <el-table-column prop="stnm" label="站名" width="120" align="center">
+                    <template #default="{ row }">
+                        <el-link type="primary" @click.stop="goDetail(row)">{{ row.stnm }}</el-link>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="upz" label="水位" width="100" align="center">
+                    <template #default="{ row }">
+                        <span :class="row.upz > row.wrz ? 'warn-cell' : 'normal-cell'">
+                            {{ row.upz }}
+                        </span>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="wrz" label="警戒值" width="80" align="center" />
+                <el-table-column prop="tm" label="时间" width="160" align="center" />
+                <el-table-column prop="stcd" label="站号" width="100" align="center" />
+                <el-table-column label="操作" width="80" align="center" fixed="right">
+                    <template #default="{ row }">
+                        <el-link type="primary" @click.stop="locOnMap(row)">定位</el-link>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <!-- 分页 -->
+            <div class="footer-bar">
+                <span>提示：点击站名查看过程线，点击"定位"在地图上高亮站点</span>
+                <el-pagination
+                    v-model:current-page="pager.pageIndex"
+                    v-model:page-size="pager.pageSize"
+                    :page-sizes="[15, 20, 30, 50, 100]"
+                    :total="totalCount"
+                    layout="total, sizes, prev, pager, next, jumper"
+                    small
+                    @current-change="onPageChange"
+                    @size-change="onPageChange"
+                />
+            </div>
+        </div>
+
+    </div>
+    <!-- ==================== Vue 挂载点结束 ==================== -->
+
+
+    <!-- ===== 依赖引入 ===== -->
+    <!-- 生产环境：把下面三个文件下载到 Common/ 目录，替换 src 路径 -->
+    <!-- Vue 3 -->
+    <script src="../Common/vue.global.prod.js"></script>
+    <!-- Element Plus -->
+    <script src="../Common/element-plus.min.js"></script>
+    <!-- Element Plus 图标 -->
+    <script src="../Common/element-plus-icons.min.js"></script>
+
+    <script>
+    // ==================== Vue 应用 ====================
+    const { createApp, ref, reactive, computed, onMounted, onBeforeUnmount, watch } = Vue;
+
+    const app = createApp({
+        setup() {
+            // ---------- 状态 ----------
+            const isInIframe = ref(window.self !== window.top);   // 是否作为子页面运行
+            const loading = ref(false);
+            const tableData = ref([]);
+            const totalCount = ref(0);
+            const map = ref(null);                                 // 父页面传过来的地图对象
+            const tableHeight = ref(400);                          // 表格高度
+
+            const query = reactive({
+                endDate: new Date().toISOString().slice(0, 10),   // 今天
+                endHour: new Date().getHours() + 1,
+                typeId: 'all'
+            });
+
+            const pager = reactive({
+                pageIndex: 1,
+                pageSize: 15
+            });
+
+            // 所有数据缓存（前端分页用）
+            let allData = [];
+
+            // ---------- 方法 ----------
+            // 查询数据
+            async function doSearch() {
+                loading.value = true;
+                try {
+                    // ★ 实际对接时替换为你的后端接口
+                    // const res = await fetch(`/api/water?type=${query.typeId}&date=${query.endDate}&hour=${query.endHour}`);
+                    // const json = await res.json();
+
+                    // --- 模拟数据（演示用，对接后端后删除这一段） ---
+                    const json = mockData();
+                    // --- 模拟数据结束 ---
+
+                    allData = json.data || [];
+                    totalCount.value = allData.length;
+                    doPage();
+                } catch (e) {
+                    ElMessage.error('数据加载失败：' + e.message);
+                } finally {
+                    loading.value = false;
+                }
+            }
+
+            // 前端分页
+            function doPage() {
+                const start = (pager.pageIndex - 1) * pager.pageSize;
+                tableData.value = allData.slice(start, start + pager.pageSize);
+            }
+            function onPageChange() {
+                doPage();
+            }
+
+            // 点击行 → 地图定位
+            function onRowClick(row) {
+                locOnMap(row);
+            }
+
+            // 地图定位
+            function locOnMap(row) {
+                if (map.value) {
+                    // 通过父页面的地图对象定位
+                    // 假设 map 对象有 centerAndZoom 方法
+                    if (typeof map.value.centerAndZoom === 'function') {
+                        map.value.centerAndZoom([row.lgtd, row.lttd], 12);
+                    }
+                    // 如果有高亮方法
+                    if (typeof map.value.highlightStation === 'function') {
+                        map.value.highlightStation(row.stcd);
+                    }
+                }
+                // 如果不是 iframe 模式，用传参方式跳转
+                if (!isInIframe.value) {
+                    ElMessage.info('定位站号：' + row.stcd + '（独立模式，无地图对象）');
+                }
+            }
+
+            // 跳转详情/过程线
+            function goDetail(row) {
+                const url = `../DanZhan/DanZHanMain.html?stcd=${row.stcd}&stnm=${encodeURIComponent(row.stnm)}`;
+                if (isInIframe.value && window.parent) {
+                    // 在 map.html 中打开新 tab（调用父页面的 openChart 方法）
+                    if (typeof window.parent.openChart === 'function') {
+                        window.parent.openChart(url, row.stnm + '水位过程线', '1200@620');
+                    } else {
+                        window.open(url);
+                    }
+                } else {
+                    window.open(url);
+                }
+            }
+
+            // 导出
+            function doExport() {
+                ElMessage.info('导出功能 — 对接后端导出接口');
+                // 实际实现：window.location.href = '/api/water/export?...';
+            }
+
+            // 自适应表格高度
+            function resizeTable() {
+                tableHeight.value = window.innerHeight - 240;
+            }
+
+            // ---------- ★ map.html 子页面通信接口 ★ ----------
+            // map.html 切换 tab 时会调用这些方法
+            window._show = function() {
+                console.log('[Vue子页面] 激活，刷新数据');
+                doSearch();
+            };
+            window._hide = function() {
+                console.log('[Vue子页面] 隐藏');
+                // 可以在这里停掉定时轮询等
+            };
+            window._destroy = function() {
+                console.log('[Vue子页面] 销毁');
+                allData = [];
+                tableData.value = [];
+            };
+            window.ShowPage = function() {
+                console.log('[Vue子页面] ShowPage 被调用');
+                doSearch();
+            };
+            // map.html 传入地图对象
+            window.GetMap = function(mapObj, param1, param2) {
+                console.log('[Vue子页面] 收到地图对象', param1, param2);
+                map.value = mapObj;
+                // 拿到地图后可以立即做初始化操作
+                // 比如：mapObj.addLayer(...)
+            };
+            window.TimeShowYT = function() {
+                console.log('[Vue子页面] TimeShowYT 被调用');
+            };
+
+            // ---------- 生命周期 ----------
+            onMounted(() => {
+                resizeTable();
+                window.addEventListener('resize', resizeTable);
+
+                // 首次加载数据
+                doSearch();
+
+                if (isInIframe.value) {
+                    console.log('[Vue子页面] 运行在 iframe 中，等待 map.html 调用');
+                } else {
+                    console.log('[Vue子页面] 独立运行模式');
+                }
+            });
+
+            onBeforeUnmount(() => {
+                window.removeEventListener('resize', resizeTable);
+            });
+
+            return {
+                isInIframe,
+                loading,
+                tableData,
+                totalCount,
+                query,
+                pager,
+                tableHeight,
+                doSearch,
+                onPageChange,
+                onRowClick,
+                locOnMap,
+                goDetail,
+                doExport
+            };
+        }
+    });
+
+    // ---------- 注册 Element Plus ----------
+    // CDN 方式引入时，ElementPlus 已经在全局
+    app.use(ElementPlus, { size: 'default' });
+
+    // 注册图标组件（Element Plus Icons）
+    for (const [key, component] of Object.entries(ElementPlusIconsVue || {})) {
+        app.component(key, component);
+    }
+
+    app.mount('#app');
+
+    // ==================== 模拟数据（对接后端后删除） ====================
+    function mockData() {
+        const stations = [
+            { stcd: '60101500', stnm: '黄浦公园', upz: 3.21, wrz: 4.55, lgtd: 121.491, lttd: 31.241, tm: '2026-08-12 14:00:00' },
+            { stcd: '60101700', stnm: '吴淞口',   upz: 3.45, wrz: 4.80, lgtd: 121.507, lttd: 31.395, tm: '2026-08-12 14:00:00' },
+            { stcd: '60101900', stnm: '米市渡',   upz: 2.87, wrz: 3.80, lgtd: 121.310, lttd: 31.008, tm: '2026-08-12 14:00:00' },
+            { stcd: '60102100', stnm: '苏州河闸', upz: 4.72, wrz: 4.10, lgtd: 121.473, lttd: 31.245, tm: '2026-08-12 14:00:00' },
+            { stcd: '60102300', stnm: '淀峰',     upz: 2.33, wrz: 3.40, lgtd: 121.083, lttd: 31.095, tm: '2026-08-12 14:00:00' },
+            { stcd: '60102500', stnm: '赵屯',     upz: 2.56, wrz: 3.60, lgtd: 121.064, lttd: 31.226, tm: '2026-08-12 14:00:00' },
+            { stcd: '60102700', stnm: '夏字圩',   upz: 3.12, wrz: 3.90, lgtd: 121.218, lttd: 31.158, tm: '2026-08-12 14:00:00' },
+            { stcd: '60102900', stnm: '陈坊桥',   upz: 2.98, wrz: 3.70, lgtd: 121.155, lttd: 31.127, tm: '2026-08-12 14:00:00' },
+            { stcd: '60103100', stnm: '北新泾',   upz: 4.11, wrz: 3.85, lgtd: 121.371, lttd: 31.228, tm: '2026-08-12 14:00:00' },
+            { stcd: '60103300', stnm: '闸港',     upz: 2.45, wrz: 3.50, lgtd: 121.286, lttd: 31.281, tm: '2026-08-12 14:00:00' },
+            { stcd: '60103500', stnm: '周浦',     upz: 2.78, wrz: 3.55, lgtd: 121.576, lttd: 31.123, tm: '2026-08-12 14:00:00' },
+            { stcd: '60103700', stnm: '泗泾',     upz: 2.61, wrz: 3.45, lgtd: 121.272, lttd: 31.079, tm: '2026-08-12 14:00:00' },
+            { stcd: '60103900', stnm: '南翔',     upz: 2.39, wrz: 3.20, lgtd: 121.317, lttd: 31.297, tm: '2026-08-12 14:00:00' },
+            { stcd: '60104100', stnm: '朱家角',   upz: 2.15, wrz: 3.10, lgtd: 121.053, lttd: 31.113, tm: '2026-08-12 14:00:00' },
+            { stcd: '60104300', stnm: '练塘',     upz: 2.28, wrz: 3.25, lgtd: 121.016, lttd: 31.012, tm: '2026-08-12 14:00:00' },
+            { stcd: '60104500', stnm: '金泽',     upz: 2.07, wrz: 3.05, lgtd: 120.919, lttd: 31.039, tm: '2026-08-12 14:00:00' },
+            { stcd: '60104700', stnm: '商榻',     upz: 2.19, wrz: 3.15, lgtd: 120.883, lttd: 31.113, tm: '2026-08-12 14:00:00' },
+            { stcd: '60104900', stnm: '白鹤',     upz: 2.52, wrz: 3.55, lgtd: 121.108, lttd: 31.252, tm: '2026-08-12 14:00:00' },
+            { stcd: '60105100', stnm: '徐泾',     upz: 2.43, wrz: 3.40, lgtd: 121.274, lttd: 31.174, tm: '2026-08-12 14:00:00' },
+            { stcd: '60105300', stnm: '华新',     upz: 2.36, wrz: 3.30, lgtd: 121.218, lttd: 31.222, tm: '2026-08-12 14:00:00' },
+            { stcd: '60105500', stnm: '重固',     upz: 2.31, wrz: 3.25, lgtd: 121.162, lttd: 31.211, tm: '2026-08-12 14:00:00' },
+            { stcd: '60105700', stnm: '凤溪',     upz: 2.45, wrz: 3.35, lgtd: 121.227, lttd: 31.178, tm: '2026-08-12 14:00:00' },
+            { stcd: '60105900', stnm: '大盈',     upz: 2.18, wrz: 3.15, lgtd: 121.071, lttd: 31.148, tm: '2026-08-12 14:00:00' },
+        ];
+        return { data: stations };
+    }
+    </script>
+</body>
+</html>

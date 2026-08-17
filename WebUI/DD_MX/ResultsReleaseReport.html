@@ -206,6 +206,9 @@
                         </div>
                         <div class="d2"></div>
                         <p class="base-p">历史计算成果查询</p>
+                        <div style="float:right;margin-right:10px;margin-top:6px;cursor:pointer;" title="查看模型边界条件" onclick="viewModelBoundary()">
+                            <i class="fa fa-eye"></i>
+                        </div>
                     </div>
                     <div id="faanCombox" style="width:100%; height: -webkit-calc(100% - 45px);height: -moz-calc(100% - 45px);height: calc(100% - 45px); margin: auto;font-size:15px;">
                         <div style="padding: 10px 3%;">
@@ -221,6 +224,7 @@
                             <span id="ZU_ID" style="display:none;"></span>
                             <span id="DD_NAME"></span>
                             <span id="DD_NOTE" style="white-space:normal;word-wrap:break-word;word-break:break-all;"></span>
+                            <span id="DD_TASKID" style="display:none;"></span>
                         </div>
 
                     </div>
@@ -511,6 +515,7 @@
                 $("#ZU_ID").html(fa_arr[0].dd_MIND);
                 var etm = new Date(new Date($("#DD_TM").html()).addDate('h', parseInt(fa_arr[0].dd_STANA))).format("yyyy-MM-dd HH:mm:ss");
                 $("#DD_ETM").html(etm);
+                $("#DD_TASKID").html( fa_arr[0].dd_FOR);                
                 onLoadAllData();
             } else if (typeID == "MODE_ES_JISUANZHANSel") {
                 var dataTemp = data.data.filter(function (item) {
@@ -717,6 +722,13 @@
             var x = "center";
             var y = "middle";
             win.showAtPos(x, y);
+        }
+
+        function viewModelBoundary() {
+            var stime = $("#DD_TM").html();
+            var etime = $("#DD_ETM").html();
+            var url="./DD_MXAPISZH/ModelBoundaryView.html?SOLUTIONID=" + DD_ID + "&taskID="+$("#DD_TASKID").html()+ "&stime=" + stime + "&etime=" + etime;
+            WindowsOpen(url, "模型边界条件", "90%@90%");
         }
 
         function GetQueryString(str) {

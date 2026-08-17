@@ -3,6 +3,8 @@ target/
 *.class
 *.jar
 *.war
+node_modules/
+vue-app/node_modules/
 
 # 或者只忽略特定路径的这个文件
 WebUI/swzzWeb.war

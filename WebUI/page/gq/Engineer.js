@@ -20,7 +20,7 @@ setTimeout(function () {
     normalGraphicLayer = CreateLayer(LayerID);
     /*设置图层的最小可见度*/
     /*设置图层的飞行提示*/
-    setLayerToolTip(normalGraphicLayer, "stnm", "SHIKUANG,TMS", "实况,时间");
+    setLayerToolTip(normalGraphicLayer, "stnm", "SHIKUANG,UPZDWZ,TMS", "实况,闸上/闸下水位,时间");
     normalGraphicLayer.on("click", onSQClick);
 },300);
 
@@ -70,6 +70,8 @@ function addMark2(obj) {
 
         for (var i = 0; i < obj.length; i++) {
             var omzs =obj[i].flpq==null?0: Number(obj[i].flpq);
+            var gtopnum = SetNull(obj[i].grq) != "" ? Number(obj[i].grq) : 0;  //闸门个数
+            var omcnum = SetNull(obj[i].flpq) != "" ? Number(obj[i].flpq) : 0;  //泵站个数
             obj[i]["divid"] = "GQ" + obj[i]["stcd"];		
             var IINum = 0;
             if (undefined != obj[i].tm && null != obj[i].tm) {
@@ -100,12 +102,12 @@ function addMark2(obj) {
             }
             var tempFlag = false;
             var NumCountKQ = 0;
-            if (omzs > 0) {
-                for (index = 1; index <= omzs; index++) {
+            if (omcnum > 0) {
+                for (index = 1; index <= omcnum; index++) {
                     var tempindex = "";
                     var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
                     var temAgg = item.gateList.filter(function (e) {
-                        return e.EQPTP == "泵站状态" && e.EXKEY == index && Number(e.gtq) > 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                        return e.eqptp == "泵站状态" && e.exkey == index && Number(e.gtq) > 0 && new Date(convertToDate(e.tm)) > tempTM;
                     });
                     if (temAgg.length > 0) {
                         tempFlag = true;
@@ -122,10 +124,9 @@ function addMark2(obj) {
             }
             //else {
             var gtNumCountKQ = 0;
-            omzs =item.flpq==null?0: Number(item.flpq);
             //console.log(obj[i].stnm + "=======" + omzs)
-            if (omzs > 0) {
-                for (index = 1; index <= omzs; index++) {
+            if (gtopnum > 0) {
+                for (index = 1; index <= gtopnum; index++) {
                     var tempindex = "";
                     var pValue = "";
                     var tempTM = new Date(new Date().format("yyyy/MM/dd 00:00:00"));
@@ -133,13 +134,14 @@ function addMark2(obj) {
 
                     //if (stcds.indexOf(item.stcd) > -1) {
                     //    temAgg = item.gateList.filter(function (e) {
-                    //        return e.EQPTP == "闸坝开度" && e.EXKEY == index && Number(e.gtq) < 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                    //        return e.eqptp == "闸坝开度" && e.exkey == index && Number(e.gtq) < 0.002 && new Date(convertToDate(e.tm)) > tempTM;
                     //    });
                     //} else {
                         temAgg = item.gateList.filter(function (e) {
-                            return e.EQPTP == "闸坝开度" && e.EXKEY == index && Number(e.gtq) > 0.002 && new Date(convertToDate(e.tm)) > tempTM;
+                            return e.eqptp == "闸坝开度" && e.exkey == index && Number(e.gtq) > 0.1;
                         });
                     //}
+                    
                     if (temAgg.length > 0) {
                         tempFlag = true;
                         item.KD = Number(temAgg[0].gtq).toFixed(2);
@@ -155,26 +157,20 @@ function addMark2(obj) {
                     tempMsg += tempindex;
                     //tempValue += pValue;
                 }
-                //if (item.KD != "—") {
-                //    obj[i].KDS = "(" + item.KD + ")" + gtNumCountKQ + "/" + omzs;
-                //} else {
-                //    obj[i].KDS = gtNumCountKQ + "/" + omzs;
-                //}
-                if (item.KD != "—") {
-                    if (obj[i].SHIKUANG != undefined) {
-                        obj[i].SHIKUANG += "，闸【" + "(" + item.KD + ")" + gtNumCountKQ + "/" + omzs + "】";
-                    } else {
-                        obj[i].SHIKUANG = "";
-                        obj[i].SHIKUANG += "闸【" + "(" + item.KD + ")" + gtNumCountKQ + "/" + omzs + "】";
-                    }
-                } else {
-                    if (obj[i].SHIKUANG != undefined) {
-                        obj[i].SHIKUANG += "，闸【" + gtNumCountKQ + "/" + omzs + "】";
-                    } else {
-                        obj[i].SHIKUANG = "";
-                        obj[i].SHIKUANG += "闸【" + gtNumCountKQ + "/" + omzs + "】";
-                    }
+
+                var shikuang="";
+                if(omcnum==0&&gtopnum>0){
+                    shikuang="闸【" + gtNumCountKQ + "/" + gtopnum + "】"
                 }
+                else if(omcnum>0&&gtopnum==0){
+                    shikuang="泵【" + NumCountKQ + "/" + omcnum + "】";
+                }
+                else{
+                    shikuang="泵【" + NumCountKQ + "/" + omcnum + "】，闸【" + gtNumCountKQ + "/" + gtopnum + "】";
+                }
+                obj[i].SHIKUANG=shikuang;
+
+                obj[i].UPZDWZ=obj[i].upz+"/"+obj[i].dwz;
             }
             tempValue += "<div style='width:30px;clear:none;'></div>";
             var pUrl="././arcgis_js_api//myJs/images/";
@@ -219,7 +215,7 @@ function addMark2(obj) {
                 //}
 
                 var tempST_GATE_RBZ = obj[i].gateList.filter(function (e) {
-                    return e.EQPTP == '泵站流量' && Number(e.gtq) > 0;
+                    return e.eqptp == '泵站流量' && Number(e.gtq) > 0;
                 });
                 if (tempST_GATE_RBZ.length > 0) {
                     var tempQ = 0;
@@ -230,7 +226,7 @@ function addMark2(obj) {
                 }
 
                 var tempST_GATE_R = obj[i].gateList.filter(function (e) {
-                    return e.EQPTP == '闸坝流量' && Number(e.gtq) > 0;
+                    return e.eqptp == '闸坝流量' && Number(e.gtq) > 0;
                 });
                 if (tempST_GATE_R.length > 0) {
                     var tempQ = 0;

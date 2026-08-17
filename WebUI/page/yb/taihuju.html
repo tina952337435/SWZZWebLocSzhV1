@@ -41,6 +41,7 @@
 							 showTime="false" showOkButton="false" showClearButton="false" onvaluechanged="onvaluechangedTM" ondrawdate="onDrawDate"/>
 							 
 							&nbsp;&nbsp;<a class="mini-button" onclick="search()">查询</a>
+							&nbsp;&nbsp;<a class="mini-button" onclick="exp('太湖局预报水位')" style="background-color: #5cb85c;border-color: #4cae4c;">导出</a>
 						</td>
 						<td style="width:180px;display:none;">
 							类型:
@@ -85,6 +86,11 @@
         $(function () {
 			mini.get("STCD").setData(stcdArr);
 			mini.get("STCD").select(0);
+			mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
             var strWhere = { };
 			app.post("SWZZ_MODE_ST_FORECAST_F/findResultFYMDH", strWhere, function (res) {
 				JosnSel(res, "findResultFYMDH");
@@ -134,10 +140,10 @@
             if (typeID == "Sel") { 
 
                 var strJson=data.data;
-				strJson=strJson.filter(function(e){
-					e.z=(e.z-0.26).toFixed(2);
-					return true;
-				});
+				// strJson=strJson.filter(function(e){
+				// 	e.z=(e.z-0.26).toFixed(2);
+				// 	return true;
+				// });
 				
                 grid.setData(strJson);
 
@@ -169,6 +175,7 @@
 				// 	mini.get("TM").setValue(addDayDate(tm.format("yyyy/MM/dd"), -1) + " 08:00:00");
 				// }
 				//默认加载数据
+				mini.unmask(document.body);
 				search();
             }
         }
@@ -197,7 +204,13 @@
                  e.dateStyle = "background:#A8D9B6;"
              } 
          }
-    </script>
+    
+		 function exp(name) {
+			name =mini.get("STCD").getText()+"站预报水位";
+			var data = grid.data;
+			ExportExcel(data,grid,name);
+		}
+	</script>
     <script type="text/javascript">
 
         /* 过程线绘制 过程线 水位

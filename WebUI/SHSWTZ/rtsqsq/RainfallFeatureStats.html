@@ -119,10 +119,6 @@
             text-decoration: none;
             margin-left: 10px;
         }
-        .stat-panel .panel-hd .export-icon:hover { 
-            /* color: #fff; */
-         }
-
         .stat-list {
             flex: 1;
             padding: 6px 12px;
@@ -288,6 +284,168 @@
             font-weight: bold; color: #3291F9;
             font-size: 14px; flex-shrink: 0; margin-left: 8px;
         }
+
+        /* ===== 等级统计 ===== */
+        #viewGrade { flex-direction: column; }
+        .grade-body {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            gap: 12px;
+            padding: 8px 10px;
+            box-sizing: border-box;
+        }
+        .grade-config-wrap {
+            flex: 0 0 300px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .grade-config-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 10px;
+        }
+        .grade-config-actions {
+            padding: 8px 10px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .grade-config-actions .mini-button { margin: 0 4px; }
+        .gc-row {
+            display: block;
+            margin: 4px 0;
+            padding: 5px 8px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: #fff;
+        }
+        .gc-row input {
+            width: 40px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 2px 4px;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+        .gc-row .gc-sep { margin: 0 2px; color: #999; }
+        .gc-row .gc-color { width: 20px; height: 20px; padding: 0; border: none; cursor: pointer; vertical-align: middle; }
+        .gc-row .gc-del {
+            color: #f56c6c; cursor: pointer; margin-left: 4px; text-decoration: none; font-size: 14px;
+            float: right; margin-top: 2px;
+        }
+        .gc-row .gc-del:hover { color: #e11; }
+        .grade-chart-wrap {
+            flex: 0 0 440px;
+            min-width: 320px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .grade-chart-wrap .panel-hd,
+        .grade-grid-wrap .panel-hd,
+        .grade-config-wrap .panel-hd {
+            padding: 10px 16px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .grade-chart-wrap .panel-hd .title,
+        .grade-grid-wrap .panel-hd .title { font-size: 14px; font-weight: bold; color: #333; }
+        .grade-grid-wrap .export-icon { color: #999; font-size: 16px; cursor: pointer; text-decoration: none; }
+        .grade-grid-wrap .export-icon:hover { color: #3291F9; }
+        #gradeChart { flex: 1; min-height: 0; }
+        .grade-grid-wrap {
+            flex: 1;
+            min-width: 560px;
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .grade-grid-body { flex: 1; min-height: 0; }
+
+        /* 钻取弹窗 */
+        .drill-mask {
+            position: fixed; left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.35); z-index: 999;
+        }
+        .drill-win {
+            position: fixed; left: 50%; top: 50%;
+            width: 520px; height: 460px;
+            margin-left: -260px; margin-top: -230px;
+            background: #fff; border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            z-index: 1000;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .drill-win .drill-hd {
+            height: 40px; line-height: 40px;
+            padding: 0 14px;
+            background: #3291F9; color: #fff;
+            font-size: 14px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .drill-win .drill-close { color: #fff; text-decoration: none; font-size: 16px; cursor: pointer; }
+        .drill-win .drill-body { flex: 1; overflow-y: auto; }
+        .drill-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .drill-table th, .drill-table td {
+            padding: 6px 10px; text-align: center; border-bottom: 1px solid #f0f0f0;
+        }
+        .drill-table th { background: #f5f5f5; color: #666; font-weight: 600; position: sticky; top: 0; }
+        .drill-table td.drp { color: #3291F9; font-weight: bold; }
+
+        /* 站点筛选弹窗 */
+        .station-win {
+            position: fixed; left: 50%; top: 50%;
+            width: 560px; height: 560px;
+            margin-left: -280px; margin-top: -280px;
+            background: #fff; border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            z-index: 1000;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+        }
+        .station-filter-bar {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            background: #fafafa;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .station-filter-bar input {
+            width: 160px; border: 1px solid #ddd; border-radius: 3px; padding: 3px 6px; font-size: 12px;
+        }
+        .station-filter-bar select {
+            border: 1px solid #ddd; border-radius: 3px; padding: 3px 4px; font-size: 12px;
+        }
+        .station-filter-bar a { color: #3291F9; cursor: pointer; font-size: 12px; text-decoration: none; }
+        .station-filter-bar a:hover { text-decoration: underline; }
+        .station-list { flex: 1; overflow-y: auto; padding: 4px 12px; }
+        .station-item {
+            display: flex; align-items: center;
+            padding: 5px 6px; border-bottom: 1px solid #f5f5f5; font-size: 13px;
+        }
+        .station-item input { margin-right: 8px; flex-shrink: 0; }
+        .station-item label { flex: 1; cursor: pointer; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .station-item .si-addvnm { width: 80px; text-align: center; color: #888; flex-shrink: 0; }
+        .station-item .si-drp { width: 70px; text-align: right; color: #3291F9; font-weight: bold; flex-shrink: 0; }
+        .station-filter-footer {
+            padding: 8px 12px; border-top: 1px solid #eee; background: #fafafa;
+            display: flex; align-items: center; gap: 10px; justify-content: flex-end;
+        }
+        .station-excluded-count { color: #e67e22; font-size: 12px; margin-right: auto; }
     </style>
 </head>
 
@@ -315,6 +473,8 @@
                         <input id="ETIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
                             showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
                         <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+                        <a class="mini-button" onclick="openStationFilter()">站点筛选</a>
+                        <span id="stationExcludedTip" style="color:#e67e22;font-size:12px;margin-left:6px;"></span>
                         <span class="quick-links">
                             近<span class="sep">|</span>
                             <a href="javascript:void(0)" onclick="quickTime(1)">1天</a><span class="sep">|</span>
@@ -338,6 +498,7 @@
     <div class="tab-bar">
         <a class="tab-btn active" id="tabSummary" href="javascript:void(0)" onclick="switchTab('summary')">统计表</a>
         <a class="tab-btn" id="tabDetail" href="javascript:void(0)" onclick="switchTab('detail')">明细表</a>
+        <a class="tab-btn" id="tabGrade" href="javascript:void(0)" onclick="switchTab('grade')">等级统计</a>
     </div>
 
     <!--主体内容 - 统计视图-->
@@ -389,14 +550,15 @@
             </a>
         </div>
         <div style="margin:0 10px;height:-webkit-calc(100% - 36px);height:-moz-calc(100% - 36px);height:calc(100% - 36px);">
-            <div id="gridDetail" class="mini-datagrid" style="width:100%;height:100%;"
+            <div id="gridDetail" class="mini-datagrid" style="width:100%;height:100%;" rowHeight="40"
                 allowalternating="true" sizeList="[15,20,30,50,100,500,1000]" pageSize="50" sortMode="client"
                 allowresize="false" showPager="false" showemptytext="true" emptytext="暂无数据"
                 alwaysshowemptytext="true" ondrawcell="onDetailDrawCell">
                 <div property="columns">
-                    <div type="indexcolumn" width="50" align="center" headerAlign="center">序号</div>
+                    <div field="rowIndex" width="50" align="center" headerAlign="center" allowSort="false">序号</div>
                     <div field="stnm" width="100" align="center" headerAlign="center" allowSort="false">站名</div>
                     <div field="addvnm" width="80" align="center" headerAlign="center" allowSort="false">区</div>
+                    <div field="totalDrp" width="80" align="center" headerAlign="center" allowSort="true"  dataType="float" decimalPlaces="1">累计雨量(mm)</div>
                     <div header="最大60min" headerAlign="center">
                         <div property="columns">
                             <div field="max60min_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
@@ -432,11 +594,96 @@
         </div>
     </div>
 
+    <!--主体内容 - 等级统计视图-->
+    <div id="viewGrade" class="mini-fit"
+        style="margin-top:1px;height:-webkit-calc(100% - 94px);height:-moz-calc(100% - 94px);height:calc(100% - 94px);overflow:hidden;display:none;">
+        <div class="grade-body">
+            <div class="grade-config-wrap">
+                <div class="panel-hd"><span class="title">等级设置</span></div>
+                <div class="grade-config-list" id="gradeConfigList"></div>
+                <div class="grade-config-actions">
+                    <a class="mini-button" onclick="addLevel()">添加等级</a>
+                    <a class="mini-button" onclick="applyGrade()">应用</a>
+                </div>
+            </div>
+            <div class="grade-chart-wrap">
+                <div class="panel-hd"><span class="title">等级占比</span></div>
+                <div id="gradeChart"></div>
+            </div>
+            <div class="grade-grid-wrap">
+                <div class="panel-hd">
+                    <span class="title">等级统计</span>
+                    <a class="export-icon" title="导出数据" href="javascript:void(0)" onclick="doExportGrade()">
+                        <i class="fa fa-download"></i>
+                    </a>
+                </div>
+                <div class="grade-grid-body">
+                    <div id="gradeGrid" class="mini-datagrid" style="width:100%;height:100%;"
+                        allowalternating="true" showPager="false" showemptytext="true" emptytext="暂无数据"
+                        alwaysshowemptytext="true" ondrawcell="onGradeDrawCell" onrowclick="onGradeRowClick">
+                        <div property="columns">
+                            <div type="indexcolumn" width="40" align="center" headerAlign="center">序号</div>
+                            <div field="range" width="110" align="center" headerAlign="center" allowSort="false">区间(mm)</div>
+                            <div field="count" width="80" align="center" headerAlign="center" allowSort="true" dataType="int">站点数</div>
+                            <div field="pct" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">占比(%)</div>
+                            <!-- <div field="avg" width="100" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">平均雨量(mm)</div>
+                            <div field="maxDrp" width="100" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">最大雨量(mm)</div> -->
+                            <!-- <div field="maxStnm" width="110" align="center" headerAlign="center" allowSort="false">最大站</div> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 钻取弹窗 -->
+    <div id="drillMask" class="drill-mask" style="display:none;"></div>
+    <div id="drillWin" class="drill-win" style="display:none;">
+        <div class="drill-hd">
+            <span id="drillTitle">站点列表</span>
+            <a href="javascript:void(0)" onclick="closeDrill()" class="drill-close">✕</a>
+        </div>
+        <div class="drill-body" id="drillBody"></div>
+    </div>
+
+    <!-- 站点筛选弹窗 -->
+    <div id="stationMask" class="drill-mask" style="display:none;"></div>
+    <div id="stationWin" class="station-win" style="display:none;">
+        <div class="drill-hd">
+            <span>站点筛选</span>
+            <a href="javascript:void(0)" onclick="closeStationFilter()" class="drill-close">✕</a>
+        </div>
+        <div class="station-filter-bar">
+            <input id="stationSearchInput" placeholder="搜索站名/站码" onkeyup="filterStationList()" />
+            <select id="stationAreaSelect" onchange="filterStationList()"></select>
+            <a href="javascript:void(0)" onclick="stationSelectAll(true)">全选</a>
+            <a href="javascript:void(0)" onclick="stationSelectAll(false)">全不选</a>
+        </div>
+        <div class="station-list" id="stationListContent"></div>
+        <div class="station-filter-footer">
+            <span id="stationExcludedCount" class="station-excluded-count">已剔除 0 站</span>
+            <a class="mini-button" onclick="clearExcluded()">清除剔除</a>
+            <a class="mini-button" onclick="confirmStationFilter()">确定</a>
+        </div>
+    </div>
+
     <script type="text/javascript">
         mini.parse();
         var gridDetail = mini.get("gridDetail");
+        var gridGrade = mini.get("gradeGrid");
         var currentTop10Key = "max60min";
+        var currentTab = "summary";
         var resultData;
+        var gradeChart = null;
+        var gradeLevels = [
+            { min: 0, max: 10, color: "#A6F28E" },
+            { min: 10, max: 25, color: "#007B00" },
+            { min: 25, max: 50, color: "#3DBCF9" },
+            { min: 50, max: 100, color: "#0000F9" },
+            { min: 100, max: 200, color: "#FB3DFA" },
+            { min: 200, max: null, color: "#7B0000" }
+        ];
+        var excludedStcdSet = {};   // 被剔除的站点编码集合（全局生效）
 
         var DUR_LABELS = {
             "max60min": "最大60min",
@@ -466,15 +713,16 @@
             BreakLayerLoad();
         });
 
-        // 切换 统计表/明细表
+        // 切换 统计表/明细表/等级统计
         function switchTab(tab) {
-            if (tab === 'summary') {
-                $("#viewSummary").show(); $("#viewDetail").hide();
-                $("#tabSummary").addClass("active"); $("#tabDetail").removeClass("active");
-            } else {
-                $("#viewSummary").hide(); $("#viewDetail").show();
-                $("#tabDetail").addClass("active"); $("#tabSummary").removeClass("active");
-            }
+            currentTab = tab;
+            $("#viewSummary").css("display", tab === "summary" ? "block" : "none");
+            $("#viewDetail").css("display", tab === "detail" ? "block" : "none");
+            $("#viewGrade").css("display", tab === "grade" ? "flex" : "none");
+            $("#tabSummary").toggleClass("active", tab === "summary");
+            $("#tabDetail").toggleClass("active", tab === "detail");
+            $("#tabGrade").toggleClass("active", tab === "grade");
+            if (tab === "grade") renderGrade();
             mini.layout();
         }
 
@@ -512,6 +760,9 @@
 
         function JosnSel(data) {
             resultData = data;
+            // 查询后重置剔除站点
+            excludedStcdSet = {};
+            updateStationExcludedCount();
             if (data && data.data) {
                 // 更新时间范围显示
                 var s = mini.get("STIME").getFormValue();
@@ -519,13 +770,13 @@
                 var s1 = formatDate(s), s2 = formatDate(e);
                 $("#statTimeRange").text(s1.format("MM-dd HH:mm") + " → " + s2.format("MM-dd HH:mm"));
 
-                renderStatList(data.data.summary);
-                renderTop10(data.data.stations, currentTop10Key);
-                fillDetailTable(data.data.stations);
+                refreshAllViews();
             } else {
                 $("#statList").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
                 $("#top10List").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
                 gridDetail.setData([]);
+                gridGrade.setData([]);
+                if (gradeChart) { gradeChart.clear(); }
             }
             $("#dataLoad").hide();
         }
@@ -590,9 +841,7 @@
                 tabs[i].className = (tabs[i].getAttribute("data-key") === key) ? "dur-tab active" : "dur-tab";
             }
             $("#top10DurLabel").text(DUR_LABELS[key]);
-            if (resultData && resultData.data && resultData.data.stations) {
-                renderTop10(resultData.data.stations, key);
-            }
+            renderTop10(getActiveStations(), key);
             // 同步统计表选中行
             var rows = document.querySelectorAll("#statList .stat-row");
             for (var j = 0; j < rows.length; j++) {
@@ -639,15 +888,37 @@
         }
 
         // ========== 明细表 ==========
-        function fillDetailTable(stations) {
+        function fillDetailTable(stations, summary) {
             if (!stations || stations.length === 0) {
                 gridDetail.setData([]); return;
             }
             var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
             var detailData = [];
+
+            // 面平均累计雨量（null 也参与计算，按 0 计，分母为全部站数）
+            var sumTotal = 0;
+            for (var i = 0; i < stations.length; i++) {
+                var tv = stations[i].totalDrp;
+                sumTotal += (tv != null && tv !== "") ? Number(tv) : 0;
+            }
+            var avgTotal = Number((sumTotal / stations.length).toFixed(1));
+
+            // 第一行：全市汇总（各时段取 summary 中的全市最大值 + 最大站 + 起始时间）
+            var cityRow = { stcd: "", stnm: "全市", addvnm: "--", totalDrp: avgTotal, isCity: true, rowIndex: "" };
+            for (var j = 0; j < durations.length; j++) {
+                var key = durations[j];
+                var sItem = summary ? summary[key] : null;
+                cityRow[key + "_drp"] = (sItem && sItem.drp != null) ? Number(sItem.drp) : null;
+                cityRow[key + "_stnm"] = (sItem && sItem.stnm) ? sItem.stnm : "--";
+                cityRow[key + "_time"] = (sItem && sItem.stime) ? formatStime(sItem.stime) : "--";
+                cityRow[key + "_stime_raw"] = (sItem && sItem.stime) ? sItem.stime : "";
+                cityRow[key + "_etime_raw"] = (sItem && sItem.etime) ? sItem.etime : "";
+            }
+            detailData.push(cityRow);
+
             for (var i = 0; i < stations.length; i++) {
                 var st = stations[i];
-                var row = { stcd: st.stcd, stnm: st.stnm, addvnm: st.addvnm || "--" };
+                var row = { stcd: st.stcd, stnm: st.stnm, addvnm: st.addvnm || "--", totalDrp: st.totalDrp, rowIndex: i + 1 };
                 for (var j = 0; j < durations.length; j++) {
                     var key = durations[j];
                     var item = st[key];
@@ -688,24 +959,35 @@
         }
 
         function onDetailDrawCell(e) {
+            var row = e.record;
+            // 全市行整行突出：浅蓝底纹 + 加粗
+            if (row && row.isCity) {
+                e.cellStyle = "background:#d9ecff;font-weight:bold;color:#1a5fb4;font-size:15px;";
+                if (e.field && e.field.indexOf("_drp") > -1 && e.value != null) {
+                    // 雨量格：雨量值 + 下方小字最大站名
+                    var durKey2 = e.field.replace("_drp", "");
+                    var maxStnm = row[durKey2 + "_stnm"] || "";
+                    e.cellHtml = '<div style="line-height:1.3;color:#3291F9;font-size:16px;">' + parseFloat(e.value).toFixed(1) + '</div>'
+                        + (maxStnm ? '<div style="font-size:12px;color:#5b8fd0;font-weight:400;line-height:1.3;">' + maxStnm + '</div>' : '');
+                }
+                return;
+            }
             if (e.field && e.field.indexOf("_drp") > -1 && e.value != null) {
+                var stcd = row.stcd || "";
                 e.cellStyle = "color:#3291F9;font-weight:bold;cursor:pointer;text-decoration:underline;";
-                var row = e.record;
                 var durKey = e.field.replace("_drp", "");
                 var rawStime = row[durKey + "_stime_raw"] || "";
                 var rawEtime = row[durKey + "_etime_raw"] || "";
-                var stcd = row.stcd || "";
                 var stnm = row.stnm || "";
-                e.cellHtml = '<a href="javascript:void(0)" onclick="openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\')" style="color:#3291F9;font-weight:bold;" title="点击查看过程线">' + e.value + '</a>';
+                e.cellHtml = '<a href="javascript:void(0)" onclick="openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\')" style="color:#3291F9;font-weight:bold;" title="点击查看过程线">' + parseFloat(e.value).toFixed(1) + '</a>';
             }
         }
 
         // 导出
         function doExportSummary() {
-            if (!resultData || !resultData.data || !resultData.data.summary) {
-                mini.alert("暂无数据可导出！"); return;
-            }
-            var summary = resultData.data.summary;
+            var active = getActiveStations();
+            if (!active || active.length === 0) { mini.alert("暂无数据可导出！"); return; }
+            var summary = recomputeSummary(active);
             var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
             var rows = [];
             for (var i = 0; i < durations.length; i++) {
@@ -733,10 +1015,29 @@
         function doExportDetail() {
             var data = gridDetail.data;
             if (data && data.length > 0) {
+                // 导出数据：全市行的时段雨量合并为「值(站名)」
+                var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+                var expData = [];
+                for (var i = 0; i < data.length; i++) {
+                    var src = data[i];
+                    var row = { stnm: src.stnm, addvnm: src.addvnm, totalDrp: src.totalDrp };
+                    for (var j = 0; j < durations.length; j++) {
+                        var k = durations[j];
+                        var v = src[k + "_drp"];
+                        if (src.isCity && v != null) {
+                            row[k + "_drp"] = Number(v).toFixed(1) + "(" + (src[k + "_stnm"] || "--") + ")";
+                        } else {
+                            row[k + "_drp"] = v;
+                        }
+                        row[k + "_time"] = src[k + "_time"];
+                    }
+                    expData.push(row);
+                }
                 var mockGrid = {
                     columns: [
                         { field: "stnm", header: "站名" },
                         { field: "addvnm", header: "区" },
+                        { field: "totalDrp", header: "累计雨量(mm)" },
                         { field: "max60min_drp", header: "最大1h雨量(mm)" },
                         { field: "max60min_time", header: "最大1h起始时间" },
                         { field: "max3h_drp", header: "最大3h雨量(mm)" },
@@ -748,12 +1049,369 @@
                         { field: "max24h_drp", header: "最大24h雨量(mm)" },
                         { field: "max24h_time", header: "最大24h起始时间" }
                     ],
-                    data: data
+                    data: expData
                 };
-                ExportExcel(data, mockGrid, "各站明细表");
+                ExportExcel(expData, mockGrid, "各站明细表");
             } else {
                 mini.alert("暂无数据可导出！");
             }
+        }
+
+        // ========== 等级统计 ==========
+        function escapeHtml(s) {
+            if (s == null) return "";
+            return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+        }
+
+        function formatRange(min, max) {
+            if (max == null) return "≥ " + min;
+            return min + " ~ " + max;
+        }
+
+        function renderGradeConfig() {
+            var html = "";
+            for (var i = 0; i < gradeLevels.length; i++) {
+                var lv = gradeLevels[i];
+                html += '<span class="gc-row">'
+                    + '<input class="gc-min" value="' + (lv.min != null ? lv.min : "") + '" placeholder="下限" title="下限" />'
+                    + '<span class="gc-sep">~</span>'
+                    + '<input class="gc-max" value="' + (lv.max != null ? lv.max : "") + '" placeholder="上限" title="上限(空=无限)" />'
+                    + '<span style="color:#999;margin-left:2px;">mm</span>'
+                    + '<input class="gc-color" type="color" value="' + lv.color + '" title="颜色" />'
+                    + '<a class="gc-del" href="javascript:void(0)" onclick="removeLevel(' + i + ')">✕</a>'
+                    + '</span>';
+            }
+            $("#gradeConfigList").html(html);
+        }
+
+        function addLevel() {
+            gradeLevels.push({ min: 0, max: null, color: "#3291F9" });
+            renderGradeConfig();
+        }
+
+        function removeLevel(idx) {
+            gradeLevels.splice(idx, 1);
+            renderGradeConfig();
+        }
+
+        function applyGrade() {
+            var newLevels = [];
+            $("#gradeConfigList .gc-row").each(function () {
+                var $r = $(this);
+                var min = parseFloat($r.find(".gc-min").val());
+                var max = parseFloat($r.find(".gc-max").val());
+                newLevels.push({
+                    min: isNaN(min) ? 0 : min,
+                    max: isNaN(max) ? null : max,
+                    color: $r.find(".gc-color").val() || "#3291F9"
+                });
+            });
+            gradeLevels = newLevels;
+            renderGrade();
+        }
+
+        function renderGrade() {
+            if ($("#gradeConfigList").children().length === 0) {
+                renderGradeConfig();
+            }
+            var stations = getActiveStations();
+            if (stations.length === 0) {
+                gridGrade.setData([]);
+                if (gradeChart) { gradeChart.clear(); }
+                return;
+            }
+            var stats = computeGradeStats(stations);
+            fillGradeGrid(stats);
+            renderGradeChart(stats);
+        }
+
+        function computeGradeStats(stations) {
+            var stats = [];
+            for (var i = 0; i < gradeLevels.length; i++) {
+                var lv = gradeLevels[i];
+                var count = 0, sum = 0, maxVal = -1, maxStnm = "";
+                for (var j = 0; j < stations.length; j++) {
+                    var st = stations[j];
+                    var v = st.totalDrp;
+                    var val = (v != null && v !== "") ? Number(v) : 0;
+                    if (val >= lv.min && (lv.max == null || val < lv.max)) {
+                        count++;
+                        sum += val;
+                        if (val > maxVal) { maxVal = val; maxStnm = st.stnm || ""; }
+                    }
+                }
+                var pct = stations.length > 0 ? (count / stations.length * 100) : 0;
+                stats.push({
+                    label: formatRange(lv.min, lv.max), min: lv.min, max: lv.max, color: lv.color,
+                    count: count, pct: Number(pct.toFixed(1)),
+                    avg: count > 0 ? Number((sum / count).toFixed(1)) : null,
+                    maxDrp: count > 0 ? maxVal : null,
+                    maxStnm: count > 0 ? maxStnm : "--"
+                });
+            }
+            return stats;
+        }
+
+        function fillGradeGrid(stats) {
+            var rows = [];
+            for (var i = 0; i < stats.length; i++) {
+                var s = stats[i];
+                rows.push({ range: s.label, count: s.count, pct: s.pct, avg: s.avg, maxDrp: s.maxDrp, maxStnm: s.maxStnm, color: s.color });
+            }
+            gridGrade.setData(rows);
+        }
+
+        function renderGradeChart(stats) {
+            var dom = document.getElementById("gradeChart");
+            if (!gradeChart) {
+                gradeChart = echarts.init(dom);
+                gradeChart.on('click', function (params) {
+                    if (params && params.name) drillGrade(params.name);
+                });
+            }
+            var data = [];
+            for (var i = 0; i < stats.length; i++) {
+                if (stats[i].count > 0) {
+                    data.push({ name: stats[i].label, value: stats[i].count, itemStyle: { color: stats[i].color } });
+                }
+            }
+            gradeChart.setOption({
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function (p) { return p.name + 'mm：' + p.value + '站（' + p.percent.toFixed(1) + '%）'; }
+                },
+                legend: {
+                    orient: 'vertical', right: 10, top: 'middle',
+                    itemGap: 10, textStyle: { color: '#555', fontSize: 12 }
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['38%', '62%'],
+                    center: ['36%', '50%'],
+                    avoidLabelOverlap: true,
+                    itemStyle: { borderColor: '#fff', borderWidth: 2 },
+                    label: { formatter: function (p) { return p.name + ' ' + p.percent.toFixed(1) + '%'; }, color: '#555', fontSize: 12 },
+                    labelLine: { length: 12, length2: 8 },
+                    data: data
+                }]
+            });
+            gradeChart.resize();
+        }
+
+        function drillGrade(label) {
+            var lv = null;
+            for (var i = 0; i < gradeLevels.length; i++) {
+                if (formatRange(gradeLevels[i].min, gradeLevels[i].max) === label) { lv = gradeLevels[i]; break; }
+            }
+            if (!lv) return;
+            var stations = getActiveStations();
+            var list = [];
+            for (var i = 0; i < stations.length; i++) {
+                var st = stations[i];
+                var v = st.totalDrp;
+                var val = (v != null && v !== "") ? Number(v) : 0;
+                if (val >= lv.min && (lv.max == null || val < lv.max)) {
+                    list.push({ stnm: st.stnm || "--", addvnm: st.addvnm || "--", totalDrp: st.totalDrp });
+                }
+            }
+            list.sort(function (a, b) { return (parseFloat(b.totalDrp) || 0) - (parseFloat(a.totalDrp) || 0); });
+
+            $("#drillTitle").text(label + "mm · " + list.length + "站");
+            var html = '<table class="drill-table"><thead><tr>'
+                + '<th style="width:60px;">序号</th><th>站名</th><th>区</th><th>累计雨量(mm)</th>'
+                + '</tr></thead><tbody>';
+            for (var i = 0; i < list.length; i++) {
+                var drp = (list[i].totalDrp != null && list[i].totalDrp !== "") ? Number(list[i].totalDrp).toFixed(1) : "--";
+                html += '<tr><td>' + (i + 1) + '</td><td>' + escapeHtml(list[i].stnm) + '</td><td>' + escapeHtml(list[i].addvnm) + '</td>'
+                    + '<td class="drp">' + drp + '</td></tr>';
+            }
+            html += '</tbody></table>';
+            $("#drillBody").html(html);
+            $("#drillMask").css("display", "block");
+            $("#drillWin").css("display", "flex");
+        }
+
+        function closeDrill() {
+            $("#drillMask").css("display", "none");
+            $("#drillWin").css("display", "none");
+        }
+
+        function onGradeDrawCell(e) {
+            if (e.field === "range" && e.value != null) {
+                var color = e.record.color || "#ccc";
+                e.cellHtml = '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:' + color + ';margin-right:6px;vertical-align:middle;"></span>'
+                    + '<span style="vertical-align:middle;">' + e.value + '</span>';
+            }
+        }
+
+        function onGradeRowClick(e) {
+            drillGrade(e.record.range);
+        }
+
+        function doExportGrade() {
+            var stations = getActiveStations();
+            if (!stations || stations.length === 0) { mini.alert("暂无数据可导出！"); return; }
+            var stats = computeGradeStats(stations);
+            var rows = [];
+            for (var i = 0; i < stats.length; i++) {
+                rows.push({ range: stats[i].label, count: stats[i].count, pct: stats[i].pct, avg: stats[i].avg, maxDrp: stats[i].maxDrp, maxStnm: stats[i].maxStnm });
+            }
+            var mockGrid = {
+                columns: [
+                    { field: "range", header: "区间(mm)" },
+                    { field: "count", header: "站点数" },
+                    { field: "pct", header: "占比(%)" },
+                    { field: "avg", header: "平均雨量(mm)" },
+                    { field: "maxDrp", header: "最大雨量(mm)" },
+                    { field: "maxStnm", header: "最大站" }
+                ],
+                data: rows
+            };
+            ExportExcel(rows, mockGrid, "等级统计");
+        }
+
+        // ========== 站点筛选（全局剔除）==========
+        function getActiveStations() {
+            var all = (resultData && resultData.data && resultData.data.stations) ? resultData.data.stations : [];
+            var active = [];
+            for (var i = 0; i < all.length; i++) {
+                if (!excludedStcdSet[all[i].stcd]) active.push(all[i]);
+            }
+            return active;
+        }
+
+        // 前端重算各时段全市最大值（剔除后最大站可能变化）
+        function recomputeSummary(stations) {
+            var durations = ["max60min", "max3h", "max6h", "max12h", "max24h"];
+            var summary = {};
+            for (var i = 0; i < durations.length; i++) {
+                var key = durations[i];
+                var best = null, bestVal = -1;
+                for (var j = 0; j < stations.length; j++) {
+                    var item = stations[j][key];
+                    if (item && item.drp != null) {
+                        var v = parseFloat(item.drp);
+                        if (v > bestVal) {
+                            bestVal = v;
+                            best = { drp: item.drp, stnm: stations[j].stnm || "", stcd: stations[j].stcd || "", stime: item.stime || "", etime: item.etime || "" };
+                        }
+                    }
+                }
+                summary[key] = best || { drp: null, stnm: "", stcd: "", stime: "", etime: "" };
+            }
+            return summary;
+        }
+
+        // 基于剔除后的站点集合重渲染所有视图
+        function refreshAllViews() {
+            var active = getActiveStations();
+            if (active.length === 0) {
+                $("#statList").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
+                $("#top10List").html('<div style="text-align:center;padding:40px;color:#999;">暂无数据</div>');
+                gridDetail.setData([]);
+                gridGrade.setData([]);
+                if (gradeChart) { gradeChart.clear(); }
+                return;
+            }
+            var summary = recomputeSummary(active);
+            renderStatList(summary);
+            renderTop10(active, currentTop10Key);
+            fillDetailTable(active, summary);
+            if (currentTab === "grade") renderGrade();
+        }
+
+        function openStationFilter() {
+            buildStationFilterList();
+            $("#stationMask").css("display", "block");
+            $("#stationWin").css("display", "flex");
+        }
+
+        function closeStationFilter() {
+            $("#stationMask").css("display", "none");
+            $("#stationWin").css("display", "none");
+        }
+
+        function buildStationFilterList() {
+            var all = (resultData && resultData.data && resultData.data.stations) ? resultData.data.stations : [];
+            var sorted = all.slice().sort(function (a, b) {
+                return (parseFloat(b.totalDrp) || 0) - (parseFloat(a.totalDrp) || 0);
+            });
+            var html = "";
+            var areaSet = {};
+            for (var i = 0; i < sorted.length; i++) {
+                var st = sorted[i];
+                if (!st.stcd) continue;
+                if (st.addvnm && !areaSet[st.addvnm]) areaSet[st.addvnm] = true;
+                var excluded = !!excludedStcdSet[st.stcd];
+                var drp = (st.totalDrp != null && st.totalDrp !== "") ? Number(st.totalDrp).toFixed(1) : "--";
+                html += '<div class="station-item" data-addvnm="' + escapeHtml(st.addvnm || "") + '">'
+                    + '<input type="checkbox" data-stcd="' + st.stcd + '" ' + (excluded ? '' : 'checked') + ' onchange="onStationCheckChange(this)" />'
+                    + '<label title="' + escapeHtml(st.stnm) + ' ' + st.stcd + '">' + escapeHtml(st.stnm) + '</label>'
+                    + '<span class="si-addvnm">' + escapeHtml(st.addvnm || "--") + '</span>'
+                    + '<span class="si-drp">' + drp + '</span>'
+                    + '</div>';
+            }
+            $("#stationListContent").html(html || '<div style="text-align:center;color:#999;padding:10px;">暂无站点数据</div>');
+
+            var opts = '<option value="">全部区域</option>';
+            var areas = Object.keys(areaSet).sort();
+            for (var a = 0; a < areas.length; a++) {
+                opts += '<option value="' + escapeHtml(areas[a]) + '">' + escapeHtml(areas[a]) + '</option>';
+            }
+            $("#stationAreaSelect").html(opts);
+
+            updateStationExcludedCount();
+            filterStationList();
+        }
+
+        function filterStationList() {
+            var keyword = ($("#stationSearchInput").val() || "").trim().toLowerCase();
+            var area = $("#stationAreaSelect").val() || "";
+            var items = $("#stationListContent .station-item");
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var text = (item.textContent || "").toLowerCase();
+                var ok = true;
+                if (keyword && text.indexOf(keyword) === -1) ok = false;
+                if (ok && area && item.getAttribute("data-addvnm") !== area) ok = false;
+                item.style.display = ok ? "" : "none";
+            }
+        }
+
+        function onStationCheckChange(cb) {
+            var stcd = cb.getAttribute("data-stcd");
+            if (cb.checked) { delete excludedStcdSet[stcd]; } else { excludedStcdSet[stcd] = true; }
+            updateStationExcludedCount();
+        }
+
+        function stationSelectAll(checked) {
+            $("#stationListContent .station-item").each(function () {
+                if (this.style.display === "none") return;   // 仅操作当前可见（筛选后）的站点
+                var cb = $(this).find("input[type=checkbox]")[0];
+                cb.checked = checked;
+                var stcd = cb.getAttribute("data-stcd");
+                if (checked) { delete excludedStcdSet[stcd]; } else { excludedStcdSet[stcd] = true; }
+            });
+            updateStationExcludedCount();
+        }
+
+        function updateStationExcludedCount() {
+            var n = 0;
+            for (var k in excludedStcdSet) { if (excludedStcdSet[k]) n++; }
+            $("#stationExcludedCount").text("已剔除 " + n + " 站");
+            $("#stationExcludedTip").text(n > 0 ? "已剔除 " + n + " 站" : "");
+        }
+
+        function clearExcluded() {
+            excludedStcdSet = {};
+            $("#stationListContent .station-item input[type=checkbox]").each(function () { this.checked = true; });
+            updateStationExcludedCount();
+            refreshAllViews();
+        }
+
+        function confirmStationFilter() {
+            closeStationFilter();
+            refreshAllViews();
         }
 
         // 明细表分页

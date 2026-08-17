@@ -1,61 +1,63 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script src="../Common/boot.js" type="text/javascript"></script>
-
-    <!-- 新版模型接口调用js文件 -->
-    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.1"></script>
-    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.4"></script>
-
+    <script src="../Common/Scripts/modelHelperApi.js?ver=1.0.13"></script>
+    <script src="../Common/Scripts/modelProcessingData.js?ver=1.0.13"></script>
     <link href="../Common/CSS/mxCss.css" rel="stylesheet" />
     <link href="../Common/CSS/newmxCss2.css" rel="stylesheet" />
     <title></title>
     <style type="text/css">
-        html, body {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #fff;
+        html, body { margin: 0; padding: 0; border: 0; width: 100%; height: 100%; overflow: hidden; background: #fff; }
+        #onlytab { width: 640px !important; height: 40px; margin: auto; }
+        .onlytab li { padding: 0px 6px 0px 6px; }
+
+        /* 手写树形表格 - 严格匹配 miniUI bootstrap 主题 grid 样式 */
+        .tree-wrap {
+            overflow: auto; background: #fff;
+            border: 1px solid #ddd;
         }
-
-        .topMenus_skin {
-            padding-top: 6px;
-            position: absolute;
-            width: 23%;
-            z-index: 999;
-            border: solid 1px #3291f9;
+        .tree-tbl {
+            width: 100%; table-layout: fixed; border-collapse: collapse;
+            font-size: 9pt; font-family: Tahoma, Verdana, 宋体;
         }
-
-            .topMenus_skin span {
-                background-color: #FFFFFF;
-                color: #0079F5;
-                display: block;
-                height: 25px;
-                line-height: 25px;
-                padding-left: 6px;
-                text-align: center;
-                text-decoration: none;
-            }
-
-                .topMenus_skin span:hover {
-                    /*background-color: #f1f8ff;*/
-                    background-color: #3291F9;
-                    color: white;
-                }
-
-
-        #onlytab {
-            width: 640px !important;
-            height: 40px;
-            margin: auto;
+        .tree-tbl thead { position: sticky; top: 0; z-index: 10; }
+        .tree-tbl th {
+            background: rgb(245, 250, 254) !important; border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd; color: #333; font-weight: 600;
+            height: 40px; padding: 0 8px; text-align: center; white-space: nowrap;
         }
+        .tree-tbl td {
+            border-right: 1px solid #ddd; border-bottom: 1px solid #ddd;
+            padding: 5px 8px; line-height: 18px; overflow: hidden;
+            white-space: nowrap; text-overflow: ellipsis;
+        }
+        .tree-tbl tbody tr:hover td { background: #f5f5f5; }
+        .tree-tbl tbody tr.row-alt td { background: #f7f4fd; }
+        .tree-tbl tbody tr.row-alt:hover td { background: #e0dded; }
 
-        .onlytab li {
-            padding: 0px 6px 0px 6px;
+        /* 分组行 */
+        .grp-row { cursor: pointer; user-select: none; }
+        .grp-row td { background: #f8f9fb !important; font-weight: 700; padding: 7px 8px; }
+        .grp-row:hover td { background: #ecedef !important; }
+        .grp-icon { display: inline-block; width: 16px; text-align: center; transition: transform .15s; color: #666; font-size: 11px; }
+        .grp-icon.open { transform: rotate(90deg); }
+        .grp-count { color: #999; font-weight: 400; font-size: 11px; margin-left: 6px; }
+
+        /* 站点行 */
+        .st-row td { }
+        .st-row .st-name { padding-left: 28px; }
+
+        /* 查看过程图标 */
+        .btn-look {
+            display: inline-block; cursor: pointer; font-size: 16px;
+            text-decoration: none; color: #3291F9; line-height: 1;
+        }
+        .btn-look:hover { color: #0551BD; transform: scale(1.15); }
+
+        .mini-toolbar{
+            border:0px !important;
         }
     </style>
 </head>
@@ -73,593 +75,390 @@
             </div>
         </div>
     </div>
-    <div style="height:calc(100% - 160px);width:96%;margin:0px auto;">
-        <div class="mini-fit">
-            <div class="mini-toolbar">
-                <table cellpadding="0" cellspacing="0" border="0" style="margin-left: 50px;width:500px;">
-                    <tr>
-                        <td id="gcUL"></td>
-                    </tr>
-                    <tr>
-                        <td id="gcLXUL"></td>
-                    </tr>
-                    <tr>
-                        <td id="gcTYPEUL"></td>
-                    </tr>
-                    <tr style="display:none">
-                        <td id="sjUL" style="width:240px;"></td>
-                    </tr>
-                    <tr style="display:none;">
-                        <td><div id="wenxinTip" style="font-size:14px;"></div></td>
-                    </tr>
-                </table>
-
-                <div style="position: absolute; right: 10px;margin-top: -30px;">
-                    <a class="mini-button" onclick="editGongCheng()" style="background: rgb(58, 179, 8);">片区调度预案设定</a>
-                    <a class="mini-button" onclick="editFangjiang()" style="background: rgb(18, 38, 219);">采用预测放江量</a>
-                </div>
-            </div>
-            <div id="gridGC" class="mini-datagrid" style="width: 100%; height:calc(100% - 190px);" ondrawcell="ondrawcell" oncellbeginedit="OnCellBeginEdit"
-                 allowalternating="true" allowcellselect="true" allowcelledit="true" showpager="false" showemptytext="true"
-                 emptytext="暂无数据" alwaysshowemptytext="true" showFilterRow="true">
+    <div style="height:calc(100% - 160px);width:96%;margin:0px auto;display:flex;flex-direction:column;">
+        <div class="mini-toolbar" style="flex-shrink:0;">
+            <table cellpadding="0" cellspacing="0" border="0" style="margin-left: 50px;width:500px;">
+                <tr><td id="gcUL"></td></tr>
+                <tr><td id="gcLXUL"></td></tr>
+                <tr><td id="gcTYPEUL"></td></tr>
+                <tr style="display:none"><td id="sjUL"></td></tr>
+                <tr style="display:none;"><td><div id="wenxinTip"></div></td></tr>
+            </table>
+            <div style="position: absolute; right: 10px;margin-top: -30px;">
+                <a class="mini-button" onclick="editGongCheng()" style="background: rgb(58, 179, 8);">片区调度预案设定</a>
+                <a class="mini-button" onclick="editFangjiang()" style="background: rgb(18, 38, 219);">采用预测放江量</a>
             </div>
         </div>
-        <ul id="headerMenu" class="mini-contextmenu" onbeforeopen="onBeforeOpen1" onitemclick="onItemClick">
-            <li name="jiangyu">批量处理</li>
-        </ul>
+        <!-- 手写树形表格 -->
+        <div class="tree-wrap" id="treeWrap" style="flex:1;">
+            <table class="tree-tbl">
+                <thead>
+                    <tr>
+                        <th style="width:60px">序号</th>
+                        <th style="width:200px;text-align:left;padding-left:28px;">工程名称</th>
+                        <th style="width:180px">调度方式</th>
+                        <th style="width:100px">基本操作</th>
+                    </tr>
+                </thead>
+                <tbody id="treeBody">
+                    <tr><td colspan="4" style="text-align:center;color:#999;padding:40px;">数据加载中…</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
     <div style="height:50px;line-height:50px;">
         <div style="text-align: center; ">
-            <a class="mini-button" onclick="up_click()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#0551BD;">上一步</a>
-            <a class="mini-button" onclick="loadFQYUAN();startJisuan()" style="width:130px;height: 37px;line-height:37px; margin-right:20px;font-size: 14px;font-weight: bold;background:#3AB308;">启动模型计算</a>
+            <a class="mini-button" onclick="up_click()" style="width:130px;height:37px;line-height:37px;margin-right:20px;font-size:14px;font-weight:bold;background:#0551BD;">上一步</a>
+            <a class="mini-button" onclick="loadFQYUAN();startJisuan()" style="width:130px;height:37px;line-height:37px;margin-right:20px;font-size:14px;font-weight:bold;background:#3AB308;">启动模型计算</a>
         </div>
     </div>
+
     <style type="text/css">
-        .mini-tab-active {
-            background: #3291f9;
-            border-color: #3291f9;
-            color: #fff;
-        }
+        .mini-tab-active { background: #3291f9; border-color: #3291f9; color: #fff; }
     </style>
     <script type="text/javascript">
         mini.parse();
-        var tabs = mini.get("JiangYuTabs");
-        var grid = mini.get("gridGC");
         var localDD_ID = "";
+
+        // 全局数据
+        var _rawRows = [];
+        var _stationList = [];
+        var _districtMap = {};
+        var _levelMap = {};
+        var _typeMap = {};
+        var _filterDistrict = "";
+        var _filterLevel = "";
+        var _filterType = "";
+        // 展开状态
+        var _expandedGroups = {};
+
+        top["win"] = window;
+
         $(function () {
-            localDD_ID = $.data(myData, "DD_ID");
-            if (localDD_ID == null || localDD_ID == "" || localDD_ID == undefined) {
-                localDD_ID = "0";
-            }
+            localDD_ID = $.data(myData, "DD_ID") || "0";
             OnLoad();
-            GridColum();
-
-            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "type": "2","pid": "11836313e8a414f5" },function(res){
-                JosnSel(res,"SLJISel");
-            });
-
-            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "type": "2","pid": "d31bf0965ec84005" },function(res){
-                JosnSel(res,"LXJISel");
-            });
-
-            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "type": "2","pid": "dc67c5ee0e321cd0" },function(res){
-                JosnSel(res,"TYPEJISel");
-            });
-
-            //调度方案列表
-            // GetJosns("MODE_ES_MODELFANGANSel", {}, "MODE_ES_MODELFANGANSel");
-
-            //模型获取控制调度对象列表
+            loadStationList();
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "type": "2","pid": "11836313e8a414f5" },function(res){ JosnSel(res,"SLJISel"); });
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "type": "2","pid": "d31bf0965ec84005" },function(res){ JosnSel(res,"LXJISel"); });
+            app.post("/SWZZ_MODE_ES_SLTONGJI/findResult",{ "type": "2","pid": "dc67c5ee0e321cd0" },function(res){ JosnSel(res,"TYPEJISel"); });
             modelGetScheduleObjList();
-
-            //方案
-            app.post("SWZZ_MODE_ES_MODELFANGANZHAN/findResult", {}, function(res){
-                JosnSel(res,"ZhanSel");
-            });
+            app.post("SWZZ_MODE_ES_MODELFANGANZHAN/findResult", {}, function(res){ JosnSel(res,"ZhanSel"); });
         });
-        function GridColum() {
-            ModeZhanGridColumGC("3,3001,3002,3003,3004,3005,3006,3007,3008,3009");
+
+        function loadStationList() {
+             mini.mask({
+                el: document.body,
+                cls: 'mini-mask-loading',
+                html: '加载中...'
+            });
+            app.post("SWZZ_MODE_ES_ZHANDIAN/findResult", { "pattem": "3,3001,3002,3003,3004,3005,3006,3007,3008,3009" }, function(res){
+                var list = res.data;
+                _stationList = [];
+                for (var i = 0; i < list.length; i++) {
+                    var zhanid = list[i]["zhanid"];
+                    var zhanname = list[i]["zhanname"];
+                    var parts = zhanname.split('_');
+                    var stName = parts.length > 0 ? parts[parts.length - 1] : zhanname;
+                    var district = parts.length > 1 ? parts[0] : "";
+                    _stationList.push({ id: zhanid, name: stName, fullName: zhanname, district: district, level: "", type: "" });
+                }
+                onLoadData();                
+            });
         }
         top["win"] = window;
         function onLoadData() {
-            var s_where = {
-                dayhour:"hour",
-                datatype: "3,3001,3002,3003,3004,3005,3006,3007,3008,3009",
-                solutionid: localDD_ID
-            }
-            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", s_where, function(res){
-                JosnSel(res,"Sel");
-            });
+            app.post("SWZZ_MODE_ES_ZHANDIAN/FH_GetBind", {
+                dayhour:"hour", datatype: "3,3001,3002,3003,3004,3005,3006,3007,3008,3009", solutionid: localDD_ID
+            }, function(res){ JosnSel(res,"Sel"); });
         }
+
         function JosnSel(data, typeID) {
             if (typeID == "Sel") {
-                var dataResult = mini.decode(data.data);
-                $.data(myData, "gridGCData", dataResult);
-                gc_choose();
-            }
-            else if (typeID == "GridColum") {
-                console.error("GridColum");
-                var dataResult = mini.decode(data.data);
-                $.data(myData, "gridGCColumns", dataResult);
-                onLoadData();
-            }
-            else if (typeID == "UpdataMethod") {
-                ShowMsg(data.message);
-            }
-            else if (typeID == "update_batch") {
-                ShowMsg(data.message);
-                onLoadData();
+                _rawRows = mini.decode(data.data);
+                renderTree();
+                mini.unmask(document.body);
             }
             else if (typeID == "SLJISel") {
-                var strJson = data.data;
-                for (var num = 0; num < strJson.length; num++) {
-                    strJson[num].sortnum = 1;
-                    if (strJson[num].id == "dc122ef184a4fa27") {
-                        strJson[num].sortnum = 20;
-                    }
-                    if (strJson[num].id == "5d17cd9c5105f041") {
-                        strJson[num].sortnum = 19;
-                    }
-                }
-                strJson = sortObjectArray(strJson, ["sortnum"], "asc");
-                var arr = strJson;
-                var strParaMsg = "";
-                var strParaNum = "";
-                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">水利片区：</span>';
-                html+='<ul class="onlytab" id="onlytab" style="width:1065px !important;">';
-                html += '<li id="gcULAll" name="" class="onlyli start onlyliHover" onclick="OnClickTitle(this.id,\'gcUL\',\'gcULAll\',\'全部\')">全部</li>';
+                var arr = data.data;
                 for (var num = 0; num < arr.length; num++) {
-                    var tempParaID = arr[num].id;
+                    arr[num].sortnum = 1;
+                    if (arr[num].id == "dc122ef184a4fa27") arr[num].sortnum = 20;
+                    if (arr[num].id == "5d17cd9c5105f041") arr[num].sortnum = 19;
+                }
+                arr = sortObjectArray(arr, ["sortnum"], "asc");
+                _districtMap = {};
+                var html = '<span style="float:left;line-height:33px;font-size:14px;">水利片区：</span><ul class="onlytab" style="width:1065px;">';
+                html += '<li id="gcULAll" class="onlyli start onlyliHover" onclick="onFilterClick(\'gcUL\',\'\')">全部</li>';
+                for (var num = 0; num < arr.length; num++) {
                     var cls = "onlyli";
-                    if (num == 0) {
-                        //str_stcds = arr[num].STCD;
-                        //str_type = arr[num].TITLE;
-                        //cls = "onlyli onlyliHover";
-                    }
-                    if (num == arr.length - 1) {
-                        cls = "onlyli end";
-                    }
-                    var title = arr[num].title;
-                    html += '<li id="' + tempParaID + '" name="' + arr[num].stcd + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcUL\',\'' + arr[num].id + '\',\'' + title + '\')">' + title + '</li>';
-
-                    var paraTee = strJson.filter(function (e) {
-                        return e.pid == arr[num].id;
-                    })
-                    if (paraTee.length > 0) {
-                        strParaNum += tempParaID + ",";
-                        var paraNum = 25 * num;
-                        if (num == 1) {
-                            paraNum = 29;
-                        } else if (num == 3) {
-                            paraNum = 73;
-                        }
-                        //alert(paraNum);
-
-                        strParaMsg += "<div id=\"treeDiv" + num + "\" class=\"topMenus_skin " + tempParaID + "\" style=\" left: " + paraNum + "%;top:33px;display: none;width:80px\"> ";
-
-                        for (var paraII = 0; paraII < paraTee.length; paraII++) {
-                            strParaMsg += "<span id=\"SpanTree" + num + paraII + "\" href=\"#\"  name=\"" + paraTee[paraII].STCD + "\" style='cursor:pointer;' onclick=\"OnClickTitle(this.id,'" + tempParaID + "','" + paraTee[paraII].id + "','" + paraTee[paraII].title + "')\">" + paraTee[paraII].TITLE + "</span>";
-                        }
-                        strParaMsg += "</div>";
-                    }
-
+                    if (num == arr.length - 1) cls += " end";
+                    var stcds = (arr[num].stcd || "").split(",");
+                    _districtMap[arr[num].id] = { id: arr[num].id, title: arr[num].title, stcds: stcds };
+                    html += '<li id="' + arr[num].id + '" class="' + cls + '" onclick="onFilterClick(\'gcUL\',\'' + arr[num].id + '\')">' + arr[num].title + '</li>';
                 }
                 html += '</ul>';
-                $("#gcUL").html(html + strParaMsg);
-
-                var tempSTOP = strParaNum.split(',');
-                if (tempSTOP.length > 0) {
-                    for (numSTOP = 0; numSTOP < tempSTOP.length; numSTOP++) {
-                        var _STOPID = tempSTOP[numSTOP];
-                        if (_STOPID != "") {
-                            if (_STOPID == "201911150026") {
-                                $('#201911150026').hover(function () {
-                                    $('.201911150026').css("left", "calc(2% + 413px)");
-                                    $('.201911150026').stop(true, true).fadeIn(200);
-                                }, function () {
-                                    $('.201911150026').stop(true, true).delay(2000).fadeOut(200);
-                                });
-                            }
-                        }
-                    }
-                }
+                $("#gcUL").html(html);
+                renderTree();
             }
             else if (typeID == "LXJISel") {
                 var arr = data.data;
-                var html = "";
-                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">' +
-                    '工程级别：</span><ul class="onlytab" id="onlytab" style="width:1050px !important;">';
-                html += '<li id="gcLXULAll" name="" class="onlyli start " onclick="OnClickTitle(this.id,\'gcLXUL\',\'gcLXULAll\',\'全部\')">全部</li>';
+                _levelMap = {};
+                var html = '<span style="float:left;line-height:33px;font-size:14px;">工程级别：</span><ul class="onlytab" style="width:1050px;">';
+                html += '<li id="gcLXULAll" class="onlyli start onlyliHover" onclick="onFilterClick(\'gcLXUL\',\'\')">全部</li>';
                 for (var num = 0; num < arr.length; num++) {
-                    var tempParaID = arr[num].id;
                     var cls = "onlyli";
-                    if (num == 0) {
-                        cls += " onlyliHover ";
-                        str_stcdsLevel = arr[num].stcd;
-                    }
-                    if (num == arr.length - 1) {
-                        cls += " end";
-                    }
-                    var title = arr[num].title;
-                    html += '<li id="' + tempParaID + '" name="' + arr[num].stcd + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcLXUL\',\'' + arr[num].id + '\',\'' + title + '\')">' + title + '</li>';
-
+                    if (num == arr.length - 1) cls += " end";
+                    var stcds = (arr[num].stcd || "").split(",");
+                    _levelMap[arr[num].id] = { id: arr[num].id, title: arr[num].title, stcds: stcds };
+                    html += '<li id="' + arr[num].id + '" class="' + cls + '" onclick="onFilterClick(\'gcLXUL\',\'' + arr[num].id + '\')">' + arr[num].title + '</li>';
                 }
                 html += '</ul>';
                 $("#gcLXUL").html(html);
+                patchMeta(_levelMap, "level");
+                renderTree();
             }
             else if (typeID == "TYPEJISel") {
                 var arr = data.data;
-                var html = "";
-                var html = '<span style="float:left;line-height: 33px; font-size:14px !important;">' +
-                    '工程类型：</span><ul class="onlytab" id="onlytab" style="width:1050px !important;">';
-                html += '<li id="gcTYPEULAll" name="" class="onlyli start onlyliHover" onclick="OnClickTitle(this.id,\'gcTYPEUL\',\'gcLXULAll\',\'全部\')">全部</li>';
-
+                _typeMap = {};
+                var html = '<span style="float:left;line-height:33px;font-size:14px;">工程类型：</span><ul class="onlytab" style="width:1050px;">';
+                html += '<li id="gcTYPEULAll" class="onlyli start onlyliHover" onclick="onFilterClick(\'gcTYPEUL\',\'\')">全部</li>';
                 for (var num = 0; num < arr.length; num++) {
-                    var tempParaID = arr[num].id;
                     var cls = "onlyli";
-                    if (num == 0) {
-                        cls += "";
-                    }
-                    if (num == arr.length - 1) {
-                        cls += " end";
-                    }
-                    var title = arr[num].title;
-                    html += '<li id="' + tempParaID + '" name="' + arr[num].stcd + '" class="' + cls + '" onclick="OnClickTitle(this.id,\'gcTYPEUL\',\'' + arr[num].id + '\',\'' + title + '\')">' + title + '</li>';
-
+                    if (num == arr.length - 1) cls += " end";
+                    var stcds = (arr[num].stcd || "").split(",");
+                    _typeMap[arr[num].id] = { id: arr[num].id, title: arr[num].title, stcds: stcds };
+                    html += '<li id="' + arr[num].id + '" class="' + cls + '" onclick="onFilterClick(\'gcTYPEUL\',\'' + arr[num].id + '\')">' + arr[num].title + '</li>';
                 }
                 html += '</ul>';
                 $("#gcTYPEUL").html(html);
+                patchMeta(_typeMap, "type");
+                renderTree();
             }
-            else if (typeID == "MODE_ES_MODELFANGANSel") {
-                getZhibiaoHtml(data.data);
-            }
-            else if (typeID == "UPADATA_MODEGCZHANDATA") {
-                onLoadData();
-                mini.unmask(document.body);
-            }
-            else if(typeID=="DATASel"){
-                $.data(myData,"bjModelData",data.data);
-                //设置预报调度任务
-                modelSetTaskSZH();
-            }
-            else if(typeID=="GetScheduleObjList"){
-                console.error(typeID,data);
-                $.data(myData,"bjModelZhan",data.data);
-            }
-            else if(typeID=="SetTask"){//设置任务
-                var info=data.info;
-                if(info.success){
-                    $.data(myData, "taskID",data.taskID);//模型任务编号
+            else if (typeID == "UpdataMethod") { ShowMsg(data.message); }
+            else if (typeID == "update_batch") { ShowMsg(data.message); onLoadData(); }
+            else if (typeID == "MODE_ES_MODELFANGANSel") { getZhibiaoHtml(data.data); }
+            else if (typeID == "UPADATA_MODEGCZHANDATA") { onLoadData(); mini.unmask(document.body); }
+            else if (typeID == "DATASel") { $.data(myData,"bjModelData",data.data); modelSetTaskSZH(); }
+            else if (typeID == "GetScheduleObjList") { $.data(myData,"bjModelZhan",data.data); }
+            else if (typeID == "SetTask") {
+                var info = data.info;
+                if (info.success) {
+                    $.data(myData, "taskID", data.taskID);
                     mini.unmask(document.body);
-                    //加上进度条
                     var miniMsg = '<div style="text-align:center;width:100%;font-size:20px;" id="progressTitle">模型预见期计算...</div>';
-                    miniMsg += '<div class="progress">';
-                    miniMsg += '<div id="progress" class="progress-bar progress-bar-info progress-bar-striped active" style="width:0%;">';
-                    miniMsg += '<div class="progress-value">已完成：0%</div>';
-                    miniMsg += '</div>';
-
-                    //取消计算
-                    miniMsg += '<div style="margin:25px auto;width:160px;"><a id="A4" style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div>';
-
-                    miniMsg += '</div>';
-                    mini.mask({
-                        el: document.body,
-                        cls: 'mini-mask-loadingnew',
-                        html: miniMsg
-                    });
+                    miniMsg += '<div class="progress"><div id="progress" class="progress-bar" style="width:0%;"><div class="progress-value">已完成：0%</div></div>';
+                    miniMsg += '<div style="margin:25px auto;width:160px;"><a style="height:24px;line-height:24px;width:80px;" class="mini-button" onclick="cancelModel()">取消计算</a></div></div>';
+                    mini.mask({ el: document.body, cls: 'mini-mask-loadingnew', html: miniMsg });
                     setTimeout("modelGetTaskStatus()", 2000);
                 }
             }
-            else if(typeID=="GetTaskStatus"){
-                var info=data.info;
+            else if (typeID == "GetTaskStatus") {
+                var info = data.info;
                 if (!info.success) {
-                    $("#progressTitle").html(info.msg);
+                    var taskMsg=info.msg;
+                    if(info.msg.indexOf("任务计算出错")>-1){
+                        taskMsg=info.msg+"(任务编号："+$.data(myData, "taskID")+")";
+                    }
+                    $("#progressTitle").html(taskMsg);
                     if (info.modelTime != undefined) {
-                        var stime = $.data(myData, "stime");
-                        var etime = $.data(myData, "etime");
+                        var stime = $.data(myData, "stime"), etime = $.data(myData, "etime");
                         var totalhour = GetDateDiff(stime, etime, 'hour');
-                        var gooverhour=GetDateDiff(stime,info.modelTime, 'hour');//计算了多少时间
-                        var Process=((gooverhour/totalhour)*100).toFixed(0);
+                        var gooverhour = GetDateDiff(stime, info.modelTime, 'hour');
+                        var Process = ((gooverhour / totalhour) * 100).toFixed(0);
                         if (Number(Process) >= 0) {
                             $("#progress").css("width", Number(Process).toFixed(0) + "%");
                             $(".progress-value").html(Number(Process).toFixed(0) + "%");
                         }
                     }
-                    if (!timeout) {//说明取消计算了
-                        setTimeout("modelGetTaskStatus()", 1500);
-                    }
-                }else{
-                    //模型计算完成，取模型计算的结果
-                    console.error(typeID,info);
+                    if (!timeout) { setTimeout("modelGetTaskStatus()", 1500); }
+                } else {
                     SetCookie("five", "1", 1);
-                    //保存方案，根据调度预案进入不同成果展示界面
-                    var url = "JiSuan.html";
-                    Next_Click(url);
+                    Next_Click("JiSuan.html");
                 }
             }
-            else if(typeID=="ZhanSel"){
-                console.error('yuanZhan',data.data);
-                $.data(myData,"yuanZhan",data.data);
-            }
-            else if(typeID=="SZHFJL"){
-                if(data.total==0){
-                    var msg = "无放江";
-                    ShowMsg(msg);
-                    
-                }else{
-                    ShowMsg(data.message);
-                    onLoadData();
-                }
+            else if (typeID == "ZhanSel") { $.data(myData,"yuanZhan",data.data); }
+            else if (typeID == "SZHFJL") {
+                if (data.total == 0) { ShowMsg("无放江"); } else { ShowMsg(data.message); onLoadData(); }
                 mini.unmask(document.body);
             }
         }
-        //鼠标移动上去的提示信息。
-        var str = "";
-        function ondrawcell(e) {
-            var row = e.row,
-                column = e.column,
-                field = e.field,
-                value = e.value;
-            //超链接任务
-            if (field != "TM") {
-                if (isNaN(value)) {
-                } else {
-                    //$("#ZD" + field).css("display","none");
+
+        function patchMeta(map, field) {
+            for (var key in map) {
+                var stcds = map[key].stcds;
+                for (var i = 0; i < _stationList.length; i++) {
+                    if (stcds.indexOf(_stationList[i].id) > -1) _stationList[i][field] = map[key].title;
                 }
             }
         }
 
-        function OnCellBeginEdit(e) {
-            var record = e.record, field = e.field;
-            var value = e.value;
-            if (field != "TM") {
-                if (isNaN(value)) {
-                    e.cancel = true;    //是规则调度时，不允许单个单元格改成流量调度
-                }
-            }
+        function onFilterClick(objID, filterId) {
+            $("#" + objID + " .onlyli").removeClass("onlyliHover");
+            if (filterId === "") $("#" + objID + "All").addClass("onlyliHover");
+            else $("#" + filterId).addClass("onlyliHover");
+            if (objID == "gcUL") _filterDistrict = filterId;
+            if (objID == "gcLXUL") _filterLevel = filterId;
+            if (objID == "gcTYPEUL") _filterType = filterId;
+            renderTree();
         }
 
-        var str_stcds = "";//水利分区
-        var str_stcdsType = "";//工程类型
-        var str_stcdsLevel = "";//工程级别
-        var str_choose = "";
-        var str_type = "";
-        function OnClickTitle(SpanID, objID, objFax, objHNNM) {
-            str_type = objHNNM;
-            var only = $("#" + objID + " .onlyli").removeClass("onlyliHover");
-            $("#" + SpanID).addClass("onlyliHover");
-            $.data(myData, "TREEID", objFax);
-            $("#gcUL li span").css({ "backgroundColor": "#FFFFFF", "color": "#0079F5" });
-            //if (SpanID != objID) {
-            //    $("#" + SpanID).css({ "backgroundColor": "#3291F9", "color": "#FFFFFF" });
-            //}
-            var stcds = $("#" + SpanID).attr("name");
-            if (objID == "gcUL") {
-                str_stcds = stcds;
+        // ====== 获取站点原始调度值 ======
+        function getRawVal(stationId) {
+            for (var r = 0; r < _rawRows.length; r++) {
+                var v = _rawRows[r][stationId];
+                if (v !== undefined && v !== null && v !== "" && v !== "0" && v !== 0) return String(v);
             }
-            if (objID == "gcLXUL") {
-                str_stcdsLevel = stcds;
+            return "—";
+        }
+
+        // ====== 构建过滤后的分组数据 ======
+        function buildGroups() {
+            var filtered = _stationList.slice();
+            if (_filterDistrict !== "") {
+                var dStcds = _districtMap[_filterDistrict] ? _districtMap[_filterDistrict].stcds : [];
+                filtered = filtered.filter(function(st){ return dStcds.indexOf(st.id) > -1; });
             }
-            if (objID == "gcTYPEUL") {
-                str_stcdsType = stcds;
+            if (_filterLevel !== "") {
+                var lStcds = _levelMap[_filterLevel] ? _levelMap[_filterLevel].stcds : [];
+                filtered = filtered.filter(function(st){ return lStcds.indexOf(st.id) > -1; });
             }
-            gc_choose();
+            if (_filterType !== "") {
+                var tStcds = _typeMap[_filterType] ? _typeMap[_filterType].stcds : [];
+                filtered = filtered.filter(function(st){ return tStcds.indexOf(st.id) > -1; });
+            }
+
+            var groups = {};
+            for (var i = 0; i < filtered.length; i++) {
+                var st = filtered[i];
+                var dKey = "苏州河";
+                for (var dk in _districtMap) {
+                    if (_districtMap[dk].stcds.indexOf(st.id) > -1) { dKey = dk; break; }
+                }
+                if (!groups[dKey]) groups[dKey] = { title: (_districtMap[dKey] ? _districtMap[dKey].title : dKey), stations: [] };
+                groups[dKey].stations.push(st);
+            }
+            return groups;
+        }
+
+        // ====== 渲染树形表格 ======
+        function renderTree() {
+            if (_rawRows.length === 0 || _stationList.length === 0) { console.error("renderTree skip: rows=" + _rawRows.length + " stations=" + _stationList.length); return; }
+            if (Object.keys(_districtMap).length === 0) { console.error("renderTree skip: no districtMap"); return; }
+            console.error("renderTree GO, groups:", Object.keys(buildGroups()).length, "rows:", _rawRows.length, "stations:", _stationList.length);
+
+            var groups = buildGroups();
+            var h = '', seq = 0, rowIdx = 0;
+
+            for (var gKey in groups) {
+                var g = groups[gKey];
+                // 初始化展开状态
+                if (!(gKey in _expandedGroups)) _expandedGroups[gKey] = true;
+                var open = _expandedGroups[gKey];
+
+                // 分组头行
+                rowIdx++;
+                h += '<tr class="grp-row" onclick="toggleGroup(\'' + gKey + '\')">';
+                h += '<td><span class="grp-icon' + (open ? ' open' : '') + '">▶</span></td>';
+                h += '<td colspan="3">📁 ' + g.title + '<span class="grp-count">（' + g.stations.length + '个工程）</span></td>';
+                h += '</tr>';
+
+                if (open) {
+                    for (var j = 0; j < g.stations.length; j++) {
+                        seq++; rowIdx++;
+                        var st = g.stations[j];
+                        var alt = rowIdx % 2 === 0 ? ' row-alt' : '';
+                        var rawVal = getRawVal(st.id);
+                        h += '<tr class="st-row' + alt + '">';
+                        h += '<td style="text-align:center;">' + seq + '</td>';
+                        h += '<td class="st-name">' + st.name + '</td>';
+                        h += '<td style="text-align:center;">' + rawVal + '</td>';
+                        h += '<td style="text-align:center;">';
+                        if (!isNaN(rawVal)) {
+                            h += '<a class="btn-look" href="javascript:void(0)" title="查看放江过程" onclick="event.stopPropagation();viewProcess(\'' + st.id + '\')">📊</a>';
+                        }
+                        h += '</td>';
+                        h += '</tr>';
+                    }
+                }
+            }
+
+            document.getElementById("treeBody").innerHTML = h;
+            mini.unmask(document.body);
+        }
+
+        function toggleGroup(gKey) {
+            _expandedGroups[gKey] = !_expandedGroups[gKey];
+            renderTree();
+        }
+
+        // ====== 查看过程：弹开流量过程图（参考 ShuiWei.html） ======
+        function viewProcess(stationId) {
+            var st = null;
+            for (var i = 0; i < _stationList.length; i++) {
+                if (_stationList[i].id === stationId) { st = _stationList[i]; break; }
+            }
+            if (!st) { mini.alert("未找到站点信息"); return; }
+            var stime = $.data(myData, "stime");
+            var etime = $.data(myData, "etime");
+            var url = "DD_MXAPISZH/GongCheng_ViewFlow.html?stnm=" + encodeURIComponent(st.name) + "&stcd=" + stationId + "&time=" + stime + "&etime=" + etime + "&SOLUTIONID=" + localDD_ID;
+            lookData("action@look", url, st.name + " 流量过程", '55%', '70%', 'true');
+        }
+
+        // ====== 原有功能 ======
+        var t = null, timeout = false;
+        function cancelModel() { mini.unmask(document.body); timeout = true; window.clearTimeout(t); }
+        function editGongCheng() {
+            var param = "stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "stime") + "&DD_ID=" + $.data(myData, "DD_ID");
+            lookData('', 'DD_MXAPISZH/GongChengEditByArea.html?' + param, '片区调度预案设定', '1300', '730', 'true');
+        }
+        function editFangjiang() {
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据提取中，请稍等...' });
+            var strWhere={ 
+                "solutionid":localDD_ID, 
+                "tm": $.data(myData, "stime") ,
+                "enddate":$.data(myData, "etime")
+            };
+            app.post("SWZZ_MODE_ES_ZHANDIANDATA/ModifyGCSSLLAREAGCGZ_SZHFJL", strWhere, function(res){ JosnSel(res,"SZHFJL"); });
         }
         function OnClickTitleFA(SpanID, objID, objFax, objHNNM) {
-            mini.mask({
-                el: document.body,
-                cls: 'mini-mask-loading',
-                html: '数据加载中...'
-            });
-            var only = $("#onlytabFA .onlyli").removeClass("onlyliHover");
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
+            $("#onlytabFA .onlyli").removeClass("onlyliHover");
             $("#" + objID).addClass("onlyliHover");
-            //切换方案时，需要改数据库
             GetJosns("UPADATA_MODEGCZHANDATA", { FA_ID: objID }, "UPADATA_MODEGCZHANDATA");
         }
         function getZhibiaoHtml(arr) {
-            var htmlSJ = '<span style="float:left;line-height: 33px; font-size:14px !important;">调度方案：</span><ul class="onlytab" id="onlytabFA">';
+            var htmlSJ = '<span style="float:left;line-height:33px;font-size:14px;">调度方案：</span><ul class="onlytab" id="onlytabFA">';
             for (var num = 0; num < arr.length; num++) {
-                var tempParaID = arr[num].ID;
                 var cls = "onlyli";
-                if (num == 0) {
-                    cls += " start ";
-                }
+                if (num == 0) cls += " start ";
                 if (GetCookie("FA_ID") != null && GetCookie("FA_ID") != "") {
-                    if (tempParaID == GetCookie("FA_ID")) {
-                        cls += " onlyliHover";
-                    }
-                } else {
-                    if (num == 0) {
-                        cls += " onlyliHover ";
-                    }
-                }
-                if (num == arr.length - 1) {
-                    cls += " end";
-                }
-                var title = arr[num].FA_NAME;
-                htmlSJ += '<li id="' + tempParaID + '" name="' + arr[num].STCD + '" class="' + cls + '" onclick="OnClickTitleFA(this.id,this.id,\'' + arr[num].ID + '\',\'' + title + '\')">' + title + '</li>';
-
+                    if (arr[num].ID == GetCookie("FA_ID")) cls += " onlyliHover";
+                } else { if (num == 0) cls += " onlyliHover "; }
+                if (num == arr.length - 1) cls += " end";
+                htmlSJ += '<li id="' + arr[num].ID + '" class="' + cls + '" onclick="OnClickTitleFA(this.id,this.id,\'' + arr[num].ID + '\',\'' + arr[num].FA_NAME + '\')">' + arr[num].FA_NAME + '</li>';
             }
-            htmlSJ += '</ul >';
+            htmlSJ += '</ul>';
             $("#sjUL").html(htmlSJ);
-        }
-        function gc_choose() {
-            //获取表格表头
-            var dataResult = $.data(myData, "gridGCData");
-            var dataResultColumns = $.data(myData, "gridGCColumns").columns;
-            var Columns = dataResultColumns;
-            if (str_stcds != "") {
-                Columns = Columns.filter(function (item) {
-                    return str_stcds.indexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
-                });
-            }
-            if (str_stcdsType != "") {
-                Columns = Columns.filter(function (item) {
-                    return str_stcdsType.indexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
-                });
-            }
-            if (str_stcdsLevel != "" && str_stcdsLevel != undefined) {
-                Columns = Columns.filter(function (item) {
-                    return str_stcdsLevel.indexOf(item.field.toString()) > -1 || item.field.toString() == "TM";
-                });
-            }
-
-            dataResultColumns.columns = Columns;
-            grid.set(dataResultColumns);
-            grid.setData(dataResult);
-            mini.unmask(document.body);
-        }
-        function getLL(objID) {
-            $("#onlytabLL .onlyli").removeClass("onlyliHover");
-            $("#" + objID).addClass("onlyliHover");
-            //alert(objID);
-            mini.mask({
-                el: document.body,
-                cls: 'mini-mask-loading',
-                html: '数据提取中，请稍等...'
-            });
-            var s_where = {
-                "ETIME": $.data(myData, "stime"), 
-                "SOLUTIONID": localDD_ID, 
-                "TYPE": objID, 
-                "ZHANID": str_choose
-            };
-            GetJosns("updateGCSSLL", s_where, "update_batch");
-        }
-        var GCDATATYPE = "SCLL";
-        var t = null;
-        var timeout = false;
-        //模型取消计算
-        function cancelModel() {
-            mini.unmask(document.body);
-            timeout = true;
-            window.clearTimeout(t);
-        }
-        function onValueChangedGC(e) {
-            $("#faList").html();
-            var selected = grid.getSelected();
-            if (selected) {
-                var s_where = {
-                    "ZhanData": e.value,
-                    "ZhanTime": new Date(selected.TM).format("yyyy-MM-dd HH:mm:ss"),
-                    "ZhanID": selected.STCD,
-                    "dd_id":localDD_ID,
-                }
-                GetJosns("FH_UpdataMethod", s_where, "UpdataMethod");
-            }
-        }
-
-        //修改工程调度方案
-        function editGongCheng() {
-            var param = "stime=" + $.data(myData, "stime") + "&etime=" + $.data(myData, "stime")+"&DD_ID="+ $.data(myData, "DD_ID");
-            //lookData('', '/DD_MX/GongChengEdit.html?' + param, '片区调度预案设定', '1300', '80%', 'true');
-            lookData('', 'DD_MXAPISZH/GongChengEditByArea.html?' + param, '片区调度预案设定', '1300', '730', 'true');
-        }
-        //使用最新放江量
-        function editFangjiang() {
-            mini.mask({
-                el: document.body,
-                cls: 'mini-mask-loading',
-                html: '数据提取中，请稍等...'
-            });
-            var strWhere={
-                "solutionid":localDD_ID,
-                "tm": $.data(myData, "stime"),
-            };
-            app.post("SWZZ_MODE_ES_ZHANDIANDATA/ModifyGCSSLLAREAGCGZ_SZHFJL", strWhere, function(res){
-                JosnSel(res,"SZHFJL");
-            });
         }
     </script>
     <script type="text/javascript">
         function OnLoad() {
-            var current1 = GetCookie("one");
-            var current2 = GetCookie("two");
-            var current3 = GetCookie("three");
-            var current4 = GetCookie("four");
-            var current5 = GetCookie("five");
-            //console.error(current1 + ":::" + current2 + ":::" + current3 + ":::" + current4);
-
-            if (current1 != null && current1 != "") {
-                $("#one").removeClass("gray");
-                $("#one").addClass("green");
-                $("#one").find('i').eq(0).removeClass("gray");
-                $("#one").find('i').eq(0).addClass("green");
-            } else {
-                $("#one").removeClass("orange");
-                $("#one").addClass("gray");
-                $("#one").find('i').eq(0).removeClass("orange");
-                $("#one").find('i').eq(0).addClass("gray");
+            var c1 = GetCookie("one"), c2 = GetCookie("two"), c3 = GetCookie("three"),
+                c4 = GetCookie("four"), c5 = GetCookie("five");
+            function setLi(id, ok, isCurrent) {
+                var el = $("#" + id);
+                if (ok) { el.removeClass("gray").addClass(isCurrent ? "orange" : "green"); el.find('i').eq(0).removeClass("gray").addClass(isCurrent ? "orange" : "green"); }
+                else { el.removeClass("green orange").addClass("gray"); el.find('i').eq(0).removeClass("green orange").addClass("gray"); }
             }
-            if (current2 != null && current2 != "") {
-                $("#two").removeClass("gray");
-                $("#two").addClass("green");
-                $("#two").find('i').eq(0).removeClass("gray");
-                $("#two").find('i').eq(0).addClass("green");
-            } else {
-                $("#two").removeClass("green");
-                $("#two").addClass("gray");
-                $("#two").find('i').eq(0).removeClass("green");
-                $("#two").find('i').eq(0).addClass("gray");
-            }
-
-            if (current3 != null && current3 != "") {
-                $("#three").removeClass("gray");
-                $("#three").addClass("green");
-                $("#three").find('i').eq(0).removeClass("gray");
-                $("#three").find('i').eq(0).addClass("green");
-            } else {
-                $("#three").removeClass("green");
-                $("#three").addClass("gray");
-                $("#three").find('i').eq(0).removeClass("green");
-                $("#three").find('i').eq(0).addClass("gray");
-            }
-            if (current4 != null && current4 != "") {
-                $("#four").removeClass("gray");
-                $("#four").addClass("orange");
-                $("#four").find('i').eq(0).removeClass("gray");
-                $("#four").find('i').eq(0).addClass("orange");
-            } else {
-                $("#four").removeClass("green");
-                $("#four").addClass("gray");
-                $("#four").find('i').eq(0).removeClass("green");
-                $("#four").find('i').eq(0).addClass("gray");
-            }
-            if (current5 != null && current5 != "") {
-                $("#five").removeClass("gray");
-                $("#five").addClass("green");
-                $("#five").find('i').eq(0).removeClass("gray");
-                $("#five").find('i').eq(0).addClass("green");
-            } else {
-                $("#five").removeClass("green");
-                $("#five").addClass("gray");
-                $("#five").find('i').eq(0).removeClass("green");
-                $("#five").find('i').eq(0).addClass("gray");
-            }
+            setLi("one", c1, false); setLi("two", c2, false); setLi("three", c3, false);
+            setLi("four", c4, true); setLi("five", c5, false);
         }
-
-        function up_click() {
-            url = "ShuiWei.html";
-            Next_Click(url);
+        function up_click() { Next_Click("ShuiWei.html"); }
+        function next_click() { Next_Click("JiSuan.html"); }
+        function loadFQYUAN() {
+            var dd = $.data(myData, "DD_ID") || "0";
+            app.postAsync("SWZZ_MODE_ES_ZHANDIANDATA_YUAN/findResult", { "strExp": dd }, function(res){ $.data(myData,"bjModelDataFQ",res.data); });
         }
-        function next_click() {
-            var url = "JiSuan.html";
-            Next_Click(url);
-        }
-
-        
-    function loadFQYUAN() {
-        var localDD_ID = $.data(myData, "DD_ID");
-        if (localDD_ID == null || localDD_ID == "") {
-            localDD_ID = "0";
-        }
-        var strWhere = { "strExp": localDD_ID };
-        app.postAsync("SWZZ_MODE_ES_ZHANDIANDATA_YUAN/findResult", strWhere, function (res) {
-            $.data(myData,"bjModelDataFQ",res.data);
-        });
-
-        // modelSetTaskSZHNew();
-    }
     </script>
 </body>
 </html>

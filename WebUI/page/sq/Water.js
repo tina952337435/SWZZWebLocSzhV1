@@ -63,19 +63,18 @@ require(["esri/geometry/Point",
 	                tms = new Date(new Date().format("yyyy/MM/dd"));
 	            }
 	            if (new Date(convertToDate(item.tm)) > tms) {
-	                if (item.grz != undefined) {
-	                    if (Number(item.upz) >= Number(item.grz)) {
-	                        imgUrl="s_red_u.gif";
-	                        cls = " level_grz";
-	                        //imgUrl="s_yellow_u.gif";
-	                        //cls = " level_grz";
-	                    }
-	                } else if (item.wrz != undefined) {
-	                    if (Number(item.upz) >= Number(item.wrz)) {
-	                        imgUrl="s_yellow_u.gif";
-	                        cls = " level_wrz";
-	                    }
-	                }
+				if (item.grz != undefined && Number(item.grz) > 0) {
+					if (Number(item.upz) >= Number(item.grz)) {
+						imgUrl="s_red_u11.png";
+						cls = " level_grz";
+					}
+				}
+				if (imgUrl == "blue_hd.gif" && item.wrz != undefined && Number(item.wrz) > 0) {
+					if (Number(item.upz) >= Number(item.wrz)) {
+						imgUrl="s_yellow_u11.png";
+						cls = " level_wrz";
+					}
+				}
 	            } else {
 	                imgUrl="gray_hd.gif";
 	            }

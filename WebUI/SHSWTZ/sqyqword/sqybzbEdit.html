@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../Common/boot.js" type="text/javascript"></script>    
+    <script src="../../Common/jquery.min.js"></script><!--高版本下拉框无法使用-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>分片水情预报专报</title>
     <style>
@@ -380,6 +381,7 @@
                 <h2 id="toolbarTitle">分片水情预报专报</h2>
                 <div class="toolbar-actions">
                     <!-- <button class="btn-action btn-primary" onclick="downloadPdf()">📤 下载PDF</button> -->
+                    <button class="btn-action btn-primary" onclick="exportReport('下载')">📤 下载文档</button>
                     <button class="btn-action btn-save-action" onclick="saveRecord()">📥 保存记录</button>
                 </div>
             </div>
@@ -403,6 +405,7 @@
         mini.parse();
 
         var currentPdfPath = '';      // 当前生成的PDF文件路径
+        var currentwordPath = '';      // 当前生成的word文件路径
         var currentSolutionId = '';   // 当前选中的方案ID
         var currentSolutionName = ''; // 当前选中的方案名称
         var currentTyphoonId = '';    // 当前选中的台风ID
@@ -544,6 +547,7 @@
 
                 getReportData = data;
                 currentPdfPath = data.pdfPath;
+                currentwordPath=data.docxPath;
 
                 // 构建PDF完整URL
                 var pdfUrl = HttpUrl + currentPdfPath + "?t=" + new Date().getTime();
@@ -564,6 +568,16 @@
                 return;
             }
             var pdfUrl = HttpUrl + currentPdfPath;
+            window.open(pdfUrl);
+        }
+
+        // ========== 下载文档 ==========
+        function exportReport(type) {
+            if (!currentwordPath) {
+                mini.alert("请先生成报告！");
+                return;
+            }
+            var pdfUrl = HttpUrl + currentwordPath;
             window.open(pdfUrl);
         }
 
