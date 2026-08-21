@@ -12,6 +12,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
  */
 const pages = {
   WaterList: resolve(__dirname, 'src/pages/WaterList/index.html'),
+  Video: resolve(__dirname, 'src/pages/Video/index.html'),
   // 以后加页面只需加一行：
   // RainList: resolve(__dirname, 'src/pages/RainList/index.html'),
 }
@@ -54,8 +55,19 @@ export default defineConfig({
     port: 5173,
     // 开发时代理后端接口，解决跨域
     proxy: {
-      '/api': {
-        target: 'http://localhost:8080',  // 改成你的后端地址
+      // 视频接口，转发到后端（端口 8808）
+      '/video': {
+        target: 'http://localhost:8808',
+        changeOrigin: true,
+      },
+      // 水情等原有接口
+      '/GetWaterViewNew': {
+        target: 'http://localhost:8808',
+        changeOrigin: true,
+      },
+      // swzzrtsq 数据（视频列表等）
+      '/SWZZ_RTSQ': {
+        target: 'http://localhost:8808',
         changeOrigin: true,
       },
     },

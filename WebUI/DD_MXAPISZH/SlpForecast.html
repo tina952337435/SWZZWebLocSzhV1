@@ -52,20 +52,22 @@
         <table cellpadding="0" cellspacing="0" border="0">
             <tr>
                 <td class="toolbar-cell">
-                    <label>方案选择：</label>
-                    <input id="ddId" class="mini-combobox" style="width: 320px;" textField="text" valueField="id"
-                        emptyText="请选择预报方案" onvaluechanged="onFangAnChange" />
-                </td>
-                <td class="toolbar-cell">
-                    <label>时间选择：</label>
-                    <input id="stime" class="mini-datepicker" style="width: 120px;" format="yyyy-MM-dd HH"
-                        timeFormat="H:00:00" showTime="true" showOkButton="false" showClearButton="false" />
-                </td>
-                <td class="toolbar-cell">
                     <label>筛选：</label>
                     <input id="waterType" class="mini-combobox" style="width: 130px;" textField="text" valueField="id"
-                        value="yj" data="[{id:'yj',text:'预降目标水位'},{id:'predict',text:'预测水位'},{id:'actual',text:'实测水位'}]"
+                        value="actual" data="[{id:'actual',text:'实测水位'},{id:'yj',text:'预降目标水位'},{id:'predict',text:'预测水位'}]"
                         onvaluechanged="onWaterTypeChange" />
+                </td>
+                <td class="toolbar-cell" id="cellPlan">
+                    <label>方案选择：</label>
+                    <input id="ddId" class="mini-combobox" style="width: 300px;" textField="text" valueField="id"
+                        emptyText="请选择预报方案" onvaluechanged="onFangAnChange" />
+                </td>
+                <td class="toolbar-cell" id="cellTime">
+                    <label>时间选择：</label>
+                    <input id="stime" class="mini-combobox" style="width: 140px;" textField="text" valueField="id"
+                        emptyText="请选择时间" />
+                    <a class="mini-button" onclick="shiftHour(-1)" tooltip="上一小时" style="margin-left:4px;">◀</a>
+                    <a class="mini-button" onclick="shiftHour(1)" tooltip="下一小时">▶</a>
                 </td>
                 <td class="toolbar-cell">
                     <label>径流系数：</label>
@@ -91,7 +93,7 @@
     </div>
 
     <div class="note-bar">
-        说明：库容 f(x)=a·x²+b·x+c；库容差=库容(参考)−库容(当前)，单位百万m³；片纳雨量(mm)=库容差÷面积×1000；全市/大陆纳雨量=总库容÷总面积÷径流系数×1000；预降/预测/常水位列可双击输入，点“计算”重算。
+        说明：单位——水位(m)、库容(百万m³)、纳雨量(mm)、面积(km²)。库容 f(x)=a·x²+b·x+c；库容差=库容(参考)−库容(当前)；片纳雨量=库容差÷面积×1000；全市/大陆纳雨量=总库容÷总面积÷径流系数×1000；预降/预测/常水位列可双击输入，点“计算”重算。
     </div>
 
     <script type="text/javascript">
@@ -106,8 +108,8 @@
         var fixedColumns = [
             { type: "indexcolumn", header: "序号", width: 50, align: "center" },
             { field: "slpName", header: "水利片名称", width: 110, align: "center" },
-            { field: "area", header: "面积(km²)", width: 85, align: "center" },
-            { field: "hhArea", header: "河湖面积(km²)", width: 100, align: "center", decimalPlaces: "4", dataType: "float" },
+            { field: "area", header: "面积", width: 85, align: "center" },
+            { field: "hhArea", header: "河湖面积", width: 100, align: "center", decimalPlaces: "2", dataType: "float" },
             { field: "stnmList", header: "代表站", width: 150, align: "center" },
             { field: "cSw", header: "常水位", width: 70, align: "center", decimalPlaces: "2", dataType: "float", editor: { type: "textbox", vtype: "float" } },
             { field: "xjjSw", header: "新警戒水位", width: 85, align: "center", decimalPlaces: "2", dataType: "float" },
@@ -117,35 +119,35 @@
         var predictColumns = [
             { field: "predictSw", header: "预测水位", width: 75, align: "center", decimalPlaces: "2", dataType: "float", editor: { type: "textbox", vtype: "float" } },
             { field: "diff1", header: "预测距实测<br/>库容差", width: 100, align: "center", cls: "diff-col" },
-            { field: "rain1", header: "预测距实测<br/>纳雨量(mm)", width: 100, align: "center", cls: "rain-col" },
+            { field: "rain1", header: "预测距实测<br/>纳雨量", width: 100, align: "center", cls: "rain-col" },
             { field: "diff2", header: "预测距常水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain2", header: "预测距常水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "rain2", header: "预测距常水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" },
             { field: "diff4", header: "预测距警戒水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain4", header: "预测距警戒水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "rain4", header: "预测距警戒水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" },
             { field: "diff3", header: "预测距保证水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain3", header: "预测距保证水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" }
+            { field: "rain3", header: "预测距保证水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" }
         ];
         // 预降目标水位相关列（顺序：实测、常、警戒、保证）
         var yjColumns = [
-            { field: "yjSw", header: "预降目标水位", width: 110, align: "center", editor: { type: "textbox", vtype: "float" } },
+            { field: "yjSw", header: "预降目标<br/>水位", width: 70, align: "center", editor: { type: "textbox", vtype: "float" } },
             { field: "diff11", header: "预降距实测<br/>库容差", width: 100, align: "center", cls: "diff-col" },
-            { field: "rain11", header: "预降距实测<br/>纳雨量(mm)", width: 100, align: "center", cls: "rain-col" },
+            { field: "rain11", header: "预降距实测<br/>纳雨量", width: 100, align: "center", cls: "rain-col" },
             { field: "diff8", header: "预降距常水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain8", header: "预降距常水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "rain8", header: "预降距常水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" },
             { field: "diff10", header: "预降距警戒水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain10", header: "预降距警戒水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "rain10", header: "预降距警戒水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" },
             { field: "diff9", header: "预降距保证水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain9", header: "预降距保证水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" }
+            { field: "rain9", header: "预降距保证水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" }
         ];
         // 实测水位相关列（顺序：常、警戒、保证）
         var actualColumns = [
             { field: "actualSw", header: "实测水位", width: 75, align: "center", decimalPlaces: "2", dataType: "float" },
             { field: "diff5", header: "实测距常水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain5", header: "实测距常水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "rain5", header: "实测距常水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" },
             { field: "diff7", header: "实测距警戒水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain7", header: "实测距警戒水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" },
+            { field: "rain7", header: "实测距警戒水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" },
             { field: "diff6", header: "实测距保证水位<br/>库容差", width: 105, align: "center", cls: "diff-col" },
-            { field: "rain6", header: "实测距保证水位<br/>纳雨量(mm)", width: 105, align: "center", cls: "rain-col" }
+            { field: "rain6", header: "实测距保证水位<br/>纳雨量", width: 105, align: "center", cls: "rain-col" }
         ];
         // 按选择的水位类型组装列（固定列 + 对应水位相关列）
         function updateColumns() {
@@ -181,7 +183,7 @@
             return (fa - fb).toFixed(2);
         }
 
-        // 容纳雨量(mm) = 库容差(百万m³) ÷ 面积(km²) × 1000
+        // 容纳雨量 = 库容差(百万m³) ÷ 面积 × 1000
         function diffToRain(diffStr, area) {
             if (diffStr === "-" || area === null || area === undefined || area === "") return "-";
             var d = Number(diffStr);
@@ -231,8 +233,7 @@
 
         // ==================== 初始化 ====================
         $(function () {
-            // 默认时间 = 当前时间
-            datepicker.setValue(new Date().format("yyyy-MM-dd HH:00:00"));
+            updateToolbarVisibility();
             loadFangAn();
         });
 
@@ -248,13 +249,14 @@
                         if (it.dd_TM) {
                             text += "  " + String(it.dd_TM).substring(0, 16);
                         }
-                        items.push({ id: it.dd_ID, text: text });
+                        items.push({ id: it.dd_ID, text: text, stm: it.dd_TM, etm: it.dd_CHECKBY });
                     }
                     combo.setData(items);
                     if (items.length > 0) {
                         combo.setValue(items[0].id); // 默认选中第一个
-                        doQuery();
+                        constrainTime(items[0]);
                     }
+                    doQuery();
                 } else {
                     mini.alert("方案列表加载失败：" + (res.message || ""));
                 }
@@ -262,13 +264,55 @@
         }
 
         function onFangAnChange() {
+            constrainTime(combo.getSelected());
             doQuery();
         }
 
-        // 切换水位类型筛选：重建列 + 重算合计
+        // 时间选择：方案起调时间 ~ 预报期结束，逐小时生成下拉选项
+        function constrainTime(item) {
+            if (!item || !item.stm || !item.etm) return;
+            var startDate = new Date(String(item.stm).replace(/-/g, "/"));
+            var endDate = new Date(String(item.etm).replace(/-/g, "/"));
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return;
+            var times = [];
+            for (var t = startDate.getTime(); t <= endDate.getTime(); t += 3600 * 1000) {
+                var d = new Date(t);
+                times.push({ id: d.format("yyyy-MM-dd HH:00:00"), text: d.format("yyyy-MM-dd HH:00") });
+            }
+            datepicker.setData(times);
+            if (times.length > 0) {
+                datepicker.setValue(times[0].id); // 默认选起调时间
+            }
+        }
+
+        // 上一小时 / 下一小时 快捷切换
+        function shiftHour(delta) {
+            var data = datepicker.getData();
+            if (!data || data.length === 0) return;
+            var cur = datepicker.getValue();
+            var idx = -1;
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].id === cur) { idx = i; break; }
+            }
+            var newIdx = idx + delta;
+            if (newIdx < 0 || newIdx >= data.length) return;
+            datepicker.setValue(data[newIdx].id);
+            doQuery();
+        }
+
+        // 切换水位类型筛选：显示/隐藏方案+时间、重建列、重新查询
         function onWaterTypeChange() {
+            updateToolbarVisibility();
             updateColumns();
-            calcSummary();
+            doQuery();
+        }
+
+        // 仅“预测水位”显示方案选择、时间选择
+        function updateToolbarVisibility() {
+            var type = mini.get("waterType").getValue();
+            var showPlan = (type === "predict");
+            $("#cellPlan").css("display", showPlan ? "" : "none");
+            $("#cellTime").css("display", showPlan ? "" : "none");
         }
 
         // 径流系数变化：重算合计纳雨量
@@ -318,19 +362,24 @@
 
         // 查询
         function doQuery() {
-            var ddId = combo.getValue();
-            var stime = datepicker.getValue();
-            if (!ddId) {
-                mini.alert("请先选择预报方案");
-                return;
-            }
-            if (!stime) {
-                mini.alert("请选择预报时间");
-                return;
+            var type = mini.get("waterType").getValue();
+            var ddId = "";
+            var stime = new Date();
+            if (type === "predict") {
+                ddId = combo.getValue();
+                stime = datepicker.getValue();
+                if (!ddId) {
+                    mini.alert("请先选择预报方案");
+                    return;
+                }
+                if (!stime) {
+                    mini.alert("请选择预报时间");
+                    return;
+                }
             }
             var s_where = {
                 ddId: ddId,
-                stime: new Date(stime).format("yyyy-MM-dd HH:mm:ss")
+                stime: (stime instanceof Date) ? stime.format("yyyy-MM-dd HH:mm:ss") : String(stime)
             };
             mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
             app.post("SWZZ_SLP_FORECAST/query", s_where, function (res) {
