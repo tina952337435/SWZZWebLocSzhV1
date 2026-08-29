@@ -1024,6 +1024,9 @@ function Convert_BD09_To_GCJ02(lat, lng) {
 
 //地图放大缩小调用事件**************************************************************
 var globallevel = 7;//全局级别
+var textLevelOffset = 1;//文本标注比站点图标晚显示的级别数，即 mapsize + 1 时标出文本
+var textLevelDefault = 12;//未配置 mapsize 的标注沿用改造前的固定级别
+var zoomEndHandles = {};//已注册的 zoom-end 监听，按“类型|图层”登记，避免重复叠加
 function mapZoomEnd(myLayer, mapLevel, stType, field, switchChecked) {
     if (mapLevel == null || mapLevel == undefined) {
         mapLevel = globallevel; //无特殊指定
@@ -1031,95 +1034,73 @@ function mapZoomEnd(myLayer, mapLevel, stType, field, switchChecked) {
     if (SetNull(map) == "") {
         map = window.map;
     }
-    map.on("zoom-end", function (zoom) {
+    //同一图层每次刷新都会重新调用，先解绑旧监听，否则监听器会一直累积
+    var handleKey = stType + "|" + (myLayer == null || myLayer == undefined ? "" : myLayer.id);
+    if (zoomEndHandles[handleKey] != undefined) {
+        zoomEndHandles[handleKey].remove();
+    }
+    zoomEndHandles[handleKey] = map.on("zoom-end", function (zoom) {
         mapLevel = zoom.level;
         setMapZoomNew(myLayer, mapLevel, stType, field, switchChecked);
     });
 }
 
+/// <summary>
+/// 计算站点文本标注的显示级别：图标级别 + 偏移，不设封顶
+/// 封顶会把 mapsize 较大的站点全部压到同一级，文本又会挤在一起出现
+/// </summary>
+function getTextLevel(mapsize) {
+    var base = Number(mapsize);
+    if (mapsize == undefined || mapsize === "" || isNaN(base)) {
+        base = globallevel;
+    }
+    return base + textLevelOffset;
+}
+
+/// <summary>
+/// 实时读取“显示标注”开关，避免使用绑定监听时捕获的旧值
+/// </summary>
+function getMarkerChecked(defaultChecked) {
+    //mapIndex.js 被多个页面引用，未提供该开关的页面沿用传入值
+    try {
+        if (typeof SpanBiaoZhu == "function") {
+            var temp = SpanBiaoZhu();
+            return temp == true || temp == "checked";
+        }
+    } catch (e) {
+    }
+    return defaultChecked == true;
+}
+
 function setMapZoomNew(myLayer, mapLevel, stType, field, switchChecked) {
-    for (var num = 0; num < myLayer.graphics.length; num++) {
-        var item = myLayer.graphics[num];
-        if (item.attributes != undefined) {
-            var MAPSIZE = item.attributes.mapsize;
-            // console.error(item.attributes.stnm, 'mapLevel=' + mapLevel, 'MAPSIZE=' + MAPSIZE, stType, item)
-            if (MAPSIZE != undefined) {
-                // MAPSIZE =parseInt(MAPSIZE) + 1;
-                // console.error(item.attributes.stnm, stType + item.attributes[field])
-                if (mapLevel < globallevel) {
-                    addClassParam(stType + item.attributes[field], "nonenew");
-                } else if (globallevel == MAPSIZE) { //当站点层级等于默认地图层级时，一直要显示
-                    //11级以下，隐藏 lable信息
-                    if (switchChecked == true) {
-                        removeClassParam(stType + item.attributes[field], "nonenew");
-                    } else {
-                        addClassParam(stType + item.attributes[field], "nonenew");
-                    }
-                } else {                    
-                    // console.error(item.attributes.stnm, 'mapLevel=' + mapLevel, 'MAPSIZE=' + MAPSIZE, stType, item)
-                    if (mapLevel >= MAPSIZE) {
+    //站点图标：按各站自己的 mapsize 控制显隐
+    if (myLayer != null && myLayer != undefined && myLayer.graphics != undefined) {
+        for (var num = 0; num < myLayer.graphics.length; num++) {
+            var item = myLayer.graphics[num];
+            if (item.attributes != undefined) {
+                var MAPSIZE = item.attributes.mapsize;
+                if (MAPSIZE != undefined) {
+                    //站点层级等于默认地图层级时，一直要显示
+                    if (globallevel == MAPSIZE || mapLevel >= MAPSIZE) {
                         item.show();
-                        if (switchChecked == true) {
-                            removeClassParam(stType + item.attributes[field], "nonenew");
-                        } else {
-                            addClassParam(stType + item.attributes[field], "nonenew");
-                        }
                     } else {
                         item.hide();
-                        addClassParam(stType + item.attributes[field], "nonenew");
-                    }
-                }
-            } else {
-                if (mapLevel < globallevel) {
-                    addClassParam(stType + item.attributes[field], "nonenew");
-                } else {
-                    if (mapLevel > globallevel) {
-                        if ($("#riverMarker").hasClass("checked") == true) {
-                            removeClassParam(stType + item.attributes[field], "nonenew");
-                        } else {
-                            addClassParam(stType + item.attributes[field], "nonenew");
-                        }
-                    } else if (mapLevel == globallevel) {
-                        if ($("#riverMarker").hasClass("checked") == true) {
-                            removeClassParam(stType + item.attributes[field], "nonenew");
-                        } else {
-                            addClassParam(stType + item.attributes[field], "nonenew");
-                        }
-                    } else {
-                        addClassParam(stType + item.attributes[field], "nonenew");
                     }
                 }
             }
-
         }
     }
 
-    if(mapLevel>=12){
-        removeClassParamByClass("MapTextNew", "nonenew");
-    }
-    else{
-        addClassParamByClass("MapTextNew", "nonenew");
-    }
+    //文本标注：标注 div 统一挂在地图根节点下，各页面共用，这里一次遍历按各自级别处理。
+    //带 data-mapsize 的按站点级别，未带的沿用改造前的 textLevelDefault 级，保证老页面行为不变。
+    $(".MapTextNew,.MapText").each(function () {
+        var mapsize = this.getAttribute("data-mapsize");
+        var textLevel = (mapsize == null || mapsize === "") ? textLevelDefault : getTextLevel(mapsize);
+        $(this).toggleClass("zoomhide", mapLevel < textLevel);
+    });
 
-    if(mapLevel>=13){
-        removeClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "nonenew");
-    }
-    else{
-        addClassParamByClass("rainTextNew .amap-ui-district-cluster-marker-title", "nonenew");
-    }
-
-    if(mapLevel>=12){
-        removeClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "nonenew");
-    }
-    else{
-        addClassParamByClass("gcText .amap-ui-district-cluster-marker-title", "nonenew");
-    } 
-    
-    if(mapLevel>=13){       
-       removeClassParamByClass("lightGQ", "nonenew");
-    }else{
-       addClassParamByClass("lightGQ", "nonenew");
-    }
+    //“显示标注”开关：与级别控制用不同的样式名，两者互不覆盖
+    $(".MapTextNew,.MapText").toggleClass("nonenew", getMarkerChecked(switchChecked) == false);
 }
 
 function removeClassParam(objID, objClass) {

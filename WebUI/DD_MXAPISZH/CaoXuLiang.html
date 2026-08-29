@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="../Common/boot.js" type="text/javascript"></script>
+    <script src="../Common/jquery.min.js"></script>
+    <link href="../Common/CSS/mxCss.css" rel="stylesheet" type="text/css" />
+    <title>槽蓄量计算（未来24h纳雨量）</title>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #fff;
+            font-size: 12px;
+        }
+        .toolbar-cell {
+            padding: 4px 4px;
+        }
+        .toolbar-cell label {
+            margin-right: 4px;
+        }
+        .note-bar {
+            height: 30px;
+            line-height: 30px;
+            color: #999;
+            padding-left: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nyc-col {
+            color: #0551BD;
+        }
+        .mini-grid-headerCell-inner {
+            text-align: center;
+            line-height: 16px;
+            white-space: normal;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ===== 工具栏 ===== -->
+    <div class="mini-toolbar" style="padding: 6px 8px; border-bottom: 1px solid #e8e8e8;">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td class="toolbar-cell">
+                    <label>典型大潮：</label>
+                    <input id="typhoon" class="mini-combobox" style="width: 110px;" textField="text" valueField="value"
+                        value="2613" data="[{value:'2613',text:'白海豚'},{value:'2413',text:'贝碧嘉'},{value:'2106',text:'烟花'}]"
+                        onvaluechanged="doQuery" />
+                </td>
+                <td class="toolbar-cell">
+                    <a class="mini-button" onclick="doQuery" style="margin-right: 6px;">计 算</a>
+                    <a class="mini-button" onclick="doExport">导出Excel</a>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ===== 数据表格 ===== allowHeaderWrap="true"-->
+    <div id="grid" class="mini-datagrid" style="width: 100%; height: calc(100% - 90px);"
+        allowAlternating="true" allowCellSelect="true"
+        showEmptyText="true" emptyText="暂无数据" alwaysShowEmptyText="true"
+        ondrawcell="ondrawcell" showpager="false">
+    </div>
+
+    <div class="note-bar">
+        说明：单位——面积(km²)、库容/蓄水量(百万m³)、水位(m)、排涝能力(万m³)、纳雨量(mm)。
+        纳雨量 = (可调蓄库容[百万m³] + 排涝能力[万m³]÷100) ÷ (面积 × 径流系数) × 1000。
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+
+        var grid = mini.get("grid");
+        var typhoonCombo = mini.get("typhoon");
+
+        /*
+         * ==================== 接口契约（后端按此返回，结构同 SWZZ_SLP_FORECAST/query）====================
+         * 请求：POST /SWZZ_CSXSL/query    body: { "stime": "yyyy-MM-dd HH:00:00" }
+         * 响应：ResultUtils 格式 { isSuccess, data, message, ... }
+         * data 每条字段（camelCase）：
+         *   slpName  水利片名称
+         *   area     面积 (km²)
+         *   xsl      模型提取库容/当前蓄水量 (百万m³)
+         *   upz      模型提取水位/当前水位 (m)
+         *   bxsl     距保证水位蓄水量 (百万m³)
+         *   jxsl     距警戒水位蓄水量 (百万m³)
+         *   plnl     排涝能力（未来24h排水量，万m³）
+         *   jlxs2    径流系数
+         * ============================================================================
+         */
+        var API_URL = "SWZZ_CSXSL/query";
+
+        // ==================== 列定义 ====================
+        var columns = [
+            { type: "indexcolumn", header: "序号", width: 50, align: "center" },
+            { field: "slpName", header: "水利片名称", width: 110, align: "center" },
+            { field: "area", header: "面积", width: 85, align: "center", decimalPlaces: "2", dataType: "float" },
+            // { field: "xsl", header: "模型提取库容", width: 100, align: "center", decimalPlaces: "2", dataType: "float" },
+            { field: "sw", header: "实测水位", width: 100, align: "center", decimalPlaces: "2", dataType: "float" },            
+            { field: "plnl", header: "排涝能力", width: 90, align: "center", decimalPlaces: "1", dataType: "float" },
+            { field: "jxsl", header: "距警戒水位库容差", width: 100, align: "center", decimalPlaces: "1", dataType: "float" },
+            { field: "nycJj", header: "距警戒水位纳雨量", width: 110, align: "center", cls: "nyc-col" },
+            { field: "bxsl", header: "距保证水位库容差", width: 100, align: "center", decimalPlaces: "1", dataType: "float" },
+            // { field: "jlxs2", header: "径流系数", width: 80, align: "center", decimalPlaces: "2", dataType: "float" },
+            { field: "nycBz", header: "距保证水位纳雨量", width: 110, align: "center", cls: "nyc-col", decimalPlaces: "1", dataType: "float" }            
+        ];
+        for (var ci = 0; ci < columns.length; ci++) {
+            columns[ci].headerAlign = "center";
+        }
+        grid.setColumns(columns);
+
+        // ==================== 纳雨量计算 ====================
+        // 空值转数字（"-"或空按 0）
+        function toNum(v) {
+            return (v !== null && v !== undefined && v !== "" && v !== "-") ? Number(v) : null;
+        }
+
+        // 纳雨量(mm) = (可调蓄库容[百万m³] + plnl[万m³] ÷ 100) ÷ (面积[km²] × 径流系数) × 1000
+        function calcRain(row) {
+            var area = toNum(row.area);
+            var jlxs2 = toNum(row.jlxs2);
+            var plnl = toNum(row.plnl);
+            var bxsl = toNum(row.bxsl);
+            var jxsl = toNum(row.jxsl);
+
+            var denom = (area != null && jlxs2 != null && jlxs2 !== 0) ? (area * jlxs2) : null;
+            var plnlTerm = (plnl != null) ? (plnl / 100) : 0;
+
+            row.nycBz = (denom != null && bxsl != null) ? ((bxsl + plnlTerm) / denom * 1000).toFixed(1) : "-";
+            row.nycJj = (denom != null && jxsl != null) ? ((jxsl + plnlTerm) / denom * 1000).toFixed(1) : "-";
+            return row;
+        }
+
+        // ==================== 刷新 ====================
+        function doQuery() {
+            var etime = new Date().format("yyyy-MM-dd HH:00:00");
+            var stime = new Date(AddHourDate(etime, -12)).format("yyyy-MM-dd HH:00:00");
+            // etime="2026-08-22 18:00:00";
+            // stime="2026-08-22 08:00:00";
+            var s_where = {
+                stime: stime,
+                etime: etime,
+                typhoonCode: typhoonCombo.getValue()
+            };
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '数据加载中...' });
+            app.post(API_URL, s_where, function (res) {
+                mini.unmask(document.body);
+                if (res.isSuccess) {
+                    var list = res.data || [];
+                    for (var i = 0; i < list.length; i++) {
+                        calcRain(list[i]);
+                    }
+                    grid.setData(list);
+                    calcSummary();
+                } else {
+                    grid.setData([]);
+                    mini.alert("刷新失败：" + (res.message || ""));
+                }
+            });
+        }
+
+        // ==================== 合计 ====================
+        function ondrawcell(e) {
+            if (e.record && e.record._summary) {
+                e.cellStyle = "background:#dbe9ff;font-weight:bold;";
+            }
+        }
+
+        // 全市 / 大陆合计（扣除崇明、长兴、横沙），作为两行追加到表格里（可导出）
+        function calcSummary() {
+            var all = grid.getData();
+            var detail = [];
+            for (var i = 0; i < all.length; i++) {
+                if (!all[i]._summary) detail.push(all[i]);
+            }
+
+            function buildRow(label, onlyMainland) {
+                var row = { _summary: true, slpName: label };
+                var area = 0, plnl = 0, jxsl = 0, bxsl = 0, jlxs2 = null;
+                for (var i = 0; i < detail.length; i++) {
+                    var r = detail[i];
+                    var name = r.slpName || "";
+                    var isIsland = (name.indexOf("崇明") >= 0 || name.indexOf("长兴") >= 0 || name.indexOf("横沙") >= 0);
+                    if (onlyMainland && isIsland) continue;
+                    area += (toNum(r.area) || 0);
+                    plnl += (toNum(r.plnl) || 0);
+                    jxsl += (toNum(r.jxsl) || 0);
+                    bxsl += (toNum(r.bxsl) || 0);
+                    if (jlxs2 == null) jlxs2 = toNum(r.jlxs2);
+                }
+                row.area = area.toFixed(2);
+                row.plnl = plnl.toFixed(2);
+                row.jxsl = jxsl.toFixed(2);
+                row.bxsl = bxsl.toFixed(2);
+                if (area > 0 && jlxs2 != null && jlxs2 !== 0) {
+                    var denom = area * jlxs2;
+                    row.nycJj = ((jxsl + plnl / 100) / denom * 1000).toFixed(1);
+                    row.nycBz = ((bxsl + plnl / 100) / denom * 1000).toFixed(1);
+                } else {
+                    row.nycJj = "-";
+                    row.nycBz = "-";
+                }
+                return row;
+            }
+
+            var cityRow = buildRow("全市合计", false);
+            var mainRow = buildRow("大陆合计", true);
+            grid.setData(detail.concat([cityRow, mainRow]));
+        }
+
+        // ==================== 导出 ====================
+        function doExport() {
+            if (grid.getData().length === 0) {
+                mini.alert("暂无数据可导出");
+                return;
+            }
+            var name = "槽蓄量计算" + new Date().format("yyyyMMdd");
+            ExportExcel(grid.data, grid, name);
+        }
+
+        // ==================== 初始化 ====================
+        $(function () {
+            doQuery();
+        });
+    </script>
+</body>
+
+</html>

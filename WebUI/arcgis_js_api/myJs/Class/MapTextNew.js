@@ -57,9 +57,14 @@ define(["dojo/_base/declare",
 
                     divid = " id=\"" + attr["divid"] + "\" ";
                 }
+                //把站点图标级别带到标注上，供 setMapZoomNew 按站点控制文本显示级别
+                var dataMapSize = "";
+                if (attr["mapsize"] != undefined && attr["mapsize"] !== "") {
+                    dataMapSize = " data-mapsize=\"" + attr["mapsize"] + "\" ";
+                }
                 if (text.toString().indexOf("</") > -1) {
                     //this._node = text;
-                    this._node = domConstruct.toDom("<div " + divid + "class='MapTextNew marker" + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
+                    this._node = domConstruct.toDom("<div " + divid + dataMapSize + "class='MapTextNew marker" + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
                 }
                 else {
                     text = text.replace(/\n/g, "<br/>");
@@ -71,7 +76,7 @@ define(["dojo/_base/declare",
                     var DATA = text.split("@")[1];
                     var markerContent = "";
                      	if (tempClass.indexOf("@") > -1) {
-							markerContent = "<div " + divid + " class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew none " + tempClass.replace("@", "") + "'>" +
+							markerContent = "<div " + divid + dataMapSize + " class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew none " + tempClass.replace("@", "") + "'>" +
                         " <span class='amap-ui-district-cluster-marker-title'>" + STNM + "</span>";
                         if(DATA!=""&&DATA!=undefined&&DATA!=null){
                         markerContent=markerContent+" <span class='amap-ui-district-cluster-marker-body'>" + DATA + "</span>" ;
@@ -79,7 +84,7 @@ define(["dojo/_base/declare",
 						 markerContent=markerContent+"</div>";
 						   this._node = domConstruct.toDom(markerContent);
 					}else{
-						markerContent = "<div " + divid + " class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew " + tempClass + "'>" +
+						markerContent = "<div " + divid + dataMapSize + " class='amap-ui-district-cluster-marker marker"+this._place+" MapTextNew " + tempClass + "'>" +
                         " <span class='amap-ui-district-cluster-marker-title'>" + STNM + "</span>";
                         if(DATA!=""&&DATA!=undefined&&DATA!=null){
                         markerContent=markerContent+" <span class='amap-ui-district-cluster-marker-body'>" + DATA + "</span>" ;

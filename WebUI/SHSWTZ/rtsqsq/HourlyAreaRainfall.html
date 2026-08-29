@@ -10,6 +10,8 @@
     <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
     <link href="../../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
     <script src="../../Common/Scripts/ChartJs.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/mapConfig.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/library/3.31/3.31/init.js" type="text/javascript"></script>
 
     <style>
         .mini-grid-summaryRow div {
@@ -90,6 +92,17 @@
         </table>
     </div>
 
+    <!--左侧区域树-->
+    <div style="width:210px;float:left;height:100%;background:#fff;border-right:1px solid #e0e0e0;box-sizing:border-box;padding:10px;">
+        <div style="height:30px;line-height:30px;font-weight:bold;color:#333;">区域</div>
+        <ul id="tree1" class="mini-tree" style="width:100%;height:calc(100% - 30px);padding:5px;"
+            showTreeIcon="true" textField="title" idField="id" parentField="pid"
+            resultAsTree="false" expandOnNodeClick="false" expandOnLoad="1" onnodeselect="onSelectNode"></ul>
+    </div>
+
+    <!--右侧内容区-->
+    <div style="width:calc(100% - 210px);float:right;height:100%;">
+
     <!--工具栏-->
     <div class="mini-toolbar" style="padding-top: 3px;">
         <table style="width: 100%;">
@@ -139,7 +152,7 @@
             <div id="grid1" class="mini-datagrid" style="width: 100%; height: 100%;" allowalternating="true"
                 sizeList="[15,20,30,50,100,500,1000]" pageSize="50" showsummaryrow="true"
                 allowresize="false" ondrawcell="ondrawcell" showPager="false" ondrawsummarycell="onDrawSummaryCell"
-                showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                onrowclick="onRowClick" showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
                 <div property="columns">
                     <div type="indexcolumn" width="60" align="center" headerAlign="center">序号</div>
                     <div field="tm" width="160" align="center" headerAlign="center" allowSort="false">时间</div>
@@ -150,10 +163,44 @@
         </div>
 
     </div>
+    </div>
+
+    <!--各站雨量明细弹窗-->
+    <div id="stationWin" class="mini-window" title="各站雨量明细" showModal="true" showFooter="false"
+        style="width:880px;height:500px;display:none;" allowResize="false">
+        <div style="padding:6px 10px;border-bottom:1px solid #eee;">
+            <a class="mini-button" onclick="doExportStation()">导出</a>
+        </div>
+        <div style="height:calc(100% - 45px);">
+            <div id="stationGrid" class="mini-datagrid" style="width:100%;height:100%;"
+                allowalternating="true" showpager="false"
+                showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                <div property="columns">
+                    <div type="indexcolumn" width="50" align="center" headerAlign="center">序号</div>
+                    <div field="stnm" width="120" align="center" headerAlign="center">站名</div>
+                    <!-- <div field="stcd" width="110" align="center" headerAlign="center">站码</div> -->
+                    <div field="drp" width="110" align="center" headerAlign="center" dataType="float" decimalPlaces="1">雨量(mm)</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script type="text/javascript">
         mini.parse();
         var grid = mini.get("grid1");
+        var tree = mini.get("tree1");
+
+        // 全市 = 合并这两个 id
+        var DEFAULT_PID = "201901101419326076-1-1,201901101419326076-5";
+        var currentPid = DEFAULT_PID;
+        var parentIds = {};   // 记录哪些 id 是父节点（有子项），选中时不查询
+        var stationGrid = mini.get("stationGrid");
+        var stationWin = mini.get("stationWin");
+        var stationData = [];   // 当前弹窗展示的站点明细
+        var stationWinTm = null; // 当前明细对应的小时
+
+        // 苏州河及两翼 = 合并这几个片区 id（与"全市"一样是单个合并节点）
+        var SZH_PID = "201901101419326076-4-12,201901101419326076-4-13,201901101419326076-4-2,201901101419326076-4-7,201901101419326076-4-9";
 
         $(function () {
             var tm = new Date();
@@ -164,8 +211,258 @@
 
             mini.get("STIME").setValue(stime);
             mini.get("ETIME").setValue(etime);
-            BreakLayerLoad();
+            loadTree();
         });
+
+        // 查询区域树接口，按规则过滤拼装成树
+        function loadTree() {
+            $("#dataLoad").show();
+            app.post("SWZZ_RTSQ_ST_STBPRP_B_TREE/findResult", {}, (data) => {
+                var src = (data && data.data) ? data.data : [];
+                markParentIds(src);
+                var list = buildAreaTree(src);
+                tree.loadList(list, "id", "pid");
+                if (list.length > 0) {
+                    tree.select(0);
+                }
+                currentPid = DEFAULT_PID;
+                BreakLayerLoad();
+            }, () => {
+                // 树接口异常时仍按默认 pid 查询，避免页面卡在加载中
+                BreakLayerLoad();
+            });
+        }
+
+        // 拼装规则：
+        // 1. 全市 = 合并两个 id（DEFAULT_PID）；
+        // 2. 2024060516432392160 本身 + 子项；
+        // 3. 201901101419326076-4 本身 + 子项；
+        // 4. 苏州河及两翼 = 合并 5 个片区 id（SZH_PID）。
+        function buildAreaTree(src) {
+            var list = [];
+            // 全市
+            list.push({ id: DEFAULT_PID, pid: "", title: "全市" });
+            // 两个片区根 + 全部子项
+            var subRoots = ["2024060516432392160", "201901101419326076-4"];
+            for (var i = 0; i < subRoots.length; i++) {
+                list = list.concat(collectSubtree(src, subRoots[i]));
+            }
+            // 苏州河及两翼（单个合并节点，跟"全市"一样）
+            list.push({ id: SZH_PID, pid: "", title: "苏州河及两翼" });
+            return list;
+        }
+
+        // 取某个 id 及其全部子孙节点，并把根重新挂为顶级
+        function collectSubtree(src, rootId) {
+            var byPid = {};
+            for (var i = 0; i < src.length; i++) {
+                var p = src[i].pid;
+                if (!byPid[p]) byPid[p] = [];
+                byPid[p].push(src[i]);
+            }
+            var root = null;
+            for (var j = 0; j < src.length; j++) {
+                if (src[j].id === rootId) { root = src[j]; break; }
+            }
+            if (!root) return [];
+
+            var result = [];
+            result.push({ id: root.id, pid: "", title: root.title || root.name || root.text });
+            var stack = [root.id];
+            while (stack.length) {
+                var cur = stack.pop();
+                var children = byPid[cur] || [];
+                for (var k = 0; k < children.length; k++) {
+                    result.push({
+                        id: children[k].id,
+                        pid: children[k].pid,
+                        title: children[k].title || children[k].name || children[k].text
+                    });
+                    stack.push(children[k].id);
+                }
+            }
+            return result;
+        }
+
+        // 标记哪些 id 是父节点（有子项）
+        function markParentIds(src) {
+            parentIds = {};
+            for (var i = 0; i < src.length; i++) {
+                if (src[i].pid) parentIds[src[i].pid] = true;
+            }
+        }
+
+        // 树节点选择后重新查询（父节点不查询）
+        function onSelectNode(e) {
+            var node = e.node;
+            if (!node) return;
+            // 父节点不调用接口
+            if (parentIds[node.id]) return;
+            var newPid = node.id;
+            // 初始自动选中"全市"时 pid 未变化，避免重复查询
+            if (newPid === currentPid) return;
+            currentPid = newPid;
+            $("#dataLoad").show();
+            BreakLayerLoad();
+        }
+
+        // ===== 站点明细弹窗 =====
+        function onRowClick(e) {
+            var row = e.record;
+            if (row && row.tm) showStationDetail(row.tm);
+        }
+
+        // 点击柱子/表格数字后，查询该小时各站雨量
+        function showStationDetail(tm) {
+            stationWinTm = tm;
+            var start = new Date(tm);
+            var end = new Date(start.getTime() + 60 * 60 * 1000);
+            var strWhere = {
+                pid: currentPid,
+                stime: start.format("yyyy-MM-dd HH:mm:ss"),
+                etime: end.format("yyyy-MM-dd HH:mm:ss"),
+                pathname: "SUM"
+            };
+            mini.mask({ el: document.body, cls: 'mini-mask-loading', html: '站点明细加载中...' });
+            app.post("/SWZZ_RTSQ_ST_PPTN_R/queryDRPList", strWhere, (data) => {
+                mini.unmask(document.body);
+                fillStationDetail(data);
+            });
+        }
+
+        function fillStationDetail(data) {
+            var list = (data && data.data) ? data.data : [];
+            // 按雨量降序
+            list = list.slice().sort(function (a, b) {
+                return (parseFloat(b.drp) || 0) - (parseFloat(a.drp) || 0);
+            });
+            stationData = list;
+            stationGrid.setData(list);
+
+            var title = "各站雨量明细";
+            if (stationWinTm) {
+                var d = new Date(stationWinTm);
+                title = (d.getMonth() + 1) + "月" + d.getDate() + "日 " + d.getHours() + "时 各站雨量（" + list.length + "站）";
+            }
+            stationWin.setTitle(title);
+            stationWin.show();
+        }
+
+        function onStationDrawCell(e) {
+            if (e.field === "op") {
+                var rec = e.record;
+                if (rec && rec.lgtd != null && rec.lttd != null && rec.lgtd !== "" && rec.lttd !== "") {
+                    var stcd = (rec.stcd || "").toString();
+                    e.cellHtml = '<a href="javascript:void(0)" style="color:#3291F9;" onclick="locateByStcd(\'' + stcd + '\')">定位</a>';
+                } else {
+                    e.cellHtml = '<span style="color:#ccc;">--</span>';
+                }
+            }
+        }
+
+        // ===== 弹窗内嵌小地图 =====
+        var stationMap = null;
+        var stationGraphicsLayer = null;
+        var stationLocateLayer = null;
+        var stationMapReady = false;
+        var _Point = null, _Graphic = null, _PictureMarkerSymbol = null, _SpatialReference = null, _Extent = null;
+
+        function initStationMap(cb) {
+            if (stationMapReady) { cb && cb(); return; }
+            if (stationMap) {
+                stationMap.on("load", function () { cb && cb(); });
+                return;
+            }
+            require([
+                "esri/map", "esri/layers/GraphicsLayer", "esri/geometry/Point", "esri/graphic",
+                "esri/symbols/PictureMarkerSymbol", "esri/SpatialReference", "esri/geometry/Extent",
+                "myJs/shswOneMapServer", "dojo/domReady!"
+            ], function (Map, GraphicsLayer, Point, Graphic, PictureMarkerSymbol, SpatialReference, Extent, shswOneMapServer) {
+                _Point = Point; _Graphic = Graphic; _PictureMarkerSymbol = PictureMarkerSymbol;
+                _SpatialReference = SpatialReference; _Extent = Extent;
+                stationMap = new Map("stationMap", {
+                    logo: false, slider: false, zoom: 10, maxZoom: 18, showLabels: true,
+                    center: [1301.505898, -12657.422868], spatialReference: { wkid: 3857 }
+                });
+                stationMap.on("load", function () {
+                    stationMapReady = true;
+                    stationMap.centerAndZoom(new _Point(121.47, 31.23, new _SpatialReference({ wkid: 4326 })), 10);
+                    cb && cb();
+                });
+                stationMap.addLayer(new shswOneMapServer("shsw_OneMapServer"));
+                stationGraphicsLayer = new GraphicsLayer();
+                stationLocateLayer = new GraphicsLayer();
+                stationMap.addLayer(stationGraphicsLayer);
+                stationMap.addLayer(stationLocateLayer);
+            });
+        }
+
+        // 定位到某个站点
+        function locateByStcd(stcd) {
+            var item = null;
+            for (var i = 0; i < stationData.length; i++) {
+                if ((stationData[i].stcd || "").toString() === stcd) { item = stationData[i]; break; }
+            }
+            if (!item) return;
+            if (item.lgtd == null || item.lttd == null || item.lgtd === "" || item.lttd === "") {
+                mini.alert("该站缺少经纬度");
+                return;
+            }
+            initStationMap(function () {
+                var point = new _Point(item.lgtd, item.lttd, new _SpatialReference({ wkid: 4326 }));
+                stationMap.centerAndZoom(point, 12);
+                stationLocateLayer.clear();
+                var symbol = new _PictureMarkerSymbol("../../arcgis_js_api/myJs/images/d_red.png", 18, 24);
+                stationLocateLayer.add(new _Graphic(point, symbol, item, null));
+            });
+        }
+
+        // 全部站点上图（弹窗内小地图）
+        function showAllStationsOnMap() {
+            if (!stationData || stationData.length === 0) {
+                mini.alert("暂无站点可上图");
+                return;
+            }
+            initStationMap(function () {
+                stationGraphicsLayer.clear();
+                var extent = null;
+                for (var i = 0; i < stationData.length; i++) {
+                    var item = stationData[i];
+                    if (item.lgtd == null || item.lttd == null || item.lgtd === "" || item.lttd === "") continue;
+                    var point = new _Point(item.lgtd, item.lttd, new _SpatialReference({ wkid: 4326 }));
+                    var symbol = new _PictureMarkerSymbol("../../arcgis_js_api/myJs/images/d_blue.png", 14, 18);
+                    stationGraphicsLayer.add(new _Graphic(point, symbol, item, null));
+                    if (!extent) {
+                        extent = new _Extent(point.x, point.y, point.x, point.y, point.spatialReference);
+                    } else {
+                        extent = extent.union(new _Extent(point.x, point.y, point.x, point.y, point.spatialReference));
+                    }
+                }
+                if (extent) stationMap.setExtent(extent.expand(1.5));
+            });
+        }
+
+        // 清空小地图站点
+        function clearStationLayer() {
+            if (stationGraphicsLayer) stationGraphicsLayer.clear();
+            if (stationLocateLayer) stationLocateLayer.clear();
+        }
+
+        function doExportStation() {
+            if (!stationData || stationData.length === 0) {
+                mini.alert("暂无数据可导出！");
+                return;
+            }
+            var mockGrid = {
+                columns: [
+                    { field: "stnm", header: "站名" },
+                    { field: "stcd", header: "站码" },
+                    { field: "drp", header: "雨量(mm)" }
+                ],
+                data: stationData
+            };
+            ExportExcel(stationData, mockGrid, "各站雨量明细");
+        }
 
         function btnSearch() {
             $("#dataLoad").show();
@@ -181,7 +478,7 @@
             var strWhere = {
                 "stime": d1.format("yyyy-MM-dd HH:mm:ss"),
                 "etime": d2.format("yyyy-MM-dd HH:mm:ss"),
-                "pid":"201901101419326076-1-1,201901101419326076-5"
+                "pid": currentPid
             }
             app.post("/SWZZ_RTSQ_ST_PPTN_R/selectListHourlyArea", strWhere, (data) => {
                 JosnSel(data);
@@ -310,6 +607,15 @@
                 }]
             };
             myChart.setOption(option);
+
+            // 点击柱子查看该小时各站雨量
+            myChart.off("click");
+            myChart.on("click", function (params) {
+                if (params.componentType === "series" && params.dataIndex != null) {
+                    var rec = strJson[params.dataIndex];
+                    if (rec && rec.tm) showStationDetail(rec.tm);
+                }
+            });
         }
 
         function doExport() {

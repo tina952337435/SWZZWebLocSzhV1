@@ -880,3 +880,7 @@ color:#ffffff !important;
 .nonenew {
     display: none !important;
 }
+/*地图级别不够时隐藏文本标注，与 nonenew（显示标注开关）分开，两者互不覆盖*/
+.zoomhide {
+    display: none !important;
+}

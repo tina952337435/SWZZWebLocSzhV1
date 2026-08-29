@@ -562,31 +562,31 @@
                     <div header="最大60min" headerAlign="center">
                         <div property="columns">
                             <div field="max60min_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max60min_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max60min_time" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大3h" headerAlign="center">
                         <div property="columns">
                             <div field="max3h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max3h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max3h_time" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大6h" headerAlign="center">
                         <div property="columns">
                             <div field="max6h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max6h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max6h_time" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大12h" headerAlign="center">
                         <div property="columns">
                             <div field="max12h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max12h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max12h_time" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大24h" headerAlign="center">
                         <div property="columns">
                             <div field="max24h_drp" width="80" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max24h_time" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max24h_time" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                 </div>
@@ -816,7 +816,7 @@
 
                 html += '<div class="' + cls + '" data-key="' + key + '" onclick="onStatRowClick(\'' + key + '\')">';
                 html += '<span class="dur-badge">' + DUR_LABELS[key] + '</span>';
-                html += '<span class="big-drp" onclick="event.stopPropagation();openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\')" title="点击查看过程线">' + drp + '<span class="unit">mm</span></span>';
+                html += '<span class="big-drp" onclick="event.stopPropagation();openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\',\'' + key + '\')" title="点击查看过程线">' + drp + '<span class="unit">mm</span></span>';
                 html += '<span class="stn-info">';
                 html += '<div class="stn-name" title="' + stnm + '">' + stnm + '</div>';
                 html += '<div class="stn-time"><span class="clock"></span>' + stime + '</div>';
@@ -881,7 +881,7 @@
                 html += '<div class="top10-item">';
                 html += '<span class="rank ' + rankCls + '">' + (i + 1) + '</span>';
                 html += '<span class="stn" title="' + top[i].stnm + '">' + top[i].stnm + '</span>';
-                html += '<span class="drp" style="cursor:pointer;" onclick="openProcessLine(\'' + top[i].stcd + '\',\'' + top[i].stnm + '\',\'' + top[i].stime + '\',\'' + top[i].etime + '\')" title="点击查看过程线">' + top[i].drp + '</span>';
+                html += '<span class="drp" style="cursor:pointer;" onclick="openProcessLine(\'' + top[i].stcd + '\',\'' + top[i].stnm + '\',\'' + top[i].stime + '\',\'' + top[i].etime + '\',\'' + durKey + '\')" title="点击查看过程线">' + top[i].drp + '</span>';
                 html += '</div>';
             }
             $("#top10List").html(html);
@@ -903,7 +903,7 @@
             }
             var avgTotal = Number((sumTotal / stations.length).toFixed(1));
 
-            // 第一行：全市汇总（各时段取 summary 中的全市最大值 + 最大站 + 起始时间）
+            // 第一行：全市汇总（各时段取 summary 中的全市最大值 + 最大站 + 开始时间）
             var cityRow = { stcd: "", stnm: "全市", addvnm: "--", totalDrp: avgTotal, isCity: true, rowIndex: "" };
             for (var j = 0; j < durations.length; j++) {
                 var key = durations[j];
@@ -940,14 +940,40 @@
         }
 
         // 打开过程线弹窗
-        function openProcessLine(stcd, stnm, stime, etime) {
+        function openProcessLine(stcd, stnm, stime, etime, durKey) {
             if (!stcd) { mini.alert("站点信息不完整"); return; }
-            var url = "././DanZhan/YQLine.html?dayhour=MIN";
+            var isMin = (durKey === "max60min");
+            var url = "././DanZhan/YQLine.html?dayhour=" + (isMin ? "MIN" : "HOUR");
             url += "&stcd=" + encodeURIComponent(stcd);
             url += "&stnm=" + encodeURIComponent(stnm);
+            if (isMin) {
+                stime = addMinutes(stime, -5);   // 最大60min：开始时间往前减5分钟
+            } else {
+                etime = addOneHour(etime);       // 其他时段：结束时间加1小时
+            }
             url += "&stime=" + stime;
             url += "&etime=" + etime;
             WindowsOpen(url, stnm + " 雨量过程线", stcd);
+        }
+
+        // 时间字符串加一小时
+        function addOneHour(timeStr) {
+            if (!timeStr) return timeStr;
+            try {
+                var d = new Date(timeStr.replace(/\s/g, "T"));
+                d.setHours(d.getHours() + 1);
+                return d.format("yyyy-MM-dd HH:mm:ss");
+            } catch (ex) { return timeStr; }
+        }
+
+        // 时间字符串加/减分钟
+        function addMinutes(timeStr, minutes) {
+            if (!timeStr) return timeStr;
+            try {
+                var d = new Date(timeStr.replace(/\s/g, "T"));
+                d.setMinutes(d.getMinutes() + minutes);
+                return d.format("yyyy-MM-dd HH:mm:ss");
+            } catch (ex) { return timeStr; }
         }
 
         function formatStime(stime) {
@@ -979,7 +1005,7 @@
                 var rawStime = row[durKey + "_stime_raw"] || "";
                 var rawEtime = row[durKey + "_etime_raw"] || "";
                 var stnm = row.stnm || "";
-                e.cellHtml = '<a href="javascript:void(0)" onclick="openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\')" style="color:#3291F9;font-weight:bold;" title="点击查看过程线">' + parseFloat(e.value).toFixed(1) + '</a>';
+                e.cellHtml = '<a href="javascript:void(0)" onclick="openProcessLine(\'' + stcd + '\',\'' + stnm + '\',\'' + rawStime + '\',\'' + rawEtime + '\',\'' + durKey + '\')" style="color:#3291F9;font-weight:bold;" title="点击查看过程线">' + parseFloat(e.value).toFixed(1) + '</a>';
             }
         }
 
@@ -1005,7 +1031,7 @@
                     { field: "typeName", header: "极值类型" },
                     { field: "stnm", header: "站名" },
                     { field: "drp", header: "雨量(mm)" },
-                    { field: "stime", header: "起始时间" }
+                    { field: "stime", header: "开始时间" }
                 ],
                 data: rows
             };
@@ -1039,15 +1065,15 @@
                         { field: "addvnm", header: "区" },
                         { field: "totalDrp", header: "累计雨量(mm)" },
                         { field: "max60min_drp", header: "最大1h雨量(mm)" },
-                        { field: "max60min_time", header: "最大1h起始时间" },
+                        { field: "max60min_time", header: "最大1h开始时间" },
                         { field: "max3h_drp", header: "最大3h雨量(mm)" },
-                        { field: "max3h_time", header: "最大3h起始时间" },
+                        { field: "max3h_time", header: "最大3h开始时间" },
                         { field: "max6h_drp", header: "最大6h雨量(mm)" },
-                        { field: "max6h_time", header: "最大6h起始时间" },
+                        { field: "max6h_time", header: "最大6h开始时间" },
                         { field: "max12h_drp", header: "最大12h雨量(mm)" },
-                        { field: "max12h_time", header: "最大12h起始时间" },
+                        { field: "max12h_time", header: "最大12h开始时间" },
                         { field: "max24h_drp", header: "最大24h雨量(mm)" },
-                        { field: "max24h_time", header: "最大24h起始时间" }
+                        { field: "max24h_time", header: "最大24h开始时间" }
                     ],
                     data: expData
                 };

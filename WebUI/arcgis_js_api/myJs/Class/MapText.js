@@ -54,12 +54,17 @@ define(["dojo/_base/declare",
                 }
                 var tempClass = this._class;
                 this._offset = this._class == "TextDiv" ? 12 : offset;
+                //把站点图标级别带到标注上，供 setMapZoomNew 按站点控制文本显示级别
+                var dataMapSize = "";
+                if (attr["mapsize"] != undefined && attr["mapsize"] !== "") {
+                    dataMapSize = " data-mapsize=\"" + attr["mapsize"] + "\" ";
+                }
                 if (text.toString().indexOf("</") > -1) {
                     //this._node = text;
                     if (tempClass.indexOf("@") > -1) {
-                        this._node = domConstruct.toDom("<div class='MapText none " + place + this._class.replace("@", "") + "'><span>" + text + "</span><div class='TextTri'></div></div>");
+                        this._node = domConstruct.toDom("<div " + dataMapSize + "class='MapText none " + place + this._class.replace("@", "") + "'><span>" + text + "</span><div class='TextTri'></div></div>");
                     } else {
-                        this._node = domConstruct.toDom("<div class='MapText " + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
+                        this._node = domConstruct.toDom("<div " + dataMapSize + "class='MapText " + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
                     }
                 }
                 else {
@@ -67,9 +72,9 @@ define(["dojo/_base/declare",
                     var re = new RegExp("@/", "g");
                     text = text.replace(re, "/");
                     if (tempClass.indexOf("@") > -1) {
-                        this._node = domConstruct.toDom("<div class='MapText none " + place + this._class.replace("@", "") + " '><span>" + text + "</span><div class='TextTri'></div></div>");
+                        this._node = domConstruct.toDom("<div " + dataMapSize + "class='MapText none " + place + this._class.replace("@", "") + " '><span>" + text + "</span><div class='TextTri'></div></div>");
                     } else {
-                        this._node = domConstruct.toDom("<div class='MapText " + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
+                        this._node = domConstruct.toDom("<div " + dataMapSize + "class='MapText " + place + this._class + "'><span>" + text + "</span><div class='TextTri'></div></div>");
                     }
                     //this._node = domConstruct.toDom("<div class='MapText "+this._class+"'><span>" + text + "</span><div class='TextTri'></div></div>");
                 }

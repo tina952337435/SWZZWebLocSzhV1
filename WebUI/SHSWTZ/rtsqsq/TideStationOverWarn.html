@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>防汛代表站超警水位分析</title>
+    <script src="../../Common/boot.js" type="text/javascript"></script>
+    <script src="../../arcgis_js_api/myJs/parentIndex.js" type="text/javascript"></script>
+    <link href="../../arcgis_js_api/myJs/style/common.css" rel="stylesheet" type="text/css" />
+    <link href="../../arcgis_js_api/myJs/style/index.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .mini-grid-headerCell-inner {
+            text-align: center;
+            line-height: 16px;
+            white-space: normal;
+            word-break: break-all;
+        }
+    </style>
+</head>
+
+<body>
+    <!页面载入显示>
+    <div id="dataLoad" class="load">
+        <table style="width:100%;height:100%;border:0;" align="center" valign="middle">
+            <tr style="height:50%"><td align="center">&nbsp;</td></tr>
+            <tr><td align="center"><img src="../../arcgis_js_api/myJs/images/wait1.gif" /></td></tr>
+            <tr><td align="center">数据载入中，请稍后...</td></tr>
+            <tr style="height:50%"><td align="center">&nbsp;</td></tr>
+        </table>
+    </div>
+
+    <!工具栏>
+    <div class="mini-toolbar" style="padding-top:3px;">
+        <table style="width:100%;">
+            <tr>
+                <td>
+                    <span style="float:left;">
+                        &nbsp;&nbsp; 开始时间：&nbsp;
+                        <input id="STIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        结束时间：&nbsp;
+                        <input id="ETIME" class="mini-datepicker" style="width:145px;" format="yyyy-MM-dd HH:00"
+                            showtime="true" showOkButton="true" showClearButton="false" />&nbsp;&nbsp;
+                        <a id="searchbtn" class="mini-button" onclick="btnSearch()">查询</a>
+                        <a class="mini-button" onclick="doExport()">导出</a>
+                    </span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!主体内容>
+    <div class="mini-fit">
+        <div id="grid1" class="mini-datagrid" style="width:100%;height:100%;"
+                allowalternating="true" sizeList="[15,20,30,50,100,500,1000]" pageSize="100"
+                allowresize="false" sortMode="client" showPager="false" allowHeaderWrap="false"
+                ondrawcell="ondrawcell"
+                showemptytext="true" emptytext="暂无数据" alwaysshowemptytext="true">
+                <div property="columns">
+                    <div type="indexcolumn" width="55" align="center" headerAlign="center">序号</div>
+                    <div field="bsnm" name="bsnm" width="110" align="center" headerAlign="center" allowSort="false">地理区位</div>
+                    <div field="stnm" width="120" align="center" headerAlign="center" allowSort="false">测站名称</div>
+                    <div field="minz" width="110" align="center" headerAlign="center" allowSort="true">最低潮水位(m)</div>
+                    <div field="minztm" width="150" align="center" headerAlign="center" allowSort="false">出现时间</div>
+                    <div field="maxz" width="110" align="center" headerAlign="center" allowSort="true">最高潮水位(m)</div>
+                    <div field="maxztm" width="150" align="center" headerAlign="center" allowSort="false">出现时间</div>
+                    <div field="avghz" width="100" align="center" headerAlign="center" allowSort="true">平均高潮位</div>
+                    <div field="avgz" width="100" align="center" headerAlign="center" allowSort="true">平均水位</div>
+                    <div field="wrz" width="100" align="center" headerAlign="center" allowSort="true">警戒水位</div>
+                    <div field="wrzfd" width="120" align="center" headerAlign="center" allowSort="true">警戒水位幅度(m)</div>
+                    <div field="zf" width="100" align="center" headerAlign="center" allowSort="true">水位涨幅</div>
+                    <div field="wrzcs" width="90" align="center" headerAlign="center" allowSort="true">超警次数</div>
+                    <div field="wrzts" width="90" align="center" headerAlign="center" allowSort="true">超警天数</div>
+                    <div field="wrzsc" width="100" align="center" headerAlign="center" allowSort="true">超警时长(h)</div>
+                </div>
+            </div>
+    </div>
+
+    <script type="text/javascript">
+        mini.parse();
+        var grid = mini.get("grid1");
+
+        // 防汛代表站分组 pid（与 水位/waterbytm 的"代表站"一致）
+        var PID = "2026031114184492913-3";
+
+        // 需要保留两位小数的数值字段
+        var FLOAT_FIELDS = ["minz", "maxz", "avghz", "avgz", "wrz", "wrzfd", "zf", "wrzsc"];
+        // 时间字段（后端可能返回带微秒的 "yyyy-MM-dd HH:mm:ss.000000"）
+        var TIME_FIELDS = ["minztm", "maxztm"];
+
+        // 站点显示顺序（与《防汛代表站点超警水位分析报表》Excel 一致）
+        var STCD_ORDER = [
+            // 长江口
+            "62701710", "63404572", "HS020006", "62701500", "60117550",
+            // 杭州湾
+            "63405800", "63405900",
+            // 黄浦江干流段
+            "63401750", "63401500", "63404400", "63401100",
+            // 黄浦江上游支流
+            "63403800", "63403100", "63403200", "63402910", "63402500", "63402460", "63402300",
+            // 嘉宝北片
+            "63405480", "63405460",
+            // 蕰南片
+            "63404710", "63404770", "63404740",
+            // 淀北片
+            "63404700", "63404750", "63404730",
+            // 淀南片
+            "63425120",
+            // 青松片
+            "63404000", "63404100",
+            // 浦东片
+            "63404830", "63425700", "63404970", "63404565", "63404500", "63404902",
+            // 浦南东片
+            "63401900",
+            // 太北片
+            "63403130",
+            // 太南片
+            "63422860",
+            // 崇明岛片
+            "62724645",
+            // 长兴岛片
+            "62701560",
+            // 横沙岛片
+            "62701620",
+            // 片界河道
+            "63405200", "63405150", "63405100", "63405000"
+        ];
+        var orderMap = {};
+        for (var i = 0; i < STCD_ORDER.length; i++) orderMap[STCD_ORDER[i]] = i;
+
+        // 兼容大小写取值：接口约定为小写，但按大小写都取一遍以防万一
+        function pick(obj, lower, upper) {
+            if (obj == null) return null;
+            if (obj[lower] != null) return obj[lower];
+            if (obj[upper] != null) return obj[upper];
+            return null;
+        }
+
+        $(function () {
+            var tm = new Date();
+            // 默认查询近 7 天
+            var dateStr = tm.format("yyyy-MM-dd");
+            var stime = addDayDate(dateStr, -3) + " " + tm.format("HH:mm");
+            var etime = tm.format("yyyy/MM/dd") + " " + tm.format("HH:mm");
+
+            mini.get("STIME").setValue(stime);
+            mini.get("ETIME").setValue(etime);
+            BreakLayerLoad();
+        });
+
+        function btnSearch() {
+            $("#dataLoad").show();
+            setTimeout('BreakLayerLoad()', 100);
+        }
+
+        function BreakLayerLoad() {
+            var startDate = mini.get("STIME").getFormValue();
+            var endDate = mini.get("ETIME").getFormValue();
+            var d1 = formatDate(startDate);
+            var d2 = formatDate(endDate);
+
+            var strWhere = {
+                "pid": PID,
+                "stime": d1.format("yyyy-MM-dd HH:mm:ss"),
+                "etime": d2.format("yyyy-MM-dd HH:mm:ss")
+            };
+
+            // 潮位统计（selectTideTj 直接返回「地理区位」字段，无需二次查询）
+            app.post("GetWaterViewNew/queryTideTj", strWhere, function (data) {
+                var list = (data && data.data) ? data.data : [];
+
+                // 显式拼装行数据，避免字段大小写/缺失导致的列空白
+                var rows = [];
+                for (var k = 0; k < list.length; k++) {
+                    var it = list[k];
+                    var stcd = pick(it, "stcd", "STCD");
+                    rows.push({
+                        stcd: stcd,
+                        stnm: pick(it, "stnm", "STNM"),
+                        bsnm: pick(it, "bsnm", "BSNM") || "",
+                        minz: pick(it, "minz", "MINZ"),
+                        minztm: pick(it, "minztm", "MINZTM"),
+                        maxz: pick(it, "maxz", "MAXZ"),
+                        maxztm: pick(it, "maxztm", "MAXZTM"),
+                        avghz: pick(it, "avghz", "AVGHZ"),
+                        avgz: pick(it, "avgz", "AVGZ"),
+                        wrz: pick(it, "wrz", "WRZ"),
+                        wrzfd: pick(it, "wrzfd", "WRZFD"),
+                        zf: pick(it, "zf", "ZF"),
+                        wrzcs: pick(it, "wrzcs", "WRZCS"),
+                        wrzts: pick(it, "wrzts", "WRZTS"),
+                        wrzsc: pick(it, "wrzsc", "WRZSC")
+                    });
+                }
+                // 按 Excel 顺序排序（不在列表里的排到末尾）
+                rows.sort(function (a, b) {
+                    var ia = orderMap[a.stcd] != null ? orderMap[a.stcd] : 9999;
+                    var ib = orderMap[b.stcd] != null ? orderMap[b.stcd] : 9999;
+                    return ia - ib;
+                });
+                grid.setData(rows);
+                // 合并「地理区位」列相同值的单元格
+                grid.mergeColumns(["bsnm"]);
+                $("#dataLoad").hide();
+            });
+        }
+
+        // 单元格绘制：数值保留两位小数，空值显示 ""
+        function ondrawcell(e) {
+            var field = e.field;
+            if (!field) return;   // 跳过序号列等无字段列
+            var value = e.value;
+            if (value == null || value === "") {
+                e.cellHtml = "";
+                return;
+            }
+            // 警戒水位幅度为负数时显示空
+            if (field === "wrzfd" && Number(value) < 0) {
+                e.cellHtml = "";
+                return;
+            }
+            if(field=="wrzts"||field=="wrzcs"){
+                if(value>0){
+                   e.cellHtml = value;
+                }
+                else{
+                    e.cellHtml ="";
+                }
+            }else{                    
+                e.cellHtml = Number(value).toFixed(2);
+            }
+            if (FLOAT_FIELDS.indexOf(field) >= 0) {
+                if(field=="wrzsc"){
+                    if(value>0){
+                        e.cellHtml = Number(value).toFixed(2);
+                    }
+                    else{
+                        e.cellHtml ="";
+                    }
+                }else{                    
+                    e.cellHtml = Number(value).toFixed(2);
+                }
+            } 
+            else if (TIME_FIELDS.indexOf(field) >= 0 && typeof value === "string") {
+                e.cellHtml = value.substring(0, 16);
+            }
+        }
+
+        function doExport() {
+            var data = grid.getData();
+            if (data && data.length > 0) {
+                ExportExcel(data, grid, "防汛代表站超警水位分析");
+            } else {
+                mini.alert("暂无数据可导出！");
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -168,6 +168,7 @@
     <div class="tab-bar">
         <a class="tab-btn active" id="tabSummary" href="javascript:void(0)" onclick="switchTab('summary')">统计表</a>
         <a class="tab-btn" id="tabDetail" href="javascript:void(0)" onclick="switchTab('detail')">明细表</a>
+        <a class="tab-btn" id="tabArea" href="javascript:void(0)" onclick="switchTab('area')">面雨量特征值</a>
     </div>
 
     <!--主体内容 - 统计视图-->
@@ -248,33 +249,65 @@
                     <div header="最大60min" headerAlign="center">
                         <div property="columns">
                             <div field="max60minDrp" width="80" align="center" headerAlign="center" allowSort="false" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max60minTime" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max60minTime" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大3h" headerAlign="center">
                         <div property="columns">
                             <div field="max3hDrp" width="80" align="center" headerAlign="center" allowSort="false" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max3hTime" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max3hTime" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大6h" headerAlign="center">
                         <div property="columns">
                             <div field="max6hDrp" width="80" align="center" headerAlign="center" allowSort="false" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max6hTime" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max6hTime" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大12h" headerAlign="center">
                         <div property="columns">
                             <div field="max12hDrp" width="80" align="center" headerAlign="center" allowSort="false" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max12hTime" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max12hTime" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
                     <div header="最大24h" headerAlign="center">
                         <div property="columns">
                             <div field="max24hDrp" width="80" align="center" headerAlign="center" allowSort="false" dataType="float" decimalPlaces="1">雨量(mm)</div>
-                            <div field="max24hTime" width="110" align="center" headerAlign="center" allowSort="false">起始时间</div>
+                            <div field="max24hTime" width="110" align="center" headerAlign="center" allowSort="false">开始时间</div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--主体内容 - 面雨量特征值视图-->
+    <div id="viewArea" class="mini-fit"
+        style="height:-webkit-calc(100% - 94px);height:-moz-calc(100% - 94px);height:calc(100% - 94px);overflow:hidden;display:none;">
+        <div class="grid-toolbar">
+            <span class="tb-title">面雨量特征值</span>
+            <a class="export-icon" title="导出数据" href="javascript:void(0)" onclick="doExportArea()">
+                <i class="fa fa-download"></i>
+            </a>
+        </div>
+        <div style="margin:0 0px;height:-webkit-calc(100% - 37px);height:-moz-calc(100% - 37px);height:calc(100% - 37px);">
+            <div id="gridArea" class="mini-datagrid" style="width:100%;height:100%;"
+                allowalternating="true" sizeList="[15,20,30,50,100]" pageSize="50" sortMode="client"
+                allowresize="false" showPager="false" showemptytext="true" emptytext="暂无数据"
+                alwaysshowemptytext="true">
+                <div property="columns">
+                    <div type="indexcolumn" width="45" align="center" headerAlign="center">序号</div>
+                    <div field="addvnm" width="130" align="center" headerAlign="center" allowSort="false">片区名称</div>
+                    <div field="areaMax60min" width="140" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">最大60min面雨量(mm)</div>
+                    <div field="areaMax60minStime" width="140" align="center" headerAlign="center" allowSort="true">开始时间</div>
+                    <div field="areaMax3h" width="120" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">最大3h面雨量(mm)</div>
+                    <div field="areaMax3hStime" width="140" align="center" headerAlign="center" allowSort="true" ">开始时间</div>
+                    <div field="areaMax6h" width="120" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">最大6h面雨量(mm)</div>
+                    <div field="areaMax6hStime" width="140" align="center" headerAlign="center" allowSort="true">开始时间</div>
+                    <div field="areaMax12h" width="120" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">最大12h面雨量(mm)</div>
+                    <div field="areaMax12hStime" width="140" align="center" headerAlign="center" allowSort="true" >开始时间</div>
+                    <div field="areaMax24h" width="120" align="center" headerAlign="center" allowSort="true" dataType="float" decimalPlaces="1">最大24h面雨量(mm)</div>
+                    <div field="areaMax24hStime" width="140" align="center" headerAlign="center" allowSort="true" >开始时间</div>
                 </div>
             </div>
         </div>
@@ -284,6 +317,7 @@
         mini.parse();
         var gridSummary = mini.get("gridSummary");
         var treeDetail = mini.get("treeDetail");
+        var gridArea = mini.get("gridArea");
         var resultData;       // 原始返回数据
         var currentAreaType = "1";  // 1=行政分区, 4=水利片区
 
@@ -304,15 +338,14 @@
             BreakLayerLoad();
         });
 
-        // 切换 统计表/明细表
+        // 切换 统计表/明细表/面雨量特征值
         function switchTab(tab) {
-            if (tab === 'summary') {
-                $("#viewSummary").show(); $("#viewDetail").hide();
-                $("#tabSummary").addClass("active"); $("#tabDetail").removeClass("active");
-            } else {
-                $("#viewSummary").hide(); $("#viewDetail").show();
-                $("#tabDetail").addClass("active"); $("#tabSummary").removeClass("active");
-            }
+            $("#viewSummary").css("display", tab === "summary" ? "block" : "none");
+            $("#viewDetail").css("display", tab === "detail" ? "block" : "none");
+            $("#viewArea").css("display", tab === "area" ? "block" : "none");
+            $("#tabSummary").toggleClass("active", tab === "summary");
+            $("#tabDetail").toggleClass("active", tab === "detail");
+            $("#tabArea").toggleClass("active", tab === "area");
             mini.layout();
         }
 
@@ -371,9 +404,11 @@
             if (data && data.data && data.data.length > 0) {
                 fillSummaryGrid(data.data);
                 fillTreeDetail(data.data);
+                fillAreaGrid(data.data);
             } else {
                 gridSummary.setData([]);
                 treeDetail.loadList([], "uid", "pid");
+                gridArea.setData([]);
             }
             $("#dataLoad").hide();
         }
@@ -381,6 +416,8 @@
         // ========== 统计表 ==========
         function fillSummaryGrid(dataList) {
             var rows = [];
+            // 第一行：全市汇总
+            rows.push(buildCityRow(dataList));
             for (var i = 0; i < dataList.length; i++) {
                 var it = dataList[i];
                 rows.push({
@@ -398,10 +435,74 @@
                     max12hStnm: it.max12hStnm || "--",
                     max24hDrp: it.max24hDrp != null ? it.max24hDrp : null,
                     max24hStnm: it.max24hStnm || "--",
-                    stationCount: it.stationCount != null ? it.stationCount : (it.stations ? it.stations.length : 0)
+                    stationCount: (it.stations ? it.stations.length : (it.stationCount != null ? it.stationCount : 0))
                 });
             }
             gridSummary.setData(rows);
+        }
+
+        // 计算全市汇总行
+        function buildCityRow(dataList) {
+            var city = {
+                addvnm: "全市",
+                avgDrp: null,
+                maxDrp: null,
+                maxStnm: "--",
+                max1hDrp: null, max1hStnm: "--",
+                max3hDrp: null, max3hStnm: "--",
+                max6hDrp: null, max6hStnm: "--",
+                max12hDrp: null, max12hStnm: "--",
+                max24hDrp: null, max24hStnm: "--",
+                stationCount: 0
+            };
+
+            var sum = 0, cnt = 0;
+            var stcdSet = {};
+            var durKeys = [
+                { drp: "max1hDrp", stnm: "max1hStnm" },
+                { drp: "max3hDrp", stnm: "max3hStnm" },
+                { drp: "max6hDrp", stnm: "max6hStnm" },
+                { drp: "max12hDrp", stnm: "max12hStnm" },
+                { drp: "max24hDrp", stnm: "max24hStnm" }
+            ];
+
+            for (var i = 0; i < dataList.length; i++) {
+                var area = dataList[i];
+                var stations = area.stations || [];
+
+                // 站点数 & 面雨量：按站码去重统计实际站点
+                for (var j = 0; j < stations.length; j++) {
+                    var st = stations[j];
+                    var key = st.stcd || (st.stnm + "_" + i + "_" + j);
+                    if (!stcdSet[key]) {
+                        stcdSet[key] = true;
+                        city.stationCount++;
+                        if (st.totalDrp != null) {
+                            sum += st.totalDrp;
+                            cnt++;
+                        }
+                    }
+                }
+
+                // 最大站雨量
+                if (area.maxDrp != null && (city.maxDrp == null || area.maxDrp > city.maxDrp)) {
+                    city.maxDrp = area.maxDrp;
+                    city.maxStnm = area.maxStnm || "--";
+                }
+
+                // 各时段最大值
+                for (var k = 0; k < durKeys.length; k++) {
+                    var dk = durKeys[k];
+                    var val = area[dk.drp];
+                    if (val != null && (city[dk.drp] == null || val > city[dk.drp])) {
+                        city[dk.drp] = val;
+                        city[dk.stnm] = area[dk.stnm] || "--";
+                    }
+                }
+            }
+
+            if (cnt > 0) city.avgDrp = sum / cnt;
+            return city;
         }
 
         // ========== 明细表（树形） ==========
@@ -519,19 +620,66 @@
                         { field: "stnm", header: "站名" },
                         { field: "totalDrp", header: "累计雨量(mm)" },
                         { field: "max60minDrp", header: "最大60min雨量(mm)" },
-                        { field: "max60minTime", header: "最大60min起始时间" },
+                        { field: "max60minTime", header: "最大60min开始时间" },
                         { field: "max3hDrp", header: "最大3h雨量(mm)" },
-                        { field: "max3hTime", header: "最大3h起始时间" },
+                        { field: "max3hTime", header: "最大3h开始时间" },
                         { field: "max6hDrp", header: "最大6h雨量(mm)" },
-                        { field: "max6hTime", header: "最大6h起始时间" },
+                        { field: "max6hTime", header: "最大6h开始时间" },
                         { field: "max12hDrp", header: "最大12h雨量(mm)" },
-                        { field: "max12hTime", header: "最大12h起始时间" },
+                        { field: "max12hTime", header: "最大12h开始时间" },
                         { field: "max24hDrp", header: "最大24h雨量(mm)" },
-                        { field: "max24hTime", header: "最大24h起始时间" }
+                        { field: "max24hTime", header: "最大24h开始时间" }
                     ],
                     data: stationData
                 };
                 ExportExcel(stationData, mockGrid, "各站明细表_" + getAreaTypeLabel());
+            } else {
+                mini.alert("暂无数据可导出！");
+            }
+        }
+
+        // ========== 面雨量特征值 ==========
+        function fillAreaGrid(dataList) {
+            var rows = [];
+            for (var i = 0; i < dataList.length; i++) {
+                var it = dataList[i];
+                rows.push({
+                    addvnm: it.addvnm || "--",
+                    areaMax60min: it.areaMax60min != null ? it.areaMax60min : null,
+                    areaMax3h: it.areaMax3h != null ? it.areaMax3h : null,
+                    areaMax6h: it.areaMax6h != null ? it.areaMax6h : null,
+                    areaMax12h: it.areaMax12h != null ? it.areaMax12h : null,
+                    areaMax24h: it.areaMax24h != null ? it.areaMax24h : null,
+                    areaMax60minStime: it.areaMax60minStime != null ? formatStime(it.areaMax60minStime) : null,
+                    areaMax3hStime: it.areaMax3hStime != null ? formatStime(it.areaMax3hStime ): null,
+                    areaMax6hStime: it.areaMax6hStime != null ? formatStime(it.areaMax6hStime) : null,
+                    areaMax12hStime: it.areaMax12hStime != null ? formatStime(it.areaMax12hStime ): null,
+                    areaMax24hStime: it.areaMax24hStime != null ? formatStime(it.areaMax24hStime) : null
+                });
+            }
+            gridArea.setData(rows);
+        }
+
+        function doExportArea() {
+            var data = gridArea.getData();
+            if (data && data.length > 0) {
+                var mockGrid = {
+                    columns: [
+                        { field: "addvnm", header: "片区名称" },
+                        { field: "areaMax60min", header: "最大60min面雨量(mm)" },
+                        { field: "areaMax60minStime", header: "开始时间" },
+                        { field: "areaMax3h", header: "最大3h面雨量(mm)" },
+                        { field: "areaMax3hStime", header: "开始时间" },
+                        { field: "areaMax6h", header: "最大6h面雨量(mm)" },
+                        { field: "areaMax6hStime", header: "开始时间" },
+                        { field: "areaMax12h", header: "最大12h面雨量(mm)" },
+                        { field: "areaMax12hStime", header: "开始时间" },
+                        { field: "areaMax24h", header: "最大24h面雨量(mm)" },
+                        { field: "areaMax24hStime", header: "开始时间" },
+                    ],
+                    data: data
+                };
+                ExportExcel(data, mockGrid, "面雨量特征值_" + getAreaTypeLabel());
             } else {
                 mini.alert("暂无数据可导出！");
             }
